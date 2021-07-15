@@ -1,0 +1,599 @@
+object frmMain: TfrmMain
+  Left = 444
+  Height = 577
+  Top = 439
+  Width = 1141
+  Caption = 'Max Sick Gains'
+  ClientHeight = 543
+  ClientWidth = 1141
+  DesignTimePPI = 168
+  Menu = MainMenu1
+  Position = poDesktopCenter
+  ShowHint = True
+  LCLVersion = '2.0.10.0'
+  object PageControl1: TPageControl
+    Left = 0
+    Height = 500
+    Top = 0
+    Width = 1141
+    ActivePage = TabSheet3
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 0
+    object TabSheet3: TTabSheet
+      Caption = 'Player'
+      ClientHeight = 457
+      ClientWidth = 1133
+      object Panel4: TPanel
+        Left = 0
+        Height = 457
+        Top = 0
+        Width = 220
+        Align = alLeft
+        AutoSize = True
+        BevelOuter = bvNone
+        Caption = 'Panel4'
+        ClientHeight = 457
+        ClientWidth = 220
+        TabOrder = 0
+        object ListBox2: TListBox
+          AnchorSideLeft.Control = Panel4
+          AnchorSideTop.Control = Label2
+          AnchorSideTop.Side = asrBottom
+          AnchorSideBottom.Control = Panel4
+          AnchorSideBottom.Side = asrBottom
+          Left = 12
+          Height = 391
+          Hint = 'Right click to add/delete fitness levels the player will have'
+          Top = 58
+          Width = 208
+          Anchors = [akTop, akLeft, akBottom]
+          BorderSpacing.Left = 12
+          BorderSpacing.Top = 8
+          BorderSpacing.Bottom = 8
+          ItemHeight = 0
+          TabOrder = 0
+        end
+        object Label2: TLabel
+          AnchorSideLeft.Control = ListBox2
+          AnchorSideTop.Control = Panel4
+          AnchorSideRight.Control = ListBox2
+          AnchorSideRight.Side = asrBottom
+          Left = 12
+          Height = 38
+          Top = 12
+          Width = 208
+          Alignment = taCenter
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = False
+          BorderSpacing.Top = 12
+          Caption = 'Fitness levels'
+          Color = clBlack
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clWhite
+          Font.Height = -26
+          Font.Name = 'Segoe UI'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          Transparent = False
+        end
+      end
+      object Panel5: TPanel
+        AnchorSideLeft.Control = Panel4
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = TabSheet3
+        AnchorSideRight.Control = TabSheet3
+        AnchorSideRight.Side = asrBottom
+        AnchorSideBottom.Control = TabSheet3
+        AnchorSideBottom.Side = asrBottom
+        Left = 232
+        Height = 437
+        Top = 12
+        Width = 889
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BorderSpacing.Left = 12
+        BorderSpacing.Top = 12
+        BorderSpacing.Right = 12
+        BorderSpacing.Bottom = 8
+        BevelOuter = bvLowered
+        ClientHeight = 437
+        ClientWidth = 889
+        TabOrder = 1
+        object GroupBox2: TGroupBox
+          Left = 16
+          Height = 272
+          Top = 16
+          Width = 256
+          Caption = 'Fitness levels'
+          ClientHeight = 237
+          ClientWidth = 252
+          TabOrder = 0
+          object SpinEdit1: TSpinEdit
+            AnchorSideLeft.Control = SpinEdit2
+            AnchorSideTop.Control = GroupBox2
+            Left = 124
+            Height = 38
+            Hint = 'If you train hard and sleep 10 hours a day, this is the minimum number of in-game days you are expected to be at this fitness level.'
+            Top = 8
+            Width = 104
+            BorderSpacing.Top = 8
+            MaxValue = 1000
+            MinValue = 1
+            TabOrder = 0
+            Value = 30
+          end
+          object SpinEdit3: TSpinEdit
+            AnchorSideLeft.Control = SpinEdit2
+            AnchorSideTop.Control = SpinEdit2
+            AnchorSideTop.Side = asrBottom
+            Left = 124
+            Height = 38
+            Hint = 'You will never look like you are above this weight on the Bodyslide assigned to this fitness level.'
+            Top = 116
+            Width = 104
+            BorderSpacing.Top = 8
+            TabOrder = 1
+            Value = 100
+          end
+          object lblMinDays: TLabel
+            AnchorSideLeft.Control = GroupBox2
+            AnchorSideTop.Control = SpinEdit1
+            AnchorSideTop.Side = asrCenter
+            AnchorSideRight.Control = SpinEdit1
+            Left = 8
+            Height = 30
+            Top = 12
+            Width = 84
+            BorderSpacing.Left = 8
+            Caption = 'Min days'
+            ParentColor = False
+          end
+          object SpinEdit2: TSpinEdit
+            AnchorSideLeft.Control = Label4
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = SpinEdit1
+            AnchorSideTop.Side = asrBottom
+            Left = 124
+            Height = 38
+            Hint = 'You will never look like you are below this weight on the Bodyslide assigned to this fitness level.'
+            Top = 70
+            Width = 104
+            BorderSpacing.Left = 12
+            BorderSpacing.Top = 24
+            TabOrder = 2
+          end
+          object Label4: TLabel
+            AnchorSideLeft.Control = lblMinDays
+            AnchorSideTop.Control = SpinEdit2
+            AnchorSideTop.Side = asrCenter
+            Left = 8
+            Height = 30
+            Top = 74
+            Width = 104
+            Caption = 'Min weight'
+            ParentColor = False
+          end
+          object Label5: TLabel
+            AnchorSideLeft.Control = lblMinDays
+            AnchorSideTop.Control = SpinEdit3
+            AnchorSideTop.Side = asrCenter
+            Left = 8
+            Height = 30
+            Top = 120
+            Width = 108
+            Caption = 'Max weight'
+            ParentColor = False
+          end
+          object Label6: TLabel
+            AnchorSideLeft.Control = lblMinDays
+            AnchorSideTop.Control = seBlendPeriod
+            AnchorSideTop.Side = asrCenter
+            Left = 8
+            Height = 30
+            Top = 166
+            Width = 76
+            Caption = 'Blend at'
+            ParentColor = False
+          end
+          object seBlendPeriod: TSpinEdit
+            AnchorSideLeft.Control = SpinEdit2
+            AnchorSideTop.Control = SpinEdit3
+            AnchorSideTop.Side = asrBottom
+            Left = 124
+            Height = 38
+            Hint = 'This Bodyslide and the one at next fitness level will blend at this time frame'
+            Top = 162
+            Width = 80
+            BorderSpacing.Top = 8
+            MaxValue = 40
+            TabOrder = 3
+            Value = 20
+          end
+          object lblBlendPercent: TLabel
+            AnchorSideLeft.Control = seBlendPeriod
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = Label6
+            Left = 212
+            Height = 30
+            Top = 166
+            Width = 17
+            BorderSpacing.Left = 8
+            Caption = '%'
+            ParentColor = False
+          end
+        end
+        object Panel6: TPanel
+          Left = 1
+          Height = 76
+          Top = 360
+          Width = 887
+          Align = alBottom
+          BevelOuter = bvLowered
+          Caption = 'Assign at least one fitness level to see a preview'
+          ClientHeight = 76
+          ClientWidth = 887
+          TabOrder = 1
+          object GCPlayer: TBGRAGraphicControl
+            Left = 1
+            Height = 74
+            Top = 1
+            Width = 885
+            Align = alClient
+            OnRedraw = GCPlayerRedraw
+            Color = clWhite
+            ColorOpacity = 128
+            Alignment = taCenter
+          end
+        end
+      end
+    end
+    object TabSheet1: TTabSheet
+      Caption = 'Fitness levels'
+      ClientHeight = 457
+      ClientWidth = 1133
+      object ListBox1: TListBox
+        AnchorSideBottom.Side = asrBottom
+        Left = 16
+        Height = 378
+        Top = 64
+        Width = 208
+        Anchors = [akTop, akLeft, akBottom]
+        Items.Strings = (
+          '01: Obese'
+          '02: Flabby'
+          '03: Plain'
+          '04: Athletic'
+        )
+        ItemHeight = 30
+        TabOrder = 0
+      end
+      object Panel1: TPanel
+        Left = 16
+        Height = 40
+        Top = 16
+        Width = 208
+        BevelInner = bvLowered
+        BevelOuter = bvNone
+        ClientHeight = 40
+        ClientWidth = 208
+        TabOrder = 1
+        object Label1: TLabel
+          Left = 1
+          Height = 38
+          Top = 1
+          Width = 206
+          Align = alClient
+          Alignment = taCenter
+          AutoSize = False
+          Caption = 'Fitness levels'
+          Color = clBlack
+          Font.CharSet = ANSI_CHARSET
+          Font.Color = clWhite
+          Font.Height = -26
+          Font.Name = 'Segoe UI'
+          Font.Pitch = fpVariable
+          Font.Quality = fqDraft
+          Font.Style = [fsBold]
+          ParentColor = False
+          ParentFont = False
+          Transparent = False
+        end
+      end
+      object Panel2: TPanel
+        AnchorSideRight.Control = TabSheet1
+        AnchorSideRight.Side = asrBottom
+        AnchorSideBottom.Side = asrBottom
+        Left = 240
+        Height = 418
+        Top = 24
+        Width = 885
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BorderSpacing.Right = 8
+        BevelInner = bvLowered
+        BevelOuter = bvNone
+        ClientHeight = 418
+        ClientWidth = 885
+        TabOrder = 2
+        object GroupBox1: TGroupBox
+          Left = 8
+          Height = 80
+          Top = 16
+          Width = 344
+          Caption = 'Name'
+          ClientHeight = 45
+          ClientWidth = 340
+          TabOrder = 0
+          object Edit1: TEdit
+            AnchorSideRight.Side = asrBottom
+            Left = 8
+            Height = 38
+            Hint = 'When the player reaches this state, a game notification will tell you "You are now <name>"'
+            Top = 0
+            Width = 320
+            Anchors = [akTop, akLeft, akRight]
+            TabOrder = 0
+            TextHint = 'This will be shown in game'
+          end
+        end
+        object GroupBox3: TGroupBox
+          Left = 8
+          Height = 80
+          Top = 104
+          Width = 612
+          Caption = 'Female Bodyslide'
+          ClientHeight = 45
+          ClientWidth = 608
+          TabOrder = 1
+          object FileNameEdit1: TFileNameEdit
+            Left = 8
+            Height = 38
+            Hint = 'How women will look like when being in this state'
+            Top = 0
+            Width = 588
+            DialogOptions = [ofFileMustExist, ofEnableSizing, ofViewDetail]
+            Filter = 'Bodyslide presets (*.xml)|*.xml'
+            FilterIndex = 0
+            DefaultExt = '*.xml'
+            HideDirectories = False
+            ButtonWidth = 40
+            NumGlyphs = 1
+            MaxLength = 0
+            TabOrder = 0
+            TextHint = 'Women will look like this while being in this state'
+          end
+        end
+        object GroupBox6: TGroupBox
+          AnchorSideTop.Control = GroupBox3
+          AnchorSideTop.Side = asrBottom
+          AnchorSideBottom.Side = asrBottom
+          Left = 8
+          Height = 221
+          Top = 192
+          Width = 340
+          Anchors = [akTop, akLeft, akBottom]
+          BorderSpacing.Top = 8
+          Caption = 'Classes'
+          ClientHeight = 186
+          ClientWidth = 336
+          TabOrder = 2
+          object CheckListBox1: TCheckListBox
+            AnchorSideLeft.Control = GroupBox6
+            AnchorSideTop.Control = GroupBox6
+            AnchorSideRight.Control = GroupBox6
+            AnchorSideRight.Side = asrBottom
+            AnchorSideBottom.Control = CheckBox2
+            Left = 6
+            Height = 128
+            Hint = 'Only classes containing these words in EDID will be allowed to use this state'
+            Top = 0
+            Width = 324
+            Anchors = [akTop, akLeft, akRight, akBottom]
+            BorderSpacing.Left = 6
+            BorderSpacing.Right = 6
+            BorderSpacing.Bottom = 16
+            Items.Strings = (
+              'Apothecary'
+              'Archer'
+              'Assassin'
+              'Bandit'
+              'Barbarian'
+              'Bard'
+              'Beggar'
+              'Blacksmith'
+              'Blade'
+              'Citizen'
+              'Conjurer'
+              'Dremora'
+              'Farmer'
+              'Fletcher'
+              'Forsworn'
+              'Guard'
+              'Hero'
+              'Jailor'
+              'Lumberjack'
+              'Mage'
+              'Miner'
+              'Monk'
+              'Mystic'
+              'Nightblade'
+              'Pawnbroker'
+              'Penitus Oculatus'
+              'Priest'
+              'Prisoner'
+              'Ranger'
+              'Rogue'
+              'Scout'
+              'Soldier'
+              'Sorcerer'
+              'Spellsword'
+              'Tailor'
+              'Thalmor'
+              'Thief'
+              'Vampire'
+              'Vendor'
+              'Vigilant'
+              'Warrior'
+              'Witchblade'
+              'Wizard'
+            )
+            ItemHeight = 31
+            TabOrder = 0
+            Data = {
+              2B00000000000000000000000000000000000000000000000000000000000000
+              000000000000000000000000000000
+            }
+          end
+          object CheckBox2: TCheckBox
+            AnchorSideLeft.Control = GroupBox6
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = GroupBox6
+            AnchorSideBottom.Control = GroupBox6
+            Left = 6
+            Height = 34
+            Hint = 'This state will be used when an NPC doesn''t belong to any of the classes above'
+            Top = 144
+            Width = 324
+            Align = alBottom
+            BorderSpacing.Left = 6
+            BorderSpacing.Right = 6
+            BorderSpacing.Bottom = 8
+            Caption = 'Default state'
+            TabOrder = 1
+          end
+        end
+        object GroupBox7: TGroupBox
+          AnchorSideTop.Control = GroupBox3
+          AnchorSideTop.Side = asrBottom
+          AnchorSideBottom.Side = asrBottom
+          Left = 360
+          Height = 229
+          Top = 184
+          Width = 292
+          Anchors = [akTop, akLeft, akBottom]
+          Caption = 'Races'
+          ClientHeight = 194
+          ClientWidth = 288
+          TabOrder = 3
+          object CheckListBox2: TCheckListBox
+            AnchorSideLeft.Control = GroupBox7
+            AnchorSideTop.Control = GroupBox7
+            AnchorSideRight.Control = GroupBox7
+            AnchorSideRight.Side = asrBottom
+            AnchorSideBottom.Control = GroupBox7
+            AnchorSideBottom.Side = asrBottom
+            Left = 6
+            Height = 186
+            Hint = 'Only races with this EDID will be allowed to use this state'
+            Top = 0
+            Width = 276
+            Anchors = [akTop, akLeft, akRight, akBottom]
+            BorderSpacing.Left = 6
+            BorderSpacing.Right = 6
+            BorderSpacing.Bottom = 8
+            Items.Strings = (
+              'ArgonianRace'
+              'ArgonianRaceVampire'
+              'BretonRace'
+              'BretonRaceVampire'
+              'DarkElfRace'
+              'DarkElfRaceVampire'
+              'DremoraRace'
+              'ElderRace'
+              'ElderRaceVampire'
+              'HighElfRace'
+              'HighElfRaceVampire'
+              'ImperialRace'
+              'ImperialRaceVampire'
+              'KhajiitRace'
+              'KhajiitRaceVampire'
+              'NordRace'
+              'NordRaceAstrid'
+              'NordRaceVampire'
+              'OrcRace'
+              'OrcRaceVampire'
+              'RedguardRace'
+              'RedguardRaceVampire'
+              'WoodElfRace'
+              'WoodElfRaceVampire'
+            )
+            ItemHeight = 31
+            TabOrder = 0
+            Data = {
+              18000000000000000000000000000000000000000000000000000000
+            }
+          end
+        end
+        object GroupBox8: TGroupBox
+          AnchorSideBottom.Side = asrBottom
+          Left = 664
+          Height = 221
+          Top = 192
+          Width = 248
+          Anchors = [akTop, akLeft, akBottom]
+          Caption = 'Player''s journey'
+          ClientHeight = 186
+          ClientWidth = 244
+          TabOrder = 4
+          object Memo1: TMemo
+            AnchorSideLeft.Control = GroupBox8
+            AnchorSideTop.Control = GroupBox8
+            AnchorSideRight.Control = GroupBox8
+            AnchorSideRight.Side = asrBottom
+            AnchorSideBottom.Control = GroupBox8
+            AnchorSideBottom.Side = asrBottom
+            Left = 6
+            Height = 178
+            Top = 0
+            Width = 232
+            Anchors = [akTop, akLeft, akRight, akBottom]
+            BorderSpacing.Left = 6
+            BorderSpacing.Right = 6
+            BorderSpacing.Bottom = 8
+            ReadOnly = True
+            ScrollBars = ssAutoBoth
+            TabOrder = 0
+          end
+        end
+        object Panel3: TPanel
+          AnchorSideLeft.Side = asrBottom
+          AnchorSideRight.Control = Panel2
+          AnchorSideRight.Side = asrBottom
+          Left = 698
+          Height = 80
+          Top = 16
+          Width = 179
+          Anchors = [akTop, akLeft, akRight]
+          BorderSpacing.Left = 8
+          BorderSpacing.Right = 7
+          BevelInner = bvLowered
+          TabOrder = 5
+        end
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = 'NPC'
+    end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 43
+    Top = 500
+    Width = 1141
+    AutoHint = True
+    Panels = <    
+      item
+        Width = 50
+      end>
+    SimplePanel = False
+  end
+  object MainMenu1: TMainMenu
+    Left = 96
+    Top = 224
+    object MenuItem1: TMenuItem
+      Caption = 'File'
+    end
+  end
+end
