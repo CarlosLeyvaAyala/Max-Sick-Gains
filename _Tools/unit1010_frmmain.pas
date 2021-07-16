@@ -5,16 +5,16 @@ unit unit1010_frmMain;
 interface
 
 uses
-  SysUtils, Forms, Controls, Graphics, ComCtrls, Menus,
-  StdCtrls, ExtCtrls, Spin, EditBtn, CheckLst, BGRAGraphicControl,
-  BGRABitmap, BGRAClasses,
-  BGRABitmapTypes;
+  SysUtils, Forms, Controls, Graphics, ComCtrls, Menus, StdCtrls, ExtCtrls,
+  Spin, EditBtn, CheckLst, LazHelpHTML, RTTICtrls, BGRAGraphicControl, HtmlView,
+  BGRABitmap, BGRAClasses, BGRABitmapTypes;
 
 type
 
   { TfrmMain }
 
   TfrmMain = class(TForm)
+    chkBSInvert: TCheckBox;
     GCPlayer: TBGRAGraphicControl;
     CheckBox2: TCheckBox;
     CheckListBox1: TCheckListBox;
@@ -23,12 +23,14 @@ type
     FileNameEdit1: TFileNameEdit;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
+    grpBSPlayerOpt: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox6: TGroupBox;
     GroupBox7: TGroupBox;
     GroupBox8: TGroupBox;
     Label1: TLabel;
     Label2: TLabel;
+    lblBSBlendTotalDays: TLabel;
     lblBlendPercent: TLabel;
     lblMinDays: TLabel;
     Label4: TLabel;
@@ -40,20 +42,25 @@ type
     Memo1: TMemo;
     MenuItem1: TMenuItem;
     PageControl1: TPageControl;
+    PageControl2: TPageControl;
     Panel1: TPanel;
     Panel2: TPanel;
     Panel3: TPanel;
     Panel4: TPanel;
     Panel5: TPanel;
     Panel6: TPanel;
-    SpinEdit1: TSpinEdit;
-    SpinEdit2: TSpinEdit;
-    SpinEdit3: TSpinEdit;
-    seBlendPeriod: TSpinEdit;
+    Panel7: TPanel;
+    pnBsPlayerPreview: TPanel;
+    seBsDays: TSpinEdit;
+    seBSMinW: TSpinEdit;
+    seBSMaxW: TSpinEdit;
+    seBSBlend: TSpinEdit;
     StatusBar1: TStatusBar;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
     TabSheet3: TTabSheet;
+    TabSheet4: TTabSheet;
+    TabSheet5: TTabSheet;
     procedure GCPlayerRedraw(Sender: TObject; b: TBGRABitmap);
     procedure pbPlayerJourneyPaint(Sender: TObject);
   private

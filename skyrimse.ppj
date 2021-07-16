@@ -1,0 +1,37 @@
+<?xml version='1.0'?><!-- Game is either sse, tesv, or fo4 -->
+<PapyrusProject xmlns="PapyrusProject.xsd"
+    Flags="TESV_Papyrus_Flags.flg"
+    Game="sse"
+    Output="Scripts"
+    Optimize="true"
+    Anonymize="true"
+    Package="false"
+    Release="true"
+    Final="false">
+    <Variables>
+        <Variable Name="mod" Value="Max Sick Gains"/>
+        <Variable Name="version" Value="0.0"/>
+        <Variable Name="MO" Value="F:\Skyrim SE\MO2\mods"/>
+        <Variable Name="lib" Value="@MO\DM-SkyrimSE-Library\scripts"/>
+        <Variable Name="Skyrim" Value="F:\Steam\steamapps\common\Skyrim Special Edition"/>
+    </Variables>
+
+    <Imports>
+        <Import>.\Scripts\Source</Import>
+        <Import>@Skyrim\Data\Scripts\Source</Import>
+        <Import>@MO\FileAccess Interface for Skyrim SE Scripts - FISSES\scripts\source</Import>
+        <Import>@MO\PapyrusUtil SE - Modders Scripting Utility Functions\Scripts\Source</Import>
+        <Import>@MO\JContainers SE\scripts\source</Import>
+        <Import>@MO\Racemenu-src\scripts\source</Import>
+        <Import>@MO\SkyUI\scripts\source</Import>
+        <Import>@MO\SkyUI_5.1_SDK\Scripts\source</Import>
+        <Import>@MO\SexLabFrameworkSE v163 BETA8\scripts\Source\</Import>
+        <Import>@MO\Fores New Idles in Skyrim SE - FNIS SE\source\scripts\</Import>
+        <Import>@MO\FNIS Creature Pack SE 7.0\source\scripts\</Import>
+        <Import>@MO\JContainers SE\scripts\source</Import>
+        <Import>@lib\Source</Import>
+    </Imports>
+    <Folders>
+        <Folder>.\Scripts\Source</Folder>
+    </Folders>
+</PapyrusProject>

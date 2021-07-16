@@ -1,11 +1,11 @@
 object frmMain: TfrmMain
   Left = 444
-  Height = 577
+  Height = 704
   Top = 439
-  Width = 1141
+  Width = 1181
   Caption = 'Max Sick Gains'
-  ClientHeight = 543
-  ClientWidth = 1141
+  ClientHeight = 670
+  ClientWidth = 1181
   DesignTimePPI = 168
   Menu = MainMenu1
   Position = poDesktopCenter
@@ -13,251 +13,355 @@ object frmMain: TfrmMain
   LCLVersion = '2.0.10.0'
   object PageControl1: TPageControl
     Left = 0
-    Height = 500
+    Height = 627
     Top = 0
-    Width = 1141
+    Width = 1181
     ActivePage = TabSheet3
     Align = alClient
     TabIndex = 0
     TabOrder = 0
     object TabSheet3: TTabSheet
       Caption = 'Player'
-      ClientHeight = 457
-      ClientWidth = 1133
-      object Panel4: TPanel
+      ClientHeight = 584
+      ClientWidth = 1173
+      object PageControl2: TPageControl
         Left = 0
-        Height = 457
+        Height = 584
         Top = 0
-        Width = 220
-        Align = alLeft
-        AutoSize = True
-        BevelOuter = bvNone
-        Caption = 'Panel4'
-        ClientHeight = 457
-        ClientWidth = 220
+        Width = 1173
+        ActivePage = TabSheet4
+        Align = alClient
+        TabIndex = 0
         TabOrder = 0
-        object ListBox2: TListBox
-          AnchorSideLeft.Control = Panel4
-          AnchorSideTop.Control = Label2
-          AnchorSideTop.Side = asrBottom
-          AnchorSideBottom.Control = Panel4
-          AnchorSideBottom.Side = asrBottom
-          Left = 12
-          Height = 391
-          Hint = 'Right click to add/delete fitness levels the player will have'
-          Top = 58
-          Width = 208
-          Anchors = [akTop, akLeft, akBottom]
-          BorderSpacing.Left = 12
-          BorderSpacing.Top = 8
-          BorderSpacing.Bottom = 8
-          ItemHeight = 0
-          TabOrder = 0
-        end
-        object Label2: TLabel
-          AnchorSideLeft.Control = ListBox2
-          AnchorSideTop.Control = Panel4
-          AnchorSideRight.Control = ListBox2
-          AnchorSideRight.Side = asrBottom
-          Left = 12
-          Height = 38
-          Top = 12
-          Width = 208
-          Alignment = taCenter
-          Anchors = [akTop, akLeft, akRight]
-          AutoSize = False
-          BorderSpacing.Top = 12
+        object TabSheet4: TTabSheet
           Caption = 'Fitness levels'
-          Color = clBlack
-          Font.CharSet = ANSI_CHARSET
-          Font.Color = clWhite
-          Font.Height = -26
-          Font.Name = 'Segoe UI'
-          Font.Pitch = fpVariable
-          Font.Quality = fqDraft
-          Font.Style = [fsBold]
-          ParentColor = False
-          ParentFont = False
-          Transparent = False
-        end
-      end
-      object Panel5: TPanel
-        AnchorSideLeft.Control = Panel4
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideTop.Control = TabSheet3
-        AnchorSideRight.Control = TabSheet3
-        AnchorSideRight.Side = asrBottom
-        AnchorSideBottom.Control = TabSheet3
-        AnchorSideBottom.Side = asrBottom
-        Left = 232
-        Height = 437
-        Top = 12
-        Width = 889
-        Anchors = [akTop, akLeft, akRight, akBottom]
-        BorderSpacing.Left = 12
-        BorderSpacing.Top = 12
-        BorderSpacing.Right = 12
-        BorderSpacing.Bottom = 8
-        BevelOuter = bvLowered
-        ClientHeight = 437
-        ClientWidth = 889
-        TabOrder = 1
-        object GroupBox2: TGroupBox
-          Left = 16
-          Height = 272
-          Top = 16
-          Width = 256
-          Caption = 'Fitness levels'
-          ClientHeight = 237
-          ClientWidth = 252
-          TabOrder = 0
-          object SpinEdit1: TSpinEdit
-            AnchorSideLeft.Control = SpinEdit2
-            AnchorSideTop.Control = GroupBox2
-            Left = 124
-            Height = 38
-            Hint = 'If you train hard and sleep 10 hours a day, this is the minimum number of in-game days you are expected to be at this fitness level.'
-            Top = 8
-            Width = 104
-            BorderSpacing.Top = 8
-            MaxValue = 1000
-            MinValue = 1
+          ClientHeight = 541
+          ClientWidth = 1165
+          object Panel4: TPanel
+            Left = 0
+            Height = 541
+            Top = 0
+            Width = 220
+            Align = alLeft
+            AutoSize = True
+            BevelOuter = bvNone
+            Caption = 'Panel4'
+            ClientHeight = 541
+            ClientWidth = 220
             TabOrder = 0
-            Value = 30
+            object ListBox2: TListBox
+              AnchorSideLeft.Control = Panel4
+              AnchorSideTop.Control = Label2
+              AnchorSideTop.Side = asrBottom
+              AnchorSideBottom.Control = Panel4
+              AnchorSideBottom.Side = asrBottom
+              Left = 12
+              Height = 475
+              Hint = 'Right click to add/delete fitness levels the player will have'
+              Top = 58
+              Width = 208
+              Anchors = [akTop, akLeft, akBottom]
+              BorderSpacing.Left = 12
+              BorderSpacing.Top = 8
+              BorderSpacing.Bottom = 8
+              ItemHeight = 0
+              TabOrder = 0
+            end
+            object Label2: TLabel
+              AnchorSideLeft.Control = ListBox2
+              AnchorSideTop.Control = Panel4
+              AnchorSideRight.Control = ListBox2
+              AnchorSideRight.Side = asrBottom
+              Left = 12
+              Height = 38
+              Top = 12
+              Width = 208
+              Alignment = taCenter
+              Anchors = [akTop, akLeft, akRight]
+              AutoSize = False
+              BorderSpacing.Top = 12
+              Caption = 'Fitness levels'
+              Color = clBlack
+              Font.CharSet = ANSI_CHARSET
+              Font.Color = clWhite
+              Font.Height = -26
+              Font.Name = 'Segoe UI'
+              Font.Pitch = fpVariable
+              Font.Quality = fqDraft
+              Font.Style = [fsBold]
+              ParentColor = False
+              ParentFont = False
+              Transparent = False
+            end
           end
-          object SpinEdit3: TSpinEdit
-            AnchorSideLeft.Control = SpinEdit2
-            AnchorSideTop.Control = SpinEdit2
-            AnchorSideTop.Side = asrBottom
-            Left = 124
-            Height = 38
-            Hint = 'You will never look like you are above this weight on the Bodyslide assigned to this fitness level.'
-            Top = 116
-            Width = 104
-            BorderSpacing.Top = 8
-            TabOrder = 1
-            Value = 100
-          end
-          object lblMinDays: TLabel
-            AnchorSideLeft.Control = GroupBox2
-            AnchorSideTop.Control = SpinEdit1
-            AnchorSideTop.Side = asrCenter
-            AnchorSideRight.Control = SpinEdit1
-            Left = 8
-            Height = 30
+          object Panel5: TPanel
+            AnchorSideLeft.Control = Panel4
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = TabSheet4
+            AnchorSideRight.Control = TabSheet4
+            AnchorSideRight.Side = asrBottom
+            AnchorSideBottom.Control = TabSheet4
+            AnchorSideBottom.Side = asrBottom
+            Left = 232
+            Height = 521
             Top = 12
-            Width = 84
-            BorderSpacing.Left = 8
-            Caption = 'Min days'
-            ParentColor = False
-          end
-          object SpinEdit2: TSpinEdit
-            AnchorSideLeft.Control = Label4
-            AnchorSideLeft.Side = asrBottom
-            AnchorSideTop.Control = SpinEdit1
-            AnchorSideTop.Side = asrBottom
-            Left = 124
-            Height = 38
-            Hint = 'You will never look like you are below this weight on the Bodyslide assigned to this fitness level.'
-            Top = 70
-            Width = 104
+            Width = 921
+            Anchors = [akTop, akLeft, akRight, akBottom]
             BorderSpacing.Left = 12
-            BorderSpacing.Top = 24
-            TabOrder = 2
-          end
-          object Label4: TLabel
-            AnchorSideLeft.Control = lblMinDays
-            AnchorSideTop.Control = SpinEdit2
-            AnchorSideTop.Side = asrCenter
-            Left = 8
-            Height = 30
-            Top = 74
-            Width = 104
-            Caption = 'Min weight'
-            ParentColor = False
-          end
-          object Label5: TLabel
-            AnchorSideLeft.Control = lblMinDays
-            AnchorSideTop.Control = SpinEdit3
-            AnchorSideTop.Side = asrCenter
-            Left = 8
-            Height = 30
-            Top = 120
-            Width = 108
-            Caption = 'Max weight'
-            ParentColor = False
-          end
-          object Label6: TLabel
-            AnchorSideLeft.Control = lblMinDays
-            AnchorSideTop.Control = seBlendPeriod
-            AnchorSideTop.Side = asrCenter
-            Left = 8
-            Height = 30
-            Top = 166
-            Width = 76
-            Caption = 'Blend at'
-            ParentColor = False
-          end
-          object seBlendPeriod: TSpinEdit
-            AnchorSideLeft.Control = SpinEdit2
-            AnchorSideTop.Control = SpinEdit3
-            AnchorSideTop.Side = asrBottom
-            Left = 124
-            Height = 38
-            Hint = 'This Bodyslide and the one at next fitness level will blend at this time frame'
-            Top = 162
-            Width = 80
-            BorderSpacing.Top = 8
-            MaxValue = 40
-            TabOrder = 3
-            Value = 20
-          end
-          object lblBlendPercent: TLabel
-            AnchorSideLeft.Control = seBlendPeriod
-            AnchorSideLeft.Side = asrBottom
-            AnchorSideTop.Control = Label6
-            Left = 212
-            Height = 30
-            Top = 166
-            Width = 17
-            BorderSpacing.Left = 8
-            Caption = '%'
-            ParentColor = False
+            BorderSpacing.Top = 12
+            BorderSpacing.Right = 12
+            BorderSpacing.Bottom = 8
+            BevelOuter = bvLowered
+            ClientHeight = 521
+            ClientWidth = 921
+            TabOrder = 1
+            object grpBSPlayerOpt: TGroupBox
+              AnchorSideLeft.Control = Panel5
+              AnchorSideTop.Control = Panel5
+              Left = 13
+              Height = 336
+              Top = 9
+              Width = 467
+              BorderSpacing.Left = 12
+              BorderSpacing.Top = 8
+              Caption = 'Options for '
+              ClientHeight = 301
+              ClientWidth = 463
+              TabOrder = 0
+              object seBsDays: TSpinEdit
+                AnchorSideLeft.Control = seBSMinW
+                AnchorSideTop.Control = grpBSPlayerOpt
+                Left = 124
+                Height = 38
+                Hint = 'If you train hard and sleep 10 hours a day, this is the number of in-game days you will be at this fitness level.'
+                Top = 8
+                Width = 104
+                BorderSpacing.Top = 8
+                MaxValue = 1000
+                MinValue = 1
+                TabOrder = 0
+                Value = 30
+              end
+              object seBSMaxW: TSpinEdit
+                AnchorSideLeft.Control = seBSMinW
+                AnchorSideTop.Control = seBSMinW
+                AnchorSideTop.Side = asrBottom
+                Left = 124
+                Height = 38
+                Hint = 'You will never look like you are above this weight on the Bodyslide assigned to this fitness level.'
+                Top = 116
+                Width = 104
+                BorderSpacing.Top = 8
+                TabOrder = 1
+                Value = 100
+              end
+              object lblMinDays: TLabel
+                AnchorSideLeft.Control = grpBSPlayerOpt
+                AnchorSideTop.Control = seBsDays
+                AnchorSideTop.Side = asrCenter
+                AnchorSideRight.Control = seBsDays
+                Left = 8
+                Height = 30
+                Top = 12
+                Width = 84
+                BorderSpacing.Left = 8
+                Caption = 'Min days'
+                ParentColor = False
+              end
+              object seBSMinW: TSpinEdit
+                AnchorSideLeft.Control = Label4
+                AnchorSideLeft.Side = asrBottom
+                AnchorSideTop.Control = seBsDays
+                AnchorSideTop.Side = asrBottom
+                Left = 124
+                Height = 38
+                Hint = 'You will never look like you are below this weight on the Bodyslide assigned to this fitness level.'
+                Top = 70
+                Width = 104
+                BorderSpacing.Left = 12
+                BorderSpacing.Top = 24
+                TabOrder = 2
+              end
+              object Label4: TLabel
+                AnchorSideLeft.Control = lblMinDays
+                AnchorSideTop.Control = seBSMinW
+                AnchorSideTop.Side = asrCenter
+                Left = 8
+                Height = 30
+                Top = 74
+                Width = 104
+                Caption = 'Min weight'
+                ParentColor = False
+              end
+              object Label5: TLabel
+                AnchorSideLeft.Control = lblMinDays
+                AnchorSideTop.Control = seBSMaxW
+                AnchorSideTop.Side = asrCenter
+                Left = 8
+                Height = 30
+                Top = 120
+                Width = 108
+                Caption = 'Max weight'
+                ParentColor = False
+              end
+              object Label6: TLabel
+                AnchorSideLeft.Control = lblMinDays
+                AnchorSideTop.Control = seBSBlend
+                AnchorSideTop.Side = asrCenter
+                Left = 8
+                Height = 30
+                Top = 166
+                Width = 76
+                Caption = 'Blend at'
+                ParentColor = False
+              end
+              object seBSBlend: TSpinEdit
+                AnchorSideLeft.Control = seBSMinW
+                AnchorSideTop.Control = seBSMaxW
+                AnchorSideTop.Side = asrBottom
+                Left = 124
+                Height = 38
+                Hint = 'This Bodyslide and the one at next fitness level will blend at this time frame'
+                Top = 162
+                Width = 80
+                BorderSpacing.Top = 8
+                MaxValue = 30
+                MinValue = 5
+                TabOrder = 3
+                Value = 20
+              end
+              object lblBlendPercent: TLabel
+                AnchorSideLeft.Control = seBSBlend
+                AnchorSideLeft.Side = asrBottom
+                AnchorSideTop.Control = Label6
+                Left = 212
+                Height = 30
+                Top = 166
+                Width = 17
+                BorderSpacing.Left = 8
+                Caption = '%'
+                ParentColor = False
+              end
+              object lblBSBlendTotalDays: TLabel
+                AnchorSideLeft.Control = Label6
+                AnchorSideTop.Control = seBSBlend
+                AnchorSideTop.Side = asrBottom
+                AnchorSideRight.Control = seBSMaxW
+                AnchorSideRight.Side = asrBottom
+                Left = 31
+                Height = 30
+                Top = 208
+                Width = 197
+                Alignment = taRightJustify
+                Anchors = [akTop, akLeft, akRight]
+                BorderSpacing.Left = 23
+                BorderSpacing.Top = 8
+                Caption = 'Total days: 1000'
+                ParentColor = False
+              end
+              object chkBSInvert: TCheckBox
+                AnchorSideLeft.Control = Label4
+                AnchorSideTop.Control = lblBSBlendTotalDays
+                AnchorSideTop.Side = asrBottom
+                Left = 8
+                Height = 34
+                Hint = 'When applying values to player, more Gains will use lower Bodyslide values'
+                Top = 254
+                Width = 181
+                BorderSpacing.Top = 16
+                Caption = 'Invert Bodyslide'
+                TabOrder = 4
+              end
+              object GroupBox2: TGroupBox
+                AnchorSideLeft.Control = seBsDays
+                AnchorSideLeft.Side = asrBottom
+                AnchorSideTop.Control = grpBSPlayerOpt
+                AnchorSideRight.Control = grpBSPlayerOpt
+                AnchorSideRight.Side = asrBottom
+                Left = 244
+                Height = 184
+                Top = -8
+                Width = 207
+                Anchors = [akLeft, akRight]
+                BorderSpacing.Left = 16
+                BorderSpacing.Right = 12
+                Caption = 'Head size variance'
+                TabOrder = 5
+              end
+            end
+            object pnBsPlayerPreview: TPanel
+              Left = 1
+              Height = 76
+              Top = 444
+              Width = 919
+              Align = alBottom
+              BevelOuter = bvLowered
+              Caption = 'Assign at least one fitness level to see a preview'
+              ClientHeight = 76
+              ClientWidth = 919
+              TabOrder = 1
+              object GCPlayer: TBGRAGraphicControl
+                Left = 1
+                Height = 74
+                Top = 1
+                Width = 917
+                Align = alClient
+                OnRedraw = GCPlayerRedraw
+                Color = clWhite
+                ColorOpacity = 128
+                Alignment = taCenter
+              end
+            end
+            object Panel6: TPanel
+              AnchorSideLeft.Control = grpBSPlayerOpt
+              AnchorSideTop.Control = grpBSPlayerOpt
+              AnchorSideTop.Side = asrBottom
+              AnchorSideRight.Control = grpBSPlayerOpt
+              AnchorSideRight.Side = asrBottom
+              AnchorSideBottom.Control = pnBsPlayerPreview
+              Left = 13
+              Height = 71
+              Top = 357
+              Width = 467
+              Anchors = [akTop, akLeft, akRight, akBottom]
+              BorderSpacing.Top = 12
+              BorderSpacing.Bottom = 16
+              BevelInner = bvLowered
+              TabOrder = 2
+            end
+            object Panel7: TPanel
+              AnchorSideLeft.Control = grpBSPlayerOpt
+              AnchorSideLeft.Side = asrBottom
+              AnchorSideTop.Control = Panel5
+              AnchorSideRight.Control = Panel5
+              AnchorSideRight.Side = asrBottom
+              AnchorSideBottom.Control = pnBsPlayerPreview
+              Left = 492
+              Height = 419
+              Top = 9
+              Width = 420
+              Anchors = [akTop, akLeft, akRight, akBottom]
+              BorderSpacing.Left = 4
+              BorderSpacing.Bottom = 8
+              BorderSpacing.Around = 8
+              BevelInner = bvLowered
+              TabOrder = 3
+            end
           end
         end
-        object Panel6: TPanel
-          Left = 1
-          Height = 76
-          Top = 360
-          Width = 887
-          Align = alBottom
-          BevelOuter = bvLowered
-          Caption = 'Assign at least one fitness level to see a preview'
-          ClientHeight = 76
-          ClientWidth = 887
-          TabOrder = 1
-          object GCPlayer: TBGRAGraphicControl
-            Left = 1
-            Height = 74
-            Top = 1
-            Width = 885
-            Align = alClient
-            OnRedraw = GCPlayerRedraw
-            Color = clWhite
-            ColorOpacity = 128
-            Alignment = taCenter
-          end
+        object TabSheet5: TTabSheet
+          Caption = 'In game options (imagine this was the MCM menu for this mod)'
         end
       end
     end
     object TabSheet1: TTabSheet
       Caption = 'Fitness levels'
-      ClientHeight = 457
-      ClientWidth = 1133
+      ClientHeight = 584
+      ClientWidth = 1173
       object ListBox1: TListBox
         AnchorSideBottom.Side = asrBottom
         Left = 16
-        Height = 378
+        Height = 505
         Top = 64
         Width = 208
         Anchors = [akTop, akLeft, akBottom]
@@ -307,15 +411,15 @@ object frmMain: TfrmMain
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Side = asrBottom
         Left = 240
-        Height = 418
+        Height = 545
         Top = 24
-        Width = 885
+        Width = 925
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Right = 8
         BevelInner = bvLowered
         BevelOuter = bvNone
-        ClientHeight = 418
-        ClientWidth = 885
+        ClientHeight = 545
+        ClientWidth = 925
         TabOrder = 2
         object GroupBox1: TGroupBox
           Left = 8
@@ -370,13 +474,13 @@ object frmMain: TfrmMain
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 8
-          Height = 221
+          Height = 348
           Top = 192
           Width = 340
           Anchors = [akTop, akLeft, akBottom]
           BorderSpacing.Top = 8
           Caption = 'Classes'
-          ClientHeight = 186
+          ClientHeight = 313
           ClientWidth = 336
           TabOrder = 2
           object CheckListBox1: TCheckListBox
@@ -386,7 +490,7 @@ object frmMain: TfrmMain
             AnchorSideRight.Side = asrBottom
             AnchorSideBottom.Control = CheckBox2
             Left = 6
-            Height = 128
+            Height = 255
             Hint = 'Only classes containing these words in EDID will be allowed to use this state'
             Top = 0
             Width = 324
@@ -454,7 +558,7 @@ object frmMain: TfrmMain
             Left = 6
             Height = 34
             Hint = 'This state will be used when an NPC doesn''t belong to any of the classes above'
-            Top = 144
+            Top = 271
             Width = 324
             Align = alBottom
             BorderSpacing.Left = 6
@@ -469,12 +573,12 @@ object frmMain: TfrmMain
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 360
-          Height = 229
+          Height = 356
           Top = 184
           Width = 292
           Anchors = [akTop, akLeft, akBottom]
           Caption = 'Races'
-          ClientHeight = 194
+          ClientHeight = 321
           ClientWidth = 288
           TabOrder = 3
           object CheckListBox2: TCheckListBox
@@ -485,7 +589,7 @@ object frmMain: TfrmMain
             AnchorSideBottom.Control = GroupBox7
             AnchorSideBottom.Side = asrBottom
             Left = 6
-            Height = 186
+            Height = 313
             Hint = 'Only races with this EDID will be allowed to use this state'
             Top = 0
             Width = 276
@@ -529,12 +633,12 @@ object frmMain: TfrmMain
         object GroupBox8: TGroupBox
           AnchorSideBottom.Side = asrBottom
           Left = 664
-          Height = 221
+          Height = 348
           Top = 192
           Width = 248
           Anchors = [akTop, akLeft, akBottom]
           Caption = 'Player''s journey'
-          ClientHeight = 186
+          ClientHeight = 313
           ClientWidth = 244
           TabOrder = 4
           object Memo1: TMemo
@@ -545,7 +649,7 @@ object frmMain: TfrmMain
             AnchorSideBottom.Control = GroupBox8
             AnchorSideBottom.Side = asrBottom
             Left = 6
-            Height = 178
+            Height = 305
             Top = 0
             Width = 232
             Anchors = [akTop, akLeft, akRight, akBottom]
@@ -564,7 +668,7 @@ object frmMain: TfrmMain
           Left = 698
           Height = 80
           Top = 16
-          Width = 179
+          Width = 219
           Anchors = [akTop, akLeft, akRight]
           BorderSpacing.Left = 8
           BorderSpacing.Right = 7
@@ -580,8 +684,8 @@ object frmMain: TfrmMain
   object StatusBar1: TStatusBar
     Left = 0
     Height = 43
-    Top = 500
-    Width = 1141
+    Top = 627
+    Width = 1181
     AutoHint = True
     Panels = <    
       item
