@@ -12,7 +12,10 @@ Never will. Sorry.
 
 If you want to use it, you should be well acquainted with Bodyslide, SEEdit and mod installing paths.
 
-None of those things are actually hard to learn and I tried my best to be as simple and straight-forward as possible so people with few modding experience can enjoy this mod, but teaching simple basic things like *"How do I build a zeroed bodyslide with morphs"* is not the scope of this mod.
+None of those things are actually hard to learn and I tried my best to be as simple and straight-forward as possible so people with few modding experience can enjoy this mod[^HardSibblings], but teaching simple basic things like *"How do I build a zeroed bodyslide with morphs?"* is not the scope of this mod.
+[^HardSibblings]: After all, there's a reason mods that use the same mechanics as this are so hard to configure and understand at first sight.
+I tried my best to make the process as simple as possible by releasing the actual tools I use to make my own mod work.
+I'm lazy, so I let my tools do most of the job.
 
 <figure>
 <img class="hImg" src="img/zeroed-sliders.png"/>
@@ -29,29 +32,32 @@ If you know the basics about Bodyslide you can guess what means to have zeroed s
 To prevent this, this mod has basic functionality to apply Bodyslide morphs to NPCs.
 
 If you don't like my way of doing things, you can try to use [BodyGen options already integrated with RaceMenu](https://www.reddit.com/r/skyrimmods/comments/gdwdvj/racemenu_bodygen/) along with this mod, but since I don't do that, I can't guide you or give you advice through the process.
-...although I would **personally** do something like `All|Female=Preset` and everything be damned.
+...although I would **personally** do something like `All|Female=Preset` and everything else be damned.
 ==¿Tal vez sí haga un parche nomás para experimentar?==
 
 ### Don't ask me to add randomized skin textures
-I made this mod so it applies texture sets as overrides so you can see your PC getting ripped if you so desire.
-Unfortunately, the method I used involves using texture sets that actually exist in this mod esp, and I did it like that because that's the most reliable method to make people ripped with NiOverride.
+I added an option to this mod so you can see your PC eventually getting ripped if you so desire.
 
-Since those textures need to be added to the esp, it means I would need to add a new texture set record for every race, muscle definition level and texture pack you would like to use.
-This could easily explode up to three zeroes digits records[^ItsOver9000] I would need to manually create, by the way.
+Unfortunately, the method I used involves using texture sets, armor addons and all kind of hacks that actually need to exist as records inside this mod esp, and I did it like that because that's the most reliable method to make people ripped I've found so far after many months blindly stumbling in the dark trying to pull this out.
+NiOverride is not an option, since it's just too volatile to be useful on SSE for changing normal maps.
+
+Since records need to be added to the esp, it means I would need to add a new texture set record for every race, muscle definition level and texture pack you would like to use.
+This could easily explode into the four figures numbers of records[^ItsOver9000]; records I would need to manually create one by one, by the way.
 ***HOW ABOUT NO?***
-[^ItsOver9000]: Right now they are already more that 100.
+[^ItsOver9000]: Right now they are already at least 180.
 
-If you know something about NiOverride you would think it should be as easy as adding a normal map override to the body and get done, but no.
-For some reason, doing so messes the normal maps on the hand too, and if you want to unreliably deal with that you need to do all kind of hacks that randomly work whenever they feel like.
-Go see my own [Sandow Plus Plus source code](https://github.com/CarlosLeyvaAyala/Sandow-Plus-Plus/tree/more-compatible-ripped) to marvel at what a fucking mess is trying to do that.
+If you know something about NiOverride you would think it should be as easy as adding a normal map override to the body and be done (just as I did when I was young and inocent), but no.
+For some reason, doing so messes with the textures on the hand too, and if you want to unreliably deal with that you need to do all kind of hacks that randomly work whenever they feel like.
+Go see my own [Sandow Plus Plus source code](https://github.com/CarlosLeyvaAyala/Sandow-Plus-Plus/tree/more-compatible-ripped)[^Abandonware] to marvel at what a fucking mess is trying to (unsuccessfully) do that.
+[^Abandonware]: That seemingly inocent idea so sapped my will to work with NiOVerride (and my sanity) that SPP is mostly abandonware nowadays.
 
 <figure>
-<img class="hImg" src="img/Lydia.jpg"/>
-<figcaption>I spent literally hundreds of hours on not solving this issue, thank you very much for asking.</figcaption>
+<img class="vImg" src="img/pizza-hands.jpg"/>
+<figcaption>I literally spent hundreds of hours and moths on not solving this issue, thank you very much for asking.</figcaption>
 </figure>
 
 
-But I digress... this mod is made to work with only one texture set and **I'll  never add skin variation to NPCs**.
+But I digress... this mod is made to work with only one texture pack and **I'll  never add skin variation to NPCs**.
 If you want people having different complexions, you could try mods like [BOSSE](https://www.nexusmods.com/skyrimspecialedition/mods/21029) and see if you want to try to make both this and that mod pull together.
 
 I can't help you doing that and it's not supported by me.
@@ -60,28 +66,29 @@ As you will soon learn, one of the reasons this mod exists is because I couldn't
 ### Why this mod?
 Why would I do this if there are so many options that already kind of do the same?
 
-Well, for starters, I was getting tired of seeing fucking mages being as hot and athletic as Lydia.
+Well, for starters, I was getting tired of seeing fucking mages and merchants being as hot and athletic as Lydia.
 
 <figure>
 <img class="vImg" src="img/Lydia.jpg"/>
 <figcaption>Quit bitching, Lydia. We both know you got those abs by carrying my burdens.</figcaption>
 </figure>
 
-My hopes went up when I learned about [zEBD](https://www.nexusmods.com/skyrimspecialedition/mods/36019) but it's quite complicated and the help files never told how to apply it to the PC, so I didn't even try.
+My hopes went up when I learned about [zEBD](https://www.nexusmods.com/skyrimspecialedition/mods/36019), but it's quite complicated and the help files never told how to apply its settings to the PC, so I didn't even try.
 
 I tried BOSSE, but my game just gets an infinite loading screen when installed.
 
-[jBS2BG](https://www.nexusmods.com/skyrim/mods/88707) worked all right for NPCs, but for some reason, RaceMenu BodyGen didn't apply well[^jBS2BGRox] the Bodyslide preset to my PC and she looked flabby instead of hot.
+[jBS2BG](https://www.nexusmods.com/skyrim/mods/88707) worked all right for NPCs, but for some reason, RaceMenu [BodyGen](https://www.reddit.com/r/skyrimmods/comments/gdwdvj/racemenu_bodygen/) didn't apply well[^jBS2BGRox] the Bodyslide preset to my PC and she looked flabby instead of thight and hot.
 Ironically, it correctly applied morphs to all NPCs.
 [^jBS2BGRox]: I'm totally sure it wasn't jBS2BG's fault, since it correctly exported all Bodyslide data.
 
-So I tried to see if it was a problem with BodyGen or jBS2BG and it turned out NiOverride actually applied correctly all Bodyslide morphs if I explicitly did so using my own programming skills.
+So I tried to see if it was a problem with BodyGen or jBS2BG and made a quick dirty Papyrus script to explicitly apply all morphs.
+... and it turned out NiOverride actually applied correctly all Bodyslide morphs if I did so one by one.
 
 <figure>
 <img class="hImg" src="img/vince_01.jpg"/>
 </figure>
 
-So when I thought I could just do that I suddenly realized I could make my PC change shape as if gaining weight.
+Then I suddenly realized I could programmatically make my PC change its shape as if gaining weight by training.
 Something you can bet your ass BodyGen doesn't do by it's own.
 
 <figure>
@@ -90,9 +97,11 @@ Something you can bet your ass BodyGen doesn't do by it's own.
 
 Then I thought:
 > Why should I stop there?
-> If I can control at will what values are applied to which sliders, what's stopping me from using many different Bodyslide presets?
+> If I can control at will what values are applied to which sliders, what's stopping me from using many different Bodyslide presets to represent different stages at my PC's fitness journey, like going from fat to thin and then athletic?
 >
->Hell, I could even blend them between transitions so they naturally go from one to other and since I'm not constrained by weight anymore, I could add as many as I want and make them to stay as many days as I like!
+>Hell, I could even blend body shapes between transitions so they naturally go from one to other, and since I'm not constrained by weight anymore, I could add as many as I want and I can stay at those fitness levels as many days as I like![^NoGainsPainsMe]
+
+[^NoGainsPainsMe]: You see, I have this problem with Skyrim, where I get bored when my PC gets to the zenit of her (it's always a her, obviously) physical development, so I start a new character just to see her getting progressively hot once again.
 
 <figure>
 <img class="hImg" src="img/vince_03.jpg"/>
@@ -115,9 +124,9 @@ You see, the Papyrus programming language and API (what you use to program for S
 * ~~Working on big arrays of data~~... oh, sorry. It can't.
 
 But if you want to add actual custom functionality that devs never dreamt of, you are out of luck.
-It's no coincidence most awesowe mods require SKSE (which extends Papyrus API native capabilities) or use dlls to do things programmed in real programming languages.
+It's no coincidence most awesowe mods require SKSE (which extends the Papyrus API Bethesda gave us) or use dlls to do things (not possible with Papyrus) that were programmed in real programming languages.
 
-If I have to do anyway a GUI to allow players configure my mod, I'd rather use a real programming language instead of Papyrus.
+If I had to do anyway an external program to allow players setup my mod, then I can go the extra mile and do all GUI and configuration stuff at there, since I'd rather use a real programming language instead of Papyrus.
 
 ## What's a "fitness level"
 Imagine you want your PC to go on a body transformation journey. She (I'll assume your PC is a "she" because that's the most probable thing anyway) will have many fitness levels along that journey:
@@ -128,9 +137,19 @@ Imagine you want your PC to go on a body transformation journey. She (I'll assum
 * Fit
 * Athlete
 
-Traditionally, you would make a `Bodyslide Preset` that went from obese to athletic, use a mod that dynamically changed your weight like `Pumping Iron` or my own `Sandow Plus Plus`[^NoRemorse] and let them work their magic.
+Traditionally, you would make a `Bodyslide Preset` that went from obese to athletic, use a mod that dynamically changed your weight, like `Pumping Iron` or my own `Sandow Plus Plus`[^NoRemorse] and let them work their magic.
 
-That would work quite fine for the extreme levels of your `Bodyslide Preset`, ie. while your weight was around 0 and around 100, but intermediate levels would look like a weird mix or fat and fit.
+<figure>
+<img class="hImg" src="img/fat-to-hot.jpg"/>
+</figure>
+
+That would work quite fine for the extreme levels of your `Bodyslide Preset`, ie. while your weight was around 0 and around 100, but intermediate levels would look like a weird mix or fat and fit (and you could never be thin[^FatToFit]).
+[^FatToFit]: IRL, most people who go from fat to fit usually go from fat to thin and then from thin to athletic. It's a bit unusual to see someone go directly from fat to fit.
+
+<figure>
+<img class="hImg" src="img/mamadogordo.jpg"/>
+<figcaption>In <a href="https://youtu.be/NPNs8aYlimM">Taco</a> this is also known to us as MamadoGordo.</figcaption>
+</figure>
 
 Not anymore.
 With `Max Sick Gains` you can assign a completely different `Bodyslide Preset` for each one of those fitness levels.
@@ -169,7 +188,7 @@ You train by:
 Anytime you do one of those you will get `Training`, which is a variable that goes from `0.0` to `12.0`[^LimitTraining]. Each time you sleep, some of that `Training` gets converted to `Gains` (pretty much like PI and SPP).
 *[PI]: Pumping Iron
 *[SPP]: Sandow Plus Plus
-[^LimitTraining]: ... since too much training won't get you hotter faster... just like real life.
+[^LimitTraining]: You can't go above 12 because too much training won't get you hotter faster... just like real life.
 
 Not all type of training is the same. Doing hard physical activity will contribute quite a lot to make you fit, while mild physical activity (like having sex[^SexIsNotHard]) won't.
 [^SexIsNotHard]: You would reaaaaally be in quite a bad shape is sex is extenuating to you.
@@ -202,14 +221,14 @@ Since here your `Training` can never go above `12.0`, I assumed a fixed value of
 
 ### Inactivity
 If you don't train for a while, you will be considered to be inactive and will start to regress in `Fitness Levels`.
-You will lose `1.2%` of your `Training` and `80%` of what you would have added to `Gains` per day of being fully inactive.
+You will lose `0.5` a day of your `Training` (that's on top of your normal `0.3` decay) and `80%` of what you would have added to `Gains` per day of being fully inactive.
 See ==math page== if you want more details.
 
 Unlike SPP, inactivity here isn't a *do or do not* thing. That is, your inactivity counter won't get automatically reset to `0` once you have any kind of physical activity.
 *[PI]: Pumping Iron
 *[SPP]: Sandow Plus Plus
 
-Just like ==training== different types of activity will have different type of contribution to consider you physically active.
+Just like ==training==, different types of activity will have different type of contribution to consider you physically active.
 
 |Activity type|Contribution to being active|
 --|--
@@ -242,9 +261,9 @@ There are no limits to how many times a day you can sleep to make gains, but you
 You train, sleep and then gain.
 The more you gain, the better you look.
 
-`Gains` is a variable that goes from `0%` to `100%` and it's related to your ==current `Fitness Level`==.
+`Gains` is a variable that usually goes from `0%` to `100%` and it's related to your ==current `Fitness Level`==.
 
-When you ==sleep==, some of your `Training` gets added to this variable. **Once you get to `100%` you advance to the next `Fitness Level`**.
+When you ==sleep==, some of your `Training` gets added to this variable. **Once you get to `100%` or more you advance to the next `Fitness Level`**.
 Be too inactive and once you reach negative numbers you will go back to the previous `Fitness Level`.
 
 ### Notes on `Gains`
