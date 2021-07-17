@@ -1,19 +1,24 @@
 <!-- @import "help.less" -->
+
+==If you use [Leyenda](https://www.nexusmods.com/skyrimspecialedition/mods/) feel free to ask me for my own personal textures.
+I have permission from its author to distribute my own modified files, but I don't make them public [this time](https://www.nexusmods.com/skyrimspecialedition/mods/34632) because I know people will start assuming I'll do textures for all **their** packs.==
+
 # Creating your own muscle definition textures
-***WARNING: just give this tutoral a quick check before doing anything. If you think this is too much work[^NotThatMuchWork], I suggest you not to use at all the muscle definition changing capabilities this mod offers.***
+***WARNING: just give this tutoral a [quick check](#overview) before doing anything. If you think this is too much work[^NotThatMuchWork], I suggest you not to use at all the muscle definition changing capabilities this mod offers.***
+
 [^NotThatMuchWork]: It's not that much work once you have good textures. Exporting **ALL** needed textures for all races shouldn't take more than 15 minutes.
 
 Last time I did the mistake of doing something for [making people ripped](https://www.nexusmods.com/skyrimspecialedition/mods/34632), I released textures made by me and it's quite annoying to give them maintainance, to be honest.
 
-People were asking me to do textures for their favorite packs all the time and I'll tell you the truth: most of the time I don't feel like doing them. It's just too much work trying to make them blend[^NotThatMuchWork].
+People were asking me to do textures for their favorite packs all the time and I'll tell you the truth: most of the time I don't feel like doing them. It's just too much work trying to make them properly blend[^NotThatMuchWork].
 
 Since this mod requires you to use your brains to set it up anyway, I figured you wouldn't have a problem doing your own texture sets using my own automated tools that make this process as pain free as possible.
 Remember **machines exist so they work instead of us**.
 
-By the way, one of them only works if you use Photoshop.
+By the way, one of them only works <u>if you use Photoshop</u>.
 
 <figure>
-<img class="vImg" src="img/pirate.jpg"/>
+<img class="hImg" src="img/pirate.jpg"/>
 <figcaption>Jar jar jar... who am I kidding <i>"if"</i>...</figcaption>
 </figure>
 
@@ -22,15 +27,22 @@ You will notice I'm not using the NVIDIA plugin to save `dds` files.
 It's ok if you want to use it. I just prefer to use more automated methods because I honestly can't be arsed to learn all kinds of micromanaged texture optimizations for `dds` files.
 
 ## Overview
+**`[A]`** stands for "Automated". Computer will do all the hard work for you here.
+
 1. Get two normal maps. Those will be your (lack of) muscle definition extremes.
 1. Open them in [Paint.net](https://www.getpaint.net/) and save them as `tga`.
-1. Add those two tga `files` to a new Photoshop file as separate layers.
-1. Double click the file named `Skyrim Texture Manipulation.atn`.
+1. **`[A]`** Add those two tga `files` to a new Photoshop file as separate layers.
+1. Make sure files look good when blending.
+1. Double click the file named `Skyrim Texture Manipulation.atn`[^espDir].
 That will add an action folder to Photoshop.
-1. Run `Create texture transition`.
-1. `File > Export > Layers to files...` (names will depend on what kind of muscle definition you are creating).
-1. Run [Cathedral Assets Optimizer](https://www.nexusmods.com/skyrimspecialedition/mods/23316) on your new textures.
+1. **`[A]`** Run `Create texture transition`.
+1. **`[A]`** `File > Export > Layers to files...`
+1. **`[A]`** Drag and drop your newly created files to `Maxick_TexRename.exe`[^espDir]
+1. **`[A]`** Run [Cathedral Assets Optimizer](https://www.nexusmods.com/skyrimspecialedition/mods/23316) on your new textures.
 1. Profit.
+
+If you have good textures, steps 2 and on shouldn't take more than 2 minutes.
+If you don't, [expect to work on them for a couple of hours](#add-those-files-as-separate-layers-to-photoshop).
 
 ## Step by step
 ### Get normal maps
@@ -69,7 +81,7 @@ Let's see how they blend.
 <figcaption>... pretty bad.</figcaption>
 </figure>
 
-Did you notice how the upper line of the 8-pack[^8pack] dissapears without a trace and how abs got progressively wider?
+Did you notice how the upper line of the 8-pack[^8pack] dissapears without a trace, serratus changing shapes and how abs got progressively wider?
 Also, look at these double lines:
 [^8pack]: Yeah... [that's a thing](https://duckduckgo.com/?q=8+pack&iax=images&ia=images).
 
@@ -96,13 +108,16 @@ You should never work on, and directly edit `dds` files for [the exact same reas
 </figure>
 
 ### Add those files as separate layers to Photoshop
-And ***name them `Layer 1` and `Layer 2`, otherwise my Photoshop Action won't work exactly as expected***.
+And ~~name them `Layer 1` and `Layer 2`, otherwise my Photoshop Action won't work exactly as expected~~.
+
+You know what? I'm soooo lazy I couldn't bother with typing those names everytime I wanted to use that action, so I made a little Photoshop script called `Maxick - Rename Photoshop Layers.vbs`[^espDir].
+Double click on that file and it will automatically rename layers as expected: topmost will now be `Layer 2` and the one below, `Layer 1`.
 
 <figure>
 <img class="hImg" src="img/photoshop-layers.png"/>
 </figure>
 
-`Layer 2` is *"the most"* you want your textures to be; *the most* ripped, *the most* obese...
+`Layer 2` is *"the most"* you want your textures to be; *the most* ripped, *the most* flabby...
 
 This is the step where you are most likely to spend the most time.
 You will be changing `Layer 2` opacity back and forth to make sure both normal maps blend nicely.
@@ -112,12 +127,15 @@ This doesn't need to be perfect, by the way.
 As you are about to learn, you just need to make sure the big bad rough shapes transition correctly.
 
 ### Running the Photoshop action
-When you double click the bundled `atn` file in this mod[^espDir], a new Action will be added to Photoshop.
-You just need to run that.
+When you double click the bundled `Skyrim Texture Manipulation.atn` file in this mod[^espDir], a new Action will be added to Photoshop.
+You don't need to double click that file everytime you want to create textures, by the way. Just once is **ever** needed.
+
+At any rate, just run `Create texture transition`.
 [^espDir]: It's in the same folder as `Max Sick Gains.esp`.
 
 <figure>
 <img class="hImg" src="img/photoshop-action.png"/>
+<figcaption></figcaption>
 </figure>
 
 If you correctly named your layers as `Layer 1` and `Layer 2`, now you should have 6 layers named `Frame n`, with no `Layer 1` or `2` on sight.
@@ -159,7 +177,7 @@ Use whatever name you like. We are going to rename those files anyway.
 <img class="vImg" src="img/photoshop-export-tgas.png"/>
 </figure>
 
-Once you are done, drag and drop all of them to `TexRename.exe`, which is located in the same folder as `Skyrim Texture Manipulation.atn` and `Max Sick Gains.esp`.
+Once you are done, drag and drop all of them to `Maxick_TexRename.exe`[^espDir].
 
 <figure>
 <img class="hImg" src="img/TexRename.png"/>
@@ -174,3 +192,13 @@ Remember all that babbling about `BC7` and whatnot? Cathedral does all that for 
 <figure>
 <img class="vImg" src="img/cathedral-export.jpg"/>
 </figure>
+
+### Profit
+And that's it.
+Repeat this process until you have all required textures for sex and race.
+
+<figure>
+<img class="hImg" src="img/all-tex-files.png"/>
+</figure>
+
+I won't get tired of saying these steps will take you at most 2 minutes if you already have good textures.

@@ -9,13 +9,13 @@
         <Filename Value="TexRename.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <CursorPos X="40" Y="28"/>
-        <FoldState Value=" T372A013 T6iK21011'"/>
-        <UsageCount Value="20"/>
+        <CursorPos X="66" Y="16"/>
+        <FoldState Value=" T3J288 pidjO26 T1jY27 T6ie21011M"/>
+        <UsageCount Value="23"/>
         <Loaded Value="True"/>
       </Unit0>
     </Units>
-    <JumpHistory Count="13" HistoryIndex="12">
+    <JumpHistory Count="22" HistoryIndex="21">
       <Position1>
         <Filename Value="TexRename.lpr"/>
         <Caret Line="41" Column="40" TopLine="23"/>
@@ -66,15 +66,51 @@
       </Position12>
       <Position13>
         <Filename Value="TexRename.lpr"/>
-        <Caret Line="98" Column="22" TopLine="86"/>
+        <Caret Line="98" Column="30" TopLine="32"/>
       </Position13>
+      <Position14>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="139" Column="5" TopLine="127"/>
+      </Position14>
+      <Position15>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="149" Column="14" TopLine="132"/>
+      </Position15>
+      <Position16>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="32" Column="15"/>
+      </Position16>
+      <Position17>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="180" Column="62" TopLine="162"/>
+      </Position17>
+      <Position18>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="35" Column="84"/>
+      </Position18>
+      <Position19>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="188" Column="12" TopLine="169"/>
+      </Position19>
+      <Position20>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="162" Column="50" TopLine="147"/>
+      </Position20>
+      <Position21>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="161" Column="16" TopLine="153"/>
+      </Position21>
+      <Position22>
+        <Filename Value="TexRename.lpr"/>
+        <Caret Line="134" Column="26" TopLine="121"/>
+      </Position22>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
       <Modes Count="1" ActiveMode="default">
         <Mode0 Name="default">
           <local>
-            <CommandLineParams Value="&quot;F:\Skyrim SE\MO2\mods\Max Sick Gains - Textures\textures\actors\character\Maxick\Hum\Plain_0000_Frame 6.tga&quot;"/>
+            <CommandLineParams Value="&quot;F:\Skyrim SE\MO2\mods\Max Sick Gains - Textures\textures\actors\character\Maxick\Hum\MehFag.tga&quot;"/>
           </local>
         </Mode0>
       </Modes>

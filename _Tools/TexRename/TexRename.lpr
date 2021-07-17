@@ -8,13 +8,33 @@ uses
   procedure ShowHelp;
   begin
     WriteLn('Drag and drop here the files you want to be renamed.');
-    WriteLn('Drop only the 6 textures you just created in Photoshop.');
+    WriteLn('Drop only the textures you just created in Photoshop.');
     WriteLn('');
     WriteLn('This isn''t a fancy program. It''s only purpose is to rename');
-    WriteLn('those 6 files or correct their names if you made some typo.');
+    WriteLn('those files or correct their names if you made some typo.');
     WriteLn('');
-    WriteLn('Read this mod''s help file to know more about do''s and don''ts in here.');
+    WriteLn('Try not to do odd things when working with this, no?');
     ReadLn;
+  end;
+
+  procedure ShowIncorrectPrompt;
+  begin
+    WriteLn('Your files seem to be located in an incorrect folder.');
+    WriteLn('They should be at:');
+    WriteLn('textures\actors\character\Maxick\<Race>');
+    WriteLn('');
+    WriteLn('Please move them to their correct location before we can continue.');
+    ReadLn;
+  end;
+
+  procedure ShowNotPhotoshopGenerated(aFileName: string);
+  begin
+    WriteLn('You seem to have named your textures by hand.');
+    WriteLn(Format('I can''t get a valid number from "%s"', [aFileName]));
+    WriteLn('Since I don''t know which texture number this is, I''ll just');
+    WriteLn('add a long number; hoping it doesn''t collide with any other filename.');
+    WriteLn('You need to correctly rename this by hand.');
+    WriteLn('');
   end;
 
   function DetectRace(const aDir: string): string;
@@ -71,11 +91,6 @@ uses
       sex := AskSex(knownRace);
       muscleDef := AskMuscleDefinition;
       Result := Format('%s%s_', [sex, muscleDef]);
-    end
-    else
-    begin
-      WriteLn('Your files seem to be located in an incorrect folder.');
-      WriteLn('Please move them to their correct location before we can continue.');
     end;
   end;
 
@@ -92,50 +107,51 @@ uses
     r.Free;
   end;
 
-  function RenameByNumber(aOldName, aNewBaseName: string; aNum: integer): string;
+  function RenameByNumber(aOldName, aNewBaseName: string; aNum: integer;
+    aDigits: integer = 2): string;
   begin
-    Result := Format('%s%s%.2d%s', [ExtractFilePath(aOldName),
-      aNewBaseName, aNum, ExtractFileExt(aOldName)]);
+    Result := Format('%s%s%.*d%s', [ExtractFilePath(aOldName),
+      aNewBaseName, aDigits, aNum, ExtractFileExt(aOldName)]);
   end;
 
-  // Attempts to rename a file created by File > Export > Layers to files...
-  // in Photoshop.
-  // Returns if it was that kind of file.
-  function RenamePhotoshop(aOldName, aNewName: string): boolean;
-  var
-    //r: TRegExpr;
-    fileNum: integer;
-  begin
-    // Does the filename end with 'Frame n'?
-    fileNum := GetFileNumber(aOldName, '[Ff]rame.*(\d)\..*$');
-    Result := fileNum <> -1;
-    //r := TRegExpr.Create('[Ff]rame.*(\d)\..*$');
-    //Result := r.Exec(aOldName);
-    if not Result then
-      Exit;
-    //    Generate new name
-    //fileNum := StrToInt(r.Match[1]);
-    //aNewName := Format('%s%s%.2d%s', [ExtractFilePath(aOldName),
-    //  aNewName, fileNum, ExtractFileExt(aOldName)]);
-    //RenameFile(aOldName, aNewName);
-    RenameFile(aOldName, RenameByNumber(aOldName, aNewName, fileNum));
-  end;
-
-  function RenameTypos(aOldName, aNewName: string): boolean;
+  // Attemps to rename a file that ends with a number.
+  function RenameNumbered(aOldName, aNewName: string): boolean;
   var
     fileNum: integer;
   begin
     // Does the filename end with some number?
-    fileNum := GetFileNumber(aOldName, '(\d)+\..*$');
+    fileNum := GetFileNumber(aOldName, '(\d+)\..*$');
     Result := fileNum <> -1;
     if not Result then
       Exit;
     RenameFile(aOldName, RenameByNumber(aOldName, aNewName, fileNum));
   end;
 
+  procedure RenameByFileStamp(aOldName, aNewName: string);
+  var
+    lastModified: longint;
+  begin
+    lastModified := FileAge(aOldName);
+    RenameFile(aOldName, RenameByNumber(aOldName, aNewName, lastModified, 0));
+  end;
+
+  procedure DoRename(aNewName: string);
+  var
+    i: integer;
+  begin
+    for i := 1 to ParamCount do
+      if not RenameNumbered(ParamStr(i), aNewName) then
+      begin
+        ShowNotPhotoshopGenerated(ExtractFileName(ParamStr(i)));
+        RenameByFileStamp(ParamStr(i), aNewName);
+      end;
+  end;
+
 var
-  i: integer;
   newName: string;
+
+{$R *.res}
+
 begin
   if ParamCount < 1 then
   begin
@@ -144,12 +160,15 @@ begin
   end;
 
   newName := GetNewName(ExtractFileDir(ParamStr(1)));
-
-  for i := 1 to ParamCount do
+  if newName = '' then
   begin
-    if not RenamePhotoshop(ParamStr(i), newName) then;
-      RenameTypos(ParamStr(i), newName);
+    ShowIncorrectPrompt;
+    Exit;
   end;
+
+  WriteLn('');
+  DoRename(newName);
+  WriteLn('');
   WriteLn('Files successfully renamed. Press enter to exit.');
   ReadLn;
 end.

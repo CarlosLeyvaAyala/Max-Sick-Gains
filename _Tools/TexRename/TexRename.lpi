@@ -14,6 +14,7 @@
       <Title Value="TexRename"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
+      <Icon Value="0"/>
     </General>
     <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
@@ -57,7 +58,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="TexRename"/>
+            <Filename Value="..\..\Maxick_TexRename"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
