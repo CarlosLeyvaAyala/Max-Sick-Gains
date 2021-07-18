@@ -244,6 +244,13 @@
             "color": "#efefef"
         }
     ],
-}
+},
+"python.pythonPath": "C:\\Python 39\\python.exe",
+"python.linting.banditEnabled": false,
+"python.linting.enabled": true,
+"python.linting.pylintEnabled": true,
+"python.analysis.extraPaths": [
+    "./_Tools/MainPython"
+]
 
 }
