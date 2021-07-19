@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "pyro",
+			"projectFile": "skyrimse.ppj",
+			"gamePath": "F:\\Steam\\steamapps\\common\\Skyrim Special Edition",
+			"problemMatcher": [
+				"$PapyrusCompiler"
+			],
+			"label": "pyro: Compile Project (skyrimse.ppj)"
+		}
+	]
+}
