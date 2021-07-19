@@ -20,17 +20,19 @@ Function _SetTextureSets()
       Actor npc = npcs[i]
       ActorBase b = npc.GetBaseObject() as ActorBase
       ; b.SetSkin(Game.GetFormFromFile(0x00D64, "Skyrim.esm") as Armor)
-      b.SetSkin(NakedBodiesList.GetAt(Utility.RandomInt(0, 1)) as Armor)
+      int rand = Utility.RandomInt(0, 2)
+      b.SetSkin(NakedBodiesList.GetAt(rand) as Armor)
 
       npc.QueueNiNodeUpdate()
       MiscUtil.PrintConsole("###########################################")
       MiscUtil.PrintConsole(DM_Utils.GetActorName(npc))
       MiscUtil.PrintConsole("b skin = " + b.GetSkin())
-      MiscUtil.PrintConsole("b skin name = " + b.GetSkin().GetName())
-      MiscUtil.PrintConsole("b class = " + b.GetClass())
-      MiscUtil.PrintConsole("b class = " + b.GetClass().GetName())
-      MiscUtil.PrintConsole("l class = " + npc.GetLeveledActorBase().GetClass())
-      MiscUtil.PrintConsole("l class = " + npc.GetLeveledActorBase().GetClass().GetName())
+      MiscUtil.PrintConsole("b skin = " + b.GetFormID())
+      MiscUtil.PrintConsole("b rand = " + rand)
+      ; MiscUtil.PrintConsole("b class = " + b.GetClass())
+      ; MiscUtil.PrintConsole("b class = " + b.GetClass().GetName())
+      ; MiscUtil.PrintConsole("l class = " + npc.GetLeveledActorBase().GetClass())
+      ; MiscUtil.PrintConsole("l class = " + npc.GetLeveledActorBase().GetClass().GetName())
       MiscUtil.PrintConsole("###########################################")
   EndWhile
 EndFunction

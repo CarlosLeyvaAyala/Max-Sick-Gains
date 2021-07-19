@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="img">
+    <file>bs-default.png</file>
+    <file>bs-high_50.png</file>
+    <file>bs-low_20.png</file>
+  </qresource>
+</RCC>
