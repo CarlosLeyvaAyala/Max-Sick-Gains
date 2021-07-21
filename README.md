@@ -1,3 +1,5 @@
+[![GitHub version](https://badge.fury.io/gh/CarlosLeyvaAyala%2FMax-Sick-Gains.svg)](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains) ![Project-Status-Active](https://img.shields.io/badge/status-active-green.svg) [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)  [![made-with-Lua](https://img.shields.io/badge/Made%20with-Lua-1f425f.svg)](https://www.lua.org/) [![made-with-lazarus](https://img.shields.io/badge/Made%20with-Lazarus-1f425f.svg)](https://www.lazarus-ide.org/)
+
 # About Max Sick Gains
 
 Skyrim SE mod to change Player Character (PC) body shape by training. \
@@ -36,8 +38,8 @@ Not required, but this mod will detect them and act accordingly.
 This only concerns you if you want to develop this project. \
 You'll need requirements for players (including integrations) plus:
 
-- See Python docs
-- See Lazarus docs
+- See [Python docs][]
+- See [Lazarus docs][]
 - Lua
 - [dmlib][]
 
@@ -84,9 +86,7 @@ To ensure prompt updates to your badge, please set up a webhook for your GitHub 
 https://badge.fury.io/hooks/github
 
 -->
-[![GitHub version](https://badge.fury.io/gh/CarlosLeyvaAyala%2FMax-Sick-Gains.svg)](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains) ![Project-Status-Active](https://img.shields.io/badge/status-active-green.svg)
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![made-with-lazarus](https://img.shields.io/badge/Made%20with-Lazarus-1f425f.svg)](https://www.lazarus-ide.org/)
 <!-- [![made-with-Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](http://commonmark.org) -->
 
 
@@ -109,3 +109,5 @@ https://badge.fury.io/hooks/github
 [visual-studio-code]: https://code.visualstudio.com/
 [vscode-papyrus]: https://marketplace.visualstudio.com/items?itemname=joelday.papyrus-lang-vscode
 [zerobrane-studio]: https://studio.zerobrane.com/
+[Python docs]: _Tools/MainPython
+[Lazarus docs]: _Tools/TexRename
