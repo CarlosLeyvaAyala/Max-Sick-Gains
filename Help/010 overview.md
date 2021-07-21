@@ -230,12 +230,12 @@ Unlike SPP, inactivity here isn't a *do or do not* thing. That is, your inactivi
 
 Just like ==training==, different types of activity will have different type of contribution to consider you physically active.
 
-|Activity type|Contribution to being active|
---|--
-Physical skills[^PhysSkills] | High
-Magic skills[^MagicSkills] | Low
-Training sacks | Very high[^OnTrainingSacks]
-Sex | High
+| Activity type                | Contribution to being active |
+|------------------------------|------------------------------|
+| Physical skills[^PhysSkills] | High                         |
+| Magic skills[^MagicSkills]   | Low                          |
+| Training sacks               | Very high[^OnTrainingSacks]  |
+| Sex                          | High                         |
 
 [^PhysSkills]: One Handed, Two Handed, Archery, Block, Smithing, Sneak, Heavy Armor, Light Armor.
 

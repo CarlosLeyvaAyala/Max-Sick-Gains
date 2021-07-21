@@ -17,6 +17,7 @@ meta.ini
 .vscode/numbered-bookmarks.json
 # No need to upload these to github, since they are going to be built
 *.exe
+**/.mypy_cache/
 
 
 # docs/programmer/diagrams/pngquant.exe

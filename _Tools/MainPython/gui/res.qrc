@@ -1,7 +1,11 @@
 <RCC>
-  <qresource prefix="img">
-    <file>bs-default.png</file>
-    <file>bs-high_50.png</file>
-    <file>bs-low_20.png</file>
+  <qresource prefix="">
+    <file>img/bs-default.png</file>
+    <file>img/bs-high_50.png</file>
+    <file>img/bs-low_20.png</file>
+    <file>img/fitness-journey.png</file>
+  </qresource>
+  <qresource prefix="">
+    <file>icon/MaxSickGains.ico</file>
   </qresource>
 </RCC>

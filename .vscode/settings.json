@@ -160,8 +160,19 @@
     ".vscode/numbered-bookmarks.json": true,
     "_Tools/**/*.exe": true,
     "_Tools/backup/*": true,
-    "_Tools/lib/*": true
-  },
+    "_Tools/lib/*": true,
+    "_Tools/**/backup": true,
+    "_Tools/**/lib": true,
+    "_Tools/MainPython/**/__pycache__/": true,
+    "textures/_src/**/*.tga": true,
+    "textures/_src/**/": true,
+    "textures/_src/**/*.7z": false,
+    "Help/img/_src/**/*": true,
+    ".mypy_cache/**/*": true,
+    "**/serpent.lua": true,
+    "**/*.exe": true,
+    "Help/**/*.html": true
+},
   "highlight.regexes": {
     "(; ?TODO:?)(.*)": [
         {
@@ -246,11 +257,15 @@
     ],
 },
 "python.pythonPath": "C:\\Python 39\\python.exe",
-"python.linting.banditEnabled": false,
+"python.linting.banditEnabled": true,
 "python.linting.enabled": true,
-"python.linting.pylintEnabled": true,
+"python.linting.pylintEnabled": false,
 "python.analysis.extraPaths": [
-    "./_Tools/MainPython"
-]
+    "./_Tools/MainPython",
+    "./_Tools/MainPython/gui",
+    "./_Tools/MainPython/nutsbolts",
+    "./_Tools/MainPython/nutsbolts/DataServer"
+],
+"python.linting.mypyEnabled": false
 
 }
