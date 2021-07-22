@@ -1,5 +1,6 @@
-# About MaxSickGains.exe
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+
+# About MaxSickGains.exe
 
 This program translates user configuration to Lua variables that will be used by Max Sick Gains.esp.
 

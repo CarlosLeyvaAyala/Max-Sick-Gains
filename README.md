@@ -1,4 +1,4 @@
-[![GitHub version](https://badge.fury.io/gh/CarlosLeyvaAyala%2FMax-Sick-Gains.svg)](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains) ![Project-Status-Active](https://img.shields.io/badge/status-active-green.svg) [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)  [![made-with-Lua](https://img.shields.io/badge/Made%20with-Lua-1f425f.svg)](https://www.lua.org/) [![made-with-lazarus](https://img.shields.io/badge/Made%20with-Lazarus-1f425f.svg)](https://www.lazarus-ide.org/)
+[![GitHub version](https://badge.fury.io/gh/CarlosLeyvaAyala%2FMax-Sick-Gains.svg)](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains) ![Project-Status-Active](https://img.shields.io/badge/status-active-green.svg) [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)  [![made-with-Lua](https://img.shields.io/badge/Made%20with-Lua-1f425f.svg)](https://www.lua.org/) [![made-with-lazarus](https://img.shields.io/badge/Made%20with-Lazarus-1f425f.svg)](https://www.lazarus-ide.org/) [![made-with-Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](http://commonmark.org)
 
 # About Max Sick Gains
 
@@ -76,7 +76,6 @@ You'll need requirements for players (including integrations) plus:
   <p>Sparkling and frozen!</p>
 </details> -->
 
----
 
 <!--
 https://badge.fury.io/for/gh/CarlosLeyvaAyala/Max-Sick-Gains?type=svg
@@ -87,7 +86,6 @@ https://badge.fury.io/hooks/github
 
 -->
 
-<!-- [![made-with-Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](http://commonmark.org) -->
 
 
 <!-- -------------------------------------------- -->

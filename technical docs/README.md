@@ -7,5 +7,5 @@ If you want to know about technical thing related to the homebrew apps made for 
 - [Main app][]
 - [TexRename][]
 
-[Main app]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/tree/master/_Tools/MainPython
-[TexRename]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/tree/master/_Tools/TexRename
+[Main app]: ../_Tools/MainPython
+[TexRename]: ../_Tools/TexRename

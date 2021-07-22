@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import QAbstractSlider, QFileDialog, QLineEdit, QSlider
+from PyQt5.QtWidgets import QAbstractSlider, QSlider, QDesktopWidget
+from nutsbolts.GUIController.FitStagesNavCtrl import FitStagesNav
 from nutsbolts.DataServer.FitnessLvlDataServer import FitnessLvlDataServer
 from qtrangeslider import QLabeledRangeSlider, QRangeSlider
 # from nutsbolts import DataServer
@@ -18,33 +19,60 @@ QtWidgets.QApplication.setAttribute(
 class Maxick():
     def __init__(self) -> None:
         self.data = []
-        self.__fitLvlSrvr = FitnessLvlDataServer()
+        self.__fitStagesSrvr = FitnessLvlDataServer()
         app = QtWidgets.QApplication(sys.argv)
         self.initWidgets()
         self.update_widgets()
         self.widgetActions()
         self.newDoc()
         self.connectListViews()
+        self.__fitStagesNav = FitStagesNav(
+            self, self.__fitStagesSrvr, self.ui, self.ui.lv_FitStages_nav)
 
         self.MainWindow.show()
+        self.CenterWindow()
         sys.exit(app.exec_())
+
+    def CenterWindow(self):
+        qtRectangle = self.MainWindow.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.MainWindow.move(qtRectangle.topLeft())
 
     def initWidgets(self):
         self.MainWindow = QtWidgets.QMainWindow()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
 
+        # Can't create in Designer. Had to create them by code.
+
         # https://pypi.org/project/QtRangeSlider/
         # https://www.tutorialspoint.com/pyqt/pyqt_qslider_widget_signal.htm
-        self.initWeightSl(1)
-        self.initMuscleSl()
-        self.initBlendSl()
+        self.InitWeightSl(1)
+        self.InitMuscleSl(3)
+        self.InitBlendSl(4)
 
         self.gradient = Gradient()
         self.ui.verticalLayout_PlayerStages.addWidget(self.gradient)
+
+        # Models
+        self.__fitTypesModel = QStandardItemModel(None)
+        self.FillCombobox(self.ui.cb_FitStages_muscleType,
+                          self.__fitTypesModel, ['Plain', 'Athletic', 'Fat'])
+        self.__fitStageRippedLvlModel = QStandardItemModel(None)
+        self.FillCombobox(self.ui.cb_FitStages_muscleLvl,
+                          self.__fitStageRippedLvlModel,
+                          ['Allow all', '1', '2', '3', '4', '5', '6'])
+
         # self.MainWindow.setCentralWidget(self.gradient)
 
-    def initWeightSl(self, pos):
+    def FillCombobox(self, cb, model, items):
+        for val in items:
+            item = QStandardItem(val)
+            model.appendRow(item)
+        cb.setModel(model)
+
+    def InitWeightSl(self, pos):
         self.slBsWeight = QLabeledRangeSlider(QtCore.Qt.Orientation.Horizontal)
         self.slBsWeight.setHandleLabelPosition(
             QLabeledRangeSlider.LabelPosition.LabelsBelow)
@@ -58,7 +86,7 @@ class Maxick():
         self.ui.formLayout_3.setWidget(
             pos, QtWidgets.QFormLayout.FieldRole, self.slBsWeight)
 
-    def initMuscleSl(self):
+    def InitMuscleSl(self, pos):
         self.slBsMuscle = QLabeledRangeSlider(QtCore.Qt.Orientation.Horizontal)
         self.slBsMuscle.setHandleLabelPosition(
             QLabeledRangeSlider.LabelPosition.LabelsBelow)
@@ -70,9 +98,9 @@ class Maxick():
             'Click on this control, then press Shift + F1 for detailed info on it')
         self.ui.formLayout_3.addWidget(self.slBsMuscle)
         self.ui.formLayout_3.setWidget(
-            3, QtWidgets.QFormLayout.FieldRole, self.slBsMuscle)
+            pos, QtWidgets.QFormLayout.FieldRole, self.slBsMuscle)
 
-    def initBlendSl(self):
+    def InitBlendSl(self, pos):
         self.slBsBlend = QLabeledRangeSlider(QtCore.Qt.Orientation.Horizontal)
         self.slBsBlend.setHandleLabelPosition(
             QLabeledRangeSlider.LabelPosition.LabelsBelow)
@@ -86,7 +114,7 @@ class Maxick():
             'Click on this control, then press Shift + F1 for detailed info on it')
         self.ui.formLayout_3.addWidget(self.slBsBlend)
         self.ui.formLayout_3.setWidget(
-            4, QtWidgets.QFormLayout.FieldRole, self.slBsBlend)
+            pos, QtWidgets.QFormLayout.FieldRole, self.slBsBlend)
 
     def widgetActions(self):
         self.ui.actionExit.triggered.connect(lambda: self.MainWindow.close())
@@ -105,30 +133,11 @@ class Maxick():
         self.ui.verticalLayout_PlayerStages.addStretch()
 
     def connectListViews(self):
-        self.fitStagesModel = self.__fitLvlSrvr.model
+        self.fitStagesModel = self.__fitStagesSrvr.model
 
-        self.ui.LV_FitStages_nav.setModel(self.fitStagesModel)
-        self.fitStagesModel.itemChanged.connect(
-            lambda item: print(item.text()))
+        # self.fitStagesModel.itemChanged.connect(
+        #     lambda item: print(item.text()))
         self.ui.cbNPC_ClassFitness.setModel(self.fitStagesModel)
-        self.ui.LV_FitStages_nav.clicked.connect(self.nav)
-        self.ui.LV_FitStages_nav.activated.connect(self.nav)
-        self.ui.LV_FitStages_nav.pressed.connect(lambda: print(self.data))
-        self.ui.ed_FitStages_name.editingFinished.connect(
-            lambda: self.fitStagesModel.item(self.itemIndex).setText(self.ui.ed_FitStages_name.text()))
-        self.ui.btn_FitStages_femBs.clicked.connect(
-            lambda: self.setFitStageBs(self.ui.ed_FitStages_femBs))
-
-    def setFitStageBs(self, edit: QLineEdit):
-        options = QFileDialog.Options()
-        fileName, _ = QFileDialog.getOpenFileName(
-            self.MainWindow, "Select a Bodyslide preset", "", "Bodyslide preset (*.xml)", options=options)
-        edit.setText(fileName)
-        # self.ui.btn_FitStages_FBs.pressed.connect(lambda: print('press'))
-
-    def nav(self, idx):
-        self.itemIndex = idx.row()
-        print(self.itemIndex, idx.data())
 
     def newDoc(self):
         return

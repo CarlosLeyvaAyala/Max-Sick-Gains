@@ -12,4 +12,4 @@ If no number was found, it renames it using user input and the file timestamp.
 - [Lazarus IDE][]
 
 [Lazarus IDE]: https://www.lazarus-ide.org/
-[Photoshop action]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/Skyrim%20Texture%20Manipulation.atn
+[Photoshop action]: ../../Skyrim%20Texture%20Manipulation.atn
