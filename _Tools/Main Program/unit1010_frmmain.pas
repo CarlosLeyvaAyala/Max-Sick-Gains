@@ -5,9 +5,10 @@ unit unit1010_frmMain;
 interface
 
 uses
-  SysUtils, Forms, Controls, Graphics, ComCtrls, Menus, StdCtrls, ExtCtrls,
-  Spin, EditBtn, CheckLst, LazHelpHTML, RTTICtrls, BGRAGraphicControl, HtmlView,
-  BGRABitmap, BGRAClasses, BGRABitmapTypes;
+  SysUtils, SQLite3Conn, SQLDB, DB, Forms, Controls, Graphics, ComCtrls, Menus,
+  StdCtrls, ExtCtrls, Spin, EditBtn, CheckLst, LazHelpHTML, DBGrids, DBCtrls,
+  unit_9010_DmMain, RTTICtrls, BGRAGraphicControl, HtmlView, BGRABitmap,
+  BGRAClasses, BGRABitmapTypes, Classes, SQLScript;
 
 type
 
@@ -15,6 +16,9 @@ type
 
   TfrmMain = class(TForm)
     chkBSInvert: TCheckBox;
+    DBEdit1: TDBEdit;
+    DBGrid1: TDBGrid;
+    DBLookupComboBox1: TDBLookupComboBox;
     GCPlayer: TBGRAGraphicControl;
     CheckBox2: TCheckBox;
     CheckListBox1: TCheckListBox;
@@ -61,8 +65,12 @@ type
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
+    procedure FormCreate(Sender: TObject);
     procedure GCPlayerRedraw(Sender: TObject; b: TBGRABitmap);
     procedure pbPlayerJourneyPaint(Sender: TObject);
+    procedure SQLScript_newDBDirective(Sender: TObject; Directive,
+      Argument: AnsiString; var StopExecution: Boolean);
   private
     procedure PaintPlayerSummary;
     function PaintFitLvl(const b: TBGRABitmap; aName: string;
@@ -85,6 +93,12 @@ implementation
 procedure TfrmMain.pbPlayerJourneyPaint(Sender: TObject);
 begin
   PaintPlayerSummary;
+end;
+
+procedure TfrmMain.SQLScript_newDBDirective(Sender: TObject; Directive,
+  Argument: AnsiString; var StopExecution: Boolean);
+begin
+
 end;
 
 procedure TfrmMain.PaintPlayerSummary;
@@ -166,6 +180,32 @@ begin
   //  BGRABlack, BGRAPixelTransparent, gtLinear,
   //  PointF(0, 0), PointF(100, 0), dmDrawWithTransparency
   //  );
+end;
+
+procedure TfrmMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  //SQLQuery1.ApplyUpdates;
+  //SQLite3Connection1.Close(true);
+end;
+
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+  //SQLQuery1.Close;
+  //SQLTransaction1.CloseDataSets;
+  //SQLTransaction1.Active:=false;
+  //DeleteFile(ExtractFilePath(Application.ExeName) + 'temp.db');
+  //with SQLite3Connection1 do
+  //begin
+  //  Close(true);
+  //  DatabaseName:=ExtractFilePath(Application.ExeName) + 'temp.db';
+  //  OpenFlags:=[sofCreate, sofReadWrite];
+  //  Open;
+  //end;
+  //SQLScript_newDB.ExecuteScript;
+  //SQLTransaction1.Active:=true;
+  //SQLQuery1.Open;
+
+  //SQLQuery1.ApplyUpdates;
 end;
 
 

@@ -26,24 +26,27 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <RequiredPackages Count="5">
+    <RequiredPackages Count="6">
       <Item1>
-        <PackageName Value="FrameViewer09"/>
+        <PackageName Value="FCL"/>
       </Item1>
       <Item2>
-        <PackageName Value="bgracontrols"/>
+        <PackageName Value="FrameViewer09"/>
       </Item2>
       <Item3>
-        <PackageName Value="LazControls"/>
+        <PackageName Value="bgracontrols"/>
       </Item3>
       <Item4>
-        <PackageName Value="RunTimeTypeInfoControls"/>
+        <PackageName Value="LazControls"/>
       </Item4>
       <Item5>
-        <PackageName Value="LCL"/>
+        <PackageName Value="RunTimeTypeInfoControls"/>
       </Item5>
+      <Item6>
+        <PackageName Value="LCL"/>
+      </Item6>
     </RequiredPackages>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="MaxSickGains.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -56,6 +59,14 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="unit1010_frmMain"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="unit_9010_dmmain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Dm_main"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="DataModule"/>
+        <UnitName Value="unit_9010_DmMain"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

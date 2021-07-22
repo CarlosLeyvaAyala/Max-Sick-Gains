@@ -24,7 +24,9 @@ class FitStagesNav(ListNav):
         self._OnLineNav(self._ui.ed_FitStages_name, 'name')
         self._OnLineNav(self._ui.ed_FitStages_displayName, 'displayName')
         self._OnLineNav(self._ui.ed_FitStages_femBs, 'femBs')
+        self._OnLineNav(self._ui.ed_FitStages_femBsUrl, 'femBsUrl')
         self._OnLineNav(self._ui.ed_FitStages_manBs, 'manBs')
+        self._OnLineNav(self._ui.ed_FitStages_manBsUrl, 'manBsUrl')
         self._OnComboNav(self._ui.cb_FitStages_muscleType, 'muscleDefType')
         self._OnComboNav(self._ui.cb_FitStages_muscleLvl, 'muscleDef')
         self._ui.mmo_FitStages_racesExcl.setPlainText(
@@ -33,18 +35,28 @@ class FitStagesNav(ListNav):
     def _AssociateCallbacks(self):
         self.__ControlsOnEdit()
         # Bodyslide buttons
-        self._ui.btn_FitStages_femBs.clicked.connect(
-            lambda: self.setFitStageBs('femBs', self._ui.ed_FitStages_femBs))
+        self.__BsBtn(self._ui.btn_FitStages_femBs,
+                     self._ui.ed_FitStages_femBs, 'femBs')
+        self.__BsBtn(self._ui.btn_FitStages_manBs,
+                     self._ui.ed_FitStages_manBs, 'manBs')
         self.__CreateNavContextMenu()
 
-    # Values updated when controls change
+    def __BsBtn(self, btn, edt, key: str):
+        """Asociates some button to a open Bodyslide dialog and it's line edit."""
+        btn.clicked.connect(lambda: self.setFitStageBs(key, edt))
+
     def __ControlsOnEdit(self):
+        '''Values updated when controls change'''
         self._OnLineEdited(self._ui.ed_FitStages_name, 'name')
         self._OnLineEdited(self._ui.ed_FitStages_displayName, 'displayName')
         self._OnLineEdited(self._ui.ed_FitStages_femBs, 'femBs')
+        self._OnLineEdited(self._ui.ed_FitStages_femBsUrl, 'femBsUrl')
+        self._OnLineEdited(self._ui.ed_FitStages_manBs, 'manBs')
+        self._OnLineEdited(self._ui.ed_FitStages_manBsUrl, 'manBsUrl')
         # Combo boxes
         self._OnComboEdited(self._ui.cb_FitStages_muscleType, 'muscleDefType')
         self._OnComboEdited(self._ui.cb_FitStages_muscleLvl, 'muscleDef')
+        self._OnMemoEdited(self._ui.mmo_FitStages_racesExcl, 'excludedRaces')
 
     # Creates the context menu when right clicked the nav
     # https://wiki.python.org/moin/PyQt/Handling%20context%20menus

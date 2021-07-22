@@ -48,9 +48,9 @@ class Maxick():
 
         # https://pypi.org/project/QtRangeSlider/
         # https://www.tutorialspoint.com/pyqt/pyqt_qslider_widget_signal.htm
-        self.InitWeightSl(1)
-        self.InitMuscleSl(3)
-        self.InitBlendSl(4)
+        self.__InitWeightSl(1)
+        self.__InitMuscleSl(3)
+        self.__InitBlendSl(4)
 
         self.gradient = Gradient()
         self.ui.verticalLayout_PlayerStages.addWidget(self.gradient)
@@ -64,57 +64,42 @@ class Maxick():
                           self.__fitStageRippedLvlModel,
                           ['Allow all', '1', '2', '3', '4', '5', '6'])
 
-        # self.MainWindow.setCentralWidget(self.gradient)
-
     def FillCombobox(self, cb, model, items):
         for val in items:
             item = QStandardItem(val)
             model.appendRow(item)
         cb.setModel(model)
 
-    def InitWeightSl(self, pos):
-        self.slBsWeight = QLabeledRangeSlider(QtCore.Qt.Orientation.Horizontal)
-        self.slBsWeight.setHandleLabelPosition(
+    def __NewRangeSlider(self, min, max, interval, val):
+        sl = QLabeledRangeSlider(QtCore.Qt.Orientation.Horizontal)
+        sl.setHandleLabelPosition(
             QLabeledRangeSlider.LabelPosition.LabelsBelow)
-        self.slBsWeight.setMaximum(100)
-        self.slBsWeight.setTickInterval(10)
-        self.slBsWeight.setValue([0, 100])
-        self.slBsWeight.setTickPosition(QSlider.TicksBothSides)
-        self.slBsWeight.setToolTip(
+        sl.setEdgeLabelMode(QLabeledRangeSlider.EdgeLabelMode.NoLabel)
+        sl.setMinimum(min)
+        sl.setMaximum(max)
+        sl.setTickInterval(interval)
+        sl.setValue(val)
+        sl.setTickPosition(QSlider.TicksBothSides)
+        sl.setToolTip(
             'Click on this control, then press Shift + F1 for detailed info on it')
-        self.ui.formLayout_3.addWidget(self.slBsWeight)
-        self.ui.formLayout_3.setWidget(
-            pos, QtWidgets.QFormLayout.FieldRole, self.slBsWeight)
+        return sl
 
-    def InitMuscleSl(self, pos):
-        self.slBsMuscle = QLabeledRangeSlider(QtCore.Qt.Orientation.Horizontal)
-        self.slBsMuscle.setHandleLabelPosition(
-            QLabeledRangeSlider.LabelPosition.LabelsBelow)
-        self.slBsMuscle.setMinimum(1)
-        self.slBsMuscle.setMaximum(6)
-        self.slBsMuscle.setValue([1, 6])
-        self.slBsMuscle.setTickPosition(QSlider.TicksBothSides)
-        self.slBsMuscle.setToolTip(
-            'Click on this control, then press Shift + F1 for detailed info on it')
-        self.ui.formLayout_3.addWidget(self.slBsMuscle)
-        self.ui.formLayout_3.setWidget(
-            pos, QtWidgets.QFormLayout.FieldRole, self.slBsMuscle)
+    def __SetFieldCtrlPos(self, pos: int, lyt, ctrl):
+        '''Sets a control as `Field` in a `Form Layout`.'''
+        lyt.addWidget(ctrl)
+        lyt.setWidget(pos, QtWidgets.QFormLayout.FieldRole, ctrl)
 
-    def InitBlendSl(self, pos):
-        self.slBsBlend = QLabeledRangeSlider(QtCore.Qt.Orientation.Horizontal)
-        self.slBsBlend.setHandleLabelPosition(
-            QLabeledRangeSlider.LabelPosition.LabelsBelow)
-        self.slBsBlend.setMinimum(5)
-        self.slBsBlend.setMaximum(30)
-        self.slBsBlend.setValue([20])
-        self.slBsBlend.setTickPosition(QSlider.TicksBothSides)
-        self.slBsBlend.setTickInterval(5)
-        self.slBsBlend.setPageStep(10)
-        self.slBsBlend.setToolTip(
-            'Click on this control, then press Shift + F1 for detailed info on it')
-        self.ui.formLayout_3.addWidget(self.slBsBlend)
-        self.ui.formLayout_3.setWidget(
-            pos, QtWidgets.QFormLayout.FieldRole, self.slBsBlend)
+    def __InitWeightSl(self, pos):
+        self.slBsWeight = self.__NewRangeSlider(0, 100, 10, [0, 100])
+        self.__SetFieldCtrlPos(pos, self.ui.formLayout_3, self.slBsWeight)
+
+    def __InitMuscleSl(self, pos):
+        self.slBsMuscle = self.__NewRangeSlider(1, 6, 1, [1, 6])
+        self.__SetFieldCtrlPos(pos, self.ui.formLayout_3, self.slBsMuscle)
+
+    def __InitBlendSl(self, pos):
+        self.slBsBlend = self.__NewRangeSlider(5, 30, 5, [20])
+        self.__SetFieldCtrlPos(pos, self.ui.formLayout_3, self.slBsBlend)
 
     def widgetActions(self):
         self.ui.actionExit.triggered.connect(lambda: self.MainWindow.close())

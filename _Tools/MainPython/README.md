@@ -7,12 +7,20 @@ This program translates user configuration to Lua variables that will be used by
 # Dependencies
 
 * Python 3.9.6+
+
 * [PyQt5][]
+
 * PyQt5 designer \
   ```pip install pyqt5-tools```
+
 * [QtRangeSlider][] \
   ```pip install qtrangeslider[pyqt5]```
 
+* [PyInstaller][] \
+  ```pip install pyinstaller```
 
+
+
+[PyInstaller]: https://pyinstaller.readthedocs.io/en/stable/installation.html
 [PyQt5]: https://www.riverbankcomputing.com/static/Docs/PyQt5/installation.html
 [QtRangeSlider]: https://pypi.org/project/QtRangeSlider/

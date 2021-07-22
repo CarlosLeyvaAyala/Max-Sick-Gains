@@ -1,0 +1,175 @@
+object Dm_main: TDm_main
+  OnCreate = DataModuleCreate
+  OnDestroy = DataModuleDestroy
+  OldCreateOrder = False
+  Height = 707
+  HorizontalOffset = 777
+  VerticalOffset = 326
+  Width = 982
+  PPI = 168
+  object conn_DB: TSQLite3Connection
+    Connected = True
+    LoginPrompt = False
+    DatabaseName = 'F:\Skyrim SE\MO2\mods\Max Sick Gains\_Tools\Main Program\blankDB.db'
+    KeepConnection = True
+    Transaction = trans_main
+    AlwaysUseBigint = False
+    Left = 184
+    Top = 16
+  end
+  object trans_main: TSQLTransaction
+    Active = True
+    Database = conn_DB
+    Left = 272
+    Top = 64
+  end
+  object SQLScript_newFile: TSQLScript
+    Transaction = trans_main
+    OnDirective = SQLScript_newFileDirective
+    AutoCommit = False
+    UseDollarString = False
+    Directives.Strings = (
+      'SET TERM'
+      'COMMIT WORK'
+      'COMMIT RETAIN'
+      'COMMIT'
+      '#IFDEF'
+      '#IFNDEF'
+      '#ELSE'
+      '#ENDIF'
+      '#DEFINE'
+      '#UNDEF'
+      '#UNDEFINE'
+    )
+    Script.Strings = (
+      'CREATE TABLE IF NOT EXISTS "Stages" ('
+      #9'"Id"'#9'INTEGER NOT NULL UNIQUE,'
+      #9'"name"'#9'VARCHAR(20) DEFAULT ''New Fitness stage'','
+      #9'"displayName"'#9'TEXT,'
+      #9'"femBsXml"'#9'TEXT,'
+      #9'"femBsUrl"'#9'TEXT,'
+      #9'"manBsXml"'#9'TEXT,'
+      #9'"manBsUrl"'#9'TEXT,'
+      #9'"excludedRaces"'#9'TEXT DEFAULT ''Child'','
+      #9'"muscleDefType"'#9'INTEGER DEFAULT 0,'
+      #9'"muscleDefLvl"'#9'INTEGER DEFAULT 0,'
+      #9'PRIMARY KEY("Id" AUTOINCREMENT)'
+      ');'
+      'CREATE TABLE IF NOT EXISTS "MuscleDefTypes" ('
+      #9'"Id"'#9'INTEGER NOT NULL UNIQUE,'
+      #9'"name"'#9'VARCHAR(20),'
+      #9'PRIMARY KEY("Id" AUTOINCREMENT)'
+      ');'
+      'INSERT INTO "Stages" VALUES (1,''Default'',NULL,NULL,NULL,NULL,NULL,''Child'',0,0);'
+      'INSERT INTO "MuscleDefTypes" VALUES (1,''Plain'');'
+      'INSERT INTO "MuscleDefTypes" VALUES (2,''Athletic'');'
+      'INSERT INTO "MuscleDefTypes" VALUES (3,''Fat'');'
+    )
+    Terminator = ';'
+    CommentsinSQL = True
+    UseSetTerm = True
+    UseCommit = True
+    UseDefines = True
+    Left = 64
+    Top = 72
+  end
+  object qry_fitStages: TSQLQuery
+    PacketRecords = -1
+    MaxIndexesCount = 4
+    FieldDefs = <    
+      item
+        Name = 'Id'
+        DataType = ftInteger
+        Precision = -1
+      end    
+      item
+        Name = 'name'
+        DataType = ftString
+        Precision = -1
+        Size = 20
+      end    
+      item
+        Name = 'displayName'
+        DataType = ftMemo
+        Precision = -1
+      end    
+      item
+        Name = 'femBsXml'
+        DataType = ftMemo
+        Precision = -1
+      end    
+      item
+        Name = 'femBsUrl'
+        DataType = ftMemo
+        Precision = -1
+      end    
+      item
+        Name = 'manBsXml'
+        DataType = ftMemo
+        Precision = -1
+      end    
+      item
+        Name = 'manBsUrl'
+        DataType = ftMemo
+        Precision = -1
+      end    
+      item
+        Name = 'excludedRaces'
+        DataType = ftMemo
+        Precision = -1
+      end    
+      item
+        Name = 'muscleDefType'
+        DataType = ftInteger
+        Precision = -1
+      end    
+      item
+        Name = 'muscleDefLvl'
+        DataType = ftInteger
+        Precision = -1
+      end>
+    Database = conn_DB
+    Transaction = trans_main
+    SQL.Strings = (
+      'SELECT * FROM Stages'
+    )
+    Options = [sqoKeepOpenOnCommit, sqoAutoApplyUpdates, sqoAutoCommit]
+    Params = <>
+    UpdateMode = upWhereAll
+    Left = 168
+    Top = 320
+  end
+  object ds_fitStages: TDataSource
+    DataSet = qry_fitStages
+    Left = 744
+    Top = 399
+  end
+  object ds_muscleDefTypes: TDataSource
+    AutoEdit = False
+    DataSet = qry_muscleDefTypes
+    Left = 808
+    Top = 551
+  end
+  object qry_muscleDefTypes: TSQLQuery
+    MaxIndexesCount = 4
+    FieldDefs = <    
+      item
+        Name = 'Id'
+        DataType = ftAutoInc
+        Precision = -1
+      end    
+      item
+        Name = 'name'
+        DataType = ftMemo
+        Precision = -1
+      end>
+    Database = conn_DB
+    Transaction = trans_main
+    SQL.Strings = (
+      'SELECT * FROM MuscleDefTypes'
+    )
+    Params = <>
+    Left = 326
+    Top = 366
+  end
+end

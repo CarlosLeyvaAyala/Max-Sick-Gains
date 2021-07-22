@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>848</width>
-    <height>452</height>
+    <width>634</width>
+    <height>513</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -390,6 +390,9 @@ font: 75 10pt &quot;MS Shell Dlg 2&quot;;
              <string>Bodyslide preset</string>
             </property>
             <layout class="QFormLayout" name="formLayout_3">
+             <property name="rightMargin">
+              <number>15</number>
+             </property>
              <item row="1" column="0">
               <widget class="QLabel" name="label_10">
                <property name="whatsThis">
@@ -935,8 +938,8 @@ If min &gt; max, Bodyslide will be inversely applied; like if you lost weight in
        <widget class="QSlider" name="verticalSlider">
         <property name="geometry">
          <rect>
-          <x>390</x>
-          <y>200</y>
+          <x>290</x>
+          <y>220</y>
           <width>201</width>
           <height>16</height>
          </rect>
@@ -1382,7 +1385,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>848</width>
+     <width>634</width>
      <height>22</height>
     </rect>
    </property>
@@ -1463,7 +1466,6 @@ p, li { white-space: pre-wrap; }
  </widget>
  <layoutdefault spacing="6" margin="9"/>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
   <tabstop>lv_FitStages_nav</tabstop>
   <tabstop>ed_FitStages_name</tabstop>
   <tabstop>ed_FitStages_femBs</tabstop>

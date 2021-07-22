@@ -7,6 +7,8 @@ import pprint
 
 
 class DataServer(ABC):
+    recordType = ''  # Used for saving/loading info. Each descendant needs to override this
+
     def __init__(self) -> None:
         self._model = QStandardItemModel(None)
         self.__data = []
@@ -38,9 +40,8 @@ class DataServer(ABC):
     def _NewRecordData(self):
         pass
 
-    @abstractmethod
     def ReadFromFile(self, fileName):
-        pass
+        return
 
     def _FillModel(self):
         self._model.clear()

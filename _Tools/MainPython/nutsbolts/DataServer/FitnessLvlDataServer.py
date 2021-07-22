@@ -4,21 +4,23 @@ from nutsbolts.DataServer import DataServer
 
 
 class FitnessLvlDataServer(DataServer.DataServer):
+    recordType = 'fitStage'         # Used for saving/loading info.
+
     def __init__(self) -> None:
         super().__init__()
-
-    def ReadFromFile(self, fileName):
-        self.NewFile()
 
     def _NewFileData(self):
         return [
             {
-                'type': 'fitStage',         # Used for saving/loadinng info
+                'type': 'fitStage',
                 'id': 1,
                 'name': 'Default',
                 'displayName': 'plain looking',
-                'femBs': '',
+                # FIXME: Set to blank
+                'femBs': 'F:/Skyrim SE/MO2/mods/DM Bodyslide presets/CalienteTools/BodySlide/SliderPresets/DM Amazons 3BA Nude.xml',
+                'femBsUrl': '',
                 'manBs': '',
+                'manBsUrl': '',
                 'muscleDefType': 0,         # 0 - Meh, 1 - Fit, 2 - Fat
                 # 0 - All allowed, [1,6] - Muscle level
                 'muscleDef': 0,
@@ -30,13 +32,15 @@ class FitnessLvlDataServer(DataServer.DataServer):
 
     def _NewRecordData(self):
         return {
-            'type': 'fitStage',         # Used for saving/loadinng info
+            'type': 'fitStage',         # Used for saving/loading info
             # FIXME: Set to max + 1
             'id': 234234,
             'name': 'New stage',
             'displayName': '',
-            'femBs': 'F:/Skyrim SE/MO2/mods/DM Bodyslide presets/CalienteTools/BodySlide/SliderPresets/DM Amazons 3BA Nude.xml',
+            'femBs': '',
+            'femBsUrl': '',
             'manBs': '',
+            'manBsUrl': '',
             'muscleDefType': 0,         # 0 - Meh, 1 - Fit, 2 - Fat
             # 0 - All allowed, [1,6] - Muscle level
             'muscleDef': 0,
