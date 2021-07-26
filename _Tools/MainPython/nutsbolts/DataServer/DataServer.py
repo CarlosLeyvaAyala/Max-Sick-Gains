@@ -9,10 +9,11 @@ import pprint
 class DataServer(ABC):
     recordType = ''  # Used for saving/loading info. Each descendant needs to override this
 
-    def __init__(self) -> None:
+    def __init__(self, master) -> None:
         self._model = QStandardItemModel(None)
         self.__data = []
         self.NewFile()
+        self._masterServer = master
 
     @property
     def model(self) -> QStandardItemModel:
@@ -28,7 +29,10 @@ class DataServer(ABC):
 
     def NewFile(self):
         self.__itemIndex = 0
-        self.__data = self._NewFileData()
+        print(self._masterServer)
+        # self._masterServer.db.insert(self._NewFileData())
+        # print(self._masterServer.db.all())
+        self.__data = [self._NewFileData()]
         self._FillModel()
         # print(self.__data)
 

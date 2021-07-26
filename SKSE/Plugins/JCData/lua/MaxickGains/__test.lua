@@ -181,3 +181,21 @@ local serpent = require('serpent')
 print("length", #fitness)
 print(_Regress(3, -1.01))
 -- print(fitness[1].bs["Butt"].max)
+
+local lt = {
+  [1] = "oeoe",
+  [2] = "id",
+  [3] = {
+      "jkxdi"
+    }
+}
+local tt = {
+  ["meh"] = lt[3]
+  }
+print(lt[3][1])
+print(tt.meh[1])
+lt[3][1] = "fag"
+print(tt.meh[1])
+excludedRaces={
+"Child"
+}

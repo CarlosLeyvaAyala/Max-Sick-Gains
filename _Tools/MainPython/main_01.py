@@ -1,10 +1,9 @@
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
-from PyQt5.QtWidgets import QAbstractSlider, QSlider, QDesktopWidget
+from PyQt5.QtWidgets import QSlider, QDesktopWidget
 from nutsbolts.GUIController.FitStagesNavCtrl import FitStagesNav
-from nutsbolts.DataServer.FitnessLvlDataServer import FitnessLvlDataServer
 from qtrangeslider import QLabeledRangeSlider, QRangeSlider
-# from nutsbolts import DataServer
+from nutsbolts.DataServer.MasterServer import *
 
 from gui.mainWindow import Ui_MainWindow
 from gui.gradient import Gradient
@@ -19,7 +18,7 @@ QtWidgets.QApplication.setAttribute(
 class Maxick():
     def __init__(self) -> None:
         self.data = []
-        self.__fitStagesSrvr = FitnessLvlDataServer()
+        self.__masterServer = MasterServer()
         app = QtWidgets.QApplication(sys.argv)
         self.initWidgets()
         self.update_widgets()
@@ -27,7 +26,7 @@ class Maxick():
         self.newDoc()
         self.connectListViews()
         self.__fitStagesNav = FitStagesNav(
-            self, self.__fitStagesSrvr, self.ui, self.ui.lv_FitStages_nav)
+            self, self.__masterServer.fitnessStage, self.ui, self.ui.lv_FitStages_nav)
 
         self.MainWindow.show()
         self.CenterWindow()
@@ -118,11 +117,12 @@ class Maxick():
         self.ui.verticalLayout_PlayerStages.addStretch()
 
     def connectListViews(self):
-        self.fitStagesModel = self.__fitStagesSrvr.model
+        return
+        # self.fitStagesModel = self.__fitStagesSrvr.model
+        # self.ui.cbNPC_ClassFitness.setModel(self.fitStagesModel)
 
         # self.fitStagesModel.itemChanged.connect(
         #     lambda item: print(item.text()))
-        self.ui.cbNPC_ClassFitness.setModel(self.fitStagesModel)
 
     def newDoc(self):
         return
