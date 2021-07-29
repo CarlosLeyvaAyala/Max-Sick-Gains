@@ -182,20 +182,149 @@ print("length", #fitness)
 print(_Regress(3, -1.01))
 -- print(fitness[1].bs["Butt"].max)
 
-local lt = {
-  [1] = "oeoe",
-  [2] = "id",
-  [3] = {
-      "jkxdi"
-    }
-}
-local tt = {
-  ["meh"] = lt[3]
-  }
-print(lt[3][1])
-print(tt.meh[1])
-lt[3][1] = "fag"
-print(tt.meh[1])
+local fitStages = {
+[1] = {
+displayName="plain",
+femBs={
+["7B Lower"] = {min=0, max=70},
+["7B Upper"] = {min=0, max=30},
+["AppleCheeks"] = {min=20, max=30},
+["AreolaSize"] = {min=0, max=-30},
+["BackValley_v2"] = {min=0, max=70},
+["Belly"] = {min=100, max=-20},
+["BellyFrontDownFat_v2"] = {min=86, max=0},
+["BellyFrontUpFat_v2"] = {min=93, max=0},
+["BellySideDownFat_v2"] = {min=100, max=0},
+["BellySideUpFat_v2"] = {min=88, max=0},
+["BellyUnder_v2"] = {min=100, max=0},
+["BigBelly"] = {min=47, max=-10},
+["BigTorso"] = {min=100, max=40},
+["BreastCenter"] = {min=0, max=30},
+["BreastGravity2"] = {min=62, max=30},
+["BreastHeight"] = {min=20, max=40},
+["Breasts"] = {min=43, max=20},
+["BreastsNewSH"] = {min=37, max=0},
+["BreastsTogether"] = {min=25, max=30},
+["BreastTopSlope"] = {min=75, max=30},
+["BreastWidth"] = {min=18, max=0},
+["Butt"] = {min=0, max=20},
+["ButtSmall"] = {min=0, max=30},
+["CalfSize"] = {min=0, max=80},
+["CalfSmooth"] = {min=0, max=-30},
+["ChestWidth"] = {min=12, max=70},
+["ChubbyArms"] = {min=100, max=15},
+["ChubbyButt"] = {min=100, max=15},
+["ChubbyLegs"] = {min=89, max=5},
+["ChubbyWaist"] = {min=56, max=0},
+["Clit"] = {min=0, max=50},
+["CrotchGap"] = {min=0, max=-50},
+["DoubleMelon"] = {min=33, max=20},
+["FeetFeminine"] = {min=0, max=50},
+["ForearmSize"] = {min=0, max=70},
+["HipBone"] = {min=58, max=0},
+["HipForward"] = {min=100, max=10},
+["HipNarrow_v2"] = {min=10, max=0},
+["Hips"] = {min=100, max=20},
+["HipUpperWidth"] = {min=0, max=-40},
+["Innieoutie"] = {min=0, max=50},
+["LegShapeClassic"] = {min=0, max=30},
+["LegsThin"] = {min=100, max=0},
+["MuscleAbs"] = {min=0, max=60},
+["MuscleArms"] = {min=0, max=40},
+["MuscleBack_v2"] = {min=0, max=20},
+["MuscleButt"] = {min=0, max=20},
+["MuscleLegs"] = {min=0, max=40},
+["NippleDown"] = {min=30, max=50},
+["NippleLength"] = {min=10, max=0},
+["NippleManga"] = {min=0, max=20},
+["NipplePerkiness"] = {min=0, max=20},
+["NippleSize"] = {min=35, max=0},
+["NippleTip"] = {min=10, max=0},
+["NippleUp"] = {min=0, max=-40},
+["RoundAss"] = {min=0, max=10},
+["ShoulderWidth"] = {min=100, max=20},
+["SlimThighs"] = {min=63, max=20},
+["SternumHeight"] = {min=30, max=0},
+["Thighs"] = {min=0, max=55},
+["TummyTuck"] = {min=0, max=25},
+["Waist"] = {min=56, max=0},
+["WideWaistLine"] = {min=100, max=0}
+},
+manBs={
+
+},
+muscleDefType=0,
+muscleDefLvl=0,
 excludedRaces={
 "Child"
 }
+},
+[2] = {
+displayName="",
+femBs={
+["7B Lower"] = {min=70, max=70},
+["7B Upper"] = {min=20, max=30},
+["AppleCheeks"] = {min=16, max=30},
+["AreolaSize"] = {min=-30, max=-30},
+["Arms"] = {min=10, max=0},
+["BackValley_v2"] = {min=0, max=70},
+["Belly"] = {min=-10, max=-20},
+["BigBelly"] = {min=0, max=-10},
+["BigButt"] = {min=-20, max=0},
+["BigTorso"] = {min=10, max=40},
+["BreastCenter"] = {min=10, max=30},
+["BreastGravity2"] = {min=20, max=30},
+["BreastHeight"] = {min=70, max=40},
+["Breasts"] = {min=0, max=20},
+["BreastsTogether"] = {min=40, max=30},
+["BreastTopSlope"] = {min=30, max=30},
+["Butt"] = {min=0, max=20},
+["ButtClassic"] = {min=25, max=0},
+["ButtSmall"] = {min=0, max=30},
+["CalfSize"] = {min=60, max=80},
+["CalfSmooth"] = {min=20, max=-30},
+["CBPC"] = {min=20, max=0},
+["ChestWidth"] = {min=40, max=70},
+["ChubbyArms"] = {min=5, max=15},
+["ChubbyButt"] = {min=10, max=15},
+["ChubbyLegs"] = {min=0, max=5},
+["Clit"] = {min=0, max=50},
+["CrotchGap"] = {min=0, max=-50},
+["DoubleMelon"] = {min=10, max=20},
+["FeetFeminine"] = {min=100, max=50},
+["ForearmSize"] = {min=30, max=70},
+["HipForward"] = {min=5, max=10},
+["Hips"] = {min=20, max=20},
+["HipUpperWidth"] = {min=-20, max=-40},
+["Innieoutie"] = {min=50, max=50},
+["Labiapuffyness"] = {min=30, max=0},
+["LegShapeClassic"] = {min=15, max=30},
+["MuscleAbs"] = {min=20, max=60},
+["MuscleArms"] = {min=20, max=40},
+["MuscleBack_v2"] = {min=0, max=20},
+["MuscleButt"] = {min=10, max=20},
+["MuscleLegs"] = {min=60, max=40},
+["NippleDown"] = {min=50, max=50},
+["NippleManga"] = {min=10, max=20},
+["NipplePerkiness"] = {min=50, max=20},
+["NippleUp"] = {min=-40, max=-40},
+["RoundAss"] = {min=0, max=10},
+["ShoulderSmooth"] = {min=60, max=0},
+["ShoulderWidth"] = {min=40, max=20},
+["SlimThighs"] = {min=40, max=20},
+["Thighs"] = {min=30, max=55},
+["TummyTuck"] = {min=10, max=25},
+["Waist"] = {min=-10, max=0}
+},
+manBs={
+
+},
+muscleDefType=0,
+muscleDefLvl=0,
+excludedRaces={
+"Child"
+}
+}
+}
+--print(serpent.block(fitStages))
+print(serpent.block(fitStages[1].manBs))
