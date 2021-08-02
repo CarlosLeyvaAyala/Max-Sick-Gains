@@ -1,3 +1,4 @@
 *.exe
 **/backup
 **/lib
+!*.7z

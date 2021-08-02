@@ -266,6 +266,9 @@
     "./_Tools/MainPython/nutsbolts",
     "./_Tools/MainPython/nutsbolts/DataServer"
 ],
-"python.linting.mypyEnabled": false
+"python.linting.mypyEnabled": false,
+"Lua.diagnostics.globals": [
+    "jrequire"
+]
 
 }
