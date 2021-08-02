@@ -1,45 +1,47 @@
 Scriptname Maxick_Main extends Quest
 {Main controler for Max Sick Gains}
+
 Import JValue
+import Maxick_Utils
 
 Actor Property Player Auto
 FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
-
-; First time TextureSet setting for actors
-Function _SetTextureSets()
-  string root = "maxickGains"
-  ; https://www.creationkit.com/index.php?title=Unit
-  Actor[] npcs = MiscUtil.ScanCellNPCs(Player, 0, None, false)
-  int i = npcs.length
-  While i > 0
-      i -= 1
-      Actor npc = npcs[i]
-      ActorBase b = npc.GetBaseObject() as ActorBase
-      ; int rand = Utility.RandomInt(0, 2)
-      ; b.SetSkin(NakedBodiesList.GetAt(1) as Armor)
-      ; npc.QueueNiNodeUpdate()
-
-      ; MiscUtil.PrintConsole("###########################################")
-      ; MiscUtil.PrintConsole(DM_Utils.GetActorName(npc))
-      ; MiscUtil.PrintConsole("b skin = " + b.GetSkin())
-      ; MiscUtil.PrintConsole("b skin = " + b.GetFormID())
-      ; MiscUtil.PrintConsole("b rand = " + rand)
-      ; MiscUtil.PrintConsole("b class = " + b.GetClass().GetName())
-      ; MiscUtil.PrintConsole("###########################################")
-
-      ; MiscUtil.PrintConsole("b class = " + b.GetClass())
-      ; MiscUtil.PrintConsole("l class = " + npc.GetLeveledActorBase().GetClass())
-      ; MiscUtil.PrintConsole("l class = " + npc.GetLeveledActorBase().GetClass().GetName())
-  EndWhile
-  ; JValue.writeToFile(JDB.solveObj("." + root), JContainers.userDirectory() + "Maxick.json")
-  ; MiscUtil.PrintConsole(JContainers.userDirectory() + "Maxick.json")
-EndFunction
+Maxick_NPC Property NpcHandler Auto
+{Handles everything NPC related}
 
 int _femSliders
-int _knownNpcs
+int Property femSliders Hidden
+  int Function Get()
+    return _femSliders
+  EndFunction
+EndProperty
 
-; Initializes gets known sliders from some file and inits them at 0.0
+int _manSliders
+int Property manSliders Hidden
+  int Function Get()
+    return _manSliders
+  EndFunction
+EndProperty
+
+
+Event OnInit()
+  Player = Game.GetPlayer()
+  OnGameReload()
+EndEvent
+
+
+Function OnGameReload()
+  Player = Game.GetPlayer()
+  _femSliders = _LoadSliders("data/SKSE/Plugins/Maxick/fem-sliders.json")
+  _manSliders = _LoadSliders("data/SKSE/Plugins/Maxick/man-sliders.json")
+  NpcHandler.Init(self)
+  OnCellLoad()
+EndFunction
+
+; Initializes known sliders from some file and inits them at `0.0`
+; Posible sliders need to be known before we can change their values on a
+; per `Actor` basis.
 int Function _LoadSliders(string aPath)
   int result = JMap.object()
   int sliders = JValue.readFromFile(aPath)
@@ -51,77 +53,39 @@ int Function _LoadSliders(string aPath)
   return result
 EndFunction
 
-Function OnGameReload()
-  Player = Game.GetPlayer()
-  _femSliders = _LoadSliders("data/SKSE/Plugins/Maxick/fem-sliders.json")
-  _knownNpcs = JValue.readFromFile("data/SKSE/Plugins/Maxick/npcs.json")
-  OnCellLoad()
-  ; Actor serana = Game.GetFormFromFile(0x002B74, "Dawnguard.esm") as Actor
-  ; ; MiscUtil.PrintConsole(NiOverride.HasOverlays(serana))
-
-  ; MiscUtil.PrintConsole(NiOverride.HasNodeOverride(serana, true, "Body [Ovl0]", 6, -1))
-  ; _TestMorphs(Player)
-  ; _TestMorphs(Game.GetFormFromFile(0x002B74, "Dawnguard.esm") as Actor)
-  ; RegisterForSingleUpdate(2)
-EndFunction
-
-Function _ProcessNpc(Actor npc)
-  int data = JMap.object()
-  bool isFem = _IsFemale(npc)
-  JMap.setInt(data, "isFem", isFem as int)
-  JMap.setStr(data, "msg", "")
-  ActorBase base = npc.GetBaseObject() as ActorBase
-  MiscUtil.PrintConsole("=====")
-  MiscUtil.PrintConsole("Testing " + DM_Utils.GetActorName(npc))
-  MiscUtil.PrintConsole("=====")
-  if !JFormMap.hasKey(_knownNpcs, base)
-    MiscUtil.PrintConsole("||||||||Fail 1")
-    base = npc.GetLeveledActorBase()
-    if !JFormMap.hasKey(_knownNpcs, base)
-      MiscUtil.PrintConsole("||||||||Fail 2")
-      base = npc.GetActorBase()
-    endif
-  endif
-
-  JMap.setFlt(data, "weight", base.GetWeight())
-  If isFem
-    JMap.setObj(data, "bodySlide", _femSliders)
-  EndIf
-
-  MiscUtil.PrintConsole("Testing actor " + base.GetFormID())
-  ; MiscUtil.PrintConsole("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
-  ; JFormMap.setStr(_knownNpcs, npc, "passed here")
-  ; JValue.writeToFile(_knownNpcs, JContainers.userDirectory() + "__Maxick known.json")
-  ; MiscUtil.PrintConsole(JFormMap.getObj(_knownNpcs, npc))
-  ; MiscUtil.PrintConsole("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
-
-  If JFormMap.hasKey(_knownNpcs, base)
-    MiscUtil.PrintConsole("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
-    MiscUtil.PrintConsole("*** KNOWN NPC *** " + DM_Utils.GetActorName(npc))
-    int values = JFormMap.getObj(_knownNpcs, base)
-    JMap.setInt(data, "fitStage", JMap.getInt(values, "fitStage"))
-    JMap.setInt(data, "weight", JMap.getInt(values, "weight"))
-    JMap.setInt(data, "muscleDef", JMap.getInt(values, "muscleDef"))
-    JMap.setInt(data, "shouldProcess", 1)
-    int result = JValue.evalLuaObj(data, "return maxick.ProcessKnownNPC(jobject)")
-    _ApplyBodyslide(npc, JMap.getObj(result, "bodySlide"))
-    MiscUtil.PrintConsole(JMap.getStr(result, "msg"))
-  EndIf
-
-  return
-
-  JMap.setInt(data, "shouldProcess", 0) ; We still don't know if npc should be processed
-  JMap.setForm(data, "id", npc)
-EndFunction
-
 Function _ApplyBodyslide(Actor aAct, int bodyslide)
   NiOverride.ClearMorphs(aAct)
+
   string slider = JMap.nextKey(bodyslide)
   While slider != ""
     NiOverride.SetMorphValue(aAct, slider, JMap.getFlt(bodyslide, slider))
     slider = JMap.nextKey(bodyslide, slider)
   EndWhile
+
   NiOverride.UpdateModelWeight(aAct)
+EndFunction
+
+Function _ApplyMuscleDef(Actor aAct, int data)
+  int muscleDefType = JMap.getInt(data, "muscleDefType")
+  If muscleDefType >= 0
+    int muscleDef = JMap.getInt(data, "muscleDef")
+
+    ActorBase b = aAct.GetBaseObject() as ActorBase
+    FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
+    b.SetSkin(defType.GetAt(muscleDef) as Armor)
+    ; FIXME: Check that the actor is not mounting before doing this
+    aAct.QueueNiNodeUpdate()
+  EndIf
+EndFunction
+
+Function _ChangeAppearance(Actor aAct, int data)
+  Log(JMap.getStr(data, "msg"))
+  If !JMap.getInt(data, "shouldProcess")
+    return
+  EndIf
+  ; FIXME: Check if this should be done
+  _ApplyBodyslide(aAct, JMap.getObj(data, "bodySlide"))
+  _ApplyMuscleDef(aAct, data)
 EndFunction
 
 Function OnCellLoad()
@@ -129,17 +93,13 @@ Function OnCellLoad()
   int i = npcs.length
   While i > 0
     If npcs[i] != Player
-      _ProcessNpc(npcs[i])
+      _ChangeAppearance(npcs[i], NpcHandler.ProcessNpc(npcs[i]))
     EndIf
     i -= 1
   EndWhile
   _TestMorphs(Player)
   ; _SetTextureSets()
 EndFunction
-
-Event OnInit()
-  Player = Game.GetPlayer()
-EndEvent
 
 Function _TestMorphs(Actor aAct)
   NiOverride.ClearMorphs(aAct)
@@ -205,11 +165,11 @@ EndFunction
 ;>========================================================
 
 ; It seems GetSex won't work if used inside a Global function; it can't be added to a library.
-bool Function _IsFemale(Actor aAct)
+bool Function IsFemale(Actor aAct)
   return aAct.GetLeveledActorBase().GetSex() == 1
 EndFunction
 
 ; Gets the race for an actor as a string.
-string Function _GetRace(Actor aAct)
+string Function GetRace(Actor aAct)
   return MiscUtil.GetActorRaceEditorID(aAct)
 EndFunction

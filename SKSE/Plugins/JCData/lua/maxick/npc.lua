@@ -5,27 +5,46 @@ local db = jrequire 'maxick.database'
 -- local serpent = require("serpent")
 
 --;>-----------------------------------
+
+local LogFactory  = function (actorData)
+  return function (message) actorData.msg = actorData.msg .. message .. ". " end
+end
+
+--- Closure to log operations to `Actor.msg`.
+--- Will be closed when `Actor` is known.
+---@type function
+local Log
+
+--;>-----------------------------------
+
+--- Sets all slider values to 0.
 local function _ClearBodySlide(bs)
-  for slider, _ in pairs(bs) do
-    bs[slider] = 0
-  end
+  for slider, _ in pairs(bs) do bs[slider] = 0 end
 end
 
 --;>-----------------------------------
+
 --- Calculates the value for a slider. This value is ready to be used by
---- `NiOverride.SetMorphValue`
----@param gains integer [0..100]
----@param min integer [0..100]
----@param max integer [0..100]
----@return number
+--- `NiOverride.SetMorphValue()`
+---@param gains integer 0 to 100. Skyrim weight related and `gains` for current player fitness stage.
+---@param min integer 0 to 100. Skyrim weight related.
+---@param max integer 0 to 100. Skyrim weight related.
+---@return number sliderValue value
 local function _BlendMorph(gains, min, max)
   return l.linCurve({x=0, y=min}, {x=100, y=max})(gains) / 100
 end
 
 --;>-----------------------------------
-local function _SetBodySlide(actor, weight, bs, method)
+
+---Sets all slider numbers for an actor using some `method`.
+---@param actor table
+---@param weight integer
+---@param bs table
+---@param method function
+local function SetBodySlide(actor, weight, bs, method)
   -- print(serpent.block(bs))
   _ClearBodySlide(actor.bodySlide)
+
   for slider, values in pairs(bs) do
     actor.bodySlide[slider] = method(weight, values.min, values.max)
   end
@@ -58,12 +77,31 @@ end
 -- end
 
 --;>-----------------------------------
-function npc.ProcessKnownNPC(actor)
-  actor.msg = "Known actor " .. actor.fitStage
-  local bs = actor.isFem and db.fitStages[actor.fitStage].femBs or db.fitStages[actor.fitStage].manBs
-  _SetBodySlide(actor, actor.weight, bs, _BlendMorph)
+local function _SolveBodyslide(actor, fitStage)
+  if actor.weight >= 0 then
+    local bs = actor.isFem and fitStage.femBs or fitStage.manBs
+    SetBodySlide(actor, actor.weight, bs, _BlendMorph)
+  else Log("Actor was banned from changing body shape")
+  end
+end
 
-  -- print(serpent.block(actor))
+--;>-----------------------------------
+local function _SolveMuscleDef(actor, fitStage)
+  if actor.muscleDef >= 0 then
+    actor.muscleDefType = fitStage.muscleDefType
+  else
+    actor.muscleDefType = -1
+    Log("Won't change muscle definition")
+  end
+end
+
+--;>-----------------------------------
+function npc.ProcessKnownNPC(actor)
+  Log = LogFactory(actor)
+  local fitStage = db.fitStages[actor.fitStage]
+
+  _SolveBodyslide(actor, fitStage)
+  _SolveMuscleDef(actor, fitStage)
   return actor
 end
 

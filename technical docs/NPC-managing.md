@@ -5,29 +5,18 @@ Apply to NPC:
 ```{}
 
 if it's a known actor
-  if not banned
-    apply bodyslide
-    apply muscle definition
-  else
-    return "banned"
+  straight up apply configuration
 else
-  calculate appearance
+  if race is not known
+    stop; could be a spider or something
+  else
+    if class is known
+      set bodyslide for that class
+    else
+      set default bodyslide
 
 ```
 
-Calculate appearance
-
-```{}
-
-if race is known
-  if class is known
-    try set class
-  else
-    try set default bodyslide
-else
-  return "Invalid race. Enable in 'exe > Races' if you want this race to be processed."
-
-```
 Apply muscle definition
 
 ```{}
