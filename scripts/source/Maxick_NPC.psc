@@ -3,88 +3,116 @@ Scriptname Maxick_NPC extends Quest
 
 import Maxick_Utils
 
+FormList Property KnownNPCs Auto
 Maxick_Main Property main Auto
-
-; `JFormMap` of NPCs the player explicitly set to process in **MaxSickGains.exe**
-int _knownNpcs
-ActorBase _base
 
 ; Initializes data needed for this to work
 Function Init(Maxick_Main owner)
   main = owner
-  _knownNpcs = JValue.readFromFile("data/SKSE/Plugins/Maxick/npcs.json")
 EndFunction
 
-; Does it's best to find the base of an NPC.
-; Skyrim is weird and some functions return the correct base while others don't.
-Function _FindActorBase(Actor npc)
-  _base = npc.GetLeveledActorBase()
-  if !JFormMap.hasKey(_knownNpcs, _base)
-    Log("Fail 1")
-    _base = npc.GetActorBase()
-    if !JFormMap.hasKey(_knownNpcs, _base)
-      Log("Fail 2")
-      _base = npc.GetBaseObject() as ActorBase
-    endif
-  endif
-EndFunction
-
-; Gets the data needed to process an NPC.
-; Sets the `_base` private variable, too.
+; Gets all the info needed to apply visual changes to an NPC.
+; Returns a handle to a `JMap` (a Lua table, actually) that contains all
+; needed data.
+; See `init.lua` to learn about the table structure this function creates.
 int Function _InitNpcData(Actor npc)
   int data = JMap.object()
+  JMap.setStr(data, "name", DM_Utils.GetActorName(npc))
+  ; JMap.setInt(data, "formId", npc.GetLeveledActorBase().GetFormID())
+  JMap.setInt(data, "isKnown", -1)
   JMap.setStr(data, "msg", "")              ; Extra info from Lua
 
   bool isFem = main.IsFemale(npc)
   JMap.setInt(data, "isFem", isFem as int)
   If isFem
-    JMap.setObj(data, "bodySlide", main.femSliders)
+    JMap.setObj(data, "bodySlide",  JValue.deepCopy(JDB.solveObj(".maxick.femSliders")))
+  Else
+    JMap.setObj(data, "bodySlide", JValue.deepCopy(JDB.solveObj(".maxick.manSliders")))
   EndIf
 
-  _FindActorBase(npc)
+  ActorBase base = npc.GetLeveledActorBase()
 
-  JMap.setFlt(data, "weight", _base.GetWeight())
+  JMap.setFlt(data, "weight", base.GetWeight())
   JMap.setInt(data, "fitStage", 1)        ; Set the default stage from MaxSickGains.exe
   JMap.setInt(data, "muscleDefType", -1)
   JMap.setInt(data, "muscleDef", -1)
+  JMap.setStr(data, "raceEDID", main.GetRace(npc))
+  JMap.setStr(data, "race", "")           ; Lua will get this
+  JMap.setStr(data, "racialGroup", "")    ; Lua will get this
+  JMap.setStr(data, "raceDisplay", "")    ; Lua will get this
+  JMap.setStr(data, "class", base.GetClass().GetName())
+  ; MiscUtil.PrintConsole("########################################### " + main.GetRace(npc))
+  ; MiscUtil.PrintConsole("########################################### " + _base.GetClass().GetName())
   JMap.setInt(data, "shouldProcess", 0)   ; We still don't know if we are going to process it
 
-  ; TODO: Get race and class
+  _CheckIfNpcIsKnown(npc, data)
   return data
 EndFunction
 
-; Adds the data for an NPC the player explicitly asked to process when
-; using the NPCs tab in **MaxSickGains.exe**
-int Function _GetExplicitData(int data)
-  int values = JFormMap.getObj(_knownNpcs, _base)
-
-  JMap.setInt(data, "fitStage", JMap.getInt(values, "fitStage"))
-  JMap.setInt(data, "weight", JMap.getInt(values, "weight"))
-  JMap.setInt(data, "muscleDef", JMap.getInt(values, "muscleDef"))
-  JMap.setInt(data, "shouldProcess", 1)
-
-  return data
-EndFunction
-
-; Gets all the info needed about applying visual changes to an NPC.
-; Returns a handle to a `JMap` (a Lua table, actually) that contains all
-; needed data.
-; See `init.lua` to learn about the table structure this function creates.
-int Function ProcessNpc(Actor npc)
-  Log("NPC found: '" + DM_Utils.GetActorName(npc) + "'")
-  int data = _InitNpcData(npc)
-
-  ; _base was already found in _GetNpcData()
-  If JFormMap.hasKey(_knownNpcs, _base)
-    Log("*** Explicitly added NPC *** " + DM_Utils.GetActorName(npc))
-    data = _GetExplicitData(data)
-    return JValue.evalLuaObj(data, "return maxick.ProcessKnownNPC(jobject)")
-  Else
-    Log(DM_Utils.GetActorName(npc) + " is not a known actor. If you explicitly added it, don't worry. Skyrim is weird and it eventually recognize it.")
-    JMap.setInt(data, "shouldProcess", 0)
+Function _CheckIfNpcIsKnown(Actor npc, int data)
+  ; Alternatives:
+  ; npc.GetActorBase()
+  ; npc.GetBaseObject()
+  ActorBase b = npc.GetLeveledActorBase()
+  If !KnownNPCs.HasForm(b)
+    Log("Unknown actor shouldnt be processed")
+    return
   EndIf
 
-  return 0
+  Int i = KnownNPCs.GetSize()
+  While i > 0
+    i -= 1
+    If b == KnownNPCs.GetAt(i)
+      Log("Actor known")
+      JMap.setInt(data, "isKnown", i)
+      JMap.setInt(data, "shouldProcess", 1)
+    EndIf
+  EndWhile
+EndFunction
+; Adds the data for an NPC the player explicitly asked to process when
+; using the NPCs tab in **MaxSickGains.exe**
+; int Function _GetExplicitData(int data)
+;   JMap.setInt(data, "fitStage", JMap.getInt(values, "fitStage"))
+;   JMap.setInt(data, "weight", JMap.getInt(values, "weight"))
+;   JMap.setInt(data, "muscleDef", JMap.getInt(values, "muscleDef"))
+;   JMap.setInt(data, "shouldProcess", 1)
+
+;   return data
+; EndFunction
+
+; Executes the Lua function that makes all calculations on one NPC
+int Function ProcessNpc(Actor npc)
+  Log("Testing NPC: '" + DM_Utils.GetActorName(npc) + "'")
+  int data = _InitNpcData(npc)
+  return JValue.evalLuaObj(data, "return maxick.ProcessNPC(jobject)")
+
+  ; If JMap.getObj(data, "bodySlide") == 0
+  ;   MiscUtil.PrintConsole("########################################### ")
+  ;   MiscUtil.PrintConsole("BODYSLIDE LOST")
+  ;   MiscUtil.PrintConsole("########################################### ")
+  ; Else
+  ;   JValue.writeToFile(JMap.getObj(data, "bodySlide"), JContainers.userDirectory() +  DM_Utils.GetActorName(npc) + Utility.RandomInt(0, 6000) + ".json")
+  ;   return data
+  ; EndIf
+  ; _base was already found in _GetNpcData()
+  ; If JFormMap.hasKey(_knownNpcs, _base)
+  ;   MiscUtil.PrintConsole("########################################### ")
+  ;   Log("*** Explicitly added NPC *** " + DM_Utils.GetActorName(npc))
+  ;   MiscUtil.PrintConsole("########################################### ")
+  ;   data = _GetExplicitData(data)
+  ;   JFormDB.setEntry("maxick", npc, data)
+  ;   return JValue.evalLuaObj(data, "return maxick.ProcessKnownNPC(jobject)")
+  ; Else
+  ;   If DM_Utils.GetActorName(npc) == ""
+  ;     Log("This actor can't be recognized. If you explicitly added it, don't worry. Skyrim is weird and will eventually recognize it.")
+  ;   EndIf
+  ;   JFormDB.setEntry("maxick", npc, data)
+  ;   return data
+  ;   ; return JValue.evalLuaObj(data, "return maxick.ProcessUnknownNPC(jobject)")
+  ;   ; JMap.setInt(data, "shouldProcess", 0)
+  ; EndIf
+
+  ; return 0
 
 EndFunction
 

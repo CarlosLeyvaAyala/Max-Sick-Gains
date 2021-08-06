@@ -13,14 +13,14 @@ Maxick_NPC Property NpcHandler Auto
 int _femSliders
 int Property femSliders Hidden
   int Function Get()
-    return _femSliders
+    return JDB.solveObj(".maxick.femSliders")
   EndFunction
 EndProperty
 
 int _manSliders
 int Property manSliders Hidden
   int Function Get()
-    return _manSliders
+    return JDB.solveObj(".maxick.manSliders")
   EndFunction
 EndProperty
 
@@ -30,13 +30,23 @@ Event OnInit()
   OnGameReload()
 EndEvent
 
+int Function GetDataTree()
+  return JDB.solveObj(".maxick")
+EndFunction
 
 Function OnGameReload()
   Player = Game.GetPlayer()
-  _femSliders = _LoadSliders("data/SKSE/Plugins/Maxick/fem-sliders.json")
-  _manSliders = _LoadSliders("data/SKSE/Plugins/Maxick/man-sliders.json")
+
+  int data = JMap.object()
+  JMap.setObj(data, "femSliders", _LoadSliders("data/SKSE/Plugins/Maxick/fem-sliders.json"))
+  JMap.setObj(data, "manSliders", _LoadSliders("data/SKSE/Plugins/Maxick/man-sliders.json"))
+  JMap.setObj(data, "npcs", JValue.readFromFile("data/SKSE/Plugins/Maxick/npcs.json"))
+  JDB.setObj("maxick", data)
+
   NpcHandler.Init(self)
+  JDB.writeToFile(JContainers.userDirectory() + "dump.json")
   OnCellLoad()
+
 EndFunction
 
 ; Initializes known sliders from some file and inits them at `0.0`
@@ -89,6 +99,10 @@ Function _ChangeAppearance(Actor aAct, int data)
 EndFunction
 
 Function OnCellLoad()
+  ; _femSliders = _LoadSliders("data/SKSE/Plugins/Maxick/fem-sliders.json")
+  ; _manSliders = _LoadSliders("data/SKSE/Plugins/Maxick/man-sliders.json")
+  ; NpcHandler.Init(self)
+
   Actor[] npcs = MiscUtil.ScanCellNPCs(Player, 0, None, false)
   int i = npcs.length
   While i > 0
@@ -97,6 +111,7 @@ Function OnCellLoad()
     EndIf
     i -= 1
   EndWhile
+  JValue.writeToFile(JDB.solveObj(".maxick"), JContainers.userDirectory() + "Maxick.json")
   _TestMorphs(Player)
   ; _SetTextureSets()
 EndFunction
@@ -105,8 +120,33 @@ Function _TestMorphs(Actor aAct)
   NiOverride.ClearMorphs(aAct)
   _makeHot(aAct)
   NiOverride.UpdateModelWeight(aAct)
+
+  ; https://www.creationkit.com/index.php?title=Slot_Masks_-_Armor
+  ;> ##############################################################
+  ;> DON'T USE. Hands problem also affects difuse maps.
+  ;> ##############################################################
+  ; NiOverride.AddSkinOverrideString(aAct, true, false, 0x04, 9, 0, "data\\textures\\actors\\character\\f.dds", true)
+  ; string head = _GetHeadNode(aAct)
+  ; If head != ""
+  ;   NiOverride.AddNodeOverrideString(aAct, true, head, 9, 0, "data\\textures\\actors\\character\\he.dds", true)
+  ; EndIf
+
   ; <SetSlider.*name\s*="(.*)".*"big".*="(.*)"\/>
   ; NiOverride.SetMorphValue(aAct, "\1", 0.\2)
+EndFunction
+
+string Function _GetHeadNode(Actor aAct)
+  ActorBase ab = aAct.GetActorBase()
+  int i = ab.GetNumHeadParts()
+  string headNode
+  While i > 0
+      i -= 1
+      headNode = ab.GetNthHeadPart(i).GetPartName()
+      If StringUtil.Find(headNode, "Head") >= 0
+        return headNode
+      EndIf
+  endWhile
+  return ""
 EndFunction
 
 Function _makeHot(Actor aAct)

@@ -269,6 +269,7 @@
 "python.linting.mypyEnabled": false,
 "Lua.diagnostics.globals": [
     "jrequire"
-]
+],
+"projects.indentationSpaces": 2
 
 }

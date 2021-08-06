@@ -16,15 +16,17 @@ local function processFile(ff, processing)
   ft:close()
 end
 
+local requireMod = string.format("require '%s.", arg[3])
+
 -- Reverts back libraries that need to stay as is
 local function revertLibRequire(content, libName)
-  return string.gsub(content, "require 'maxick.".. libName .."'", "require '" .. libName .. "'")
+  return string.gsub(content, requireMod.. libName .."'", "require '" .. libName .. "'")
 end
 
 local function makeRelease(content)
   content = string.gsub(content, "package.path = ", "-- package.path = ")
   content = string.gsub(content, " = require ", " = jrequire ")
-  content = string.gsub(content, "require '", "require 'maxick.")
+  content = string.gsub(content, "require '", requireMod)
 
   -- ;TODO: Modify these
   content = revertLibRequire(content, "jc")
@@ -35,7 +37,7 @@ end
 local function makeDebug(content)
   content = string.gsub(content, "-- package.path = ", "package.path = ")
   content = string.gsub(content, " = jrequire ", " = require ")
-  content = string.gsub(content, "require 'maxick.", "require '")
+  content = string.gsub(content, requireMod, "require '")
   return content
 end
 

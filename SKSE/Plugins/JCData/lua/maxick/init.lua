@@ -10,6 +10,13 @@ local maxick = {}
 --- Table structure for visually processing NPCs.
 --- This is a dummy variable used only for reference.
 local sampleTable = {
+  --- Actor name. Used to try to find it in the known npcs database.
+  name = "Lydia",
+  --- Used to try to find it in the known npcs database.
+  -- formId = 666766,
+
+  --- Gotten by Lua. Used to apply MCM settings based on NPC type.
+  isKnown = false,
   --- Additional info of the operation. This is output to the Skyrim console.
   msg = "",
   --- Not a Bodyslide preset, but the slider data that will be applied to an actor.
@@ -27,29 +34,40 @@ local sampleTable = {
   --- Used to calculate body slider values.
   --- * If Player, this is the training value for her current fitness stage.
   --- * If NPC, weight; player assigned or gotten from the game.
-  weight = 40,
+  weight = 101,
   --- Used to determine Bodyslide preset and muscle definition. Created by player.
-  fitStage = 5,
+  fitStage = 1,
   --- What kind of muscle definition the `Actor` has. Since it relies on Armors and SetSkin()
   --- it is advisable to disable for some kind of races.
   --- * `-1`: Don't change muscle definition.
   --- * `0`: Plain looking. Average looking textures.
   --- * `1`: Fit looking. Athletic. Use ripped textures.
   --- * `2`: Fat. Actual average looks in real life (at least in my country). Use flabby textures.
-  muscleDefType = 2,
+  muscleDefType = -1,
   --- `[-1 to 6]`.
   --- * `-1` is "disabled"
   --- * `0` sets an armor with a variable texture list to dinamically change muscle definition
   --- based on weight.
   --- * `1-6` force that muscle definition on actor.
-  muscleDef = 6,
+  muscleDef = -1,
+  --- Actor race as registered in the esp file.
+  raceEDID = "NordRaceVampire",
+  --- Result from getting an `Actor` race. Used to get which appearance the NPC should have.
+  --- Always taken from `database.races`.
+  race = "",
+  --- Result from detecting if the race is known. Used for muscle definition.
+  racialGroup = "",
+  --- Used to print to the SKyrim console which race was matched in `database.races`.
+  raceDisplay = "",
   --- Wether to process the `Actor` at all. Always `false` for unknown races.
-  shouldProcess = true
+  shouldProcess = false
 }
 
-maxick.ProcessKnownNPC = npc.ProcessKnownNPC
+-- maxick.ProcessKnownNPC = npc.ProcessKnownNPC
+-- maxick.ProcessUnknownNPC = npc.ProcessUnknownNPC
+maxick.ProcessNPC = npc.ProcessNPC
 
 
--- maxick.ProcessKnownNPC(test)
+maxick.ProcessNPC(sampleTable)
 
 return maxick

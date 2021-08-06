@@ -183,5 +183,51 @@ end
 -- print("length", #fitness)
 -- print(_Regress(3, -1.01))
 -- -- print(fitness[1].bs["Butt"].max)
-local ttt={"eouoeu", "·", "pyfdd"}
-print(ttt[3])
+
+print(string.format("%.x", 45))
+
+-- local function filter(func, array)
+--   local new_array = {}
+--   for i,v in pairs(array) do
+--     if func(v) then
+--       new_array[i] = v
+--     end
+--   end
+--   return new_array
+-- end
+-- local p = filter(function (x) return x > 5 end, {3,39,4,2,56,48,9,4,2,3,78})
+-- print("")
+
+local serpent = require("serpent")
+
+local add2 = function(x) return x + 2 end
+local sub1 = function(x) return x - 1 end
+local pair = function(x) return (x % 2) == 0 end
+local up5 = function(x) return x> 5 end
+local rand = function () return math.random(10) end
+local log = function (msg) return
+  function (x)
+    print(msg)
+    return x
+  end
+end
+
+local data=l.range(10)
+-- l.foreach(l.reject(data, pair), print)
+-- l.foreach(data, print)
+local p = l.pipe(
+    l.map(rand),
+    l.foreach(print),
+    log("------------------"),
+    l.reject(up5),
+    l.foreach(print),
+    log("------------------"),
+    l.map(add2),
+    l.foreach(print),
+    log("------------------"),
+    l.reject(pair),
+    l.foreach(print)
+  )
+p(data)
+-- fr = l.foreach(print)
+-- fr(data)
