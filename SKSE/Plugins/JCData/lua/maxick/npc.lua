@@ -1,8 +1,8 @@
 local npc = {}
 
-local l = jrequire 'dmlib'
-local db = jrequire 'maxick.database'
--- local serpent = require("serpent")
+local l = require 'dmlib'
+local db = require 'database'
+local serpent = require("serpent")
 
 --;>-----------------------------------
 
@@ -14,13 +14,6 @@ end
 --- Will be closed when `Actor` is known.
 ---@type function
 local Log
-
---;>-----------------------------------
-
---- Sets all slider values to 0.
-local function _ClearBodySlide(bs)
-  for slider, _ in pairs(bs) do bs[slider] = 0 end
-end
 
 --;>-----------------------------------
 
@@ -43,7 +36,6 @@ end
 ---@param method function
 local function SetBodySlide(actor, weight, bs, method)
   local resetBs = l.map(actor.bodySlide, function() return 0 end)
-
   local sliders = l.pipe(
     l.reject(function (_, key) return bs[key] == nil end),
     l.map(function (_, k) return method(weight, bs[k].min, bs[k].max) end)
@@ -82,7 +74,7 @@ end
 ---@param actor table
 ---@return table
 local function _ProcessKnownNPC(actor)
-  -- Log = LogFactory(actor)
+  if actor.shouldProcess == 0 then return actor end
   local fitStage = db.fitStages[actor.fitStage]
 
   _SolveBodyslide(actor, fitStage)
@@ -93,65 +85,54 @@ end
 --;>-----------------------------------
 
 local function _GetRacialMatches(actor)
-  local matches = {}
-  for racialGroup, races in pairs(db.races) do
-    for race, display in pairs(races) do
-      if string.find(string.lower(actor.raceEDID), race) then
-        matches[racialGroup] = {["race"] = race, ["display"] = display}
-        -- print(racialGroup, race, display, string.lower(actor.raceEDID))
-      end
-    end
-  end
-  return matches
-end
-
-local function TableLength(t)
-  local count = 0
-  for _ in pairs(t) do count = count + 1 end
-  return count
+  return l.filter(db.races,
+    function (_, race)
+      return string.find(string.lower(actor.raceEDID), race)
+    end)
 end
 
 local function _Stop_CouldBeAnSpider(actor)
-  actor.shouldProcess = false
+  actor.shouldProcess = 0
   Log(string.format("Race '%s' is not known by this mod. Ignore", actor.raceEDID))
 end
 
 local function _Stop_IsBanned(actor, display)
   local txt = "Can't change appearance. Actor race '%s' matched with banned race '%s'"
-  Log(string.format(txt, actor.raceEDID, display))
-  actor.shouldProcess = false
+  Log(l.fmt(txt, actor.raceEDID, display))
+  actor.shouldProcess = 0
 end
 
 local function _IsBanned(matches)
-  for racialGroup, race in pairs(matches) do
-    if racialGroup == 'Ban' then return true, race.display end
-  end
-  return false, ""
+  return l.pipe(
+    l.filter(function (val) return val.group == "Ban" end),
+    l.extractValue
+  )(matches)
 end
 
 local function _SetKnownRace(actor, matches)
-  for racialGroup, race in pairs(matches) do
-    actor.race = race.race
-    actor.racialGroup = racialGroup
-    actor.raceDisplay = race.display
-    actor.shouldProcess = true
-    return actor
-  end
+  local val = l.pipe(l.take(1), l.extractValue)(matches)
+
+  actor.racialGroup = val.group
+  actor.raceDisplay = val.display
+  actor.shouldProcess = 1
+  return actor
 end
 
 local function _GetRace(actor)
   local matches = _GetRacialMatches(actor)
-  if TableLength(matches) < 1 then
+  -- print(serpent.block(matches))
+  if l.tableLen(matches) < 1 then
     _Stop_CouldBeAnSpider(actor)
     return actor
   end
-  local isBanned, display = _IsBanned(matches)
+  local isBanned = _IsBanned(matches)
   if isBanned then
-    _Stop_IsBanned(actor, display)
+    _Stop_IsBanned(actor, isBanned.display)
     return actor
   end
-  _SetKnownRace(actor, matches)
-  return actor
+
+  return _SetKnownRace(actor, matches)
+
 end
 
 --;>-----------------------------------
@@ -183,55 +164,15 @@ end
 ---@param values table
 ---@return table
 local function _IsKnown(actor, values)
-  Log(string.format("*** Explicitly added NPC: '%s' ***", actor.name))
   actor.fitStage = values.fitStage
   if values.weight ~= 101 then actor.weight = values.weight end
   if values.muscleDef > 0 then actor.muscleDef = values.muscleDef end
-  actor.isKnown = true
-  actor.shouldProcess = true
-  npc.ProcessKnownNPC(actor)
+  actor.isKnown = 1
+  actor.shouldProcess = 1
   return actor
 end
 
 --;>-----------------------------------
-
----Tries to find the actor in the npc database.
----@param actor table
----@return table
-local function _Find(actor)
-  if actor.name == "" then return actor end
-
-  for id, values in pairs(db.npcs) do
-    if string.find(id, string.lower(actor.name)) then
-      local fId = string.format("%.x", actor.formId)
-      if string.find(values.formId, fId) then return _IsKnown(actor, values) end
-    end
-  end
-  return actor
-end
-
---;>-----------------------------------
-
-local function deepcopy(o, seen)
-  seen = seen or {}
-  if o == nil then return nil end
-  if seen[o] then return seen[o] end
-
-  local no
-  if type(o) == 'table' then
-    no = {}
-    seen[o] = no
-
-    for k, v in next, o, nil do
-      no[deepcopy(k, seen)] = deepcopy(v, seen)
-    end
-    -- setmetatable(no, deepcopy(getmetatable(o), seen))
-  else -- number, string, boolean, etc
-    no = o
-  end
-  return no
-end
-
 
 local function _testSetStage(actor)
   actor.fitStage = 2
@@ -247,21 +188,78 @@ local function _SetStageData(actor)
   return actor
 end
 
-function  npc.ProcessNPC(actor)
-  Log = LogFactory(actor)
-  if actor.shouldProcess ~= 1 then
-    return actor
-  end
-  local p = l.pipe(
-    -- get stage
-    _testSetStage,
-    _ProcessKnownNPC
+--;>-----------------------------------
+
+---Function for filtering a known NPC from`database.npcs`.
+---@param actor table
+---@return function
+local function _FilterKNownNPC(actor)
+  local fId = string.format("%.x", actor.formId)
+  return l.filter(
+    function(values, candidate)
+      local idMatch = string.find(fId, candidate)
+      local classMatch = values.class == string.lower(actor.class)
+      local raceMatch = values.race == string.lower(actor.raceEDID)
+      return idMatch and classMatch and raceMatch
+    end
   )
+end
+
+--;>-----------------------------------
+
+---Tries to find data for an explicitly set NPC.
+---@param actor table
+---@return table
+local function _FindKnownNPC(actor)
+  local npcMatch = l.pipe(
+    _FilterKNownNPC(actor),
+    l.take(1),
+    l.extractValue
+  )(db.npcs)
+
+  if npcMatch then
+    Log(l.fmt("*** Explicitly added NPC: '%s' ***", actor.name))
+    return _IsKnown(actor, npcMatch)
+  end
+
+  return actor
+end
+
+--;>-----------------------------------
+
+local function _GetToKnowNPC(actor)
+  actor = _FindKnownNPC(actor)
+  -- print(serpent.block(actor))
+  if actor.isKnown == 0 then
+    -- It's a generic NPC
+    actor.shouldProcess = 0
+    return _GetRace(actor)
+  end
+  return actor
+end
+
+--;>-----------------------------------
+
+function npc.ProcessNPC(actor)
+  -- if actor.shouldProcess ~= 1 then
+  --   return actor
+  -- end
+  -- print(serpent.block(actor))
+  local actorCopy = l.deepCopy(actor)
+  Log = LogFactory(actorCopy)
+
+  local processed = l.pipe(
+    _GetToKnowNPC,
+    -- get stage
+    -- _testSetStage,
+    _ProcessKnownNPC
+  )(actorCopy)
+
+  l.assign(actor, processed)
+  print(serpent.block(actor))
   -- set stage data
   -- apply bodyslide
-
-  local processed = p(actor)
-  return processed
+  return actor
 end
 
 return npc

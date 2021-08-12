@@ -212,6 +212,7 @@ local log = function (msg) return
   end
 end
 
+
 local data=l.range(10)
 -- l.foreach(l.reject(data, pair), print)
 -- l.foreach(data, print)
@@ -225,7 +226,7 @@ local p = l.pipe(
     l.map(add2),
     l.foreach(print),
     log("------------------"),
-    l.reject(pair),
+    l.take(1),
     l.foreach(print)
   )
 p(data)

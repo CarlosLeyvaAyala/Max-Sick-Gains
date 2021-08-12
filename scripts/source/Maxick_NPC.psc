@@ -16,10 +16,12 @@ EndFunction
 ; needed data.
 ; See `init.lua` to learn about the table structure this function creates.
 int Function _InitNpcData(Actor npc)
+  ActorBase base = npc.GetLeveledActorBase()
+
   int data = JMap.object()
   JMap.setStr(data, "name", DM_Utils.GetActorName(npc))
-  ; JMap.setInt(data, "formId", npc.GetLeveledActorBase().GetFormID())
-  JMap.setInt(data, "isKnown", -1)
+  JMap.setInt(data, "formId", base.GetFormID())
+  JMap.setInt(data, "isKnown", 0)
   JMap.setStr(data, "msg", "")              ; Extra info from Lua
 
   bool isFem = main.IsFemale(npc)
@@ -30,8 +32,6 @@ int Function _InitNpcData(Actor npc)
     JMap.setObj(data, "bodySlide", JValue.deepCopy(JDB.solveObj(".maxick.manSliders")))
   EndIf
 
-  ActorBase base = npc.GetLeveledActorBase()
-
   JMap.setFlt(data, "weight", base.GetWeight())
   JMap.setInt(data, "fitStage", 1)        ; Set the default stage from MaxSickGains.exe
   JMap.setInt(data, "muscleDefType", -1)
@@ -41,11 +41,9 @@ int Function _InitNpcData(Actor npc)
   JMap.setStr(data, "racialGroup", "")    ; Lua will get this
   JMap.setStr(data, "raceDisplay", "")    ; Lua will get this
   JMap.setStr(data, "class", base.GetClass().GetName())
-  ; MiscUtil.PrintConsole("########################################### " + main.GetRace(npc))
-  ; MiscUtil.PrintConsole("########################################### " + _base.GetClass().GetName())
   JMap.setInt(data, "shouldProcess", 0)   ; We still don't know if we are going to process it
 
-  _CheckIfNpcIsKnown(npc, data)
+  ; _CheckIfNpcIsKnown(npc, data)
   return data
 EndFunction
 
@@ -54,6 +52,9 @@ Function _CheckIfNpcIsKnown(Actor npc, int data)
   ; npc.GetActorBase()
   ; npc.GetBaseObject()
   ActorBase b = npc.GetLeveledActorBase()
+  Log(DM_Utils.IntToHex(b.GetFormID()))
+  Log(main.GetRace(npc))
+  Log(b.GetClass().GetName())
   If !KnownNPCs.HasForm(b)
     Log("Unknown actor shouldnt be processed")
     return
