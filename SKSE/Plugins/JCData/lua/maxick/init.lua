@@ -1,11 +1,12 @@
-package.path = package.path..";F:/Skyrim SE/MO2/mods/DM-SkyrimSE-Library/SKSE/Plugins/JCData/lua/?/init.lua"
-package.path = package.path..";F:/Skyrim SE/MO2/mods/JContainers SE/SKSE/Plugins/JCData/lua/?/init.lua"
-package.path = package.path..";F:/Skyrim SE/MO2/mods/Max Sick Gains/SKSE/Plugins/JCData/lua/maxick/?.lua"
-package.path = package.path..";F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src/SKSE/Plugins/JCData/lua/maxick/?.lua"
+-- package.path = package.path..";F:/Skyrim SE/MO2/mods/DM-SkyrimSE-Library/SKSE/Plugins/JCData/lua/?/init.lua"
+-- package.path = package.path..";F:/Skyrim SE/MO2/mods/JContainers SE/SKSE/Plugins/JCData/lua/?/init.lua"
+-- package.path = package.path..";F:/Skyrim SE/MO2/mods/Max Sick Gains/SKSE/Plugins/JCData/lua/maxick/?.lua"
+-- package.path = package.path..";F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src/SKSE/Plugins/JCData/lua/maxick/?.lua"
 
-local npc = require 'npc'
+local npc = jrequire 'maxick.npc'
 
 local maxick = {}
+math.randomseed( os.time() )
 
 --- Table structure for visually processing NPCs.
 --- This is a dummy variable used only for reference.
@@ -13,7 +14,7 @@ local sampleTable = {
   --- Actor name. Used to try to find it in the known npcs database.
   name = "Lydia",
   --- Used to try to find it in the known npcs database.
-  formId = 6667660,
+  formId = 666766,
   --- Gotten by Lua. Used to apply MCM settings based on NPC type.
   isKnown = 0,
   --- Additional info of the operation. This is output to the Skyrim console.
@@ -33,7 +34,7 @@ local sampleTable = {
   --- Used to calculate body slider values.
   --- * If Player, this is the training value for her current fitness stage.
   --- * If NPC, weight; player assigned or gotten from the game.
-  weight = 101,
+  weight = math.random(100),
   --- Used to determine Bodyslide preset and muscle definition. Created by player.
   fitStage = 1,
   --- What kind of muscle definition the `Actor` has. Since it relies on Armors and SetSkin()
@@ -50,7 +51,7 @@ local sampleTable = {
   --- * `1-6` force that muscle definition on actor.
   muscleDef = -1,
   --- Actor race as registered in the esp file.
-  raceEDID = "Orc",
+  raceEDID = "NordRace",
   --- Result from getting an `Actor` race. Used to get which appearance the NPC should have.
   --- Always taken from `database.races`.
   -- race = "",
@@ -59,7 +60,7 @@ local sampleTable = {
   racialGroup = "",
   --- Used to print to the SKyrim console which race was matched in `database.races`.
   raceDisplay = "",
-  class = "Assassin",
+  class = "Warrior",
   --- Wether to process the `Actor` at all. Always `false` for unknown races.
   shouldProcess = 0
 }

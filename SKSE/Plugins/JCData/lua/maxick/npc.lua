@@ -1,8 +1,8 @@
 local npc = {}
 
-local l = require 'dmlib'
-local db = require 'database'
-local serpent = require("serpent")
+local l = jrequire 'dmlib'
+local db = jrequire 'maxick.database'
+-- local serpent = require("serpent")
 
 --;>-----------------------------------
 
@@ -48,9 +48,7 @@ end
 --;>-----------------------------------
 local function _SolveBodyslide(actor, fitStage)
   if actor.weight >= 0 then
-    local bs
-    if actor.isFem then bs = fitStage.femBs
-    else bs = fitStage.manBs end
+    local bs = l.IfThen(actor.isFem == 1, fitStage.femBs, fitStage.manBs)
     SetBodySlide(actor, actor.weight, bs, _BlendMorph)
   else
     Log("Actor was banned from changing body shape")
@@ -131,30 +129,8 @@ local function _GetRace(actor)
   end
 
   return _SetKnownRace(actor, matches)
-
 end
 
---;>-----------------------------------
-
-function npc.ProcessUnknownNPC(actor)
-  Log = LogFactory(actor)
-  _GetRace(actor)
-  -- print(actor.msg)
-  -- TODO: Get actor bodyslide
-  if not actor.isFem then
-    actor.shouldProcess = false
-    Log("men not yet allowed")
-    return actor
-  end
-  -- print(serpent.block(actor.bodySlide))
-  if actor.shouldProcess then
-    actor.fitStage = 1
-    actor.muscleDef = 0
-    npc.ProcessKnownNPC(actor)
-    -- print(serpent.block(actor.bodySlide))
-  end
-  return actor
-end
 
 --;>-----------------------------------
 
@@ -165,7 +141,6 @@ end
 local function _IsKnown(actor, values)
   actor.fitStage = values.fitStage
   if values.weight ~= 101 then actor.weight = values.weight end
-  -- TODO: Set muscle def by MCM options
   if values.muscleDef > 0 then actor.muscleDef = values.muscleDef end
   actor.isKnown = 1
   actor.shouldProcess = 1
@@ -219,6 +194,8 @@ local function _FindKnownNPC(actor)
 
   if npcMatch then
     Log(l.fmt("*** Explicitly added NPC: '%s' ***", actor.name))
+    -- TODO: Weight calculation by skills is possible to do right here
+    -- TODO: Set muscle def by MCM options
     return _IsKnown(actor, npcMatch)
   end
 
@@ -282,8 +259,6 @@ end
 
 --;>-----------------------------------
 local function _GetSingleArchetype(usefulArchetypes)
-  math.randomseed( os.time() )
-
   local len = l.tableLen(usefulArchetypes)
   if len == 1 then
     return usefulArchetypes[1]
@@ -331,13 +306,42 @@ local function _GetClassArchetype(actor)
 end
 
 --;>-----------------------------------
+local function _SetDefaultFitnessStage(actor)
+  Log("Setting default fitness stage")
+  local values = {
+    fitStage = 1,
+    weight = actor.weight,
+    muscleDef = -1
+  }
+  actor = _IsKnown(actor, values)
+  return actor
+end
+
+local function _SetClassArchetypeData(actor, archId)
+  local arch = db.classArchetypes[archId]
+  -- TODO: Set muscle def by MCM options
+  local values = {
+    fitStage = arch.fitStage,
+    weight = l.linCurve({x=0, y=arch.bsLo}, {x=100, y=arch.bsHi})(actor.weight),
+    muscleDef = l.round(
+      l.linCurve({x=0, y=arch.muscleDefLo}, {x=100, y=arch.muscleDefHi})(actor.weight)
+    )
+  }
+  actor = _IsKnown(actor, values)
+  return actor
+end
+
+--;>-----------------------------------
 
 local function _GetGenericNPCBodyslide(actor)
+  if actor.shouldProcess == 0 then return actor end
   local arch = _GetClassArchetype(actor)
   if arch then
     -- Apply archetype data
+    actor = _SetClassArchetypeData(actor, arch)
   else
     -- Apply default body
+    actor = _SetDefaultFitnessStage(actor)
   end
   return actor
 end
@@ -366,25 +370,19 @@ end
 --;>-----------------------------------
 
 function npc.ProcessNPC(actor)
-  -- if actor.shouldProcess ~= 1 then
-  --   return actor
-  -- end
   -- print(serpent.block(actor))
   local actorCopy = l.deepCopy(actor)
   Log = LogFactory(actorCopy)
 
   local processed = l.pipe(
     _GetToKnowNPC,
-    -- get stage
-    -- _testSetStage,
     _ProcessKnownNPC
+    -- TODO: Ban fitness textures
   )(actorCopy)
 
   l.assign(actor, processed)
   -- print(serpent.block(actor))
-  print(actor.msg)
-  -- set stage data
-  -- apply bodyslide
+  -- print(actor.msg)
   return actor
 end
 
