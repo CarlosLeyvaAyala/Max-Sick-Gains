@@ -13,7 +13,7 @@ local sampleTable = {
   --- Actor name. Used to try to find it in the known npcs database.
   name = "Lydia",
   --- Used to try to find it in the known npcs database.
-  formId = 666766,
+  formId = 6667660,
   --- Gotten by Lua. Used to apply MCM settings based on NPC type.
   isKnown = 0,
   --- Additional info of the operation. This is output to the Skyrim console.
@@ -50,7 +50,7 @@ local sampleTable = {
   --- * `1-6` force that muscle definition on actor.
   muscleDef = -1,
   --- Actor race as registered in the esp file.
-  raceEDID = "NordRaceC",
+  raceEDID = "Orc",
   --- Result from getting an `Actor` race. Used to get which appearance the NPC should have.
   --- Always taken from `database.races`.
   -- race = "",
@@ -59,7 +59,7 @@ local sampleTable = {
   racialGroup = "",
   --- Used to print to the SKyrim console which race was matched in `database.races`.
   raceDisplay = "",
-  class = "Warrior",
+  class = "Assassin",
   --- Wether to process the `Actor` at all. Always `false` for unknown races.
   shouldProcess = 0
 }

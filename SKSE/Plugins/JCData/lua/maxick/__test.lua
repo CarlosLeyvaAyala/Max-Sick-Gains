@@ -226,9 +226,13 @@ local p = l.pipe(
     l.map(add2),
     l.foreach(print),
     log("------------------"),
-    l.take(1),
+    l.take(2),
+    l.foreach(print),
+    l.reduce(0, function (a, v) return a + v end),
     l.foreach(print)
   )
 p(data)
--- fr = l.foreach(print)
--- fr(data)
+
+print("$$$$$$$$$$$$")
+-- x = [0, 100]  y = [bsLo, bsHi]
+print(l.linCurve({x=0, y=100}, {x=100, y=70})(90))

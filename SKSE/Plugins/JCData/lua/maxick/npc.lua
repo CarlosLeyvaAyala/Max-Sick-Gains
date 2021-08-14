@@ -120,7 +120,6 @@ end
 
 local function _GetRace(actor)
   local matches = _GetRacialMatches(actor)
-  -- print(serpent.block(matches))
   if l.tableLen(matches) < 1 then
     _Stop_CouldBeAnSpider(actor)
     return actor
@@ -166,6 +165,7 @@ end
 local function _IsKnown(actor, values)
   actor.fitStage = values.fitStage
   if values.weight ~= 101 then actor.weight = values.weight end
+  -- TODO: Set muscle def by MCM options
   if values.muscleDef > 0 then actor.muscleDef = values.muscleDef end
   actor.isKnown = 1
   actor.shouldProcess = 1
@@ -227,13 +227,138 @@ end
 
 --;>-----------------------------------
 
+local function _ClassArchetypeAllowed(race, exclusiveRaceList)
+  local allRacesAllowed = l.tableLen(exclusiveRaceList) == 0
+  local raceMatch = l.filter(exclusiveRaceList, function (v)
+    return string.find(race, v)
+  end)
+  return allRacesAllowed or (l.tableLen(raceMatch) > 0)
+end
+
+local function _ClassArchetypeExclusive(race, exclusiveRaceList)
+  local raceMatch = l.filter(exclusiveRaceList, function (v)
+    return string.find(race, v)
+  end)
+  return l.tableLen(raceMatch) > 0
+end
+
+--;>-----------------------------------
+
+local function _ArchetypesNames(possibleArchetypes)
+  return l.pipe(
+    l.map(function (id) return db.classArchetypes[id].iName end),
+    l.map(l.encloseSingleQuote),
+    l.reduce('', l.reduceCommaPretty)
+  )(possibleArchetypes)
+end
+
+--;>-----------------------------------
+
+---Returns a list of all allowed archetypes for a class-race.
+---@param actor table
+---@param classMatch table
+---@return table
+local function _AllAllowedArchetypes(actor, classMatch)
+  return l.filter(
+    l.flatten(classMatch),
+    function (archId)
+      local racesList = db.classArchetypes[archId].raceExclusive
+      return _ClassArchetypeAllowed(string.lower(actor.raceEDID), racesList)
+    end
+  )
+end
+
+local function _OnlyExclusiveArchetypes(actor, possibleArchetypes)
+  local exclusiveOnly = l.filter(
+    possibleArchetypes,
+    function (archId)
+      local racesList = db.classArchetypes[archId].raceExclusive
+      return _ClassArchetypeExclusive(string.lower(actor.raceEDID), racesList)
+    end
+  )
+  local ex = l.dropNils(exclusiveOnly)
+  return l.IfThen(l.tableLen(ex) > 0, ex, possibleArchetypes)
+end
+
+--;>-----------------------------------
+local function _GetSingleArchetype(usefulArchetypes)
+  math.randomseed( os.time() )
+
+  local len = l.tableLen(usefulArchetypes)
+  if len == 1 then
+    return usefulArchetypes[1]
+  else
+    local sel = math.random(len)
+    Log(l.fmt("Many viable archetypes; setting: '%s'",
+      db.classArchetypes[usefulArchetypes[sel]].iName))
+    return usefulArchetypes[sel]
+  end
+end
+
+--;>-----------------------------------
+
+---Gets the archetype that will be applied to an NPC.
+---@param actor table
+---@param classMatch table
+---@return number|nil
+local function _GetBestArchetypeMatch(actor, classMatch)
+  local possibleArchetypes = _AllAllowedArchetypes(actor, classMatch)
+  if l.tableLen(possibleArchetypes) < 1 then
+    Log(l.fmt("But no archetype was allowed for '%ss' of that class", actor.raceEDID))
+    return nil
+  end
+  -- Give preference to exclusive race archetypes
+  local usefulArchetypes = _OnlyExclusiveArchetypes(actor, possibleArchetypes)
+  Log(l.fmt("Possible archetype(s): %s", _ArchetypesNames(usefulArchetypes)))
+  -- Return value
+  return _GetSingleArchetype(usefulArchetypes)
+end
+
+--;>-----------------------------------
+
+local function _GetClassArchetype(actor)
+  local class = string.lower(actor.class)
+  -- ;WARNING: Modify this if function can't find the actor class
+  local classMatch = l.filter(db.classes, function (_, k) return class == k end)
+  if l.tableLen(classMatch) > 0 then
+    Log(l.fmt("Class found: '%s'", actor.class))
+  else
+    Log(l.fmt("Couldn't find class: '%s'", actor.class))
+    return nil
+  end
+  -- Find which archetype matches best this NPC
+  return _GetBestArchetypeMatch(actor, classMatch)
+end
+
+--;>-----------------------------------
+
+local function _GetGenericNPCBodyslide(actor)
+  local arch = _GetClassArchetype(actor)
+  if arch then
+    -- Apply archetype data
+  else
+    -- Apply default body
+  end
+  return actor
+end
+
+--;>-----------------------------------
+
+local function _FindUnknownNPCData(actor)
+  return l.pipe(
+    _GetRace,
+    _GetGenericNPCBodyslide
+  )(actor)
+end
+
+--;>-----------------------------------
+
 local function _GetToKnowNPC(actor)
   actor = _FindKnownNPC(actor)
-  -- print(serpent.block(actor))
   if actor.isKnown == 0 then
     -- It's a generic NPC
     actor.shouldProcess = 0
-    return _GetRace(actor)
+    return _FindUnknownNPCData(actor)
   end
   return actor
 end
@@ -256,7 +381,8 @@ function npc.ProcessNPC(actor)
   )(actorCopy)
 
   l.assign(actor, processed)
-  print(serpent.block(actor))
+  -- print(serpent.block(actor))
+  print(actor.msg)
   -- set stage data
   -- apply bodyslide
   return actor
