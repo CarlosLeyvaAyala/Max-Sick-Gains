@@ -46,7 +46,7 @@ This could easily explode into the four figures numbers of records[^ItsOver9000]
 ***HOW ABOUT NO?***
 [^ItsOver9000]: Right now they are already at least 180.
 
-If you know something about NiOverride you would think it should be as easy as adding a normal map override to the body and be done (just as I did when I was young and inocent), but no.
+If you know something about NiOverride you would think it should be as easy as adding a normal map override to the body and be done (just as I thought when I was young and inocent), but no.
 For some reason, doing so messes with the textures on the hand too, and if you want to unreliably deal with that you need to do all kind of hacks that randomly work whenever they feel like.
 Go see my own [Sandow Plus Plus source code](https://github.com/CarlosLeyvaAyala/Sandow-Plus-Plus/tree/more-compatible-ripped)[^Abandonware] to marvel at what a fucking mess is trying to (unsuccessfully) do that.
 [^Abandonware]: That seemingly inocent idea so sapped my will to work with NiOVerride (and my sanity) that SPP is mostly abandonware nowadays.
@@ -152,24 +152,26 @@ That would work quite fine for the extreme levels of your `Bodyslide Preset`, ie
 </figure>
 
 Not anymore.
-With `Max Sick Gains` you can assign a completely different `Bodyslide Preset` for each one of those fitness levels.
+With Max Sick Gains you can assign a completely different Bodyslide Preset for each one of those fitness levels.
 
-For example, you could create many different `Fitness Levels`, assign some `Bodyslide Preset` to each one of them, and them tell this program that you want to use them on your PC.
+For example, you could create many different _Fitness Stages_, assign some Bodyslide Preset to each one of them, and them tell this program that you want to use them on your PC.
 Something like:
 
-|Fitness Level|Associated `Bodyslide Preset`|
---|--
-Obese | Some obese preset
-Flabby | CBBE Chubby
-Plain looking | CBBE Curvy
-Fit | DM Athletic[^NoRemorse]
-Athlete | DM Amazons[^NoRemorse]
+|Fitness Level |Associated Bodyslide Preset|
+|--------------|---------------------------|
+|Obese         | [Full body]               |
+|Flabby        | CBBE Chubby               |
+|Plain looking | CBBE Curvy                |
+|Fit           | DM Athletic[^NoRemorse]   |
+|Athlete       | DM Amazons[^NoRemorse]    |
+
+[Full body]: https://www.nexusmods.com/skyrimspecialedition/mods/53402
 
 [^NoRemorse]: Yeah... expect to see many shameless plugs of things I've done in the past. I didn't do them for nothing.
 
 ==See here== to learn how to configure them.
 
-# How to change fitness levels
+# How to change fitness stages
 The idea is mostly the same of Pumping Iron and Sandow Plus Plus:
 * ==Train==
 * Sleep
@@ -191,15 +193,15 @@ Anytime you do one of those you will get `Training`, which is a variable that go
 [^LimitTraining]: You can't go above 12 because too much training won't get you hotter faster... just like real life.
 
 Not all type of training is the same. Doing hard physical activity will contribute quite a lot to make you fit, while mild physical activity (like having sex[^SexIsNotHard]) won't.
-[^SexIsNotHard]: You would reaaaaally be in quite a bad shape is sex is extenuating to you.
+[^SexIsNotHard]: You would reaaaaally be in quite a bad shape if sex is extenuating to you.
 ... and no one han gotten a nice athletic body by having lots of sex, anyway.
 
-|Activity type|Contribution to training|
----|---
-Physical skills[^PhysSkills] | High
-Magic skills[^MagicSkills] | Low
-Training sacks | Very high[^OnTrainingSacks]
-Sex | Very low
+|Activity type                |Contribution to training    |
+|-----------------------------|----------------------------|
+|Physical skills[^PhysSkills] | High                       |
+|Magic skills[^MagicSkills]   | Low                        |
+|Training sacks               | Very high[^OnTrainingSacks]|
+|Sex                          | Very low                   |
 
 [^PhysSkills]: One Handed, Two Handed, Archery, Block, Smithing, Sneak, Heavy Armor, Light Armor.
 
@@ -220,7 +222,7 @@ I rest my case.
 Since here your `Training` can never go above `12.0`, I assumed a fixed value of `0.3` loss a day is rather fair.
 
 ### Inactivity
-If you don't train for a while, you will be considered to be inactive and will start to regress in `Fitness Levels`.
+If you don't train for a while, you will be considered to be inactive and will start to regress in _Fitness Stages_.
 You will lose `0.5` a day of your `Training` (that's on top of your normal `0.3` decay) and `80%` of what you would have added to `Gains` per day of being fully inactive.
 See ==math page== if you want more details.
 
@@ -266,14 +268,14 @@ The more you gain, the better you look.
 When you ==sleep==, some of your `Training` gets added to this variable. **Once you get to `100%` or more you advance to the next `Fitness Level`**.
 Be too inactive and once you reach negative numbers you will go back to the previous `Fitness Level`.
 
-### Notes on `Gains`
-Unlike weight gaining mods like PI or SPP, ***this mod doesn't touch your PC weight at all***.
+### Notes on weight
+Unlike weight gaining mods like PI or SPP, weight is used differently here.
+In Max Sick Gains, **weight is used to change your current muscle definition** if you activated that option.
 
-Since this mod directly sets Bodyslide slider values to some body, PC/NPC weight is irrelevant.
+This has to be this way because of some arcane hacks I used to make Actors change muscle definition, and it can totally make it kind of incompatible with mods that alter PC weight, like the aformented SPP or PI. Other mods, like Hormones will also be affected.
 
-This is the very thing that allows the concept of having multiple "`Fitness Levels`" for the player, but it can totally make it kind of incompatible with mods that alter PC weight, like the aformented SPP or PI. Other mods, like Hormones will also be affected.
-
-This incompatibility is not of the CTD kind, so don't worry. It's just that, even if those mods are making their calculations correctly, you won't see them reflected on the shape of your body because of your ==zeroed Bodyslide== armors and this mod.
+This incompatibility is not of the CTD kind (hopefully), so don't worry. It's just that, even if those mods are making their calculations correctly, you won't see them reflected on the shape of your body because of your ==zeroed Bodyslide== armors and this mod.
+Also, expect to get random variations on your muscle defintion.
 
 *[PI]: Pumping Iron
 *[SPP]: Sandow Plus Plus
@@ -283,7 +285,7 @@ This incompatibility is not of the CTD kind, so don't worry. It's just that, eve
 # In depth math
 Don't fret. Math in this mod is quite simple, but may require more explanation if you really want to know how much rewarded/punised you will be.
 
-Gains and losses are controlled by ==how many days you defined your current Fitness Level== to last under ideal conditions. We will call that number `maxDays`.
+Gains and losses are controlled by ==how many days you defined your current Fitness Stage== to last under ideal conditions. We will call that number `maxDays`.
 
 ## Calculating `Gains`
 
@@ -330,7 +332,7 @@ When inactive, you will lose `80%` of `maxGainsPerDay` for each day being inacti
 120 | $ loss= 0.8 \cdot \frac{1}{120} = 0.006\bar{6} $
 56 | $ loss= 0.8 \cdot \frac{1}{56} = 0.01428 $
 
-So, if you would spend 7 days arrested for a serious crime (worst inactivity scenario I know of), you would get:
+So, if you spend 7 days arrested for a serious crime (worst inactivity scenario I know of), you would get:
 
 |`maxDays`|Losses per day|Actual days of gains lost| Percent to next level lost
 --|--|--|---
