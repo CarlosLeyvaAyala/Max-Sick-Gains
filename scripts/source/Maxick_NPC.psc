@@ -7,9 +7,9 @@ FormList Property KnownNPCs Auto
 Maxick_Main Property main Auto
 
 ; Initializes data needed for this to work
-Function Init(Maxick_Main owner)
-  main = owner
-EndFunction
+; Function Init(Maxick_Main owner)
+;   main = owner
+; EndFunction
 
 ; Gets all the info needed to apply visual changes to an NPC.
 ; Returns a handle to a `JMap` (a Lua table, actually) that contains all
@@ -47,29 +47,37 @@ int Function _InitNpcData(Actor npc)
   return data
 EndFunction
 
-Function _CheckIfNpcIsKnown(Actor npc, int data)
-  ; Alternatives:
-  ; npc.GetActorBase()
-  ; npc.GetBaseObject()
-  ActorBase b = npc.GetLeveledActorBase()
-  Log(DM_Utils.IntToHex(b.GetFormID()))
-  Log(main.GetRace(npc))
-  Log(b.GetClass().GetName())
-  If !KnownNPCs.HasForm(b)
-    Log("Unknown actor shouldnt be processed")
-    return
-  EndIf
-
-  Int i = KnownNPCs.GetSize()
-  While i > 0
-    i -= 1
-    If b == KnownNPCs.GetAt(i)
-      Log("Actor known")
-      JMap.setInt(data, "isKnown", i)
-      JMap.setInt(data, "shouldProcess", 1)
-    EndIf
-  EndWhile
+; Executes the Lua function that makes all calculations on one NPC
+int Function ProcessNpc(Actor npc)
+  Log("Testing NPC: '" + DM_Utils.GetActorName(npc) + "'")
+  int data = _InitNpcData(npc)
+  return JValue.evalLuaObj(data, "return maxick.ProcessNPC(jobject)")
 EndFunction
+
+; Function _CheckIfNpcIsKnown(Actor npc, int data)
+;   ; Alternatives:
+;   ; npc.GetActorBase()
+;   ; npc.GetBaseObject()
+;   ActorBase b = npc.GetLeveledActorBase()
+;   Log(DM_Utils.IntToHex(b.GetFormID()))
+;   Log(main.GetRace(npc))
+;   Log(b.GetClass().GetName())
+;   If !KnownNPCs.HasForm(b)
+;     Log("Unknown actor shouldnt be processed")
+;     return
+;   EndIf
+
+;   Int i = KnownNPCs.GetSize()
+;   While i > 0
+;     i -= 1
+;     If b == KnownNPCs.GetAt(i)
+;       Log("Actor known")
+;       JMap.setInt(data, "isKnown", i)
+;       JMap.setInt(data, "shouldProcess", 1)
+;     EndIf
+;   EndWhile
+; EndFunction
+
 ; Adds the data for an NPC the player explicitly asked to process when
 ; using the NPCs tab in **MaxSickGains.exe**
 ; int Function _GetExplicitData(int data)
@@ -80,45 +88,6 @@ EndFunction
 
 ;   return data
 ; EndFunction
-
-; Executes the Lua function that makes all calculations on one NPC
-int Function ProcessNpc(Actor npc)
-  Log("Testing NPC: '" + DM_Utils.GetActorName(npc) + "'")
-  int data = _InitNpcData(npc)
-  return JValue.evalLuaObj(data, "return maxick.ProcessNPC(jobject)")
-
-  ; If JMap.getObj(data, "bodySlide") == 0
-  ;   MiscUtil.PrintConsole("########################################### ")
-  ;   MiscUtil.PrintConsole("BODYSLIDE LOST")
-  ;   MiscUtil.PrintConsole("########################################### ")
-  ; Else
-  ;   JValue.writeToFile(JMap.getObj(data, "bodySlide"), JContainers.userDirectory() +  DM_Utils.GetActorName(npc) + Utility.RandomInt(0, 6000) + ".json")
-  ;   return data
-  ; EndIf
-  ; _base was already found in _GetNpcData()
-  ; If JFormMap.hasKey(_knownNpcs, _base)
-  ;   MiscUtil.PrintConsole("########################################### ")
-  ;   Log("*** Explicitly added NPC *** " + DM_Utils.GetActorName(npc))
-  ;   MiscUtil.PrintConsole("########################################### ")
-  ;   data = _GetExplicitData(data)
-  ;   JFormDB.setEntry("maxick", npc, data)
-  ;   return JValue.evalLuaObj(data, "return maxick.ProcessKnownNPC(jobject)")
-  ; Else
-  ;   If DM_Utils.GetActorName(npc) == ""
-  ;     Log("This actor can't be recognized. If you explicitly added it, don't worry. Skyrim is weird and will eventually recognize it.")
-  ;   EndIf
-  ;   JFormDB.setEntry("maxick", npc, data)
-  ;   return data
-  ;   ; return JValue.evalLuaObj(data, "return maxick.ProcessUnknownNPC(jobject)")
-  ;   ; JMap.setInt(data, "shouldProcess", 0)
-  ; EndIf
-
-  ; return 0
-
-EndFunction
-
-
-
 
 ; First time TextureSet setting for actors
 ; TODO: Delete this when everything is nice and tidy. Used for reference because it works.

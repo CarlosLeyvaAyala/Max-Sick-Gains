@@ -147,7 +147,7 @@ That would work quite fine for the extreme levels of your `Bodyslide Preset`, ie
 [^FatToFit]: IRL, most people who go from fat to fit usually go from fat to thin and then from thin to athletic. It's a bit unusual to see someone go directly from fat to fit.
 
 <figure>
-<img class="hImg" src="img/mamadogordo.jpg"/>
+<img class="vImg" src="img/mamadogordo.jpg"/>
 <figcaption>In <a href="https://youtu.be/NPNs8aYlimM">Taco</a> this is also known to us as MamadoGordo.</figcaption>
 </figure>
 

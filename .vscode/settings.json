@@ -270,6 +270,7 @@
 "Lua.diagnostics.globals": [
     "jrequire"
 ],
-"projects.indentationSpaces": 2
+"projects.indentationSpaces": 2,
+"Lua.runtime.version": "Lua 5.1"
 
 }

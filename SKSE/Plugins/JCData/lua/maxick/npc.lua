@@ -2,6 +2,7 @@ local npc = {}
 
 local l = jrequire 'dmlib'
 local db = jrequire 'maxick.database'
+local sl = jrequire 'maxick.sliderCalc'
 -- local serpent = require("serpent")
 
 --;>-----------------------------------
@@ -16,40 +17,10 @@ end
 local Log
 
 --;>-----------------------------------
-
---- Calculates the value for a slider. This value is ready to be used by
---- `NiOverride.SetMorphValue()`
----@param gains integer 0 to 100. Skyrim weight related and `gains` for current player fitness stage.
----@param min integer 0 to 100. Skyrim weight related.
----@param max integer 0 to 100. Skyrim weight related.
----@return number sliderValue value
-local function _BlendMorph(gains, min, max)
-  return l.linCurve({x=0, y=min}, {x=100, y=max})(gains) / 100
-end
-
---;>-----------------------------------
-
----Sets all slider numbers for an actor using some `method`.
----@param actor table
----@param weight integer
----@param bs table
----@param method function
-local function SetBodySlide(actor, weight, bs, method)
-  local resetBs = l.map(actor.bodySlide, function() return 0 end)
-  local sliders = l.pipe(
-    l.reject(function (_, key) return bs[key] == nil end),
-    l.map(function (_, k) return method(weight, bs[k].min, bs[k].max) end)
-  )(actor.bodySlide)
-
-  l.assign(actor.bodySlide, resetBs)
-  l.assign(actor.bodySlide, sliders)
-end
-
---;>-----------------------------------
 local function _SolveBodyslide(actor, fitStage)
   if actor.weight >= 0 then
     local bs = l.IfThen(actor.isFem == 1, fitStage.femBs, fitStage.manBs)
-    SetBodySlide(actor, actor.weight, bs, _BlendMorph)
+    sl.SetBodySlide(actor, actor.weight, bs, sl.StdMorph)
   else
     Log("Actor was banned from changing body shape")
   end
@@ -80,14 +51,18 @@ local function _ProcessKnownNPC(actor)
   return actor
 end
 
---;>-----------------------------------
+-- ;>========================================================
+-- ;>===                  RACE SOLVING                  ===<;
+-- ;>========================================================
 
 local function _GetRacialMatches(actor)
   return l.filter(db.races,
-    function (_, race)
-      return string.find(string.lower(actor.raceEDID), race)
-    end)
+  function (_, race)
+    return string.find(string.lower(actor.raceEDID), race)
+  end)
 end
+
+--;>-----------------------------------
 
 local function _Stop_CouldBeAnSpider(actor)
   actor.shouldProcess = 0
@@ -116,9 +91,21 @@ local function _SetKnownRace(actor, matches)
   return actor
 end
 
+local function _Stop_SkyrimIsBeingAnAsshole(actor)
+  actor.shouldProcess = 0
+  Log("WARNING: Skyrim didn't provide enough data to know who or what this actor is. Don't worry; this annoyance will eventually correct itself")
+end
+
+--;>-----------------------------------
+
 local function _GetRace(actor)
+  if actor.raceEDID == "" then
+    _Stop_SkyrimIsBeingAnAsshole(actor)
+    return actor
+  end
   local matches = _GetRacialMatches(actor)
-  if l.tableLen(matches) < 1 then
+  -- if l.tableLen(matches) < 1 then
+  if l.isEmpty(matches) then
     _Stop_CouldBeAnSpider(actor)
     return actor
   end
@@ -144,22 +131,6 @@ local function _IsKnown(actor, values)
   if values.muscleDef > 0 then actor.muscleDef = values.muscleDef end
   actor.isKnown = 1
   actor.shouldProcess = 1
-  return actor
-end
-
---;>-----------------------------------
-
-local function _testSetStage(actor)
-  actor.fitStage = 2
-  actor.weight = 100
-  actor.muscleDef = 6
-  actor.isKnown = true
-  -- actor.msg = "*** Explicitly added NPC ***"
-  return actor
-end
-
-local function _SetStageData(actor)
-  local fitStage = db.fitStages[actor.fitStage]
   return actor
 end
 
@@ -195,28 +166,37 @@ local function _FindKnownNPC(actor)
   if npcMatch then
     Log(l.fmt("*** Explicitly added NPC: '%s' ***", actor.name))
     -- TODO: Weight calculation by skills is possible to do right here
-    -- TODO: Set muscle def by MCM options
+    -- TODO: Set muscle def and weight by MCM options
     return _IsKnown(actor, npcMatch)
   end
 
   return actor
 end
 
---;>-----------------------------------
+-- ;>========================================================
+-- ;>===                 CLASS SOLVING                  ===<;
+-- ;>========================================================
+
+-- TODO: Seems to be a function that should be in a library
+
+---Finds if some race is in a race list.
+---@param race string
+---@param raceList table
+---@return boolean
+local function _RaceInList(race, raceList)
+  return l.any(raceList, function (v) return string.find(race, v) end)
+end
 
 local function _ClassArchetypeAllowed(race, exclusiveRaceList)
-  local allRacesAllowed = l.tableLen(exclusiveRaceList) == 0
-  local raceMatch = l.filter(exclusiveRaceList, function (v)
-    return string.find(race, v)
-  end)
-  return allRacesAllowed or (l.tableLen(raceMatch) > 0)
+  local allRacesAllowed = l.isEmpty(exclusiveRaceList)
+  if allRacesAllowed then return true end     -- Optimization
+
+  local raceMatch = _RaceInList(race, exclusiveRaceList)
+  return raceMatch
 end
 
 local function _ClassArchetypeExclusive(race, exclusiveRaceList)
-  local raceMatch = l.filter(exclusiveRaceList, function (v)
-    return string.find(race, v)
-  end)
-  return l.tableLen(raceMatch) > 0
+  return _RaceInList(race, exclusiveRaceList)
 end
 
 --;>-----------------------------------
@@ -254,7 +234,7 @@ local function _OnlyExclusiveArchetypes(actor, possibleArchetypes)
     end
   )
   local ex = l.dropNils(exclusiveOnly)
-  return l.IfThen(l.tableLen(ex) > 0, ex, possibleArchetypes)
+  return l.IfThen(not l.isEmpty(ex), ex, possibleArchetypes)
 end
 
 --;>-----------------------------------
@@ -278,13 +258,13 @@ end
 ---@return number|nil
 local function _GetBestArchetypeMatch(actor, classMatch)
   local possibleArchetypes = _AllAllowedArchetypes(actor, classMatch)
-  if l.tableLen(possibleArchetypes) < 1 then
-    Log(l.fmt("But no archetype was allowed for '%ss' of that class", actor.raceEDID))
+  if l.isEmpty(possibleArchetypes) then
+    Log(l.fmt("But no archetype was allowed for '%s' of that class", actor.raceEDID))
     return nil
   end
   -- Give preference to exclusive race archetypes
   local usefulArchetypes = _OnlyExclusiveArchetypes(actor, possibleArchetypes)
-  Log(l.fmt("Possible archetype(s): %s", _ArchetypesNames(usefulArchetypes)))
+  Log(l.fmt("Matching archetype(s): %s", _ArchetypesNames(usefulArchetypes)))
   -- Return value
   return _GetSingleArchetype(usefulArchetypes)
 end
@@ -295,7 +275,7 @@ local function _GetClassArchetype(actor)
   local class = string.lower(actor.class)
   -- ;WARNING: Modify this if function can't find the actor class
   local classMatch = l.filter(db.classes, function (_, k) return class == k end)
-  if l.tableLen(classMatch) > 0 then
+  if not l.isEmpty(classMatch) then
     Log(l.fmt("Class found: '%s'", actor.class))
   else
     Log(l.fmt("Couldn't find class: '%s'", actor.class))
@@ -319,19 +299,19 @@ end
 
 local function _SetClassArchetypeData(actor, archId)
   local arch = db.classArchetypes[archId]
-  -- TODO: Set muscle def by MCM options
+  -- TODO: Set muscle def and weight by MCM options
   local values = {
     fitStage = arch.fitStage,
-    weight = l.linCurve({x=0, y=arch.bsLo}, {x=100, y=arch.bsHi})(actor.weight),
-    muscleDef = l.round(
-      l.linCurve({x=0, y=arch.muscleDefLo}, {x=100, y=arch.muscleDefHi})(actor.weight)
-    )
+    weight = sl.WeightBasedAdjust(actor.weight, arch.bsLo, arch.bsHi),
+    muscleDef = l.round(sl.WeightBasedAdjust(actor.weight, arch.muscleDefLo, arch.muscleDefHi))
   }
   actor = _IsKnown(actor, values)
   return actor
 end
 
---;>-----------------------------------
+-- ;>========================================================
+-- ;>===              NPC IDENTITY SOLVING              ===<;
+-- ;>========================================================
 
 local function _GetGenericNPCBodyslide(actor)
   if actor.shouldProcess == 0 then return actor end
@@ -367,7 +347,9 @@ local function _GetToKnowNPC(actor)
   return actor
 end
 
---;>-----------------------------------
+-- ;>========================================================
+-- ;>===                MAIN PROCESSING                 ===<;
+-- ;>========================================================
 
 function npc.ProcessNPC(actor)
   -- print(serpent.block(actor))
@@ -381,6 +363,7 @@ function npc.ProcessNPC(actor)
   )(actorCopy)
 
   l.assign(actor, processed)
+  -- print("=======================================")
   -- print(serpent.block(actor))
   -- print(actor.msg)
   return actor

@@ -7,22 +7,24 @@ import Maxick_Utils
 Actor Property Player Auto
 FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
+Maxick_Player Property PcHandler Auto
+{Handles everything Player related}
 Maxick_NPC Property NpcHandler Auto
 {Handles everything NPC related}
 
-int _femSliders
-int Property femSliders Hidden
-  int Function Get()
-    return JDB.solveObj(".maxick.femSliders")
-  EndFunction
-EndProperty
+; int _femSliders
+; int Property femSliders Hidden
+;   int Function Get()
+;     return JDB.solveObj(".maxick.femSliders")
+;   EndFunction
+; EndProperty
 
-int _manSliders
-int Property manSliders Hidden
-  int Function Get()
-    return JDB.solveObj(".maxick.manSliders")
-  EndFunction
-EndProperty
+; int _manSliders
+; int Property manSliders Hidden
+;   int Function Get()
+;     return JDB.solveObj(".maxick.manSliders")
+;   EndFunction
+; EndProperty
 
 
 Event OnInit()
@@ -40,13 +42,12 @@ Function OnGameReload()
   int data = JMap.object()
   JMap.setObj(data, "femSliders", _LoadSliders("data/SKSE/Plugins/Maxick/fem-sliders.json"))
   JMap.setObj(data, "manSliders", _LoadSliders("data/SKSE/Plugins/Maxick/man-sliders.json"))
-  JMap.setObj(data, "npcs", JValue.readFromFile("data/SKSE/Plugins/Maxick/npcs.json"))
   JDB.setObj("maxick", data)
 
-  NpcHandler.Init(self)
-  JDB.writeToFile(JContainers.userDirectory() + "dump.json")
+  ; NpcHandler.Init(self)
+  ; JDB.writeToFile(JContainers.userDirectory() + "dump.json")
   OnCellLoad()
-
+  _ChangeAppearance(Player, PcHandler.GetAppearance(Player))
 EndFunction
 
 ; Initializes known sliders from some file and inits them at `0.0`
@@ -90,7 +91,7 @@ EndFunction
 
 Function _ChangeAppearance(Actor aAct, int data)
   Log(JMap.getStr(data, "msg"))
-  If !JMap.getInt(data, "shouldProcess")
+  If !JMap.getInt(data, "shouldProcess", 1)
     return
   EndIf
   ; FIXME: Check if this should be done
@@ -111,9 +112,8 @@ Function OnCellLoad()
     EndIf
     i -= 1
   EndWhile
-  JValue.writeToFile(JDB.solveObj(".maxick"), JContainers.userDirectory() + "Maxick.json")
-  _TestMorphs(Player)
-  ; _SetTextureSets()
+  ; JValue.writeToFile(JDB.solveObj(".maxick"), JContainers.userDirectory() + "Maxick.json")
+  ; _TestMorphs(Player)
 EndFunction
 
 Function _TestMorphs(Actor aAct)

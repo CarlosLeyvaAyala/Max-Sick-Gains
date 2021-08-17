@@ -228,7 +228,11 @@ local p = l.pipe(
     log("------------------"),
     l.take(2),
     l.foreach(print),
+    log("------------------"),
     l.reduce(0, function (a, v) return a + v end),
+    l.foreach(print),
+    log("------------------"),
+    l.any(up5),
     l.foreach(print)
   )
 p(data)
@@ -236,3 +240,4 @@ p(data)
 print("$$$$$$$$$$$$")
 -- x = [0, 100]  y = [bsLo, bsHi]
 print(l.linCurve({x=0, y=100}, {x=100, y=70})(90))
+print(serpent.block(l.joinTables({1,2,3}, {4,5}, function (_, v2)  return v2 end)))
