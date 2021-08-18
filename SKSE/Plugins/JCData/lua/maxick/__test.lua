@@ -1,5 +1,7 @@
 package.path = package.path..";F:/Skyrim SE/MO2/mods/DM-SkyrimSE-Library/SKSE/Plugins/JCData/lua/?/init.lua"
 
+local l = require 'dmlib'
+
 local fitness = {
   {
     name = "Plain",
@@ -49,86 +51,6 @@ local fitness = {
   }
 }
 
-local l = require("dmlib")
-
---- Returns the value of a slider. 0 if it doesn't exist.
----
---- Example:
----
----     `val = _GetSliderVal(1, "7B Lower", "min")`
----@param level integer Fitness level as defined in `MaxSickGains.exe`. From obese to athlete.
----@param slider string Name of the slider as defined in the Bodyslide file.
----@param val string    Name of the property to get. Usually "min" or "max".
----@return number
-local function _GetSliderVal(level, slider, val)
-  -- ;FIXME: This will change when references to Bodyslides are used
-    if fitness[level].bs[slider] ~= nil then return fitness[level].bs[slider][val]
-    else return 0
-  end
-end
-
---- Returns the Bodyslide slider value corresponding to how much gains at some fitness level.
----
---- Example:
----
----`morph = GetSliderMorph(2, 0.5, "7B Lower")`
----@param level integer
----@param gains number
----@param slider string
----@param isPlayer boolean
----@return number
-local function GetSliderMorph(level, gains, slider, isPlayer)
-  isPlayer = isPlayer or false
-  local min, max = 0.0, 0.0
-  gains = l.forceRange(0, 1)(gains)
-  min = _GetSliderVal(level, slider, "min")
-  max = _GetSliderVal(level, slider, "max")
-
-  -- Use boundaries if this slide will be applied to player
-  if isPlayer then
-    local oldMin = min
-    min = l.linCurve({x=0.0, y=oldMin}, {x=1.0, y=max})(fitness[level].bsMin)
-    max = l.linCurve({x=0.0, y=oldMin}, {x=1.0, y=max})(fitness[level].bsMax)
-    if fitness[level].invert then min, max = max, min end
-  end
-
-  -- local r = l.linCurve({x=0.0, y=min}, {x=1.0, y=max})(gains)
-  -- print(level, slider, min, max, r)
-  return l.linCurve({x=0.0, y=min}, {x=1.0, y=max})(gains)
-end
-
---- Gets the morph the player is expecting at her Fitness Level and Gains.
-local function GetBlendedMorph(level, gains, slider)
-  local r, b1, b2, s = 0, 0, 0, ""
-  local lowerBlendLim = fitness[level].blend
-  local upperBlendLim = 1.0 - fitness[level].blend
-
-  if (lowerBlendLim >= gains) and (level > 1) then
-    -- This state is fresh. Blend with previous.
-    b1 = GetSliderMorph(level - 1, 1, slider, true)
-    b2 = GetSliderMorph(level, gains, slider, true)
-    b1 = b1 * l.linCurve({x=0, y=0.5}, {x=lowerBlendLim, y=0})(gains)
-    b2 = b2 * l.linCurve({x=0, y=0.5}, {x=lowerBlendLim, y=1})(gains)
-    r = b1 + b2
-    s = "blended with previous"
-  elseif (upperBlendLim <= gains) and (level < #fitness) then
-    -- About to transition. Blend with next.
-    b1 = GetSliderMorph(level, gains, slider, true)
-    b2 = GetSliderMorph(level + 1, 0, slider, true)
-    b1 = b1 * l.linCurve({x=upperBlendLim, y=1}, {x=1, y=0.5})(gains)
-    b2 = b2 * l.linCurve({x=upperBlendLim, y=0}, {x=1, y=0.5})(gains)
-    r = b1 + b2
-    s = "blended with next"
-  else
-    -- No need to blend
-    r = GetSliderMorph(level, gains, slider, true)
-  end
-  if s ~= "" then
-    print(string.format("%d %.2f %-20s\tr= %.2f\t%s", level, gains, slider, r, s))
-  end
-  -- print(level, gains, slider, "r=", r, "b=",b1, b2, s)
-end
-
 --- Makes player advance levels if possible. Returns surplus Gains.
 ---@param level integer
 ---@param gains number
@@ -176,28 +98,6 @@ end
 -- --   GetBlendedMorph(lvl, gains, slider)
 -- -- end
 
--- local serpent = require('serpent')
--- -- print(serpent.block(fitness[3]))
--- -- print("lenght", l.tableLen(fitness))
-
--- print("length", #fitness)
--- print(_Regress(3, -1.01))
--- -- print(fitness[1].bs["Butt"].max)
-
-print(string.format("%.x", 45))
-
--- local function filter(func, array)
---   local new_array = {}
---   for i,v in pairs(array) do
---     if func(v) then
---       new_array[i] = v
---     end
---   end
---   return new_array
--- end
--- local p = filter(function (x) return x > 5 end, {3,39,4,2,56,48,9,4,2,3,78})
--- print("")
-
 local serpent = require("serpent")
 
 local add2 = function(x) return x + 2 end
@@ -214,8 +114,6 @@ end
 
 
 local data=l.range(10)
--- l.foreach(l.reject(data, pair), print)
--- l.foreach(data, print)
 local p = l.pipe(
     l.map(rand),
     l.foreach(print),
