@@ -155,7 +155,10 @@ EndState
 ;>========================================================
 
 Function ChangeAppearance()
-  looksHandler.ChangeAppearance(player, _GetAppearance())
+  int appearance = _GetAppearance()
+  looksHandler.ChangeAppearance(player, appearance)
+  ; Make head size obviously wrong when getting default values to help catch bugs.
+  looksHandler.ChangeHeadSize(player, JMap.getFlt(appearance, "headSize", 2.2))
 EndFunction
 
 Function TrainSkill(string aSkill)

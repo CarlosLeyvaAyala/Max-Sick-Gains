@@ -65,8 +65,7 @@ Function _ApplyMuscleDef(Actor aAct, int data)
     ActorBase b = aAct.GetBaseObject() as ActorBase
     FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
     b.SetSkin(defType.GetAt(muscleDef) as Armor)
-    ; FIXME: Check that the actor is not mounting before doing this
-    aAct.QueueNiNodeUpdate()
+    UpdateNiNode(aAct)
   EndIf
 EndFunction
 
@@ -81,9 +80,24 @@ Function ChangeAppearance(Actor aAct, int data)
   _ApplyMuscleDef(aAct, data)
 EndFunction
 
+; Changes the head size of an `Actor`.
+Function ChangeHeadSize(Actor aAct, float size)
+  string headNode = "NPC Head [Head]"
+  If NetImmerse.HasNode(aAct, headNode, False)
+    NetImmerse.SetNodeScale(aAct, headNode, size, False)
+    UpdateNiNode(aAct)
+  EndIf
+EndFunction
+
 ;>========================================================
 ;>===                    HELPERS                     ===<;
 ;>========================================================
+
+; Updates a NiNode when conditions are right.
+Function UpdateNiNode(Actor aAct)
+  ; FIXME: Check that the actor is not mounting before doing this
+  aAct.QueueNiNodeUpdate()
+EndFunction
 
 ; Gets if the actor is a female.
 bool Function IsFemale(Actor aAct)
