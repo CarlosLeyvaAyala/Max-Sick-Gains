@@ -5,9 +5,14 @@
 
 local npc = jrequire 'maxick.npc'
 local player = jrequire 'maxick.player'
+local db = jrequire 'maxick.database'
 
 local maxick = {}
 math.randomseed( os.time() )
+
+-- ;>========================================================
+-- ;>===                SAMPLE VARIABLES                ===<;
+-- ;>========================================================
 
 --- Dummy sliders used for testing algorithms.
 local sampleSliders = {
@@ -77,7 +82,7 @@ local samplePlayer = {
   ---Used to know if muscle definition is banned for her race.
   raceEDID = "NordRace",
   --- Current Player stage.
-  stage = 2,
+  stage = 1,
   --- Training that will get converted to `gains`. `[0..12]`
   training = 12,
   --- Player stage completition value. `If >= 100`, go up. `If < 0`, go down. `[0..100]`
@@ -92,12 +97,35 @@ local samplePlayer = {
   evChangeStage = 0
 }
 
+-- ;>========================================================
+-- ;>===              PUBLISHED FUNCTIONS               ===<;
+-- ;>========================================================
+
 maxick.ProcessNPC = npc.ProcessNPC
 maxick.ProcessPlayer = player.ProcessPlayer
 maxick.ChangePlayerAppearance = player.ChangeAppearance
 
+function maxick.SlideshowNextStage(stage)
+  if stage < #db.playerStages then return stage + 1
+  else return -1
+  end
+end
+
+function maxick.SlideshowStageMsg(stage) return player.LvlUpMessage(stage) end
+
+-- ;>========================================================
+-- ;>===                FUNCTION TESTING                ===<;
+-- ;>========================================================
+
 -- maxick.ProcessNPC(sampleNPC)
 -- maxick.ProcessPlayer(samplePlayer)
--- maxick.ChangePlayerAppearance(samplePlayer)
+-- samplePlayer.stage = 3
+-- samplePlayer.gains = 100
+--  maxick.ChangePlayerAppearance(samplePlayer)
+-- samplePlayer.stage = 4
+-- samplePlayer.gains = 0
+--  maxick.ChangePlayerAppearance(samplePlayer)
 
+-- print(maxick.SlideshowNextStage(1))
+-- print(maxick.SlideshowStageMsg(3))
 return maxick

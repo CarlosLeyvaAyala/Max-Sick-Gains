@@ -104,7 +104,7 @@ EndFunction
 ; * Muscle definition type
 ; * Weight
 ; * Should they be processed? (always 1 for player)
-Function InitCommonData(int data, Actor aAct, float weight, int shouldProcess = 1)
+Function InitCommonData(int data, Actor aAct, float weight, int shouldProcess)
   bool isFem = IsFemale(aAct)
   JMap.setInt(data, "isFem", isFem as int)
   If isFem

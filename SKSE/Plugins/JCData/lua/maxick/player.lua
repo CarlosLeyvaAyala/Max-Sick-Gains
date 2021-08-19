@@ -9,12 +9,25 @@ local sl = jrequire 'maxick.sliderCalc'
 local function _Stage(playerStage) return db.playerStages[playerStage] end
 local function _Fitstage(playerStage) return db.fitStages[_Stage(playerStage).fitStage] end
 
+-- ;>========================================================
+-- ;>===            APPEARANCE CALCULATIONS             ===<;
+-- ;>========================================================
 
 local function _SetHeadSize(actor)
   local st = _Stage(actor.stage)
   actor.headSize = l.linCurve({x=0, y=st.headLo}, {x=100, y=st.headHi})(actor.gains) / 100
   return actor
 end
+
+local function _StageChangeMsg(stage, msg)
+  local display = db.playerStages[stage].displayName
+  return l.IfThen(display ~= "", l.fmt(msg, display), "")
+end
+
+function player.LvlUpMessage(stage)
+  return _StageChangeMsg(stage, "Your training has paid off. Now you look %s.")
+end
+
 
 -- ;>========================================================
 -- ;>===               MUSCLE DEFINITION                ===<;
@@ -63,7 +76,7 @@ end
 
 local function _GetBlends(currentStage, gains)
   -- db.playerStages
-  local b1, b2, blendStage = 0, 0, 0
+  local b1, b2, blendStage, g2 = 0, 0, 0, 0
   local lBlendLim = db.playerStages[currentStage].blend
   local uBlendLim = 100 - db.playerStages[currentStage].blend
 
@@ -71,16 +84,18 @@ local function _GetBlends(currentStage, gains)
     -- This state is fresh. Blend with previous.
     blendStage = currentStage - 1
     b1 = l.linCurve({x=0, y=0.5}, {x=lBlendLim, y=1})(gains)
+    g2 = 100
   elseif (uBlendLim <= gains) and (currentStage < #db.playerStages) then
     -- About to transition. Blend with next.
     blendStage = currentStage + 1
     b1 = l.linCurve({x=uBlendLim, y=1}, {x=100, y=0.5})(gains)
+    g2 = 0
   else
     -- No need to blend
     b1 = 1
   end
   b2 = 1 - b1
-  return currentStage, b1, blendStage, b2
+  return currentStage, b1, gains, g2, blendStage, b2
 end
 
 local function _GetSliders(stageId, isFem, gains, sliders, blend)
@@ -93,16 +108,16 @@ local function _GetSliders(stageId, isFem, gains, sliders, blend)
   return sl.CalcSliders(sliders, weight, bs, sl.BlendMorph(blend))
 end
 
-local function _GetActorSliders(actor, stageId, blend)
-  return _GetSliders(stageId, actor.isFem, actor.gains, actor.bodySlide, blend)
+local function _GetActorSliders(actor, stageId, gains, blend)
+  return _GetSliders(stageId, actor.isFem, gains, actor.bodySlide, blend)
 end
 
 local function _SetBodyslide(actor)
-  local st1, bl1, st2, bl2 = _GetBlends(actor.stage, actor.gains)
+  local st1, bl1, g1, g2, st2, bl2 = _GetBlends(actor.stage, actor.gains)
   -- Current stage sliders
-  local sl1 = _GetActorSliders(actor, st1, bl1)
+  local sl1 = _GetActorSliders(actor, st1, g1, bl1)
   -- Blend stage sliders
-  local sl2 = _GetActorSliders(actor, st2, bl2)
+  local sl2 = _GetActorSliders(actor, st2, g2, bl2)
   -- Combine
   local blended = l.joinTables(sl1, sl2, function (v1, v2) return v1 + v2 end)
   l.assign(actor.bodySlide, blended)
@@ -126,7 +141,7 @@ function player.ChangeAppearance(actor)
   l.assign(actor, processed)
 
   -- print("=======================================")
-  -- print(serpent.block(actor))
+  -- print(serpent.block(actor.bodySlide))
   return actor
 end
 
