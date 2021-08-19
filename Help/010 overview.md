@@ -1,11 +1,24 @@
 <!-- @import "help.less" -->
 # Overview
-`Max Sick Gains` is a mod that changes `Bodyslide` presets on your PC depending on fitness level. Your fitness level changes by training and sleeping.
+_Max Sick Gains_ is a mod that changes Bodyslide presets on your PC depending on fitness level. Your fitness level changes by training and sleeping.
 
-This program was made to configure everything related to those fitness levels and how they are applied to the PC (and NPCs if you so desire).
+_Max Sick Gains.exe_ was made to configure everything related to those fitness levels and how they are applied to the PC (and NPCs if you so desire).
 
 ## READ THIS BEFORE ANYTHING
-Before you even download this mod, I want you to make some things perfectly clear.
+Before you even download this mod, I want to make some things perfectly clear.
+
+### This mod's purpose
+***Make people have bodies that match their professions***.
+
+This isn't a _"variety of bodies for the sake of variety"_ type of mod, so I won't be adding options to apply a variety of skins on NPCs or having unique skins on the player[^PlayerExclusiveShapes], **EVER**. [It's just too much work][tech-muscleDef] and ==it's quite prone to introduce hard to track bugs==.
+
+[^PlayerExclusiveShapes]: But this mod offers the means for your player to have their own body shape not shared by anyone, if you want to.
+
+[tech-muscleDef]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md
+
+
+Randomizing body shapes on NPCs is possible with the tools this mod already provides. No need to add specific options to make boobs bigger on some NPCs, or something.
+==Read this== if you are interested in doing that.
 
 ### This mod ***CAN'T*** be just plug and play
 Never will. Sorry.
@@ -29,41 +42,16 @@ And that's because it uses a somewhat obscure functionality of NiOverride that c
 That's the heart of this mod. No other way around this fact.
 
 If you know the basics about Bodyslide you can guess what means to have zeroed sliders: ***All NPCs will look emanciated as fuck***.
-To prevent this, this mod has basic functionality to apply Bodyslide morphs to NPCs.
+To prevent this, this mod has a rich functionality to apply Bodyslide morphs to NPCs based on their races and classes.
 
-If you don't like my way of doing things, you can try to use [BodyGen options already integrated with RaceMenu](https://www.reddit.com/r/skyrimmods/comments/gdwdvj/racemenu_bodygen/) along with this mod, but since I don't do that, I can't guide you or give you advice through the process.
+If you don't like my way of doing things, you can try to use the [BodyGen options already integrated with RaceMenu][BodyGenReddit] along with this mod, but since I don't do that, I can't guide you or give you advice through the process.
 ...although I would **personally** do something like `All|Female=Preset` and everything else be damned.
 ==¿Tal vez sí haga un parche nomás para experimentar?==
 
-### Don't ask me to add randomized skin textures
-I added an option to this mod so you can see your PC eventually getting ripped if you so desire.
-
-Unfortunately, the method I used involves using texture sets, armor addons and all kind of hacks that actually need to exist as records inside this mod esp, and I did it like that because that's the most reliable method to make people ripped I've found so far after many months blindly stumbling in the dark trying to pull this out.
-NiOverride is not an option, since it's just too volatile to be useful on SSE for changing normal maps.
-
-Since records need to be added to the esp, it means I would need to add a new texture set record for every race, muscle definition level and texture pack you would like to use.
-This could easily explode into the four figures numbers of records[^ItsOver9000]; records I would need to manually create one by one, by the way.
-***HOW ABOUT NO?***
-[^ItsOver9000]: Right now they are already at least 180.
-
-If you know something about NiOverride you would think it should be as easy as adding a normal map override to the body and be done (just as I thought when I was young and inocent), but no.
-For some reason, doing so messes with the textures on the hand too, and if you want to unreliably deal with that you need to do all kind of hacks that randomly work whenever they feel like.
-Go see my own [Sandow Plus Plus source code](https://github.com/CarlosLeyvaAyala/Sandow-Plus-Plus/tree/more-compatible-ripped)[^Abandonware] to marvel at what a fucking mess is trying to (unsuccessfully) do that.
-[^Abandonware]: That seemingly inocent idea so sapped my will to work with NiOVerride (and my sanity) that SPP is mostly abandonware nowadays.
-
-<figure>
-<img class="vImg" src="img/pizza-hands.jpg"/>
-<figcaption>I literally spent hundreds of hours and moths on not solving this issue, thank you very much for asking.</figcaption>
-</figure>
+[BodyGenReddit]: https://www.reddit.com/r/skyrimmods/comments/gdwdvj/racemenu_bodygen/
 
 
-But I digress... this mod is made to work with only one texture pack and **I'll  never add skin variation to NPCs**.
-If you want people having different complexions, you could try mods like [BOSSE](https://www.nexusmods.com/skyrimspecialedition/mods/21029) and see if you want to try to make both this and that mod pull together.
-
-I can't help you doing that and it's not supported by me.
-As you will soon learn, one of the reasons this mod exists is because I couldn't make BOSSE work.
-
-### Why this mod?
+## Why this mod?
 Why would I do this if there are so many options that already kind of do the same?
 
 Well, for starters, I was getting tired of seeing fucking mages and merchants being as hot and athletic as Lydia.
@@ -77,7 +65,7 @@ My hopes went up when I learned about [zEBD](https://www.nexusmods.com/skyrimspe
 
 I tried BOSSE, but my game just gets an infinite loading screen when installed.
 
-[jBS2BG](https://www.nexusmods.com/skyrim/mods/88707) worked all right for NPCs, but for some reason, RaceMenu [BodyGen](https://www.reddit.com/r/skyrimmods/comments/gdwdvj/racemenu_bodygen/) didn't apply well[^jBS2BGRox] the Bodyslide preset to my PC and she looked flabby instead of thight and hot.
+[jBS2BG](https://www.nexusmods.com/skyrim/mods/88707) worked all right for NPCs, but for some reason, RaceMenu [BodyGen][BodyGenReddit] didn't apply well[^jBS2BGRox] the Bodyslide preset to my PC and she looked flabby instead of thight and hot.
 Ironically, it correctly applied morphs to all NPCs.
 [^jBS2BGRox]: I'm totally sure it wasn't jBS2BG's fault, since it correctly exported all Bodyslide data.
 
@@ -110,7 +98,7 @@ Then I thought:
 
 ### Why a homebrew app but not an MCM?
 As a player, I love to use MCM.
-It was a great achievement and mods that use spells and message boxes to configure things instead of MCM are a annoying and so 2012.
+It was a great achievement and mods that use spells and message boxes to configure things instead of MCM are annoying and so 2012.
 
 But I **hate** programming MCM menus.
 
@@ -124,7 +112,7 @@ You see, the Papyrus programming language and API (what you use to program for S
 * ~~Working on big arrays of data~~... oh, sorry. It can't.
 
 But if you want to add actual custom functionality that devs never dreamt of, you are out of luck.
-It's no coincidence most awesowe mods require SKSE (which extends the Papyrus API Bethesda gave us) or use dlls to do things (not possible with Papyrus) that were programmed in real programming languages.
+It's no coincidence most awesowe mods require SKSE (which extends the Papyrus API Bethesda gave us) or use dlls to do things that were programmed in real programming languages; things that are simply not possible with Papyrus.
 
 If I had to do anyway an external program to allow players setup my mod, then I can go the extra mile and do all GUI and configuration stuff at there, since I'd rather use a real programming language instead of Papyrus.
 
@@ -148,7 +136,7 @@ That would work quite fine for the extreme levels of your `Bodyslide Preset`, ie
 
 <figure>
 <img class="vImg" src="img/mamadogordo.jpg"/>
-<figcaption>In <a href="https://youtu.be/NPNs8aYlimM">Taco</a> this is also known to us as MamadoGordo.</figcaption>
+<figcaption>In <a href="https://youtu.be/NPNs8aYlimM">Taco</a> this is also known to us as Mamado-Gordo.</figcaption>
 </figure>
 
 Not anymore.
@@ -267,15 +255,6 @@ The more you gain, the better you look.
 
 When you ==sleep==, some of your `Training` gets added to this variable. **Once you get to `100%` or more you advance to the next `Fitness Level`**.
 Be too inactive and once you reach negative numbers you will go back to the previous `Fitness Level`.
-
-### Notes on weight
-Unlike weight gaining mods like PI or SPP, weight is used differently here.
-In Max Sick Gains, **weight is used to change your current muscle definition** if you activated that option.
-
-This has to be this way because of some arcane hacks I used to make Actors change muscle definition, and it can totally make it kind of incompatible with mods that alter PC weight, like the aformented SPP or PI. Other mods, like Hormones will also be affected.
-
-This incompatibility is not of the CTD kind (hopefully), so don't worry. It's just that, even if those mods are making their calculations correctly, you won't see them reflected on the shape of your body because of your ==zeroed Bodyslide== armors and this mod.
-Also, expect to get random variations on your muscle defintion.
 
 *[PI]: Pumping Iron
 *[SPP]: Sandow Plus Plus

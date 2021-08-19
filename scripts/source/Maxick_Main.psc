@@ -24,9 +24,9 @@ int Function GetDataTree()
 EndFunction
 
 Function OnGameReload()
+  ; JDB.writeToFile(JContainers.userDirectory() + "dump.json")
   Player = Game.GetPlayer()
   looksHandler.InitSliders()
-  ; JDB.writeToFile(JContainers.userDirectory() + "dump.json")
   PcHandler.SetHotkeys()
   OnCellLoad()
   PcHandler.ChangeAppearance()
@@ -42,32 +42,4 @@ Function OnCellLoad()
     i -= 1
   EndWhile
   ; JValue.writeToFile(JDB.solveObj(".maxick"), JContainers.userDirectory() + "Maxick.json")
-  ; _TestMorphs(Player)
 EndFunction
-
-  ; https://www.creationkit.com/index.php?title=Slot_Masks_-_Armor
-  ;> ##############################################################
-  ;> DON'T USE. Hands problem also affects difuse maps.
-  ;> ##############################################################
-  ; NiOverride.AddSkinOverrideString(aAct, true, false, 0x04, 9, 0, "data\\textures\\actors\\character\\f.dds", true)
-  ; string head = _GetHeadNode(aAct)
-  ; If head != ""
-  ;   NiOverride.AddNodeOverrideString(aAct, true, head, 9, 0, "data\\textures\\actors\\character\\he.dds", true)
-  ; EndIf
-
-  ; <SetSlider.*name\s*="(.*)".*"big".*="(.*)"\/>
-  ; NiOverride.SetMorphValue(aAct, "\1", 0.\2)
-
-; string Function _GetHeadNode(Actor aAct)
-;   ActorBase ab = aAct.GetActorBase()
-;   int i = ab.GetNumHeadParts()
-;   string headNode
-;   While i > 0
-;       i -= 1
-;       headNode = ab.GetNthHeadPart(i).GetPartName()
-;       If StringUtil.Find(headNode, "Head") >= 0
-;         return headNode
-;       EndIf
-;   endWhile
-;   return ""
-; EndFunction

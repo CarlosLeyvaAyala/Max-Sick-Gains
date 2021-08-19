@@ -12,9 +12,51 @@ Play any other mod. I can't do this easier to work with.
 ## Will you port this to LE?
 No. I don't have LE and don't see the point of going back to the 32 bits era.
 
+<figure>
+<img class="hImg" src="img/sle-enb.jpg"/>
+<figcaption>Yeah... you may have better ENB, <strong>but can your game allocate more than 4GB memory?</strong> Ha ha! I thought so.</figcaption>
+</figure>
+
 However, if you want to backport it, be my guest.
 I don't know how much help I can provide you on the conversion process, but don't be afraid to ask me anything about this mod.
 
+
+## Is this mod lightweight?
+It uses scripts.
+You tell me.
+
+<figure>
+<!-- <video width="500" height="213" src="img/worst-acting.mp4" preload="none" autoplay="autoplay" loop="loop">
+  Dude... if you can't watch this is because you are still using Internet Explorer... in 2020!
+  </video> -->
+<img src="img/worst-acting-opt.gif"/>
+<figcaption>Heh...you just pissed on your pants.</figcaption>
+</figure>
+
+Well, I better tell YOU.
+
+If you are afraid it will make your game to CTD because of scripting overhead or something, I don't think that would be an issue in a normal playthrough.
+
+This mod is dormant most of the time and only acts when loading a new cell, which is a thing that only happens when you enter a new location or when a location is so large it is composed of many cells.
+
+When a new cell is loaded, this mod will process ***ALL*** NPCs in them.
+If there are ***too many*** NPCs in there and you have ***too many*** things running at once, then your game could actually CTD.
+But I guess you were already on the verge of CTD anyway; thanks to scripts that actually work by doing intensive calculations during polling[^Polling].
+
+[^Polling]: This means, they blindly and inefficiently run every certain number of frames, wether they should or not.
+
+Those are the kind of scripts that give a bad reputation to all scripts and are always made by amateurs.
+
+<figure>
+<img class="hImg" src="img/cpp-klingon.jpg"/>
+<figcaption>Hey, I didn't take an actual programming career and learned to hate everything related to <strong>The Klingon of Programming Languages</strong> just for nothing (by the way, feel free to send your hate mail over my little joke to my <a href="mailto:I_Dont_Care@Only-people-with-yellowish-underpants-fight-over-programming-languages.not.me">I don't give a shit</a> email).</figcaption>
+</figure>
+
+You are totally not wondering about this, but one of the many reasons I'm using JContainers and the Lua programming language to make this mod is because Lua is lightning fast, and in my (admittely, meager) testings it runs way many times faster than the equivalent code made in Papyrus.
+
+Still, I've noticed new locations take about 1 second more than they used to take[^BeforeOptimizations], but you play games made by Bethesda, so you are already get used to wait long times in-between loading screens.
+
+[^BeforeOptimizations]: This line was written before optimizations. It should take noticeably less time in your game.
 
 ## Will Charmers of the Reach...?
 Stop right there. I don't want to deal with that mod.
@@ -26,10 +68,14 @@ Nothing wrong about it, but its implementation it's higly incompatible with some
 Bodyslide preset applying will work on any NPC that uses a body that supports Bodyslide morphs.
 Just add your race name to the most appropiate _Racial Group_ (most likely, _Humanoids_), so this mod recognizes them.
 
-**Muscle definition is an entirely different matter.**
+<figure>
+<img class="hImg" src="img/tab-races/add-race-example.png"/>
+</figure>
+
+**Muscle definition however, is an entirely different matter.**
 It's no coincidence there are so many options to control who won't change muscle definition.
 
-I won't get into technical details on why this is so complicated, because that requires an entire ==technical document==, but an easy way to know if your race is allowed to change muscle definition is to just try it.
+I won't get here into technical details on why this is so complicated, because that requires a whole [technical document][tech-muscleDef], but an easy way to know if your race is allowed to change muscle definition is to just try it.
 
 To enable muscle definition for custom races...
 
@@ -56,7 +102,7 @@ For example, _Charmers of the Reach_ seems to be a real pain in the ass when it 
 
 * **There's a major texture mismatch between hands/head and body**.
 You are most likely using furries, yes? Then yiff in hell.
-OK, that's not an answer (but a valid suggestion, nonetheless :v). The real answer is: ***I won't be doing a patch for that***. It would mean a major redesign of this mod and _Max Sick Gains.exe_; it's just too much work.
+OK, that's not an answer (but a valid suggestion, nonetheless :v). The real answer is: ***I won't be doing a patch for that***. It would mean a major redesign of this mod and _Max Sick Gains.exe_; [it's just too much work][tech-muscleDef].
 
 
 ## Muscle definition is too complicated
@@ -111,10 +157,20 @@ Hell... I don't even know if that is a _PapyrusUtil_ or a Skyrim issue.
 
 If you enable console logging for this mod, you will see the NPC won't be named and their race will be blank as well, thus failing to even set the _Default Fitness Stage_ for them because if there's no race, my mod thinks they may very well be some piece of furniture.
 
+<figure>
+<img class="hImg" src="img/skyrim-acting-like-an-asshole.jpg"/>
+<figcaption>You will know you have this problem when you see something like this in the Skyrim console.</figcaption>
+</figure>
+
 _PapyrusUtil_ sometimes works again the first time you close and open the game, it sometimes may take many tries for it to work... but don't worry; it will eventually properly load the NPC data, and once it finds the NPC, expect them to never be at zero sliders once again.
 
 ## I got textures mismatches on some NPCs
 Let me guess: this happens to followers from some mods you downloaded, am I right? And I could bet my life savings they all are women.
+
+<figure>
+<img class="hImg" src="img/tex-color-mismatch.jpg"/>
+<figcaption>Women... it's always wo... hey, why are so many people coming at me with pitchforks??? :'v</figcaption>
+</figure>
 
 Disable this mod and check again if this happened before you installed it.
 If the texture mismatch still happens, congratulations! You are using a mod that forces you to use the texture sets the mod author shoved down your throat, you lucky bastard!
@@ -130,7 +186,7 @@ This is a list[^TexBullshit] of mods that I know to cause those issues (and fixe
 [^TexBullshit]: This is an ever growing list, by the way.
 If you find some other mod that does that kind of evil thing, please report it back to me so I can add it here.
 
-By the way, don't blame me if you swear this didn't happen before installing my mod but now it does. This mod uses your own installed textures precisely to avoid that.
+By the way, don't blame me if you swear this didn't happen before installing my mod but now it does. **This mod uses your own installed textures** precisely to avoid that.
 Maybe you never noticed that issue until now, that my mod made that problem painfully obvious[^OrdinaryWomenTextures].
 
 If my mod is actually causing those issues, add the terrible looking NPCs to _Known NPCs_ and disable muscle definition for them.
@@ -151,8 +207,8 @@ That's better than nothing.
 
 This ban affects only the burned version of Astrid[^AstridSpoiler], who of course has no business being ripped/fat/whatever.
 
-Afflicted are banned because they get the same texture mismatch problems you would get on... say, furries.
-And getting them to work would mean ==doing the same amount of work I refuse to do== for other races people actually care about.
+Afflicted are banned because they get the same kind texture mismatch problems you would get on... say, furries.
+And getting them to work would mean [doing the same amount of work I refuse to do][tech-muscleDef] for other races people actually care about.
 
 
 ## Will you add skin variety to this mod?
@@ -160,18 +216,47 @@ And getting them to work would mean ==doing the same amount of work I refuse to 
 
 Not that this thought never crossed my mind, but it turned out it's just too much work to get it done.
 
-==Remember the pizza hands problem== with NiOverride?
+Remember the [pizza hands problem][tech-muscleDef] with NiOverride?
 
 <figure>
 <img class="vImg" src="img/pizza-hands-diffuse.jpg"/>
-<figcaption>Well, it also affects diffuse maps.</figcaption>
+<figcaption>Well, it also affects diffuse maps; so using NiOverride to add skin variation is out of the question.</figcaption>
 </figure>
 
 That limitation would make me add even more records to _Max Sick Gains.esp_, thus making it not an esl file, breaking saved games, making baby Jesus cry, filling your game with scripts that will make your house explode and ultimately causing World War V to erupt.
 Well, some of those things may not happen, but why risk the chances?
 
-Also remember this: having a human (like me) filling an esp file with many thousands of records has an inherent great risk of introducing hard to track bugs.
-It's no coincidence Skyrim is so bugged and needs so many unofficial patches to get it to properly work.
+Also remember this: having a human (like me[^ZuckerBot]) filling an esp file with many thousands of records has an great inherent risk of introducing hard to track bugs.
+It's no coincidence Skyrim is so bugged and needs so many unofficial patches to get it to somewhat properly work.
+
+[^ZuckerBot]: What the hell? Only androids like [The Zuckerbot] need to reassure they are human.
+
+## This mod broke my _\<other mod\>_ that relies on actors weight
+
+tl;dr: **It wasn't this mod per se, but zeroing your Bodylide armors for making it work**.
+
+Unlike weight gaining mods like PI or SPP, weight is mostly not used, since it's irrelevant for almost anything this mod does.
+
+In Max Sick Gains, **weight is only used to change NPC muscle definition** if you used this (and only this) option:
+
+<figure>
+<img class="hImg" src="img/known-npc-muscleDef-weight.png"/>
+<figcaption>Known NPCs tab</figcaption>
+</figure>
+
+And it will be used as a reference.
+***This mod doesn't manipulate weight at all***.
+
+Still, due to it requiring having zerod Bodyslide presets, it is posible to have some minor incompatibilities with mods that rely on weight to change player appearance.
+
+These incompatibilities shouldn't be of the CTD kind (hopefully), so don't worry. It's just that, even if those mods are making their calculations correctly, you may not see them reflected on the shape of your body due to your zeroed armors.
+
+I suppose mods like ==Hormones== or ==Lazy Body Edit==, that seem to work on bones instead of bodies, may work without a problem.
+
+*[PI]: Pumping Iron
+*[SPP]: Sandow Plus Plus
+*[PC]: Player Character
+*[CTD]: Crash To Desktop
 
 [^AstridSpoiler]: That was an spoiler for a 10+ years old game that was launched even for your toaster an it somehow just works, motherfucker.
 
@@ -185,3 +270,7 @@ But I never noticed that before, even after many years using both of them!
 [MCMTab]: TO-DO
 
 [KnownNPCAdding]: TO-DO
+
+[tech-muscleDef]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md
+
+[The Zuckerbot]: https://youtu.be/2qGVVxaosDM
