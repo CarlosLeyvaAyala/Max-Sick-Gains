@@ -7,9 +7,12 @@ local npc = jrequire 'maxick.npc'
 local player = jrequire 'maxick.player'
 local db = jrequire 'maxick.database'
 local sk = jrequire 'maxick.skill'
+local ml = jrequire 'maxick.lib'
 
 local maxick = {}
 math.randomseed( os.time() )
+
+---@alias Actor table<string, any>
 
 -- ;>========================================================
 -- ;>===                SAMPLE VARIABLES                ===<;
@@ -70,6 +73,8 @@ local sampleNPC = {
   raceDisplay = "",
   --- Class name as gotten from PapyrusUtil.
   class = "Warrior",
+  --- How much info will be output to the Skyrim console.
+  loggingLvl = ml.loggingLvl.Verbose,
   --- Wether to process the `Actor` at all. Always `false` for unknown races.
   shouldProcess = 0
 }
@@ -102,7 +107,7 @@ local samplePlayer = {
 -- ;>===              PUBLISHED FUNCTIONS               ===<;
 -- ;>========================================================
 
-maxick.ProcessNPC = npc.ProcessNPC
+maxick.ChangeNpcAppearance = npc.ChangeAppearance
 maxick.ChangePlayerAppearance = player.ChangeAppearance
 maxick.Train = sk.Train
 maxick.OnSleep = player.OnSleep
@@ -119,7 +124,7 @@ function maxick.SlideshowStageMsg(stage) return player.LvlUpMessage(stage) end
 -- ;>===                FUNCTION TESTING                ===<;
 -- ;>========================================================
 
--- maxick.ProcessNPC(sampleNPC)
+maxick.ChangeNpcAppearance(sampleNPC)
 -- maxick.ChangePlayerAppearance(samplePlayer)
 -- maxick.Train({skill = "SackL",training = 11.5, lastActive = 5})
 -- samplePlayer.gains = 96

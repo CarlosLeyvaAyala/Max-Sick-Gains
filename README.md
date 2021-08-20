@@ -17,7 +17,7 @@ NPCs body shapes can be varied as well.
 - Unlimited fitness levels for PC.
 - Unlimited body types for NPCs.
 - All vanilla races supported.
-- Optional use of normal maps to make characters ripped/fat/plain according to ther body type (this means: no fat bodies with ripped abs).
+- Optional use of normal maps to make characters ripped/fat/plain according to their body type (this means: no fat bodies with ripped abs).
 
 # Requirements
 
@@ -55,6 +55,7 @@ You'll need requirements for players (including integrations) plus:
 - [Markdown Preview Enhanced][markdown-preview] (well... this is actually required to build all docs in this project `¯\_(ツ)_/¯`)
 - [Hightlight][]
 - [Fold Plus][fold-plus]
+- [Separators]
 - [Lua (language server)][lua-language-server]
 - [Numbered Bookmarks][numbered-bookmarks]
 - [Clipboard Manager][clipboard-manager]
@@ -110,3 +111,4 @@ https://badge.fury.io/hooks/github
 [zerobrane-studio]: https://studio.zerobrane.com/
 [Python docs]: _Tools/MainPython
 [Lazarus docs]: _Tools/TexRename
+[Separators]: https://marketplace.visualstudio.com/items?itemName=alefragnani.separators

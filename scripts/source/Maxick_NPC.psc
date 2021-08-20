@@ -29,7 +29,7 @@ int Function _InitNpcData(Actor npc)
   JMap.setStr(data, "racialGroup", "")    ; Lua will get this
   JMap.setStr(data, "raceDisplay", "")    ; Lua will get this
   JMap.setStr(data, "class", base.GetClass().GetName())
-  ; JMap.setInt(data, "shouldProcess", 0)   ; We still don't know if we are going to process it
+  JMap.setInt(data, "loggingLvl", 0)      ; TODO: set to MCM variable
 
   ; _CheckIfNpcIsKnown(npc, data)
   return data
@@ -39,7 +39,7 @@ EndFunction
 int Function _GetAppearance(Actor npc)
   Log("NPC found: '" + DM_Utils.GetActorName(npc) + "'")
   int data = _InitNpcData(npc)
-  return JValue.evalLuaObj(data, "return maxick.ProcessNPC(jobject)")
+  return JValue.evalLuaObj(data, "return maxick.ChangeNpcAppearance(jobject)")
 EndFunction
 
 ; Changes the appearance of some NPC based on their data.

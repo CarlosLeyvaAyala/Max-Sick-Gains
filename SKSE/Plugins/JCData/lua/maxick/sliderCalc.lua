@@ -37,8 +37,6 @@ function sliderCalc.StdMorph(gains, min, max)
   return l.linCurve({x=0, y=min}, {x=100, y=max})(gains) / 100
 end
 
---;>-----------------------------------
-
 ---Returns a function that multiplies the result from `sliderCalc.StdMorph` by some multiplier.
 ---@param blend number
 ---@return function
@@ -64,8 +62,6 @@ function sliderCalc.CalcSliders(sliders, weight, fitStageBs, method)
 
   return l.joinTables(resetBs, newVals, _GetCalculated)
 end
-
-  --;>-----------------------------------
 
 ---Sets all slider numbers for an actor using some `method`.
 ---@param actor table

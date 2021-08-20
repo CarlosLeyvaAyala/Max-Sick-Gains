@@ -5,14 +5,13 @@ local db = jrequire 'maxick.database'
 local sl = jrequire 'maxick.sliderCalc'
 -- local serpent = require("__serpent")
 
----@alias Actor table<string, any>
-
 -- Shortcuts to avoid too much words.
 
 ---Gets the current _Player stage_ as a table.
 ---@param playerStage number
 ---@return table
 local function _Stage(playerStage) return db.playerStages[playerStage] end
+
 ---Gets the current _Fitness stage_ as a table.
 ---@param playerStage number
 ---@return table
@@ -49,8 +48,6 @@ local function _GetMuscleDefBounds(mDefLo, mDefHi)
     return false, mDefLo, mDefHi
   end
 end
-
---;>-----------------------------------
 
 local function _CalcMuscleDef(weight, mDefLo, mDefHi)
   local invert, mL, mH = _GetMuscleDefBounds(mDefLo, mDefHi)
@@ -179,22 +176,13 @@ end
 -- ;>===                MAIN PROCESSING                 ===<;
 -- ;>========================================================
 
----Deep copies, transforms and returns an actor.
----@param actor Actor Actor to process.
----@param functions table<integer, function> Table with all functions to pipe.
----@return table<string, any>
-local function _Process(actor, functions)
-  local processed = l.pipe(functions)(l.deepCopy(actor))
-  l.assign(actor, processed)
-  return actor
-end
 
 ---Attempts to make gains when sleeping.
 ---@param actor Actor
 ---@param hoursSlept number
 ---@return Actor
 function player.OnSleep(actor, hoursSlept)
-  return _Process(actor, {
+  return l.processActor(actor, {
     l.curryLast(_CalcGains, hoursSlept),
     _MakeProgress
   })
@@ -204,18 +192,11 @@ end
 ---@param actor Actor
 ---@return Actor
 function player.ChangeAppearance(actor)
-  return _Process(actor, {
-      _SetBodyslide,
-      _SetMuscleDef,
-      _SetHeadSize
+  return l.processActor(actor, {
+    _SetBodyslide,
+    _SetMuscleDef,
+    _SetHeadSize
   })
-  -- local processed = l.pipe(
-  --   _SetBodyslide,
-  --   _SetMuscleDef,
-  --   _SetHeadSize
-  -- )(l.deepCopy(actor))
-  -- l.assign(actor, processed)
-  -- return actor
 end
 
 return player
