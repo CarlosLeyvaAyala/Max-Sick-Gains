@@ -191,6 +191,28 @@ Not all type of training is the same. Doing hard physical activity will contribu
 |Training sacks               | Very high[^OnTrainingSacks]|
 |Sex                          | Very low                   |
 
+These are the actual values all the skills contribute to training:
+
+|Skill              | Training  |
+|-------------------|-----------|
+| Alteration        | 0.1       |
+| Archery           | 0.1       |
+| Block             | 0.5       |
+| Conjuration       | 0.01      |
+| Destruction       | 0.07      |
+| HeavyArmor        | 0.5       |
+| Illusion          | 0.01      |
+| Light Armor       | 0.15      |
+| One Handed        | 0.35      |
+| Restoration       | 0.1       |
+| Sex               | 0.005     |
+| Smithing          | 0.1       |
+| Sneak             | 0.15      |
+| Traning Sack (L)  | 1.5       |
+| Traning Sack (M)  | 1         |
+| Traning Sack (S)  | 0.7       |
+| Two Handed        | 0.5       |
+
 [^PhysSkills]: One Handed, Two Handed, Archery, Block, Smithing, Sneak, Heavy Armor, Light Armor.
 
 [^MagicSkills]: Alteration, Conjuration, Destruction, Illusion, Restoration.
@@ -266,18 +288,17 @@ Don't fret. Math in this mod is quite simple, but may require more explanation i
 
 Gains and losses are controlled by ==how many days you defined your current Fitness Stage== to last under ideal conditions. We will call that number `maxDays`.
 
-## Calculating `Gains`
+## Calculating `gains`
 
-Gains is a percentage that usually goes from `0%` to `100%`.
-As you may know, `100%` is in fact a plain `1`, while `50%` is `0.5`, and so on. This means `Gains` is usually a number between `0` and `1`.
+`gains` is a value that usually goes from `0` to `100`.
+ `minDays` is the minimum duration a Fitness stage will have under ideal conditions.
 
-How do you calculate `Gains` with this knowledge? Simple.
-We know each time we sleep we can gain at maximum:
+So, we know each time we sleep we can gain at maximum:
 
-$$maxGainsPerDay=\frac{100\%}{maxDays}$$
+$$maxGainsPerDay=\frac{100}{minDays}$$
 
-Which is the same as
-$$maxGainsPerDay=\frac{1}{maxDays}$$
+<!-- Which is the same as
+$$maxGainsPerDay=\frac{1}{maxDays}$$ -->
 
 And those `maxGainsPerDay` depend on how much you sleep.
 If you sleep 10 hours[^hoursSleptCap] you would get `100%`, so this is the formula for that:
@@ -285,19 +306,19 @@ If you sleep 10 hours[^hoursSleptCap] you would get `100%`, so this is the formu
 $$sleepingGains=\frac{hoursSlept}{10}$$
 
 The final formula to calculating `Gains` is this:
-$$Gains = sleepingGains \cdot maxGainsPerDay$$
+$$gains = sleepingGains \cdot maxGainsPerDay$$
 
-As expected, `Gains` is a percentage of hours slept and what you can gain at max per day.
+As expected, `gains` is a percentage of hours slept and what you can gain at max per day.
 
 ### Examples
-If you are at a `Fitness Level` you defined as having a 10 days duration, you would get these `Gains`:
+If you are at a Fitness stage you defined as having a 10 days duration, you would get these `gains`:
 
-$$ Gains=\frac{10}{10} \cdot \frac{1}{10} = 0.1$$
+$$ gains=\frac{10}{10} \cdot \frac{100}{10} = 10$$
 
 Or `10%` of what you need to reach next `Fitness Level`.
 
 Another example: 9 hours slept on 120 days duration.
-$$ Gains=\frac{9}{10} \cdot \frac{1}{120} = 0.0075$$
+$$ Gains=\frac{9}{10} \cdot \frac{100}{120} = 0.75$$
 
 ... and `0.75%` was gained on that day.
 

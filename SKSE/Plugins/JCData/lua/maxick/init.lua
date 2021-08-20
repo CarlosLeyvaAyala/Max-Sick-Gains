@@ -6,6 +6,7 @@
 local npc = jrequire 'maxick.npc'
 local player = jrequire 'maxick.player'
 local db = jrequire 'maxick.database'
+local sk = jrequire 'maxick.skill'
 
 local maxick = {}
 math.randomseed( os.time() )
@@ -102,8 +103,9 @@ local samplePlayer = {
 -- ;>========================================================
 
 maxick.ProcessNPC = npc.ProcessNPC
-maxick.ProcessPlayer = player.ProcessPlayer
 maxick.ChangePlayerAppearance = player.ChangeAppearance
+maxick.Train = sk.Train
+maxick.OnSleep = player.OnSleep
 
 function maxick.SlideshowNextStage(stage)
   if stage < #db.playerStages then return stage + 1
@@ -118,13 +120,11 @@ function maxick.SlideshowStageMsg(stage) return player.LvlUpMessage(stage) end
 -- ;>========================================================
 
 -- maxick.ProcessNPC(sampleNPC)
--- maxick.ProcessPlayer(samplePlayer)
--- samplePlayer.stage = 3
--- samplePlayer.gains = 100
---  maxick.ChangePlayerAppearance(samplePlayer)
--- samplePlayer.stage = 4
--- samplePlayer.gains = 0
---  maxick.ChangePlayerAppearance(samplePlayer)
+-- maxick.ChangePlayerAppearance(samplePlayer)
+-- maxick.Train({skill = "SackL",training = 11.5, lastActive = 5})
+-- samplePlayer.gains = 96
+-- samplePlayer.training = 0.2
+-- maxick.OnSleep(samplePlayer, 14)
 
 -- print(maxick.SlideshowNextStage(1))
 -- print(maxick.SlideshowStageMsg(3))

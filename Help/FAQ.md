@@ -8,6 +8,10 @@ If you don't manage to make this work after following all ==tutorials== and/or [
 
 Play any other mod. I can't do this easier to work with.
 
+<figure>
+<img class="hImg" src="img/kittens-very-cute.jpg"/>
+<figcaption>Here; take these kittens. They are proof I'm not an angry asswipe.</figcaption>
+</figure>
 
 ## Will you port this to LE?
 No. I don't have LE and don't see the point of going back to the 32 bits era.

@@ -352,7 +352,6 @@ end
 -- ;>========================================================
 
 function npc.ProcessNPC(actor)
-  -- print(serpent.block(actor))
   local actorCopy = l.deepCopy(actor)
   Log = LogFactory(actorCopy)
 
@@ -363,9 +362,6 @@ function npc.ProcessNPC(actor)
   )(actorCopy)
 
   l.assign(actor, processed)
-  -- print("=======================================")
-  -- print(serpent.block(actor))
-  -- print(actor.msg)
   return actor
 end
 

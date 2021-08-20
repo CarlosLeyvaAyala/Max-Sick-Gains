@@ -118,12 +118,16 @@ local p = l.pipe(
     l.map(rand),
     l.foreach(print),
     log("------------------"),
+    l.skip(4),
+    l.foreach(print),
+    log("------------------"),
     l.reject(up5),
     l.foreach(print),
     log("------------------"),
     l.map(add2),
     l.foreach(print),
     log("------------------"),
+    log("take 2"),
     l.take(2),
     l.foreach(print),
     log("------------------"),
@@ -131,6 +135,7 @@ local p = l.pipe(
     l.foreach(print),
     log("------------------"),
     l.any(up5),
+    l.tap(print),
     l.foreach(print)
   )
 p(data)

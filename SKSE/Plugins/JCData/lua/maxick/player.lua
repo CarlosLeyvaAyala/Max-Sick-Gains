@@ -3,10 +3,19 @@ local player = {}
 local l = jrequire 'dmlib'
 local db = jrequire 'maxick.database'
 local sl = jrequire 'maxick.sliderCalc'
--- local serpent = require("serpent")
+-- local serpent = require("__serpent")
+
+---@alias Actor table<string, any>
 
 -- Shortcuts to avoid too much words.
+
+---Gets the current _Player stage_ as a table.
+---@param playerStage number
+---@return table
 local function _Stage(playerStage) return db.playerStages[playerStage] end
+---Gets the current _Fitness stage_ as a table.
+---@param playerStage number
+---@return table
 local function _Fitstage(playerStage) return db.fitStages[_Stage(playerStage).fitStage] end
 
 -- ;>========================================================
@@ -125,24 +134,88 @@ local function _SetBodyslide(actor)
 end
 
 -- ;>========================================================
--- ;>===                MAIN PROCESSING                 ===<;
+-- ;>===                     GAINS                      ===<;
 -- ;>========================================================
 
-function player.ProcessPlayer(actor)
+---Calculates gains based on training and hours slept.
+---@param actor Actor
+---@param hoursSlept number
+---@return Actor
+local function _CalcGains(actor, hoursSlept)
+  local sleepGains = l.forcePercent(hoursSlept / 10)
+  sleepGains = math.min(sleepGains, actor.training)
+  local maxGainsPerDay = 100 / _Stage(actor.stage).minDays
+  actor.gains = actor.gains + sleepGains * maxGainsPerDay
+  actor.training = actor.training - sleepGains
   return actor
 end
 
-function player.ChangeAppearance(actor)
-  local processed = l.pipe(
-    _SetBodyslide,
-    _SetMuscleDef,
-    _SetHeadSize
-  )(l.deepCopy(actor))
-  l.assign(actor, processed)
+--- Makes player advance levels if possible. Returns surplus Gains.
+---@param stage integer
+---@param gains number
+---@return integer, number
+local function _Progress(stage, gains)
+  -- Can't go further
+  if stage >= #db.playerStages then return #db.playerStages, 100 end
+  -- Go to next level as usual
+  return stage + 1, gains - 100
+end
 
-  -- print("=======================================")
-  -- print(serpent.block(actor))
+---Progress to next level if conditions are right.
+---@param actor Actor
+---@return Actor
+local function _MakeProgress(actor)
+  while actor.gains > 100 do
+    local oldStage = actor.stage
+    actor.stage, actor.gains = _Progress(oldStage, actor.gains)
+    -- Adjust gains to new state ratio
+    actor.gains = actor.gains * (_Stage(oldStage).minDays / _Stage(actor.stage).minDays)
+  end
   return actor
+end
+
+
+-- ;>========================================================
+-- ;>===                MAIN PROCESSING                 ===<;
+-- ;>========================================================
+
+---Deep copies, transforms and returns an actor.
+---@param actor Actor Actor to process.
+---@param functions table<integer, function> Table with all functions to pipe.
+---@return table<string, any>
+local function _Process(actor, functions)
+  local processed = l.pipe(functions)(l.deepCopy(actor))
+  l.assign(actor, processed)
+  return actor
+end
+
+---Attempts to make gains when sleeping.
+---@param actor Actor
+---@param hoursSlept number
+---@return Actor
+function player.OnSleep(actor, hoursSlept)
+  return _Process(actor, {
+    l.curryLast(_CalcGains, hoursSlept),
+    _MakeProgress
+  })
+end
+
+---Makes the calculations needed to change the player's appearance.
+---@param actor Actor
+---@return Actor
+function player.ChangeAppearance(actor)
+  return _Process(actor, {
+      _SetBodyslide,
+      _SetMuscleDef,
+      _SetHeadSize
+  })
+  -- local processed = l.pipe(
+  --   _SetBodyslide,
+  --   _SetMuscleDef,
+  --   _SetHeadSize
+  -- )(l.deepCopy(actor))
+  -- l.assign(actor, processed)
+  -- return actor
 end
 
 return player
