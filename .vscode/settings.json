@@ -278,5 +278,16 @@
     "Lua.runtime.version": "Lua 5.1",
     "Lua.workspace.library": [
         "F:\\Skyrim SE\\MO2\\mods\\DM-SkyrimSE-Library\\SKSE\\Plugins\\JCData\\lua\\dmlib"
-    ]
+    ],
+    "separators.functions.borderStyle": "solid",
+    "separators.functions.ignoreCallbackInline": true,
+    "workbench.colorCustomizations": {
+        "separators.classes.borderColor": "#3c4262",
+        "separators.constructors.borderColor": "#3c4262",
+        "separators.enums.borderColor": "#3c4262",
+        "separators.functions.borderColor": "#3c4262",
+        "separators.interfaces.borderColor": "#3c4262",
+        "separators.methods.borderColor": "#3c4262",
+        "separators.namespaces.borderColor": "#3c4262",
+    }
 }
