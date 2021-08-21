@@ -8,6 +8,7 @@ local player = jrequire 'maxick.player'
 local db = jrequire 'maxick.database'
 local sk = jrequire 'maxick.skill'
 local ml = jrequire 'maxick.lib'
+local widget = jrequire 'maxick.reportWidget'
 
 local maxick = {}
 math.randomseed( os.time() )

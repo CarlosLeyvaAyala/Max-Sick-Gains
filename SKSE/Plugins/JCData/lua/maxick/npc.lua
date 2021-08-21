@@ -4,7 +4,7 @@ local l = jrequire 'dmlib'
 local ml = jrequire 'maxick.lib'
 local db = jrequire 'maxick.database'
 local sl = jrequire 'maxick.sliderCalc'
-local serpent = require("__serpent")
+-- local serpent = require("__serpent")
 --
 ---@alias LoggingFunc fun(message: string)
 
@@ -19,7 +19,7 @@ local serpent = require("__serpent")
 ---@return LoggingFunc
 local LogFactory = function (actor)
   return function (message)
-    if message then
+    if message and (message ~= "") then
       actor.msg = actor.msg .. message .. ". "
     end
   end
@@ -431,7 +431,7 @@ function npc.ChangeAppearance(actor)
     _GetToKnowNPC,
     -- TODO: Ban fitness textures
     _ProcessKnownNPC,
-    l.tap(serpent.piped)
+    -- l.tap(serpent.piped)
   })
 end
 
