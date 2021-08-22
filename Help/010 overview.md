@@ -1,13 +1,16 @@
 <!-- @import "help.less" -->
 # Overview
+
 _Max Sick Gains_ is a mod that changes Bodyslide presets on your PC depending on fitness level. Your fitness level changes by training and sleeping.
 
 _Max Sick Gains.exe_ was made to configure everything related to those fitness levels and how they are applied to the PC (and NPCs if you so desire).
 
 ## READ THIS BEFORE ANYTHING
+
 Before you even download this mod, I want to make some things perfectly clear.
 
 ### This mod's purpose
+
 ***Make people have bodies that match their professions***.
 
 This isn't a _"variety of bodies for the sake of variety"_ type of mod, so I won't be adding options to apply a variety of skins on NPCs or having unique skins on the player[^PlayerExclusiveShapes], **EVER**. [It's just too much work][tech-muscleDef] and ==it's quite prone to introduce hard to track bugs==.
@@ -16,11 +19,11 @@ This isn't a _"variety of bodies for the sake of variety"_ type of mod, so I won
 
 [tech-muscleDef]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md
 
-
 Randomizing body shapes on NPCs is possible with the tools this mod already provides. No need to add specific options to make boobs bigger on some NPCs, or something.
 ==Read this== if you are interested in doing that.
 
 ### This mod ***CAN'T*** be just plug and play
+
 Never will. Sorry.
 
 If you want to use it, you should be well acquainted with Bodyslide, SEEdit and mod installing paths.
@@ -37,7 +40,8 @@ I'm lazy, so I let my tools do most of the job.
 
 ... speaking of which...
 
-### This mod requires zeroed bodyslide files for all your armors and naked bodies.
+### This mod requires zeroed bodyslide files for all your armors and naked bodies
+
 And that's because it uses a somewhat obscure functionality of NiOverride that can apply Bodyslide morphs at play time.
 That's the heart of this mod. No other way around this fact.
 
@@ -50,8 +54,8 @@ If you don't like my way of doing things, you can try to use the [BodyGen option
 
 [BodyGenReddit]: https://www.reddit.com/r/skyrimmods/comments/gdwdvj/racemenu_bodygen/
 
-
 ## Why this mod?
+
 Why would I do this if there are so many options that already kind of do the same?
 
 Well, for starters, I was getting tired of seeing fucking mages and merchants being as hot and athletic as Lydia.
@@ -97,6 +101,7 @@ Then I thought:
 </figure>
 
 ### Why a homebrew app but not an MCM?
+
 As a player, I love to use MCM.
 It was a great achievement and mods that use spells and message boxes to configure things instead of MCM are annoying and so 2012.
 
@@ -106,6 +111,7 @@ No gripes against it. It's solid and as easy to work with as it could be.
 ... and that's the problem. It won't get any better to program for.
 
 You see, the Papyrus programming language and API (what you use to program for Skyrim) are great at what they were designed for: doing menial tasks. Like...
+
 * Insta-killing NPCs with spells applied to one particular weapon.
 * Changing NPC AI packages.
 * Placing NPCs.
@@ -117,6 +123,7 @@ It's no coincidence most awesowe mods require SKSE (which extends the Papyrus AP
 If I had to do anyway an external program to allow players setup my mod, then I can go the extra mile and do all GUI and configuration stuff at there, since I'd rather use a real programming language instead of Papyrus.
 
 ## What's a "fitness level"
+
 Imagine you want your PC to go on a body transformation journey. She (I'll assume your PC is a "she" because that's the most probable thing anyway) will have many fitness levels along that journey:
 
 * Obese
@@ -160,7 +167,9 @@ Something like:
 ==See here== to learn how to configure them.
 
 # How to change fitness stages
+
 The idea is mostly the same of Pumping Iron and Sandow Plus Plus:
+
 * ==Train==
 * Sleep
 * See your gains reflected on your body
@@ -168,7 +177,9 @@ The idea is mostly the same of Pumping Iron and Sandow Plus Plus:
 If you train and sleep well, you will advance to the next fitness level. If you don't, you can regress.
 
 ## Training
+
 You train by:
+
 * Gaining one point in ==skills that contribute to your fitness journey== (One Handed, Block, etc).
 * Having sex[^LL].
 * Use ==training sacks== bundled in this mod.
@@ -220,6 +231,7 @@ These are the actual values all the skills contribute to training:
 [^OnTrainingSacks]: Read ==this== if you want to know the logic behind this.
 
 ### Training decay
+
 To encourage you to go and play the game, this variable has a little bit of decay each day. You will lose `0.3` `Training` a day.
 This was made just to make you get your ass off the couch.
 
@@ -232,6 +244,7 @@ I rest my case.
 Since here your `Training` can never go above `12.0`, I assumed a fixed value of `0.3` loss a day is rather fair.
 
 ### Inactivity
+
 If you don't train for a while, you will be considered to be inactive and will start to regress in _Fitness Stages_.
 You will lose `0.5` a day of your `Training` (that's on top of your normal `0.3` decay) and `80%` of what you would have added to `Gains` per day of being fully inactive.
 See ==math page== if you want more details.
@@ -259,6 +272,7 @@ As you can see, having sex will contribute a great deal to consider you active, 
 This means you will maintain your current shape by having sex, but don't expect to get significantly hotter by being a horny fuckhead.
 
 ## Sleeping
+
 Each time you sleep, some part of your `Training` gets converted to `Gains`.
 The more you sleep (up to a point), the more `Gains` you get.
 
@@ -270,6 +284,7 @@ Once you have slept, you won't be able to make `Gains` from sleeping again for t
 There are no limits to how many times a day you can sleep to make gains, but you certainly wouldn't want to do that, since sleeping time totally counts as ==inactivity time==.
 
 ## Gaining
+
 You train, sleep and then gain.
 The more you gain, the better you look.
 
@@ -284,6 +299,7 @@ Be too inactive and once you reach negative numbers you will go back to the prev
 *[CTD]: Crash To Desktop
 
 # In depth math
+
 Don't fret. Math in this mod is quite simple, but may require more explanation if you really want to know how much rewarded/punised you will be.
 
 Gains and losses are controlled by ==how many days you defined your current Fitness Stage== to last under ideal conditions. We will call that number `maxDays`.
@@ -311,6 +327,7 @@ $$gains = sleepingGains \cdot maxGainsPerDay$$
 As expected, `gains` is a percentage of hours slept and what you can gain at max per day.
 
 ### Examples
+
 If you are at a Fitness stage you defined as having a 10 days duration, you would get these `gains`:
 
 $$ gains=\frac{10}{10} \cdot \frac{100}{10} = 10$$
@@ -323,9 +340,11 @@ $$ Gains=\frac{9}{10} \cdot \frac{100}{120} = 0.75$$
 ... and `0.75%` was gained on that day.
 
 ## Losses
+
 When inactive, you will lose `80%` of `maxGainsPerDay` for each day being inactive.
 
 ### Examples
+
 |`maxDays`|Losses per day|
 --|--
 10 | $ loss= 0.8 \cdot \frac{1}{10} = 0.08 $
@@ -334,18 +353,159 @@ When inactive, you will lose `80%` of `maxGainsPerDay` for each day being inacti
 
 So, if you spend 7 days arrested for a serious crime (worst inactivity scenario I know of), you would get:
 
-|`maxDays`|Losses per day|Actual days of gains lost| Percent to next level lost
---|--|--|---
-10 | $ totalLoss= 7 \cdot 0.08 = 0.56$ | 5.6 | 56%
-120 | $ totalLoss= 7 \cdot 0.006\bar{6} = 0.46662 $ | 5.59 | 4.66%
-56 | $ totalLoss= 7 \cdot 0.01428 = 0.09996 $ | 5.59 | 10%
+| `maxDays` | Losses per day                                | Actual days of gains lost | Percent to next level lost |
+|-----------|-----------------------------------------------|---------------------------|----------------------------|
+| 10        | $ totalLoss= 7 \cdot 0.08 = 0.56$             | 5.6                       | 56%                        |
+| 120       | $ totalLoss= 7 \cdot 0.006\bar{6} = 0.46662 $ | 5.59                      | 4.66%                      |
+| 56        | $ totalLoss= 7 \cdot 0.01428 = 0.09996 $      | 5.59                      | 10%                        |
 
 As you can see, you lost the same days of training for all scenarios, but the longer the `Fitness Level`, the leser the punishment. What's 5.6 days compared to 120 anyway?
 
 But while this would be a lot more catastrofic for shorter levels, it still doesn't matter that much, because you can get back on your feet as fast as your losses.
 
 ### The take on
+
 Punishments are not as hard as it would seem and that's on purpose.
 It's annoying to be obsessed with not losing your gains. I'm not like that even in real life, why should I panic about that in a game I play for fun?
 
 [^hoursSleptCap]: `hoursSlept` is actually capped at 10, but I want to maintain these formulas simple so we don't lose the great picture.
+
+<!-- ## Supported keys
+
+|Key|
+|--|
+| 0 |
+| 1 |
+| 2 |
+| 3 |
+| 4 |
+| 5 |
+| 6 |
+| 7 |
+| 8 |
+| 9 |
+| a |
+| b |
+| c |
+| d |
+| e |
+| f |
+| g |
+| h |
+| i |
+| j |
+| k |
+| l |
+| m |
+| n |
+| o |
+| p |
+| q |
+| r |
+| s |
+| t |
+| u |
+| v |
+| w |
+| x |
+| y |
+| z |
+| num0 |
+| num1 |
+| num2 |
+| num3 |
+| num4 |
+| num5 |
+| num6 |
+| num7 |
+| num8 |
+| num9 |
+| F1 |
+| F2 |
+| F3 |
+| F4 |
+| F5 |
+| F6 |
+| F7 |
+| F8 |
+| F9 |
+| F10 |
+| F11 |
+| F12 |
+| Home |
+| End |
+| &larr; |
+| &rarr; |
+| &uarr; |
+| &darr;  |
+| Caps Lock |
+| Num Lock |
+| Scroll Lock |
+
+20: Result := 58;   // caps lock
+35: Result := 207;   // end
+36: Result := 199;   // home
+37: Result := 203;   // left arrow
+38: Result := 200;   // up arrow
+39: Result := 205;   // right arrow
+40: Result := 208;   // down arrow
+48: Result := 11;   // 0
+49: Result := 2;   // 1
+50: Result := 3;   // 2
+51: Result := 4;   // 3
+52: Result := 5;   // 4
+53: Result := 6;   // 5
+54: Result := 7;   // 6
+55: Result := 8;   // 7
+56: Result := 9;   // 8
+57: Result := 10;   // 9
+65: Result := 30;   // a
+66: Result := 48;   // b
+67: Result := 46;   // c
+68: Result := 32;   // d
+69: Result := 18;   // e
+70: Result := 33;   // f
+71: Result := 34;   // g
+72: Result := 35;   // h
+73: Result := 23;   // i
+74: Result := 36;   // j
+75: Result := 37;   // k
+76: Result := 38;   // l
+77: Result := 50;   // m
+78: Result := 49;   // n
+79: Result := 24;   // o
+80: Result := 25;   // p
+81: Result := 16;   // q
+82: Result := 19;   // r
+83: Result := 31;   // s
+84: Result := 20;   // t
+85: Result := 22;   // u
+86: Result := 47;   // v
+87: Result := 17;   // w
+88: Result := 45;   // x
+89: Result := 21;   // y
+90: Result := 44;   // z
+96: Result := 82;   // num0
+97: Result := 79;   // num1
+98: Result := 80;   // num2
+99: Result := 81;   // num3
+100: Result := 75;   // num4
+101: Result := 76;   // num5
+102: Result := 77;   // num6
+103: Result := 71;   // num7
+104: Result := 72;   // num8
+105: Result := 73;   // num9
+112: Result := 59;   // f1
+113: Result := 60;   // f2
+114: Result := 61;   // f3
+115: Result := 62;   // f4
+116: Result := 63;   // f5
+117: Result := 64;   // f6
+118: Result := 65;   // f7
+119: Result := 66;   // f8
+120: Result := 67;   // f9
+121: Result := 68;   // f10
+122: Result := 87;   // f11
+123: Result := 88;   // f12
+144: Result := 69;   // num lock
+145: Result := 70;   // scroll lock -->

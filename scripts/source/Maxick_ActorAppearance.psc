@@ -117,6 +117,7 @@ EndFunction
 ; * Muscle definition
 ; * Muscle definition type
 ; * Weight
+; * Lua logging message
 ; * Should they be processed? (always 1 for player)
 Function InitCommonData(int data, Actor aAct, float weight, int shouldProcess)
   bool isFem = IsFemale(aAct)
@@ -131,6 +132,7 @@ Function InitCommonData(int data, Actor aAct, float weight, int shouldProcess)
   JMap.setInt(data, "muscleDefType", -1)
   JMap.setInt(data, "muscleDef", -1)
   JMap.setFlt(data, "weight", weight)
+  JMap.setStr(data, "msg", "")              ; Extra info from Lua
   JMap.setInt(data, "shouldProcess", shouldProcess)
 EndFunction
 

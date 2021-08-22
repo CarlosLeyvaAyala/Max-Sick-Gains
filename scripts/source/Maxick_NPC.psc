@@ -21,7 +21,6 @@ int Function _InitNpcData(Actor npc)
   JMap.setStr(data, "name", DM_Utils.GetActorName(npc))
   JMap.setInt(data, "formId", base.GetFormID())
   JMap.setInt(data, "isKnown", 0)
-  JMap.setStr(data, "msg", "")              ; Extra info from Lua
 
   looksHandler.InitCommonData(data, npc, base.GetWeight(), 0)
 
@@ -29,7 +28,6 @@ int Function _InitNpcData(Actor npc)
   JMap.setStr(data, "racialGroup", "")    ; Lua will get this
   JMap.setStr(data, "raceDisplay", "")    ; Lua will get this
   JMap.setStr(data, "class", base.GetClass().GetName())
-  JMap.setInt(data, "loggingLvl", 0)      ; TODO: set to MCM variable
 
   ; _CheckIfNpcIsKnown(npc, data)
   return data

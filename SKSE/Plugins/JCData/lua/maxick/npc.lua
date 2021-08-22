@@ -1,65 +1,63 @@
 local npc = {}
 
 local l = jrequire 'dmlib'
-local ml = jrequire 'maxick.lib'
+local gc = jrequire 'maxick.genConst'
 local db = jrequire 'maxick.database'
 local sl = jrequire 'maxick.sliderCalc'
+local ml = jrequire 'maxick.lib'
 -- local serpent = require("__serpent")
---
+
 ---@alias LoggingFunc fun(message: string)
 
--- ;>========================================================
--- ;>===                    LOGGING                     ===<;
--- ;>========================================================
+local disable = -1
 
---#region
-
----Logs a message in the `actor`.
----@param actor Actor
----@return LoggingFunc
-local LogFactory = function (actor)
-  return function (message)
-    if message and (message ~= "") then
-      actor.msg = actor.msg .. message .. ". "
-    end
-  end
-end
-
----Logs only messages that fit certain logging level.
----@param actor Actor
----@param lvl integer
----@return LoggingFunc
-local LogLevel = function (actor, lvl)
-  return function (message)
-    if actor.loggingLvl >= lvl then
-      LogFactory(actor)(message)
-    end
-  end
-end
-
---- Critical message logging.
----@type LoggingFunc
-local LogCrit
-
---- Misc info logging.
----@type LoggingFunc
-local LogInfo
-
---- Really detailed info logging.
----@type LoggingFunc
-local LogVerbose
-
----Makes possible to get messages out from here to Skyrim.
----@param actor Actor
----@return Actor
-local function _EnableSkyrimLogging(actor)
-  LogCrit = LogLevel(actor, ml.loggingLvl.Critical)
-  LogInfo = LogLevel(actor, ml.loggingLvl.Info)
-  LogVerbose = LogLevel(actor, ml.loggingLvl.Verbose)
-  return actor
-end
-
---#endregion
+--- Table structure for visually processing NPCs.
+--- This is a dummy variable used only for reference.
+local sampleNPC = {
+  --- Actor name. Used to try to find it in the known npcs database.
+  name = "Lydia",
+  --- Used to try to find it in the known npcs database.
+  formId = 0xa2c8e,
+  --- Gotten by Lua. Used to apply MCM settings based on NPC type.
+  isKnown = 0,
+  --- Additional info of the operation. This is output to the Skyrim console.
+  msg = "",
+  --- Sex is gotten from in game, not the master esp, in case the player had
+  --- installed a mod that makes everyone women or something.
+  --- This selects the Bodyslide preset used.
+  isFem = 1,
+  --- Not a Bodyslide preset, but the slider data that will be applied to an actor.
+  --- Actual Bodyslide presets are taken from `database.lua`.
+  bodySlide = ml.sampleSliders,
+  --- Used to calculate body slider values. Range: `[0..100]`.
+  --- Either user assigned in Known NPCs or gotten from the game.
+  weight = math.random(100),
+  --- Used to determine Bodyslide preset and muscle definition. Created by player.
+  fitStage = 1,
+  --- What kind of muscle definition the `Actor` has. Since it relies on Armors and SetSkin()
+  --- it is advisable to disable for some kind of races.
+  --- * `-1`: Don't change muscle definition.
+  --- * `0`: Plain looking. Average looking textures.
+  --- * `1`: Fit looking. Athletic. Use ripped textures.
+  --- * `2`: Fat. Actual average looks in real life (at least in my country). Use flabby textures.
+  muscleDefType = -1,
+  --- `[-1 to 6]`.
+  --- * `-1` is "disabled"
+  --- * `0` sets an armor with a variable texture list to dinamically change muscle definition
+  --- based on weight.
+  --- * `1-6` force that muscle definition on actor.
+  muscleDef = -1,
+  --- Actor race as registered in the esp file.
+  raceEDID = "NordRaceAstrid",
+  --- Result from detecting if the race is known. Used for muscle definition.
+  racialGroup = "",
+  --- Used to print to the Skyrim console which race was matched in `database.races`.
+  raceDisplay = "",
+  --- Class name as gotten from PapyrusUtil.
+  class = "Warrior",
+  --- Wether to process the `Actor` at all. Always `false` for unknown races.
+  shouldProcess = 0
+}
 
 -- ;>========================================================
 -- ;>===              PROCESS KNOWN ACTOR               ===<;
@@ -75,7 +73,7 @@ local function _SolveBodyslide(actor, fitStage)
     local bs = l.IfThen(actor.isFem == 1, fitStage.femBs, fitStage.manBs)
     sl.SetBodySlide(actor, actor.weight, bs, sl.StdMorph)
   else
-    LogInfo("Actor was banned from changing body shape")
+    ml.LogInfo("Won't change body shape")
   end
 end
 
@@ -86,8 +84,8 @@ local function _SolveMuscleDef(actor, fitStage)
   if actor.muscleDef >= 0 then
     actor.muscleDefType = fitStage.muscleDefType
   else
-    actor.muscleDefType = -1
-    LogInfo("Won't change muscle definition")
+    actor.muscleDefType = disable
+    ml.LogInfo("Won't change muscle definition")
   end
 end
 
@@ -117,7 +115,45 @@ local function _IsKnown(actor, values)
   return actor
 end
 
+-- ;>========================================================
+-- ;>===                   MCM CONFIG                   ===<;
+-- ;>========================================================
+
+local function _McmBsBan(canChange, values)
+  if not canChange then
+    ml.LogCrit("MCM: Bodyslide applying disabled")
+    values.weight = disable
+  end
+end
+
+local function _McmMuscleBan(canChange, values)
+  if not canChange then
+    ml.LogCrit("MCM: Muscle definition changing disabled")
+    values.muscleDef = disable
+  end
+end
+
+local function _McmGenericBsBySex(actor)
+  return l.IfThen(actor.isFem == 1, db.mcm.gNpcFemBs, db.mcm.gNpcManBs)
+end
+
+local function _McmGenericMusDefBySex(actor)
+  return l.IfThen(actor.isFem == 1, db.mcm.gNpcFemMuscleDef, db.mcm.gNpcManMuscleDef)
+end
+
+local function _McmGenericBanned(actor)
+  return (not _McmGenericBsBySex(actor)) and (not _McmGenericMusDefBySex(actor))
+end
+
+local function _DisableGeneric(actor)
+  actor.weight = disable
+  actor.muscleDef = disable
+  ml.LogCrit(l.fmt("Generic %s NPC processing was disabled in MCM", ml.SexAsStr(actor)))
+  return actor
+end
+
 --#endregion
+
 
 -- ;>========================================================
 -- ;>===                  RACE SOLVING                  ===<;
@@ -140,7 +176,7 @@ end
 ---@param actor Actor
 local function _Stop_CouldBeAnSpider(actor)
   actor.shouldProcess = 0
-  LogCrit(l.fmt("Race '%s' is not known by this mod. Ignore", actor.raceEDID))
+  ml.LogCrit(l.fmt("Race '%s' is not known by this mod. Ignore", actor.raceEDID))
 end
 
 ---Actor race is banned. Stop.
@@ -148,7 +184,7 @@ end
 ---@param display string The name of the race as written by the player in _Max Sick Gains.exe_
 local function _Stop_IsBanned(actor, display)
   local txt = "Can't change appearance. Actor race '%s' matched with banned race '%s'"
-  LogCrit(l.fmt(txt, actor.raceEDID, display))
+  ml.LogCrit(l.fmt(txt, actor.raceEDID, display))
   actor.shouldProcess = 0
 end
 
@@ -168,7 +204,7 @@ end
 ---@return Actor
 local function _SetKnownRace(actor, matches)
   local val = l.pipe(l.take(1), l.extractValue)(matches)
-  LogInfo(l.fmt("Actor race is '%s'", val.display))
+  ml.LogInfo(l.fmt("Actor race is '%s'", val.display))
 
   actor.racialGroup = val.group
   actor.raceDisplay = val.display
@@ -180,7 +216,7 @@ end
 ---@param actor Actor
 local function _Stop_SkyrimIsBeingAnAsshole(actor)
   actor.shouldProcess = 0
-  LogCrit("WARNING: Skyrim didn't provide enough data to know who or what this actor is. Don't worry; this annoyance will eventually correct itself")
+  ml.LogCrit("WARNING: Skyrim didn't provide enough data to know who or what this actor is. Don't worry; this annoyance will eventually correct itself")
 end
 
 ---Tries to find the race of the actor so it can be processed by other functions.
@@ -213,26 +249,17 @@ end
 -- ;>===                 CLASS SOLVING                  ===<;
 -- ;>========================================================
 
--- TODO: Seems to be a function that should be in a library
-
----Finds if some race is in a race list.
----@param race string
----@param raceList table
----@return boolean
-local function _RaceInList(race, raceList)
-  return l.any(raceList, function (v) return string.find(race, v) end)
-end
 
 local function _ClassArchetypeAllowed(race, exclusiveRaceList)
   local allRacesAllowed = l.isEmpty(exclusiveRaceList)
   if allRacesAllowed then return true end     -- Optimization
 
-  local raceMatch = _RaceInList(race, exclusiveRaceList)
+  local raceMatch = ml.RaceInList(race, exclusiveRaceList)
   return raceMatch
 end
 
 local function _ClassArchetypeExclusive(race, exclusiveRaceList)
-  return _RaceInList(race, exclusiveRaceList)
+  return ml.RaceInList(race, exclusiveRaceList)
 end
 
 local function _ArchetypesNames(possibleArchetypes)
@@ -275,7 +302,7 @@ local function _GetSingleArchetype(usefulArchetypes)
     return usefulArchetypes[1]
   else
     local sel = math.random(len)
-    LogCrit(l.fmt("Many viable archetypes; setting: '%s'",
+    ml.LogCrit(l.fmt("Many viable archetypes; setting: '%s'",
       db.classArchetypes[usefulArchetypes[sel]].iName))
     return usefulArchetypes[sel]
   end
@@ -288,24 +315,24 @@ end
 local function _GetBestArchetypeMatch(actor, classMatch)
   local possibleArchetypes = _AllAllowedArchetypes(actor, classMatch)
   if l.isEmpty(possibleArchetypes) then
-    LogCrit(l.fmt("But no archetype was allowed for '%s' of that class", actor.raceEDID))
+    ml.LogCrit(l.fmt("But no archetype was allowed for '%s' of that class", actor.raceEDID))
     return nil
   end
   -- Give preference to exclusive race archetypes
   local usefulArchetypes = _OnlyExclusiveArchetypes(actor, possibleArchetypes)
-  LogVerbose(l.fmt("Matching archetype(s): %s", _ArchetypesNames(usefulArchetypes)))
+  ml.LogVerbose(l.fmt("Matching archetype(s): %s", _ArchetypesNames(usefulArchetypes)))
   -- Return value
   return _GetSingleArchetype(usefulArchetypes)
 end
 
 local function _GetClassArchetype(actor)
   local class = string.lower(actor.class)
-  -- ;WARNING: Modify this if function can't find the actor class
+  -- ;WARNING: Modify this if function can't find the actor class. Make a substring search, not an equality.
   local classMatch = l.filter(db.classes, function (_, k) return class == k end)
   if not l.isEmpty(classMatch) then
-    LogCrit(l.fmt("Class found: '%s'", actor.class))
+    ml.LogCrit(l.fmt("Class found: '%s'", actor.class))
   else
-    LogCrit(l.fmt("Couldn't find class: '%s'", actor.class))
+    ml.LogCrit(l.fmt("Couldn't find class: '%s'", actor.class))
     return nil
   end
   -- Find which archetype matches best this NPC
@@ -313,7 +340,7 @@ local function _GetClassArchetype(actor)
 end
 
 local function _SetDefaultFitnessStage(actor)
-  LogCrit("Setting default fitness stage")
+  ml.LogCrit("Setting default fitness stage")
   local values = {
     fitStage = 1,
     weight = actor.weight,
@@ -325,12 +352,13 @@ end
 
 local function _SetClassArchetypeData(actor, archId)
   local arch = db.classArchetypes[archId]
-  -- TODO: Set muscle def and weight by MCM options
   local values = {
     fitStage = arch.fitStage,
     weight = sl.WeightBasedAdjust(actor.weight, arch.bsLo, arch.bsHi),
     muscleDef = l.round(sl.WeightBasedAdjust(actor.weight, arch.muscleDefLo, arch.muscleDefHi))
   }
+  _McmBsBan(_McmGenericBsBySex(actor), values)
+  _McmMuscleBan(_McmGenericMusDefBySex(actor), values)
   actor = _IsKnown(actor, values)
   return actor
 end
@@ -351,7 +379,10 @@ local function _FilterKNownNPC(actor)
       local idMatch = string.find(fId, candidate)
       local classMatch = values.class == string.lower(actor.class)
       local raceMatch = values.race == string.lower(actor.raceEDID)
-      return idMatch and classMatch and raceMatch
+      local sexMatch = values.isFemale == (actor.isFem == 1)
+      -- ;WARNING: Delete name matching if NPC can no longer be found
+      local nameMatch = values.fullName == string.lower(actor.name)
+      return idMatch and classMatch and raceMatch and nameMatch and sexMatch
     end
   )
 end
@@ -367,9 +398,10 @@ local function _FindKnownNPC(actor)
   )(db.npcs)
 
   if npcMatch then
-    LogCrit(l.fmt("*** Explicitly added NPC: '%s' ***", actor.name))
+    ml.LogCrit(l.fmt("*** Explicitly added NPC: '%s' ***", actor.name))
     -- TODO: Weight calculation by skills is possible to do right here
-    -- TODO: Set muscle def and weight by MCM options
+    _McmBsBan(db.mcm.kNpcBs, npcMatch)
+    _McmMuscleBan(db.mcm.kNpcMuscleDef, npcMatch)
     return _IsKnown(actor, npcMatch)
   end
 
@@ -383,24 +415,22 @@ end
 local function _GetGenericNPCBodyslide(actor)
   if actor.shouldProcess == 0 then return actor end
   local arch = _GetClassArchetype(actor)
-  if arch then
-    -- Apply archetype data
-    actor = _SetClassArchetypeData(actor, arch)
-  else
-    -- Apply default body
-    actor = _SetDefaultFitnessStage(actor)
-  end
-  return actor
+  return l.alt2(arch,
+    l.curryLast(_SetClassArchetypeData, arch),
+    _SetDefaultFitnessStage)(actor)
 end
 
 ---Gets the data needed to solve the identity of a generic NPC.
 ---@param actor Actor
 ---@return Actor
 local function _FindUnknownNPCData(actor)
-  return l.pipe(
-    _GetRace,
-    _GetGenericNPCBodyslide
-  )(actor)
+  if _McmGenericBanned(actor) then return _DisableGeneric(actor)
+  else
+    return l.pipe(
+      _GetRace,
+      _GetGenericNPCBodyslide
+    )(actor)
+  end
 end
 
 ---Tries to find the identity of an actor.
@@ -427,12 +457,14 @@ end
 ---@return Actor
 function npc.ChangeAppearance(actor)
   return l.processActor(actor, {
-    _EnableSkyrimLogging,
+    ml.EnableSkyrimLogging,
     _GetToKnowNPC,
-    -- TODO: Ban fitness textures
+    ml.MuscleDefRaceBanned,
     _ProcessKnownNPC,
     -- l.tap(serpent.piped)
   })
 end
+
+-- npc.ChangeAppearance(sampleNPC)
 
 return npc

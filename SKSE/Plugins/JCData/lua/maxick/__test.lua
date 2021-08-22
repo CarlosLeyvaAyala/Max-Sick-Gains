@@ -144,3 +144,4 @@ print("$$$$$$$$$$$$")
 -- x = [0, 100]  y = [bsLo, bsHi]
 print(l.linCurve({x=0, y=100}, {x=100, y=70})(90))
 print(serpent.block(l.joinTables({1,2,3}, {4,5}, function (_, v2)  return v2 end)))
+print(0xff)

@@ -205,7 +205,7 @@
         ],
         "(;>)(.*)": [
             {
-                "overviewRulerLane": "7",
+                "overviewRulerLane": 4,
                 "overviewRulerColor": "#61500C",
                 "backgroundColor": "#7d6608",
                 "color": "#1f1f1f",
@@ -220,6 +220,7 @@
         "(;@.*:)(.*)": [
             {
                 "overviewRulerColor": "tomato",
+                "overviewRulerLane": 4,
                 "backgroundColor": "tomato",
                 "color": "#1f1f1f",
                 "fontWeight": "bold"
@@ -231,6 +232,8 @@
         ],
         "(; ?WARNING:?)(.*)": [
             {
+                "overviewRulerColor": "goldenrod",
+                "overviewRulerLane": 7,
                 "backgroundColor": "goldenrod",
                 // "textDecoration": "underline dotted orange",
                 "fontWeight": "bold"
@@ -250,6 +253,7 @@
         "(; ?FIXME:?)(.*)": [
             {
                 "overviewRulerColor": "#ff0000",
+                "overviewRulerLane": 7,
                 "backgroundColor": "#aa0000",
                 "color": "#efefef",
                 "fontWeight": "bold"
