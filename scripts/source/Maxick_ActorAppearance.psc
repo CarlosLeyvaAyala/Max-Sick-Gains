@@ -5,6 +5,10 @@ import Maxick_Utils
 FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
 
+Function OnGameReload()
+  InitSliders()
+EndFunction
+
 ;>========================================================
 ;>===                    SLIDERS                     ===<;
 ;>========================================================

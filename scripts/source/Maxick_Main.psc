@@ -13,9 +13,10 @@ Maxick_NPC Property NpcHandler Auto
 {Handles everything NPC related.}
 Maxick_ActorAppearance Property looksHandler Auto
 {Handles everything appearance related.}
+Maxick_Debug Property md Auto
+{Handles everything debgging related.}
 
 Event OnInit()
-  Player = Game.GetPlayer()
   OnGameReload()
 EndEvent
 
@@ -25,12 +26,10 @@ EndFunction
 
 Function OnGameReload()
   ; JDB.writeToFile(JContainers.userDirectory() + "dump.json")
-  player = Game.GetPlayer()
-  looksHandler.InitSliders()
-  PcHandler.SetHotkeys()
-  ; FIXME: Activate only in Testing mode
-  PcHandler.ChangeAppearance()
-  OnCellLoad()
+  md.OnGameReload()
+  looksHandler.OnGameReload()
+  PcHandler.OnGameReload()
+  _TestingModeOperations()
 EndFunction
 
 ; Main NPC processing function.
@@ -44,4 +43,10 @@ Function OnCellLoad()
     i -= 1
   EndWhile
   ; JValue.writeToFile(JDB.solveObj(".maxick"), JContainers.userDirectory() + "Maxick.json")
+EndFunction
+
+Function _TestingModeOperations()
+  ; FIXME: Activate only in Testing mode
+  PcHandler.ChangeAppearance()
+  OnCellLoad()
 EndFunction

@@ -5,6 +5,7 @@ import Maxick_Utils
 
 Maxick_Main Property main Auto
 Maxick_ActorAppearance Property looksHandler Auto
+Actor Property player Auto
 
 int hkGains0
 int hkGains100
@@ -14,14 +15,21 @@ int hkNextLvl
 int hkPrevLvl
 int hkSlideshow
 
-Actor player
 float _gains = 0.0
 int _stage = 1
 
 Event OnInit()
-  player = Game.GetPlayer()
+  OnGameReload()
 EndEvent
 
+Function OnGameReload()
+  RegisterEvents()
+  SetHotkeys()
+EndFunction
+
+Function RegisterEvents()
+  RegisterForModEvent("Maxick_Train", "OnTrain")
+EndFunction
 
 ;>========================================================
 ;>===                  TESTING MODE                  ===<;
@@ -66,6 +74,7 @@ EndFunction
 
 ; Setups the hotkeys that will be used in testing mode.
 Function SetHotkeys()
+  ; FIXME: Activate only in Testing mode
   hkGains0 = 203
   hkGains100 = 205
   hkPrevLvl = 208
@@ -161,9 +170,12 @@ Function ChangeAppearance()
   looksHandler.ChangeHeadSize(player, JMap.getFlt(appearance, "headSize", 2.2))
 EndFunction
 
-Function TrainSkill(string aSkill)
-  ; code
-EndFunction
+; Function TrainSkill(string aSkill)
+;   ; code
+; EndFunction
+
+Event OnTrain(string _, string skillName, float __, Form sender)
+EndEvent
 
 int Function _InitData()
   int data = JMap.object()

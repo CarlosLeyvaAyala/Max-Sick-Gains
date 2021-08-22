@@ -100,6 +100,7 @@ function lib.MuscleDefRaceBanned(actor)
   if found then
     lib.LogCrit(l.fmt("Banned race '%s'", race))
     actor.muscleDef = -1
+    actor.muscleDefType = -1
   end
   return actor
 end

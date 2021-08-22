@@ -1,7 +1,7 @@
 local npc = {}
 
 local l = jrequire 'dmlib'
-local gc = jrequire 'maxick.genConst'
+-- local gc = jrequire 'maxick.genConst'
 local db = jrequire 'maxick.database'
 local sl = jrequire 'maxick.sliderCalc'
 local ml = jrequire 'maxick.lib'
@@ -48,13 +48,13 @@ local sampleNPC = {
   --- * `1-6` force that muscle definition on actor.
   muscleDef = -1,
   --- Actor race as registered in the esp file.
-  raceEDID = "NordRaceAstrid",
+  raceEDID = "NordRace",
   --- Result from detecting if the race is known. Used for muscle definition.
   racialGroup = "",
   --- Used to print to the Skyrim console which race was matched in `database.races`.
   raceDisplay = "",
   --- Class name as gotten from PapyrusUtil.
-  class = "Warrior",
+  class = "Warriosr",
   --- Wether to process the `Actor` at all. Always `false` for unknown races.
   shouldProcess = 0
 }
@@ -94,6 +94,7 @@ end
 ---@param actor Actor
 ---@return Actor
 local function _ProcessKnownNPC(actor)
+  actor = ml.MuscleDefRaceBanned(actor)
   if actor.shouldProcess == 0 then return actor end
   local fitStage = db.fitStages[actor.fitStage]
 
@@ -345,6 +346,7 @@ local function _SetDefaultFitnessStage(actor)
     fitStage = 1,
     weight = actor.weight,
     muscleDef = 0,
+    muscleDefType = db.fitStages[1].muscleDefType
   }
   actor = _IsKnown(actor, values)
   return actor
@@ -459,7 +461,6 @@ function npc.ChangeAppearance(actor)
   return l.processActor(actor, {
     ml.EnableSkyrimLogging,
     _GetToKnowNPC,
-    ml.MuscleDefRaceBanned,
     _ProcessKnownNPC,
     -- l.tap(serpent.piped)
   })

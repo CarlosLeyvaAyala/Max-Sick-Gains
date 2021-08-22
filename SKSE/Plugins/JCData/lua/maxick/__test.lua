@@ -112,7 +112,6 @@ local log = function (msg) return
   end
 end
 
-
 local data=l.range(10)
 local p = l.pipe(
     l.map(rand),
@@ -141,7 +140,20 @@ local p = l.pipe(
 p(data)
 
 print("$$$$$$$$$$$$")
--- x = [0, 100]  y = [bsLo, bsHi]
-print(l.linCurve({x=0, y=100}, {x=100, y=70})(90))
-print(serpent.block(l.joinTables({1,2,3}, {4,5}, function (_, v2)  return v2 end)))
-print(0xff)
+
+local function meh()
+  local function meh2()
+
+  end
+end
+
+local function meh2()
+  return function ()
+  end
+end
+
+local function meh3()
+  return function (mehmehmeh)
+    l.filter(mehmehmeh, function (mimimi) return mimimi == "meh" end)
+  end
+end
