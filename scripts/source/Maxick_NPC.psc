@@ -6,6 +6,8 @@ import Maxick_Utils
 FormList Property KnownNPCs Auto
 Maxick_Main Property main Auto
 Maxick_ActorAppearance Property looksHandler Auto
+Maxick_Debug Property md Auto
+
 
 ; Gets all the info needed to apply visual changes to an NPC.
 ; Returns a handle to a `JMap` (a Lua table, actually) that contains all
@@ -35,7 +37,7 @@ EndFunction
 
 ; Executes the Lua function that makes all calculations on one NPC
 int Function _GetAppearance(Actor npc)
-  Log("NPC found: '" + DM_Utils.GetActorName(npc) + "'")
+  md.LogCrit("NPC found: '" + DM_Utils.GetActorName(npc) + "'")
   int data = _InitNpcData(npc)
   return JValue.evalLuaObj(data, "return maxick.ChangeNpcAppearance(jobject)")
 EndFunction
@@ -51,7 +53,7 @@ EndFunction
 ; need to use it if the `"Name-class-race(-EDID) Matching"` method doesn't work.
 Function _CheckIfNpcIsKnown(ActorBase npc, int data)
   If !KnownNPCs.HasForm(npc)
-    Log("Generic NPC.")
+    md.LogCrit("Generic NPC.")
     return
   EndIf
 
@@ -59,7 +61,7 @@ Function _CheckIfNpcIsKnown(ActorBase npc, int data)
   While i > 0
     i -= 1
     If npc == KnownNPCs.GetAt(i)
-      Log("Actor known")
+      md.LogCrit("Actor known")
       JMap.setInt(data, "isKnown", i)
       JMap.setInt(data, "shouldProcess", 1)
       return

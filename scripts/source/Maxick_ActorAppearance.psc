@@ -2,6 +2,7 @@ Scriptname Maxick_ActorAppearance extends Quest
 
 import Maxick_Utils
 
+Maxick_Debug Property md Auto
 FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
 
@@ -20,8 +21,8 @@ EndFunction
 ; Generate both files using the **Slider Generator** tool in _Max Sick Gains.exe_.
 Function InitSliders()
   int data = JMap.object()
-  JMap.setObj(data, "femSliders", _LoadSliders("data/SKSE/Plugins/Maxick/fem-sliders.json"))
-  JMap.setObj(data, "manSliders", _LoadSliders("data/SKSE/Plugins/Maxick/man-sliders.json"))
+  JMap.setObj(data, "femSliders", _LoadSliders(femSliders()))
+  JMap.setObj(data, "manSliders", _LoadSliders(manSliders()))
   JDB.setObj("maxick", data)
 EndFunction
 
@@ -76,7 +77,7 @@ EndFunction
 ; Changes an actor appearance based on the `data` collected from them.
 ; `data` is a handle to a `JMap` object.
 Function ChangeAppearance(Actor aAct, int data)
-  Log(JMap.getStr(data, "msg"))
+  md.Log(JMap.getStr(data, "msg"))
   If !JMap.getInt(data, "shouldProcess")
     return
   EndIf

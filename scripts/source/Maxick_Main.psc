@@ -2,7 +2,8 @@ Scriptname Maxick_Main extends Quest
 {Main controler for Max Sick Gains}
 
 Import JValue
-import Maxick_Utils
+Import DM_Utils
+Import Maxick_Utils
 
 Actor Property player Auto
 ; FormList Property NakedBodiesList Auto
@@ -27,6 +28,7 @@ EndFunction
 Function OnGameReload()
   ; JDB.writeToFile(JContainers.userDirectory() + "dump.json")
   md.OnGameReload()
+  _RegisterEvents()
   looksHandler.OnGameReload()
   PcHandler.OnGameReload()
   _TestingModeOperations()
@@ -45,8 +47,64 @@ Function OnCellLoad()
   ; JValue.writeToFile(JDB.solveObj(".maxick"), JContainers.userDirectory() + "Maxick.json")
 EndFunction
 
+; Things to do when loading a game in testing mode.
 Function _TestingModeOperations()
-  ; FIXME: Activate only in Testing mode
+  If !md.testMode
+    md.LogVerb("***TESTING MODE DISABLED***")
+    return
+  EndIf
+  md.LogVerb("***TESTING MODE ENABLED***")
   PcHandler.ChangeAppearance()
   OnCellLoad()
 EndFunction
+
+;>========================================================
+;>===                     EVENTS                     ===<;
+;>========================================================
+
+; Registers events needed for this mod to work.
+Function _RegisterEvents()
+  RegisterForSleep()
+  If SexLabExists()
+    ; RegisterForModEvent("AnimationStart", "SexLabEvent")
+    RegisterForModEvent("StageEnd", "SexLabEvent")
+    RegisterForModEvent("AnimationEnd", "SexLabEvent")
+  EndIf
+EndFunction
+
+; Sexlab integration.
+Event SexLabEvent(string _, string __, float ___, form sender)
+  sslThreadController c = sender as sslThreadController
+  If c && c.HasPlayer
+    md.LogVerb("SexLab event detected")
+    SendModEvent("Maxick_Train", "Sex")
+  EndIf
+EndEvent
+
+;> Sleeping
+
+; Being in animation (from Posers or something) while sleeping seems to freeze the game. Avoid it.
+Function PreparePlayerToSleep()
+  If Player.IsWeaponDrawn()
+    Player.SheatheWeapon()
+  EndIf
+EndFunction
+
+; Prepare player to sleep.
+Event OnSleepStart(float aStartTime, float aEndTime)
+  PreparePlayerToSleep()
+  _goneToSleepAt = Now()                        ; Just went to sleep
+EndEvent
+
+; What happens when the player wakes up.
+Event OnSleepStop(bool aInterrupted)
+  md.LogVerb("Woken up.")
+  ; Hours actually slept, since player can cancel or Astrid can kidnap.
+  float hoursSlept = HourSpan(_goneToSleepAt)
+  If hoursSlept < 1
+    Return      ; Do nothing if didn't really slept
+  EndIf
+  SendModEvent("Maxick_Sleep", "", hoursSlept)
+EndEvent
+
+float _goneToSleepAt

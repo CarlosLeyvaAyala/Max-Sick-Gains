@@ -6,6 +6,7 @@ import Maxick_Utils
 Maxick_Main Property main Auto
 Maxick_ActorAppearance Property looksHandler Auto
 Actor Property player Auto
+Maxick_Debug Property md Auto
 
 int hkGains0
 int hkGains100
@@ -29,6 +30,7 @@ EndFunction
 
 Function RegisterEvents()
   RegisterForModEvent("Maxick_Train", "OnTrain")
+  RegisterForModEvent("Maxick_Sleep", "OnSleep")
 EndFunction
 
 ;>========================================================
@@ -74,7 +76,7 @@ EndFunction
 
 ; Setups the hotkeys that will be used in testing mode.
 Function SetHotkeys()
-  ; FIXME: Activate only in Testing mode
+  ;FIXME: Initialize elsewhere
   hkGains0 = 203
   hkGains100 = 205
   hkPrevLvl = 208
@@ -102,6 +104,11 @@ Function _SlideshowAdvance(float delta)
 EndFunction
 
 Event OnKeyDown(Int KeyCode)
+  If !md.testMode
+    md.LogVerb("Hotkeys only enabled while in testing mode.")
+    return
+  EndIf
+
   If KeyCode == hkGains0
     If _gains <= 0.0
       _SlideshowPreviousStage()
@@ -128,12 +135,12 @@ Event OnKeyDown(Int KeyCode)
   EndIf
   If KeyCode == hkAdvance
     _SlideshowAdvance(5.0)
-    Debug.Notification("Gains = " + _gains)
+    ; Debug.Notification("Gains = " + _gains)
     ChangeAppearance()
   EndIf
   If KeyCode == hkRegress
     _SlideshowAdvance(-5.0)
-    Debug.Notification("Gains = " + _gains)
+    ; Debug.Notification("Gains = " + _gains)
     ChangeAppearance()
   EndIf
   If KeyCode == hkSlideshow
@@ -163,6 +170,17 @@ EndState
 ;>===                   APPEARANCE                   ===<;
 ;>========================================================
 
+; Player got some training.
+Event OnTrain(string _, string skillName, float __, Form sender)
+  md.LogVerb("Skill level up: " + skillName)
+EndEvent
+
+; Player woke up.
+Event OnSleep(string _, string __, float hoursSlept, Form ___)
+  md.LogVerb("Hours slept: " + hoursSlept)
+EndEvent
+
+; Changes player appearance.
 Function ChangeAppearance()
   int appearance = _GetAppearance()
   looksHandler.ChangeAppearance(player, appearance)
@@ -170,13 +188,7 @@ Function ChangeAppearance()
   looksHandler.ChangeHeadSize(player, JMap.getFlt(appearance, "headSize", 2.2))
 EndFunction
 
-; Function TrainSkill(string aSkill)
-;   ; code
-; EndFunction
-
-Event OnTrain(string _, string skillName, float __, Form sender)
-EndEvent
-
+; Initializes the data that will be used to change appearance.
 int Function _InitData()
   int data = JMap.object()
 
@@ -195,6 +207,7 @@ int Function _InitData()
   return data
 EndFunction
 
+; Gets the player appearance from Lua.
 int Function _GetAppearance()
   return JValue.evalLuaObj(_InitData(), "return maxick.ChangePlayerAppearance(jobject)")
 EndFunction

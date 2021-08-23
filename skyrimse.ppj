@@ -19,7 +19,6 @@
     <Imports>
         <Import>.\Scripts\Source</Import>
         <Import>@Skyrim\Data\Scripts\Source</Import>
-        <Import>@MO\FileAccess Interface for Skyrim SE Scripts - FISSES\scripts\source</Import>
         <Import>@MO\PapyrusUtil SE - Modders Scripting Utility Functions\Scripts\Source</Import>
         <Import>@MO\JContainers SE\scripts\source</Import>
         <Import>@MO\Racemenu-src\scripts\source</Import>
@@ -30,8 +29,11 @@
         <Import>@MO\FNIS Creature Pack SE 7.0\source\scripts\</Import>
         <Import>@MO\JContainers SE\scripts\source</Import>
         <Import>@lib\Source</Import>
+        <Import>@lib</Import>
     </Imports>
+
     <Folders>
         <Folder>.\Scripts\Source</Folder>
+        <Folder>@lib\Source</Folder>
     </Folders>
 </PapyrusProject>

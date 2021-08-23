@@ -157,3 +157,6 @@ local function meh3()
     l.filter(mehmehmeh, function (mimimi) return mimimi == "meh" end)
   end
 end
+
+print(l.padZeros(4, 21))
+print(l.hourSpan(0.5, 1))
