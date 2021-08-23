@@ -7,7 +7,7 @@ FormList Property KnownNPCs Auto
 Maxick_Main Property main Auto
 Maxick_ActorAppearance Property looksHandler Auto
 Maxick_Debug Property md Auto
-
+Maxick_EventNames Property ev Auto
 
 ; Gets all the info needed to apply visual changes to an NPC.
 ; Returns a handle to a `JMap` (a Lua table, actually) that contains all

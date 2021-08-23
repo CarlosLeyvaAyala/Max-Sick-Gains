@@ -13,7 +13,6 @@ local widget = jrequire 'maxick.reportWidget'
 local maxick = {}
 math.randomseed( os.time() )
 
----@alias Actor table<string, any>
 ---@alias Sex
 ---|'0'
 ---|'1'
@@ -26,6 +25,7 @@ maxick.ChangeNpcAppearance = npc.ChangeAppearance
 maxick.ChangePlayerAppearance = player.ChangeAppearance
 maxick.Train = sk.Train
 maxick.OnSleep = player.OnSleep
+maxick.InitWidget = widget.Init
 
 ---Advances to next stage while in testing mode.
 ---@param stage number

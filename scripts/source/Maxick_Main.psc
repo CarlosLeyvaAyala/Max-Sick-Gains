@@ -16,6 +16,9 @@ Maxick_ActorAppearance Property looksHandler Auto
 {Handles everything appearance related.}
 Maxick_Debug Property md Auto
 {Handles everything debgging related.}
+Maxick_Widget Property widget Auto
+{Widget.}
+Maxick_EventNames Property ev Auto
 
 Event OnInit()
   OnGameReload()
@@ -25,12 +28,15 @@ int Function GetDataTree()
   return JDB.solveObj(".maxick")
 EndFunction
 
+; These functions are called sequentially and not hooked as callbacks because we want to
+; make sure these settings are initializated in this precise order.
 Function OnGameReload()
   ; JDB.writeToFile(JContainers.userDirectory() + "dump.json")
   md.OnGameReload()
   _RegisterEvents()
   looksHandler.OnGameReload()
   PcHandler.OnGameReload()
+  widget.OnGameReload()
   _TestingModeOperations()
 EndFunction
 
@@ -77,7 +83,7 @@ Event SexLabEvent(string _, string __, float ___, form sender)
   sslThreadController c = sender as sslThreadController
   If c && c.HasPlayer
     md.LogVerb("SexLab event detected")
-    SendModEvent("Maxick_Train", "Sex")
+    SendModEvent(ev.TRAIN, "Sex")
   EndIf
 EndEvent
 
@@ -104,7 +110,7 @@ Event OnSleepStop(bool aInterrupted)
   If hoursSlept < 1
     Return      ; Do nothing if didn't really slept
   EndIf
-  SendModEvent("Maxick_Sleep", "", hoursSlept)
+  SendModEvent(ev.SLEEP, "", hoursSlept)
 EndEvent
 
 float _goneToSleepAt

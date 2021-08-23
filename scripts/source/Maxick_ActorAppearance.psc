@@ -100,7 +100,10 @@ EndFunction
 
 ; Updates a NiNode when conditions are right.
 Function UpdateNiNode(Actor aAct)
-  ; FIXME: Check that the actor is not mounting before doing this
+  If aAct.IsOnMount()
+    md.LogCrit("ERROR: Can't update a character while mounting.")
+    return
+  EndIf
   aAct.QueueNiNodeUpdate()
 EndFunction
 
@@ -144,7 +147,7 @@ EndFunction
 ;@Deprecated:
 ; Gets the head node that can be used for applying face overlays using `NiOverride`.
 ;
-; Left here for documentation purposes and it will likely never be used by this mod.
+; Left here for documentation purposes, since it will likely never be used by this mod.
 ;
 ; Sample use:
 ; ```

@@ -9,6 +9,16 @@ local db = jrequire 'maxick.database'
 
 local reportWidget = {}
 
+-- local function _GenWidgetJson(widget)
+--   local luna = jrequire 'maxick.lunajson'
+--   local dataTree = luna.encode(widget)
+--   print(dataTree)
+--   local ft = io.open("../../../Maxick/widget.json", "w+")
+--   io.output(ft)
+--   io.write(dataTree)
+--   io.close()
+-- end
+
 -- ;>========================================================
 -- ;>===                   CONSTANTS                    ===<;
 -- ;>========================================================
@@ -29,14 +39,17 @@ local sampleWidget = {
   vGap = 0,
   vAlign = VAlign.top,
   hAlign = HAlign.left,
+  hA = "left",
+  vA = "top",
+  widgetRefresh = 60,
   --#endregion
 
   --#region Values actually calculated by this script:
 
   meters = {
-    { x = 0, y = 0, color = 0, },
-    { x = 0, y = 0, color = 0, },
-    { x = 0, y = 0, color = 0, },
+    meter1 = { x = 0, y = 0, color = 0, n = 1, },
+    meter2 = { x = 0, y = 0, color = 0, n = 2, },
+    meter3 = { x = 0, y = 0, color = 0, n = 3, },
   },
   flashColors =   {
     normal = 0, warning = 0, danger = 0, critical = 0, down = 0, up = 0,
@@ -88,7 +101,7 @@ local _fullWidgetH = 0
 local function _DefineWholeWidgetDimensions(widget)
   _meterH = widget.meterH
   _fullMeterH = _meterH + (_meterH * widget.vGap)
-  _fullWidgetH = (_fullMeterH * (#widget.meters - 1)) + _meterH
+  _fullWidgetH = (_fullMeterH * (l.tableLen(widget.meters) - 1)) + _meterH
 end
 
 ---Gets the actual Y position of the whole widget on screen.
@@ -142,7 +155,7 @@ local function _SetMeterPositions(widget)
   return function (meters)
     return l.pipe(
       l.map(function (v) return _SetMeterX(v, widget.x, widget.hAlign) end),
-      l.map(function (v, meterNum) return _SetMeterY(v, meterNum - 1, widget.y, widget.vAlign) end)
+      l.map(function (v) return _SetMeterY(v, v.n - 1, widget.y, widget.vAlign) end)
     )(meters)
   end
 end
@@ -157,7 +170,7 @@ end
 ---@return fun(widget: Widget): Widget
 local function _ChangeMeters(func)
   return function (widget)
-    widget.meters = func(widget.meters)
+    l.assign(widget.meters, func(widget.meters))
     return widget
   end
 end
@@ -166,8 +179,8 @@ end
 ---@param meters Meters
 ---@return Meters
 local function _SetColors(meters)
-  return l.map(meters, function (v, k)
-    v.color = meterColors[k]
+  return l.map(meters, function (v)
+    v.color = meterColors[v.n]
     return v
   end)
 end
@@ -195,11 +208,14 @@ end
 local function _InitFromDB(widget)
   widget.x = db.mcm.widgetX
   widget.y = db.mcm.widgetY
+  widget.widgetRefresh = db.mcm.widgetRefresh
   widget.meterH = db.mcm.widgetMH
   widget.meterW = db.mcm.widgetMW
   widget.vGap = db.mcm.widgetMGap
   widget.vAlign = db.mcm.widgetVAlign
   widget.hAlign = db.mcm.widgetHAlign
+  widget.hA = HAlign[widget.hAlign]
+  widget.vA = VAlign[widget.vAlign]
   return widget
 end
 
@@ -209,14 +225,14 @@ end
 function reportWidget.Init(widget)
   return l.processTable(widget, {
     _InitFromDB,
-    _ChangeMeters(_SetColors),
     l.tap(_DefineWholeWidgetDimensions),
+    _ChangeMeters(_SetColors),
     _SetPosition,
     _SetFlashColors,
-    -- l.tap(serpent.piped)
   })
 end
 
--- reportWidget.Init(sampleWidget)
+-- print(serpent.block(reportWidget.Init(sampleWidget)))
+-- _GenWidgetJson(reportWidget.Init(sampleWidget))
 
 return reportWidget

@@ -7,6 +7,7 @@ Maxick_Main Property main Auto
 Maxick_ActorAppearance Property looksHandler Auto
 Actor Property player Auto
 Maxick_Debug Property md Auto
+Maxick_EventNames Property ev Auto
 
 int hkGains0
 int hkGains100
@@ -24,13 +25,28 @@ Event OnInit()
 EndEvent
 
 Function OnGameReload()
+  If md.testMode
+    GotoState("TestingMode")
+  Else
+    GotoState("")
+  EndIf
   RegisterEvents()
   SetHotkeys()
 EndFunction
 
 Function RegisterEvents()
-  RegisterForModEvent("Maxick_Train", "OnTrain")
+  RegisterForModEvent(ev.TRAIN, "OnTrain")
+  RegisterForModEvent(ev.UPDATE_INTERVAL, "OnGetUpdateInterval")
   RegisterForModEvent("Maxick_Sleep", "OnSleep")
+EndFunction
+
+Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
+  md.LogVerb("Got update interval: " + interval)
+EndEvent
+
+Function _SetGains(float value)
+  _gains = value
+  SendModEvent(ev.GAINS, "", value)
 EndFunction
 
 ;>========================================================
@@ -42,7 +58,7 @@ float _slStepTime = 0.5
 
 ; Stops the slideshow.
 Function _SlideshowStop()
-  GotoState("")
+  GotoState("TestingMode")
   UnregisterForUpdate()
   Debug.Notification("Last stage reached")
 EndFunction
@@ -55,9 +71,9 @@ Function _SlideShowNextStage()
     ; Reached last stage
     _stage = old
     _SlideshowStop()
-    _gains = 100.0
+    _SetGains(100.0)
   Else
-    _gains = 0.0
+    _SetGains(0.0)
     Debug.Notification(JValue.evalLuaStr(0, "return maxick.SlideshowStageMsg(" + _stage + ")"))
   EndIf
 EndFunction
@@ -66,9 +82,9 @@ Function _SlideshowPreviousStage()
   If _stage <= 1
     Debug.Notification("First stage reached")
     _stage = 1
-    _gains = 0.0
+    _SetGains(0.0)
   Else
-    _gains = 100.0
+    _SetGains(100.0)
     _stage -= 1
     Debug.Notification(JValue.evalLuaStr(0, "return maxick.SlideshowStageMsg(" + _stage + ")"))
   EndIf
@@ -94,7 +110,7 @@ Function SetHotkeys()
 EndFunction
 
 Function _SlideshowAdvance(float delta)
-  _gains += delta
+  _SetGains(_gains + delta)
   If ((_gains > 100.0) && (delta > 0))
     _SlideShowNextStage()
   ElseIf ((_gains < 0.0) && (delta < 0))
@@ -104,54 +120,54 @@ Function _SlideshowAdvance(float delta)
 EndFunction
 
 Event OnKeyDown(Int KeyCode)
-  If !md.testMode
-    md.LogVerb("Hotkeys only enabled while in testing mode.")
-    return
-  EndIf
-
-  If KeyCode == hkGains0
-    If _gains <= 0.0
-      _SlideshowPreviousStage()
-    Else
-      _gains = 0.0
-    EndIf
-    ChangeAppearance()
-  EndIf
-  If KeyCode == hkGains100
-    If _gains >= 100.0
-      _SlideShowNextStage()
-    Else
-      _gains = 100.0
-    EndIf
-    ChangeAppearance()
-  EndIf
-  If KeyCode == hkNextLvl
-    _SlideShowNextStage()
-    ChangeAppearance()
-  EndIf
-  If KeyCode == hkPrevLvl
-    _SlideshowPreviousStage()
-    ChangeAppearance()
-  EndIf
-  If KeyCode == hkAdvance
-    _SlideshowAdvance(5.0)
-    ; Debug.Notification("Gains = " + _gains)
-    ChangeAppearance()
-  EndIf
-  If KeyCode == hkRegress
-    _SlideshowAdvance(-5.0)
-    ; Debug.Notification("Gains = " + _gains)
-    ChangeAppearance()
-  EndIf
-  If KeyCode == hkSlideshow
-    _gains = 0.0
-    _stage = 1
-    ChangeAppearance()
-    Debug.Notification("Started slideshow")
-    GotoState("Slideshow")
-    RegisterForSingleUpdate(_slStepTime)
-  EndIf
+  md.LogVerb("Hotkeys only enabled while in testing mode.")
 EndEvent
+
+State TestingMode
+  Event OnKeyDown(Int KeyCode)
+    If KeyCode == hkGains0
+      If _gains <= 0.0
+        _SlideshowPreviousStage()
+      Else
+        _SetGains(0.0)
+      EndIf
+      ChangeAppearance()
+    EndIf
+    If KeyCode == hkGains100
+      If _gains >= 100.0
+        _SlideShowNextStage()
+      Else
+        _SetGains(100.0)
+      EndIf
+      ChangeAppearance()
+    EndIf
+    If KeyCode == hkNextLvl
+      _SlideShowNextStage()
+      ChangeAppearance()
+    EndIf
+    If KeyCode == hkPrevLvl
+      _SlideshowPreviousStage()
+      ChangeAppearance()
+    EndIf
+    If KeyCode == hkAdvance
+      _SlideshowAdvance(5.0)
+      ChangeAppearance()
+    EndIf
+    If KeyCode == hkRegress
+      _SlideshowAdvance(-5.0)
+      ChangeAppearance()
+    EndIf
+    If KeyCode == hkSlideshow
+      _SetGains(0.0)
+      ; TODO: Send event when changing stage
+      _stage = 1
+      ChangeAppearance()
+      Debug.Notification("Started slideshow")
+      GotoState("Slideshow")
+      RegisterForSingleUpdate(_slStepTime)
+    EndIf
+  EndEvent
+EndState
 
 State Slideshow
   Event OnUpdate()

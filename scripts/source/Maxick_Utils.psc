@@ -20,6 +20,10 @@ string Function manSliders() Global
   return cfgDir() + "man-sliders.json"
 EndFunction
 
+string Function widgetFile() Global
+  return cfgDir() + "widget.json"
+EndFunction
+
 bool Function PapyrusUtilExists() Global
   Return PapyrusUtil.GetVersion() > 1
 EndFunction
