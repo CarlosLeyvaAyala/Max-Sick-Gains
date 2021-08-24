@@ -24,9 +24,9 @@ Event OnInit()
   OnGameReload()
 EndEvent
 
-int Function GetDataTree()
-  return JDB.solveObj(".maxick")
-EndFunction
+; int Function GetDataTree()
+;   return JDB.solveObj(".maxick")
+; EndFunction
 
 ; These functions are called sequentially and not hooked as callbacks because we want to
 ; make sure these settings are initializated in this precise order.
@@ -71,6 +71,11 @@ EndFunction
 ; Registers events needed for this mod to work.
 Function _RegisterEvents()
   RegisterForSleep()
+  _RegisterForSex()
+EndFunction
+
+; Captures when player is having sex.
+Function _RegisterForSex()
   If SexLabExists()
     ; RegisterForModEvent("AnimationStart", "SexLabEvent")
     RegisterForModEvent("StageEnd", "SexLabEvent")
@@ -104,13 +109,13 @@ EndEvent
 
 ; What happens when the player wakes up.
 Event OnSleepStop(bool aInterrupted)
-  md.LogVerb("Woken up.")
   ; Hours actually slept, since player can cancel or Astrid can kidnap.
   float hoursSlept = HourSpan(_goneToSleepAt)
   If hoursSlept < 1
     Return      ; Do nothing if didn't really slept
   EndIf
-  SendModEvent(ev.SLEEP, "", hoursSlept)
+  ev.SendSleep(hoursSlept)
+  ; SendModEvent(ev.SLEEP, "", hoursSlept)
 EndEvent
 
 float _goneToSleepAt

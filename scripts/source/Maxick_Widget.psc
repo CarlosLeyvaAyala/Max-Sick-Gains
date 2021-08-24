@@ -49,9 +49,81 @@ EndFunction
 
 Function _RegisterEvents()
   RegisterForModEvent(ev.GAINS, "OnGains")
+  RegisterForModEvent(ev.TRAINING, "OnTraining")
+  RegisterForModEvent(ev.INACTIVITY, "OnInactivity")
+  ; TODO: OnGainsDelta
+  RegisterForModEvent(ev.TRAINING_CHANGE, "OnTrainDelta")
+  RegisterForModEvent(ev.CATABOLISM_START, "OnCatabolicEnter")
+  RegisterForModEvent(ev.CATABOLISM_END, "OnCatabolicExit")
 EndFunction
 
-Event OnGains(string _, string __, float aGains, Form ___)
-  md.LogVerb("Widget got gains " + aGains)
-  Gains.Percent = aGains / 100
+;>========================================================
+;>===              SET, BUT DON'T FLASH              ===<;
+;>========================================================
+
+; Sets the value but doesn't flash. That's what `OnGainsDelta` and `_CatabolicFlash` are for.
+Event OnGains(string _, string __, float val, Form ___)
+  md.LogVerb("Widget got gains: " + val)
+  Gains.Position = val
+  ; Gains.Percent = val / 100
 EndEvent
+
+; Sets the value but doesn't flash. That's what `OnTrainDelta` and `_CatabolicFlash` are for.
+Event OnTraining(string _, string __, float val, Form ___)
+  md.LogVerb("Widget got training: " + val)
+  Training.Percent = val / Maxick_Player.MaxTraining()
+EndEvent
+
+; Sets the value but doesn't flash. That's what `_CatabolicFlash` is for.
+Event OnInactivity(string _, string __, float val, Form ___)
+  md.LogVerb("Widget got inactivity: " + val)
+  Inactivity.Position = val
+  ; Inactivity.Percent = val / 100
+EndEvent
+
+;>========================================================
+;>===              FLASH, BUT DON'T SET              ===<;
+;>========================================================
+
+; Flash according to delta.
+Event OnTrainDelta(string _, string __, float delta, Form ___)
+  md.LogVerb("Widget got training delta " + delta)
+  If delta > 0
+    Training.FlashNow(_flashUp)
+  ElseIf delta < 0
+    Training.FlashNow(_flashDown)
+  EndIf
+EndEvent
+
+; Flashes meters while in catabolic state.
+Function _CatabolicFlash()
+  Gains.FlashNow(_flashDown)
+  Training.FlashNow(_flashDown)
+  Inactivity.FlashNow(_flashDanger)
+  RegisterForSingleUpdate(_updateInterval)
+EndFunction
+
+Event OnCatabolicEnter(string _, string __, float ____, Form ___)
+  md.LogVerb("Widget will flash catabolic losses.")
+  GotoState("CatabolicState")
+  _CatabolicFlash()
+EndEvent
+
+Event OnCatabolicExit(string _, string __, float ____, Form ___)
+  md.LogVerb("Widget will stop flashing losses.")
+  GotoState("")
+EndEvent
+
+Event OnUpdate()
+  UnregisterForUpdate()
+EndEvent
+
+State CatabolicState
+  Event OnUpdate()
+    _CatabolicFlash()
+  EndEvent
+EndState
+
+;>========================================================
+;>===                   DISPLAYING                   ===<;
+;>========================================================

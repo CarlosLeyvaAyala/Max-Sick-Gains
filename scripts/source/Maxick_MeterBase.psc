@@ -1,6 +1,6 @@
 Scriptname Maxick_MeterBase extends DM_MeterWidgetScript Hidden
 
-float Property Value
+float Property Position Hidden
   float Function Get()
     return Percent * 100
   EndFunction
@@ -23,8 +23,12 @@ string Function Key()
   return "meter0"
 EndFunction
 
+Function FlashNow(int color)
+  FlashColor = color
+  ForceFlash()
+EndFunction
+
 Function LoadData(int data)
-  Percent = 0.5
   ; FillDirection = "right"
   Width = JMap.getFlt(data, "meterW", 250.0)
   Height = JMap.getFlt(data, "meterH", 20.0)
@@ -34,7 +38,7 @@ Function LoadData(int data)
   X = JValue.solveFlt(data, p + "x")
   Y = JValue.solveFlt(data, p + "y")
   PrimaryColor = JValue.solveInt(data, p + "color")
-  ; _SetGradientColor(JValue.solveInt(data, p + "color"))
+  ; _SetGradientColor(JValue.solveInt(data, p + "color"))   ; Looks too bright
 EndFunction
 
 Function _SetGradientColor(int color)
