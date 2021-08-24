@@ -159,4 +159,5 @@ local function meh3()
 end
 
 print(l.padZeros(4, 21))
-print(l.hourSpan(0.5, 1))
+print(l.inRange(-1.5, -2, -1))
+print(l.floatEquals(99.999, 100, 0.01))

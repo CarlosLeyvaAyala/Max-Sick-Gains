@@ -189,9 +189,9 @@ end
 ---@param widget Widget
 ---@return Widget
 local function _SetFlashColors(widget)
-  widget.flashColors = l.map(widget.flashColors, function (_, k)
+  l.assign(widget.flashColors, l.map(widget.flashColors, function (_, k)
     return flashColors[k]
-  end)
+  end))
   return widget
 end
 

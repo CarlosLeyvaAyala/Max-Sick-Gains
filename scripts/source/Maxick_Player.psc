@@ -10,25 +10,14 @@ Actor Property player Auto
 Maxick_Debug Property md Auto
 Maxick_EventNames Property ev Auto
 
-int hkGains0
-int hkGains100
-int hkAdvance
-int hkRegress
-int hkNextLvl
-int hkPrevLvl
-int hkSlideshow
+;>========================================================
+;>===                  PLAYER DATA                   ===<;
+;>========================================================
 
-float _gains = 0.0
-; Tells the last time the player trained. Value is in ***GAME HOURS***.
-float _lastTrained = 0.0
-float _training = 0.0
-int _stage = 1
-bool _isInCatabolic = false
+;> Public values
 
-Event OnInit()
-  OnGameReload()
-  _lastTrained = Now()
-EndEvent
+; All these were added as functions because constants get baked into game saves.
+; Good look trying to update those without making the new version requiring a new game.
 
 ; How much ***HUMAN HOURS*** must pass without training before you enter _catabolic state_.
 float Function InactivityTimeLimit() Global
@@ -40,6 +29,49 @@ EndFunction
 float Function MaxTraining() Global
   return 12.0
 EndFunction
+
+; How many training points you will lose a day.
+; Notice this is a fixed number, not a percent.
+float Function TrainingDecay() Global
+  return 0.3
+EndFunction
+
+; How many training points you will lose when inactive.
+; Notice this is a fixed number, not a percent.
+float Function TrainingCatabolism() Global
+  return 0.5
+EndFunction
+
+;> Player variables used for calculations
+
+float _gains = 0.0
+; Tells the last time the player trained. Value is in ***GAME HOURS***.
+float _lastTrained = 0.0
+float _lastTrainedWithSacks = 0.0
+float _training = 0.0
+int _stage = 1
+bool _isInCatabolic = false
+int _pollingInterval = 10
+float _lastPollingTime = 0.0
+
+;> Hotkeys
+int hkGains0
+int hkGains100
+int hkAdvance
+int hkRegress
+int hkNextLvl
+int hkPrevLvl
+int hkSlideshow
+
+;>========================================================
+;>===                     SETUP                      ===<;
+;>========================================================
+
+Event OnInit()
+  OnGameReload()
+  _lastTrained = Now()
+  _lastPollingTime = Now()
+EndEvent
 
 Function OnGameReload()
   _EnterTestingMode()
@@ -59,6 +91,7 @@ EndFunction
 ; Registers the events needed for this mod to work.
 Function RegisterEvents()
   RegisterForModEvent(ev.TRAIN, "OnTrain")
+  RegisterForModEvent(ev.GAINS_CHANGE, "OnGainsDelta")
   RegisterForModEvent(ev.TRAINING_CHANGE, "OnTrainDelta")
   RegisterForModEvent(ev.INACTIVITY_CHANGE, "OnInactivityDelta")
   RegisterForModEvent(ev.UPDATE_INTERVAL, "OnGetUpdateInterval")
@@ -68,15 +101,75 @@ EndFunction
 ; Gets the update interval to calculate losses.
 Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
   md.LogVerb("Got update interval: " + interval)
+  _pollingInterval = interval as int
+  _Poll()
 EndEvent
+
+;>========================================================
+;>===              POLLING CALCULATIONS              ===<;
+;>========================================================
+
+; These are done each `n` seconds defined by the player when setting the
+; widget refresh rate in the MCM.
+
+Event OnUpdate()
+  _Poll()
+EndEvent
+
+; Does the few calculations that need to be done every `<n>` seconds:
+; - Training decay.
+; - Losses by inactivity.
+Function _Poll()
+  md.LogVerb("Polling. Time: " + _pollingInterval)
+  _ChangeInactivity(Now() - _lastPollingTime)
+  _DecayTraining()
+  _CatabolicLosses()
+  _lastPollingTime = Now()
+  RegisterForSingleUpdate(_pollingInterval)
+EndFunction
+
+; Apply normal traning decay.
+Function _DecayTraining()
+  float decay = _PollAdjust(TrainingDecay())
+  md.LogVerb("Training decayed by: " + decay)
+  ; Set directly and not by event because we don't want the widget to flash.
+  _training = JValue.evalLuaFlt(0, "return dmlib.forcePositve(" + (_training - decay) + ")")
+  ; This event will be sent anyway if player is in catabolic state.
+  If !_isInCatabolic
+    SendModEvent(ev.TRAINING, "", _training)
+  EndIf
+EndFunction
+
+; Apply losses by inactivity.
+Function _CatabolicLosses()
+  If !_isInCatabolic
+    return
+  EndIf
+  md.LogInfo("Player is losing gains due catabolism.")
+  ev.SendTrainingChange("Catabolism", _PollAdjust(TrainingCatabolism()) * -1)
+  float gainsCatabolism = JValue.evalLuaFlt(0, "return maxick.GainsCatabolism("+ _stage + ")")
+  ev.SendGainsChange(_PollAdjust(gainsCatabolism) * -1)
+EndFunction
+
+; Calculates a value adjusted by polling time.
+float Function _PollAdjust(float decayValue)
+  return (Now() - _lastPollingTime) * decayValue
+EndFunction
 
 ;>========================================================
 ;>===                    TRAINING                    ===<;
 ;>========================================================
 
+; Player got some training.
+Event OnGainsDelta(string _, string __, float delta, Form ___)
+  md.LogVerb("Got gains: " + delta)
+  _SetGains(_gains + delta)
+EndEvent
+
 ; Sets gains to some value and sends the mod event saying gains has a new value.
 Function _SetGains(float value)
   _gains = value
+  ; TODO: Change levels if appropiate. Ignore when in testing mode
   SendModEvent(ev.GAINS, "", value)
 EndFunction
 
@@ -138,7 +231,7 @@ EndFunction
 Function _CatabolicTest(float inactivityPercent)
   md.LogVerb("Inactivity percent: " + inactivityPercent)
   bool old = _isInCatabolic
-  _isInCatabolic = inactivityPercent >= 100
+  _isInCatabolic = JValue.evalLuaInt(0, "return dmlib.floatEquals(" + inactivityPercent + ", 100, 0.01)") as bool
   If _isInCatabolic != old
     md.LogVerb("There was a change in catabolic state.")
     If _isInCatabolic

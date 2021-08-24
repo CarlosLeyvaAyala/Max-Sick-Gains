@@ -213,14 +213,14 @@ end
 
 ---Calculates gains based on training and hours slept.
 ---@param actor Actor
----@param hoursSlept number
----@return number gains
----@return number training
+---@param hoursSlept number In ***human hours***.
+---@return number gains This value will get out to Skyrim as a delta.
+---@return number training This value will be set "as is" in Skyrim; bypassing widget flashes.
 local function _CalcGains(actor, hoursSlept)
   local sleepGains = l.forcePercent(hoursSlept / 10)
   sleepGains = math.min(sleepGains, actor.training)
   local maxGainsPerDay = 100 / _Stage(actor.stage).minDays
-  return actor.gains + sleepGains * maxGainsPerDay, actor.training - sleepGains
+  return sleepGains * maxGainsPerDay, actor.training - sleepGains
 end
 
 ---Sets calulated gains.
@@ -243,23 +243,70 @@ local function _Progress(stage, gains)
   return stage + 1, gains - 100
 end
 
----Progress to next level if conditions are right.
----@param actor Actor
----@return Actor
-local function _MakeProgress(actor)
-  while actor.gains > 100 do
+--- Makes player regress levels if possible. Returns surplus Gains.
+---@param stage integer
+---@param gains number
+---@return integer, number
+local function _Regress(stage, gains)
+  -- Can't descend any further
+  if stage <= 1 then return 1, 0 end
+  -- Gains will be taken care of by the adjusting function
+  return stage - 1, gains
+end
+
+--- Adjusts gains to new state ratio.
+---@param gains number
+---@param oldStage integer
+---@param currentStage integer
+---@return number
+local function _AdjustGainsOnProgress(gains, oldStage, currentStage)
+  return gains * (_Stage(oldStage).minDays / _Stage(currentStage).minDays)
+end
+
+--- Adjusts gains to new state ratio.
+---@param gains number
+---@param oldStage integer
+---@param currentStage integer
+---@return number
+local function _AdjustGainsOnRegress(gains, oldStage, currentStage)
+  if gains >= 0 then return gains end
+  local r = _Stage(oldStage).minDays / _Stage(currentStage).minDays
+  return 100 + (gains * r)
+end
+
+---Changes stage while some predicate is true. Returns adjusted gains for the new stage.
+---@param actor table
+---@param predicate function
+---@param f function
+---@param AdjustGains function
+---@return table
+local function _ChangeStage(actor, predicate, f, AdjustGains)
+  while predicate(actor) do
     local oldStage = actor.stage
-    actor.stage, actor.gains = _Progress(oldStage, actor.gains)
-    -- Adjust gains to new state ratio
-    actor.gains = actor.gains * (_Stage(oldStage).minDays / _Stage(actor.stage).minDays)
+    actor.stage, actor.gains = f(oldStage, actor.gains)
+    actor.gains = AdjustGains(actor.gains, oldStage, actor.stage)
   end
   return actor
 end
-
-
 -- ;>========================================================
 -- ;>===                MAIN PROCESSING                 ===<;
 -- ;>========================================================
+
+---Progress to next level if conditions are right.
+---Returns the new `stage` and `gains` adjusted to that stage.
+---@param actor Actor
+---@return Actor
+function player.Progress(actor)
+  return _ChangeStage(actor, function (x) return x.gains > 100 end, _Progress, _AdjustGainsOnProgress)
+end
+
+---Regress to next level if conditions are right.
+---Returns the new `stage` and `gains` adjusted to that stage.
+---@param actor Actor
+---@return Actor
+function player.Regress(actor)
+  return _ChangeStage(actor, function (x) return x.gains < 0 end, _Regress, _AdjustGainsOnRegress)
+end
 
 ---Attempts to make gains when sleeping.
 ---@param actor Actor
@@ -268,7 +315,6 @@ end
 function player.OnSleep(actor, hoursSlept)
   return l.processActor(actor, {
     l.curryLast(_SetGains, hoursSlept),
-    _MakeProgress
   })
 end
 
@@ -281,10 +327,20 @@ function player.ChangeAppearance(actor)
     _SetBodyslide,
     _SetMuscleDef,
     _SetHeadSize,
-    -- l.tap(serpent.piped)
   })
 end
 
--- player.ChangeAppearance(samplePlayer)
+function player.GetGains(gainsTable)
+end
+
+local sampleGains = {
+  training = 10,
+  gains = -8,
+  stage = 3
+}
+-- print(serpent.block(player.ChangeAppearance(samplePlayer)))
+-- print(serpent.block(player.OnSleep(sampleGains, 10)))
+-- print(serpent.block(player.Progress(sampleGains)))
+-- print(serpent.block(player.Regress(sampleGains)))
 
 return player

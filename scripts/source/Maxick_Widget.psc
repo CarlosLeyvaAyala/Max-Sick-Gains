@@ -36,12 +36,12 @@ Function _LoadData()
 EndFunction
 
 Function _InitWidget(int data)
-  _flashNormal = JMap.getInt(data, "normal")
-  _flashDanger = JMap.getInt(data, "danger")
-  _flashUp = JMap.getInt(data, "up")
-  _flashWarning = JMap.getInt(data, "warning")
-  _flashDown = JMap.getInt(data, "down")
-  _flashCritical = JMap.getInt(data, "critical")
+  _flashNormal = JValue.solveInt(data, ".flashColors.normal", 16777215)
+  _flashDanger = JValue.solveInt(data, ".flashColors.danger", 16739585)
+  _flashUp = JValue.solveInt(data, ".flashColors.up", 5212725)
+  _flashWarning = JValue.solveInt(data, ".flashColors.warning", 16767334)
+  _flashDown = JValue.solveInt(data, ".flashColors.down", 13369344)
+  _flashCritical = JValue.solveInt(data, ".flashColors.critical", 16711680)
 
   _updateInterval = JMap.getInt(data, "widgetRefresh", 10)
   SendModEvent(ev.UPDATE_INTERVAL, "", _updateInterval)
@@ -65,41 +65,50 @@ EndFunction
 Event OnGains(string _, string __, float val, Form ___)
   md.LogVerb("Widget got gains: " + val)
   Gains.Position = val
-  ; Gains.Percent = val / 100
 EndEvent
 
 ; Sets the value but doesn't flash. That's what `OnTrainDelta` and `_CatabolicFlash` are for.
 Event OnTraining(string _, string __, float val, Form ___)
   md.LogVerb("Widget got training: " + val)
-  Training.Percent = val / Maxick_Player.MaxTraining()
+  ; This meter will consider anything 10 and above as 100%
+  Training.Percent = val / 10.0
 EndEvent
 
 ; Sets the value but doesn't flash. That's what `_CatabolicFlash` is for.
 Event OnInactivity(string _, string __, float val, Form ___)
   md.LogVerb("Widget got inactivity: " + val)
   Inactivity.Position = val
-  ; Inactivity.Percent = val / 100
+  ; This is the only exception to the "no flash" rule
+  If (Inactivity.Percent >= 0.8) && (Inactivity.Percent < 1)
+    Inactivity.FlashNow(_flashDanger)
+  EndIf
 EndEvent
 
 ;>========================================================
 ;>===              FLASH, BUT DON'T SET              ===<;
 ;>========================================================
 
+Function _FlashGains(Maxick_MeterBase meter, float delta)
+  If delta > 0
+    meter.FlashNow(_flashUp)
+  EndIf
+EndFunction
+
 ; Flash according to delta.
 Event OnTrainDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Widget got training delta " + delta)
-  If delta > 0
-    Training.FlashNow(_flashUp)
-  ElseIf delta < 0
+  _FlashGains(Training, delta)
+  If delta < 0
     Training.FlashNow(_flashDown)
   EndIf
 EndEvent
 
 ; Flashes meters while in catabolic state.
 Function _CatabolicFlash()
+  md.LogVerb("Widget is flashing catabolic losses.")
   Gains.FlashNow(_flashDown)
   Training.FlashNow(_flashDown)
-  Inactivity.FlashNow(_flashDanger)
+  Inactivity.FlashNow(_flashCritical)
   RegisterForSingleUpdate(_updateInterval)
 EndFunction
 
@@ -121,6 +130,12 @@ EndEvent
 State CatabolicState
   Event OnUpdate()
     _CatabolicFlash()
+  EndEvent
+
+  ; No need to flash losses while in catabolism, since it will be done periodically, anyway.
+  Event OnTrainDelta(string _, string __, float delta, Form ___)
+    md.LogVerb("Widget got training delta " + delta)
+    _FlashGains(Training, delta)
   EndEvent
 EndState
 

@@ -32,7 +32,7 @@ string Property TRAIN = "Maxick_Train" AutoReadOnly
 string Property TRAINING_CHANGE = "Maxick_TrainChange" AutoReadOnly
 {**Activation**: Once `training` and `inactivity` have both been defined and will be sent to being applied on the player.
 
-`strArg`: The skill that went up.
+`strArg`: The skill that went up/down.
 `numArg`: How much training will be added/substracted.
 
 - You can send events that directly affect training without affecting inactivity, so you should send this and `INACTIVITY_CHANGE` in tandem.
@@ -71,9 +71,10 @@ string Property SLEEP = "Maxick_Sleep" AutoReadOnly
 ;>===          EVENTS YOU CAN ONLY RECEIVE           ===<;
 ;>========================================================
 
-; ***NEVER*** SEND THIS EVENTS YOURSELF.
+; ***NEVER*** SEND THIS EVENTS YOURSELF with `SendModEvent()`.
 ; These aren't meant to be sent by addon creators and you may end up breaking this mod.
-; It's completely secure (and encouraged) to listen to these events, though.
+; It's completely secure (and encouraged) to listen to these events using
+; `RegisterForModEvent()`, though.
 
 string Property GAINS = "Maxick_Gains" AutoReadOnly
 {**Activation**: When `gains` are set.
@@ -143,16 +144,44 @@ Function SendPlayerHasTrained(string skillName)
   SendModEvent(TRAIN, skillName)
 EndFunction
 
+; Sends the mod event to change `gains`.
+; **Gains meter will flash**.
+;
+; - `gainsChange`: How much gains will be added/substracted to player.
+Function SendGainsChange(float gainsChange)
+  SendModEvent(GAINS_CHANGE, "", gainsChange)
+EndFunction
+
+; Sends the mod event to change `training`.
+; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
+; **Training meter will flash**.
+;
+; - `skillName`: The skill that went up/down.
+; - `trainingChange`: How much training will be added/substracted to player.
+Function SendTrainingChange(string skillName, float trainingChange)
+  SendModEvent(TRAINING_CHANGE, skillName, trainingChange)
+EndFunction
+
+; Sends the mod event to change `inactivity`.
+; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
+; **Training meter will NOT flash**.
+;
+; - `skillName`: The skill that went up/down.
+; - `inactivityChange`: How much inactivity will be added/substracted ***IN HUMAN HOURS***. Send negative values to simulate training; positive values for simulating inactivity.
+Function SendInactivityChange(string skillName, float inactivityChange)
+  SendModEvent(INACTIVITY_CHANGE, skillName, inactivityChange)
+EndFunction
+
 ; Sends the mod events to change both `training` and `inactivity`.
 ; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 ; **Training meter will flash**, but not the inactivity one.
 ;
-; - `skillName`: The skill that went up.
+; - `skillName`: The skill that went up/down.
 ; - `trainingChange`: How much training will be added/substracted to player.
 ; - `inactivityChange`: How much inactivity will be added/substracted ***IN HUMAN HOURS***. Send negative values to simulate training; positive values for simulating inactivity.
 Function SendTrainingAndInactivity(string skillName, float trainingChange, float inactivityChange)
-  SendModEvent(TRAINING_CHANGE, skillName, trainingChange)
-  SendModEvent(INACTIVITY_CHANGE, skillName, inactivityChange)
+  SendTrainingChange(skillName, trainingChange)
+  SendInactivityChange(skillName, inactivityChange)
 EndFunction
 
 ; Sends an event after sleeping.

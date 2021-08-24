@@ -109,13 +109,20 @@ EndEvent
 
 ; What happens when the player wakes up.
 Event OnSleepStop(bool aInterrupted)
+  If HourSpan(_lastSlept) < 6
+    md.LogCrit("You should wait at least 6 hours in-between sleeping sessions to make gains.")
+    _lastSlept = Now()
+    return
+  EndIf
+
   ; Hours actually slept, since player can cancel or Astrid can kidnap.
   float hoursSlept = HourSpan(_goneToSleepAt)
   If hoursSlept < 1
     Return      ; Do nothing if didn't really slept
   EndIf
   ev.SendSleep(hoursSlept)
-  ; SendModEvent(ev.SLEEP, "", hoursSlept)
+  _lastSlept = Now()
 EndEvent
 
 float _goneToSleepAt
+float _lastSlept

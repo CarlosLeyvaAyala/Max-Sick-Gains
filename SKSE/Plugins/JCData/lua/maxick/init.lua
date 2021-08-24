@@ -25,6 +25,8 @@ maxick.ChangeNpcAppearance = npc.ChangeAppearance
 maxick.ChangePlayerAppearance = player.ChangeAppearance
 maxick.Train = sk.Train
 maxick.OnSleep = player.OnSleep
+maxick.Progress = player.Progress
+maxick.Regress = player.Regress
 maxick.InitWidget = widget.Init
 
 ---Advances to next stage while in testing mode.
@@ -40,5 +42,12 @@ end
 ---@param stage any
 ---@return string
 function maxick.SlideshowStageMsg(stage) return player.LvlUpMessage(stage) end
+
+---Gets how much gains should be lost a day when in _Catabolic state_.
+---@param stage number
+---@return number
+function maxick.GainsCatabolism(stage)
+  return 1 / db.playerStages[stage].minDays * 0.8
+end
 
 return maxick
