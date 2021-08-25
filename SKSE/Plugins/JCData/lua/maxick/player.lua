@@ -8,6 +8,18 @@ local ml = jrequire 'maxick.lib'
 -- local serpent = require("__serpent")
 -- math.randomseed( os.time() )
 
+--- How much time could pass before entering catabolic state.
+---@type HumanHours
+player.inactivityTimeLimit = 48
+--- How much `training` is lost a day due to decay.
+player.trainingDecay = 0.3
+--- How much `training` is lost a day when in _Catabolic State_.
+player.trainingCatabolism = 0.5
+--- How much `gains` are lost a day when in _Catabolic State_.
+player.gainsCatabolism = 0.5
+--- Max amount of training the player can have.
+player.maxTraining = 12
+
 --- Same named variables as [sampleNPC](npc.lua) have the same function. No need to document.
 local samplePlayer = {
   bodySlide = ml.sampleSliders,
@@ -27,7 +39,6 @@ local samplePlayer = {
   --- **`Out`** variable.
   headSize = 1.0,
 }
-
 
 -- Shortcuts to avoid too much words.
 
@@ -68,8 +79,8 @@ end
 ---Returns the message displayed when going up in stages.
 ---@param stage integer Current stage.
 ---@return string
-function player.LvlUpMessage(stage)
-  return _StageChangeMsg(stage, "Your training has paid off. Now you look %s.")
+function player.StageMessage(stage)
+  return _StageChangeMsg(stage, "Now you look %s.")
 end
 
 
@@ -206,6 +217,8 @@ end
 -- ;>===                     GAINS                      ===<;
 -- ;>========================================================
 
+--#region
+
 ---Calculates gains based on training and hours slept.
 ---@param hoursSlept number
 ---@param training number
@@ -232,13 +245,17 @@ local function _MakeGains(hoursSlept, training, stage, gains)
   return gainsDelta, newTraining, gains + gainsDelta
 end
 
+---Tells if this is the last stage.
+---@type fun(stage: integer): boolean
+local LastStage = function (stage) return stage >= #db.playerStages end
+
 --- Makes player advance levels if possible. Returns surplus Gains.
 ---@param stage integer
 ---@param gains number
 ---@return integer, number
 local function _Progress(stage, gains)
   -- Can't go further
-  if stage >= #db.playerStages then return #db.playerStages, 100 end
+  if LastStage(stage) then return #db.playerStages, 100 end
   -- Go to next level as usual
   return stage + 1, gains - 100
 end
@@ -275,8 +292,15 @@ local function _AdjustGainsOnRegress(gains, oldStage, currentStage)
 end
 
 ---Changes stage while some predicate is true. Returns adjusted gains for the new stage.
+---@param stage integer
+---@param gains number
+---@param predicate fun(x: number): boolean
+---@param f function
+---@param AdjustGains function
+---@return number newStage
+---@return number adjustedGains
 local function _ChangeStage(stage, gains, predicate, f, AdjustGains)
-  while predicate(gains) do
+  while predicate(gains, stage) do
     local oldStage = stage
     stage, gains = f(oldStage, gains)
     gains = AdjustGains(gains, oldStage, stage)
@@ -292,14 +316,20 @@ end
 ---@return number newGains
 ---@return integer stageDelta
 local function _AdjustStage(stage, gains)
-  local oldStage
   if gains >= 100 then
-    return _ChangeStage(stage, gains, function (x) return x > 100 end, _Progress, _AdjustGainsOnProgress)
+    return _ChangeStage(stage, gains, function (x, s) return (x >= 100) and not LastStage(s) end, _Progress, _AdjustGainsOnProgress)
   elseif gains < 0 then
     return _ChangeStage(stage, gains, function (x) return x < 0 end, _Regress, _AdjustGainsOnRegress)
   end
   return stage, gains
 end
+
+---Avoids the `training` having invalid values.
+---@param x number
+---@return number
+player.CapTraining = function (x) return l.forceRange(0, player.maxTraining)(x) end
+
+--#endregion
 
 -- ;>========================================================
 -- ;>===                MAIN PROCESSING                 ===<;
@@ -326,18 +356,15 @@ end
 function player.OnSleep(hoursSlept, training, gains, stage)
   local gainsDelta, newTraining, newGains = _MakeGains(hoursSlept, training, stage, gains)
   local newStage, adjustedGains = _AdjustStage(stage, newGains)
+  local Cap = function (g) return l.IfThen(LastStage(newStage), l.forceMax(100)(g), g) end
   return {
     gainsDelta = gainsDelta,
     newTraining = newTraining,
-    newGains = adjustedGains,
+    newGains = Cap(adjustedGains),
     newStage = newStage,
     stageDelta = newStage - stage
   }
 end
-
---- How much time could pass before entering catabolic state.
----@type HumanHours
-player.inactivityTimeLimit = 48
 
 ---Calculates last training time given a change in it.
 ---Used to calculate inactivity.
@@ -353,16 +380,13 @@ function player.HadActivity(now, lastTrained, delta)
   return Cap(capped + delta)
 end
 
-print(player.HadActivity(10, 9, 2))
-
 -- ;>========================================================
 -- ;>===                    POLLING                     ===<;
 -- ;>========================================================
 
-player.trainingDecay = 0.3
-player.trainingCatabolism = 0.5
-player.gainsCatabolism = 0.5
-
+---Calculates losses on `gains` when in _Catabolic State_.
+---@param stage integer
+---@return number
 local function _GainsCatabolism(stage)
   return 1 / db.playerStages[stage].minDays * player.gainsCatabolism
 end
@@ -376,7 +400,7 @@ end
 ---@param inCatabolism SkyrimBool Is player losing because too inactive?
 function player.Polling(now, lastPoll, training, gains, stage, inCatabolism)
   local PollAdjust = function (x) return (now - lastPoll) * x end
-  local Catabolism = function (x) return l.IfThen(l.SkyrimBool(inCatabolism), PollAdjust(x), 0) end
+  local Catabolism = function (x) return l.alt2(l.SkyrimBool(inCatabolism), PollAdjust, l.K(0))(x) end
 
   local trainingDecay = PollAdjust(player.trainingDecay)
   -- Catabolism calculations
@@ -393,7 +417,7 @@ end
 
 -- print(serpent.block(player.Polling(1, 0, 10, 0, 2, 1)))
 -- print(serpent.block(player.ChangeAppearance(samplePlayer)))
--- print(serpent.block(player.OnSleep(10, 0.2, -6, 3)))
+-- print(serpent.block(player.OnSleep(10, 12, 0, 1)))
 -- print(serpent.block(player.CatabolicWaste(3, 6)))
 
 return player

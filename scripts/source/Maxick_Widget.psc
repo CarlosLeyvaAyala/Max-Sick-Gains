@@ -90,14 +90,16 @@ EndEvent
 ;>===              FLASH, BUT DON'T SET              ===<;
 ;>========================================================
 
+; Flashes gains when conditions are right.
 Function _FlashUp(Maxick_MeterBase meter, float delta)
-  If delta > 0
+  If (delta > 0) && (meter.Percent != 1.0)
     meter.FlashNow(_flashUp)
   EndIf
 EndFunction
 
+; Flashes losses when conditions are right.
 Function _FlashDown(Maxick_MeterBase meter, float delta)
-  If delta < 0
+  If (delta < 0) && (meter.Percent != 0)
     meter.FlashNow(_flashDown)
   EndIf
 EndFunction
@@ -122,7 +124,7 @@ Function _CatabolicFlash()
   Gains.FlashNow(_flashDown)
   Training.FlashNow(_flashDown)
   Inactivity.FlashNow(_flashCritical)
-  RegisterForSingleUpdate(_updateInterval)
+  RegisterForSingleUpdate(2)
 EndFunction
 
 Event OnCatabolicEnter(string _, string __, float ____, Form ___)

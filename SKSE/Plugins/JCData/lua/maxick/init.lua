@@ -26,16 +26,16 @@ math.randomseed( os.time() )
 -- ;>========================================================
 
 maxick.ChangeNpcAppearance = npc.ChangeAppearance
-maxick.ChangePlayerAppearance = player.ChangeAppearance
-maxick.Train = sk.Train
-maxick.Progress = player.Progress
-maxick.Regress = player.Regress
 maxick.InitWidget = widget.Init
 
-maxick.trainingDecay = player.trainingDecay
-maxick.Poll = l.toJMap(player.Polling)
+maxick.ChangePlayerAppearance = player.ChangeAppearance
 maxick.OnSleep = l.toJMap(player.OnSleep)
+maxick.Poll = l.toJMap(player.Polling)
+maxick.trainingDecay = player.trainingDecay
 maxick.HadActivity = player.HadActivity
+maxick.CapTraining = player.CapTraining
+
+maxick.Train = l.toJMap(sk.Train)
 
 ---Advances to next stage while in testing mode.
 ---@param stage number
@@ -47,8 +47,8 @@ function maxick.SlideshowNextStage(stage)
 end
 
 ---Shows the _"next stage reached"_ message while in slideshow mode.
----@param stage any
+---@param stage number
 ---@return string
-function maxick.SlideshowStageMsg(stage) return player.LvlUpMessage(stage) end
+function maxick.SlideshowStageMsg(stage) return player.StageMessage(stage) end
 
 return maxick

@@ -193,4 +193,4 @@ hiOrder()
 
 print(l.ToHumanHours(0.5))
 print(l.ToGameHours(12))
-print(l.floatEquals(100, 100.04, 0.1))
+print(l.K(100)(nil))

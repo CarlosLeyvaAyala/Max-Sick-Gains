@@ -3,11 +3,6 @@ local skill = {}
 local l = jrequire 'dmlib'
 -- local serpent = require("__serpent")
 
---   skill = "TwoHanded",
---   training = 0,
---   activity = 0,
--- }
-
 --- Skills belong to `skillTypes`; each one representing a broad type of skills.
 --- * `train` represents the relative contribution of the skill to training, and will be multiplied by the skill's own `train` contribution.
 --- * `activity` is also a relative value. It represents how many days of `activity` this type of skill is worth.
@@ -57,21 +52,23 @@ local function _GetActivity(aSkill)
 end
 
 ---Calculates values when the player trains.
----* `tbl.training` is the player current training.
----* `tbl.lastActive` is how many hours ago (**human hours**) the player had her last training.
----@param tbl table<string, any>
-function skill.Train(tbl)
+---@param skillName string
+---@return table
+function skill.Train(skillName)
   local low = string.lower
   local sk = l.pipe(
-    l.filter(function (_, k) return low(tbl.skill) == low(k) end),
+    l.filter(function (_, k) return low(skillName) == low(k) end),
     l.extractValue
   )(skill.skills)
-  if not sk then return tbl end
-  tbl.training = _GetTraining(sk)
-  tbl.activity = _GetActivity(sk)
-  return tbl
-end
+  local f0 = l.K(0)
+  return {
+    ---@type HumanHours
+    --- Time added to last training time.
+    activity = l.alt(_GetActivity, f0)(sk),
 
--- print(serpent.block(skill.Train(sampleTable)))
+    ---@type number
+    trainingDelta = l.alt(_GetTraining, f0)(sk),
+  }
+end
 
 return skill

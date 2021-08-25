@@ -106,7 +106,7 @@ EndFunction
 
 ; Gets the update interval to calculate losses.
 Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
-  md.LogVerb("Got update interval: " + interval)
+  md.LogVerb("Player got update interval: " + interval)
   _pollingInterval = interval as int
   _Poll()
 EndEvent
@@ -155,7 +155,7 @@ EndFunction
 
 ; Sets `training` and sends the notification.
 Function _SetTraining(float value)
-  _training = value
+  _training = JValue.evalLuaFlt(0, "return maxick.CapTraining(" + value + ")")
   SendModEvent(ev.TRAINING, "", _training)
 EndFunction
 
@@ -219,7 +219,9 @@ Event OnSleep(string _, string __, float hoursSlept, Form ___)
   _SetTraining( JMap.getFlt(data, "newTraining") )
   _SetStage( JMap.getInt(data, "newStage") )
   _SendStageDelta( JMap.getInt(data, "stageDelta") )
-  SendModEvent(ev.GAINS_CHANGE, "", JMap.getFlt(data, "gainsDelta"))
+  SendModEvent( ev.GAINS_CHANGE, "", JMap.getFlt(data, "gainsDelta") )
+
+  ChangeAppearance()
   md.LogVerb("=====================================")
 EndEvent
 
@@ -227,23 +229,18 @@ EndEvent
 Event OnGainsDelta(string _, string __, float delta, Form sender)
   If sender == self
     md.LogVerb("Maxick_Player script got an OnGainsDelta event that it send itself. Skipping value setting because that was already done.")
+    return
   EndIf
-  md.LogVerb("Got gains change: " + delta)
+  md.LogVerb("Player got gains change: " + delta)
   _SetGains(_gains + delta)
 EndEvent
 
 ; Player got some training.
 Event OnTrain(string _, string skillName, float __, Form ___)
   md.LogVerb("Skill level up: " + skillName)
-  ; Get training for a skill from Lua.
-  ; TODO: Clean this mess
-  int data = JMap.object()
-  JMap.setStr(data, "skill", skillName)
-  JMap.setFlt(data, "training", 0.0)
-  JMap.setFlt(data, "activity", 0.0)
-
-  data = JValue.evalLuaObj(data, "return maxick.Train(jobject)")
-  ev.SendTrainingAndActivity(skillName, JMap.getFlt(data, "training"), JMap.getFlt(data, "activity"))
+  ; Get data from Lua
+  int data = LuaTable("maxick.Train", Arg(skillName))
+  ev.SendTrainingAndActivity(skillName, JMap.getFlt(data, "trainingDelta"), JMap.getFlt(data, "activity"))
 EndEvent
 
 ; Got the value for which the `training` will change.
@@ -252,10 +249,7 @@ Event OnTrainDelta(string _, string __, float delta, Form ___)
   If delta == 0
     return
   EndIf
-  float nVal = _training + delta
-  ; TODO: Make a CapTraining function in Lua
-  float capped = JValue.evalLuaFlt(0, "return dmlib.forceRange(0, " + MaxTraining() + ")(" + nVal + ")")
-  _SetTraining(capped)
+  _SetTraining(_training + delta)
 EndEvent
 
 ; Got the value for which the `inactivity` will change.
@@ -387,8 +381,8 @@ EndFunction
 ; What to do when the `hkSlideshow` hotkey was pressed.
 Function _HkSlideshow()
   _SetGains(0.0)
-  ; TODO: Send event when changing stage
-  _stage = 1
+  _SetStage(1)
+  _SetTraining(0)
   ChangeAppearance()
   Debug.Notification("Started slideshow")
   GotoState("Slideshow")
@@ -492,6 +486,7 @@ EndState
 
 ; Changes player appearance.
 Function ChangeAppearance()
+  md.LogInfo("Player is changing appearance.")
   int appearance = _GetAppearance()
   looksHandler.ChangeAppearance(player, appearance)
   ; Make head size obviously wrong when getting default values to help catch bugs.

@@ -32,7 +32,7 @@ string Property TRAIN = "Maxick_Train" AutoReadOnly
 string Property TRAINING_CHANGE = "Maxick_TrainChange" AutoReadOnly
 {**Activation**: Once `training` and `inactivity` have both been defined and will be sent to being applied on the player.
 
-`strArg`: The skill that went up/down.
+`strArg`: The skill that went up/down. ***NEVER SEND STRINGS THAT CONTAIN DOUBLE QUOTES***.
 `numArg`: How much training will be added/substracted.
 
 - You can send events that directly affect training without affecting inactivity, so you should send this and `ACTIVITY_CHANGE` in tandem.
@@ -43,7 +43,7 @@ string Property TRAINING_CHANGE = "Maxick_TrainChange" AutoReadOnly
 string Property ACTIVITY_CHANGE = "Maxick_ActivityChange" AutoReadOnly
 {**Activation**: Once `training` and `inactivity` have both been defined and will be sent to being applied on the player.
 
-`strArg`: The skill that went up.
+`strArg`: The skill that went up. ***NEVER SEND STRINGS THAT CONTAIN DOUBLE QUOTES***.
 `numArg`: How much inactivity will be added/substracted (***HUMAN HOURS***). Send a positive value to simulate training. Negative to simulate inactivity.
 
 - You can send events that directly affect `training` without affecting `inactivity`, so you should send this and `TRAINING_CHANGE` in tandem.
@@ -169,7 +169,7 @@ EndFunction
 ; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 ; **Training meter will flash**.
 ;
-; - `skillName`: The skill that went up/down.
+; - `skillName`: The skill that went up/down. ***NEVER SEND STRINGS THAT CONTAIN DOUBLE QUOTES***.
 ; - `trainingChange`: How much training will be added/substracted to player.
 Function SendTrainingChange(string skillName, float trainingChange)
   SendModEvent(TRAINING_CHANGE, skillName, trainingChange)
@@ -179,7 +179,7 @@ EndFunction
 ; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 ; **Training meter will NOT flash**.
 ;
-; - `skillName`: The skill that went up/down.
+; - `skillName`: The skill that went up/down. ***NEVER SEND STRINGS THAT CONTAIN DOUBLE QUOTES***.
 ; - `activityChange`: How much activity will be added/substracted ***IN HUMAN HOURS***. Send positive values to simulate training; negative values for simulating inactivity.
 Function SendActivityChange(string skillName, float activityChange)
   SendModEvent(ACTIVITY_CHANGE, skillName, activityChange)
