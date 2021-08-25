@@ -1,4 +1,5 @@
 Scriptname Maxick_Widget extends Quest
+{Deals with everything related to display status information to the player.}
 
 import Maxick_Utils
 
@@ -8,7 +9,7 @@ Maxick_Meter01 Property Gains Auto
 Maxick_Meter02 Property Training Auto
 Maxick_Meter03 Property Inactivity Auto
 
-int _updateInterval = 5
+int _updateInterval = 2
 int _flashNormal
 int _flashDanger
 int _flashUp
@@ -43,18 +44,19 @@ Function _InitWidget(int data)
   _flashDown = JValue.solveInt(data, ".flashColors.down", 13369344)
   _flashCritical = JValue.solveInt(data, ".flashColors.critical", 16711680)
 
-  _updateInterval = JMap.getInt(data, "widgetRefresh", 10)
-  SendModEvent(ev.UPDATE_INTERVAL, "", _updateInterval)
+  _updateInterval = 2
+  md.LogVerb("Widget update interval: " + _updateInterval)
 EndFunction
 
 Function _RegisterEvents()
   RegisterForModEvent(ev.GAINS, "OnGains")
   RegisterForModEvent(ev.TRAINING, "OnTraining")
   RegisterForModEvent(ev.INACTIVITY, "OnInactivity")
-  ; TODO: OnGainsDelta
+  RegisterForModEvent(ev.GAINS_CHANGE, "OnGainsDelta")
   RegisterForModEvent(ev.TRAINING_CHANGE, "OnTrainDelta")
   RegisterForModEvent(ev.CATABOLISM_START, "OnCatabolicEnter")
   RegisterForModEvent(ev.CATABOLISM_END, "OnCatabolicExit")
+  RegisterForModEvent(ev.PLAYER_STAGE_DELTA, "OnChangeStage")
 EndFunction
 
 ;>========================================================
@@ -88,19 +90,30 @@ EndEvent
 ;>===              FLASH, BUT DON'T SET              ===<;
 ;>========================================================
 
-Function _FlashGains(Maxick_MeterBase meter, float delta)
+Function _FlashUp(Maxick_MeterBase meter, float delta)
   If delta > 0
     meter.FlashNow(_flashUp)
   EndIf
 EndFunction
 
+Function _FlashDown(Maxick_MeterBase meter, float delta)
+  If delta < 0
+    meter.FlashNow(_flashDown)
+  EndIf
+EndFunction
+
+; Flash according to delta.
+Event OnGainsDelta(string _, string __, float delta, Form ___)
+  md.LogVerb("Widget got gains delta " + delta)
+  _FlashUp(Gains, delta)
+  _flashDown(Gains, delta)
+EndEvent
+
 ; Flash according to delta.
 Event OnTrainDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Widget got training delta " + delta)
-  _FlashGains(Training, delta)
-  If delta < 0
-    Training.FlashNow(_flashDown)
-  EndIf
+  _FlashUp(Training, delta)
+  _FlashDown(Training, delta)
 EndEvent
 
 ; Flashes meters while in catabolic state.
@@ -133,12 +146,30 @@ State CatabolicState
   EndEvent
 
   ; No need to flash losses while in catabolism, since it will be done periodically, anyway.
+  Event OnGainsDelta(string _, string __, float delta, Form ___)
+    md.LogVerb("Widget got gains delta " + delta)
+    _FlashUp(Gains, delta)
+  EndEvent
+
+  ; No need to flash losses while in catabolism, since it will be done periodically, anyway.
   Event OnTrainDelta(string _, string __, float delta, Form ___)
     md.LogVerb("Widget got training delta " + delta)
-    _FlashGains(Training, delta)
+    _FlashUp(Training, delta)
   EndEvent
 EndState
 
 ;>========================================================
 ;>===                   DISPLAYING                   ===<;
 ;>========================================================
+
+Event OnChangeStage(string _, string __, float delta, Form ___)
+  int d = delta as int
+  md.LogVerb("Widget got Player Stage change: " + d)
+  If d > 0
+    Debug.Notification("Your hard training has paid off!")
+  ElseIf d < 0
+    Debug.Notification("You lost gains, but don't fret; you can always come back.")
+  Else
+    return
+  EndIf
+EndEvent

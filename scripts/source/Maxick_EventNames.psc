@@ -35,18 +35,18 @@ string Property TRAINING_CHANGE = "Maxick_TrainChange" AutoReadOnly
 `strArg`: The skill that went up/down.
 `numArg`: How much training will be added/substracted.
 
-- You can send events that directly affect training without affecting inactivity, so you should send this and `INACTIVITY_CHANGE` in tandem.
+- You can send events that directly affect training without affecting inactivity, so you should send this and `ACTIVITY_CHANGE` in tandem.
 - Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 - This event makes the widget flash.
 }
 
-string Property INACTIVITY_CHANGE = "Maxick_InactivityChange" AutoReadOnly
+string Property ACTIVITY_CHANGE = "Maxick_ActivityChange" AutoReadOnly
 {**Activation**: Once `training` and `inactivity` have both been defined and will be sent to being applied on the player.
 
 `strArg`: The skill that went up.
-`numArg`: How much inactivity will be added/substracted (***HUMAN HOURS***). Send a negative value to simulate training.
+`numArg`: How much inactivity will be added/substracted (***HUMAN HOURS***). Send a positive value to simulate training. Negative to simulate inactivity.
 
-- You can send events that directly affect training without affecting training, so you should send this and `TRAINING_CHANGE` in tandem.
+- You can send events that directly affect `training` without affecting `inactivity`, so you should send this and `TRAINING_CHANGE` in tandem.
 - Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 - This event **DOES NOT** make the widget flash.
 }
@@ -99,6 +99,19 @@ string Property INACTIVITY = "Maxick_Inactivity" AutoReadOnly
 `numArg`: The new value for `inactivity` `[0..100]`.
 
 - This event adjusts the widget value display.}
+
+string Property PLAYER_STAGE_DELTA = "Maxick_PlayerStageDelta" AutoReadOnly
+{**Activation**: When a new `playerStage` is set.
+
+`int numArg`: How many stages have changed. Negative when regressing.
+
+- This event makes the widget to show a message saying that Player Stage has changed.}
+
+string Property PLAYER_STAGE = "Maxick_PlayerStage" AutoReadOnly
+{**Activation**: When a new `playerStage` is set.
+
+`int numArg`: The new Player Stage.
+}
 
 string Property CATABOLISM_START = "Maxick_CatabolismStart" AutoReadOnly
 {**Activation**: When the player enters catabolic state and starts to lose gains.
@@ -167,21 +180,20 @@ EndFunction
 ; **Training meter will NOT flash**.
 ;
 ; - `skillName`: The skill that went up/down.
-; - `inactivityChange`: How much inactivity will be added/substracted ***IN HUMAN HOURS***. Send negative values to simulate training; positive values for simulating inactivity.
-Function SendInactivityChange(string skillName, float inactivityChange)
-  SendModEvent(INACTIVITY_CHANGE, skillName, inactivityChange)
+; - `activityChange`: How much activity will be added/substracted ***IN HUMAN HOURS***. Send positive values to simulate training; negative values for simulating inactivity.
+Function SendActivityChange(string skillName, float activityChange)
+  SendModEvent(ACTIVITY_CHANGE, skillName, activityChange)
 EndFunction
 
 ; Sends the mod events to change both `training` and `inactivity`.
 ; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 ; **Training meter will flash**, but not the inactivity one.
 ;
-; - `skillName`: The skill that went up/down.
-; - `trainingChange`: How much training will be added/substracted to player.
-; - `inactivityChange`: How much inactivity will be added/substracted ***IN HUMAN HOURS***. Send negative values to simulate training; positive values for simulating inactivity.
-Function SendTrainingAndInactivity(string skillName, float trainingChange, float inactivityChange)
+; -  See `SendTrainingChange()`.
+; -  See `SendActivityChange()`.
+Function SendTrainingAndActivity(string skillName, float trainingChange, float activityChange)
   SendTrainingChange(skillName, trainingChange)
-  SendInactivityChange(skillName, inactivityChange)
+  SendActivityChange(skillName, activityChange)
 EndFunction
 
 ; Sends an event after sleeping.

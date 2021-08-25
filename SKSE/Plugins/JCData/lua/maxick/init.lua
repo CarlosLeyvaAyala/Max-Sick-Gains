@@ -3,6 +3,7 @@
 -- package.path = package.path..";F:/Skyrim SE/MO2/mods/Max Sick Gains/SKSE/Plugins/JCData/lua/maxick/?.lua"
 -- package.path = package.path..";F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src/SKSE/Plugins/JCData/lua/maxick/?.lua"
 
+local l = jrequire 'dmlib'
 local npc = jrequire 'maxick.npc'
 local player = jrequire 'maxick.player'
 local db = jrequire 'maxick.database'
@@ -17,6 +18,9 @@ math.randomseed( os.time() )
 ---|'0'
 ---|'1'
 
+---@alias SkyrimHours number Hours as fractions of a day.
+---@alias HumanHours number Hours as numbers in a day.
+
 -- ;>========================================================
 -- ;>===              PUBLISHED FUNCTIONS               ===<;
 -- ;>========================================================
@@ -24,10 +28,14 @@ math.randomseed( os.time() )
 maxick.ChangeNpcAppearance = npc.ChangeAppearance
 maxick.ChangePlayerAppearance = player.ChangeAppearance
 maxick.Train = sk.Train
-maxick.OnSleep = player.OnSleep
 maxick.Progress = player.Progress
 maxick.Regress = player.Regress
 maxick.InitWidget = widget.Init
+
+maxick.trainingDecay = player.trainingDecay
+maxick.Poll = l.toJMap(player.Polling)
+maxick.OnSleep = l.toJMap(player.OnSleep)
+maxick.HadActivity = player.HadActivity
 
 ---Advances to next stage while in testing mode.
 ---@param stage number
@@ -42,12 +50,5 @@ end
 ---@param stage any
 ---@return string
 function maxick.SlideshowStageMsg(stage) return player.LvlUpMessage(stage) end
-
----Gets how much gains should be lost a day when in _Catabolic state_.
----@param stage number
----@return number
-function maxick.GainsCatabolism(stage)
-  return 1 / db.playerStages[stage].minDays * 0.8
-end
 
 return maxick

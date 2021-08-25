@@ -343,7 +343,7 @@ $$ Gains=\frac{9}{10} \cdot \frac{100}{120} = 0.75$$
 
 When inactive, you will lose `80%` of `maxGainsPerDay` for each day being inactive.
 
-### Examples
+### Examples 1
 
 |`maxDays`|Losses per day|
 --|--

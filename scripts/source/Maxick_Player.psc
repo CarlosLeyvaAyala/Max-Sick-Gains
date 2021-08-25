@@ -1,3 +1,9 @@
+; Naming conventions:
+; Names starting with a single _ are meant to be private. Never call them from outside.
+; Names starting with double __ should never be called by themselves.
+;   They are part of larger calculations that needed to be done apart for sake of clarity.
+;   Wouldn't be necessary to use them if Papyrus wasn't so limited.
+
 Scriptname Maxick_Player extends Quest
 {Player management}
 
@@ -33,7 +39,7 @@ EndFunction
 ; How many training points you will lose a day.
 ; Notice this is a fixed number, not a percent.
 float Function TrainingDecay() Global
-  return 0.3
+  return JValue.evalLuaFlt(0, "return maxick.trainingDecay")
 EndFunction
 
 ; How many training points you will lose when inactive.
@@ -93,7 +99,7 @@ Function RegisterEvents()
   RegisterForModEvent(ev.TRAIN, "OnTrain")
   RegisterForModEvent(ev.GAINS_CHANGE, "OnGainsDelta")
   RegisterForModEvent(ev.TRAINING_CHANGE, "OnTrainDelta")
-  RegisterForModEvent(ev.INACTIVITY_CHANGE, "OnInactivityDelta")
+  RegisterForModEvent(ev.ACTIVITY_CHANGE, "OnInactivityDelta")
   RegisterForModEvent(ev.UPDATE_INTERVAL, "OnGetUpdateInterval")
   RegisterForModEvent(ev.SLEEP, "OnSleep")
 EndFunction
@@ -121,117 +127,70 @@ EndEvent
 ; - Losses by inactivity.
 Function _Poll()
   md.LogVerb("Polling. Time: " + _pollingInterval)
-  _ChangeInactivity(Now() - _lastPollingTime)
-  _DecayTraining()
-  _CatabolicLosses()
+
+  _InactivityCalculation()
+
+  ; Decay and losses calculation
+  int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
+  _SetGains( JMap.getFlt(data, "newGains") )
+  _SetTraining( JMap.getFlt(data, "newTraining") )
+  _SetStage( JMap.getInt(data, "newStage") )
+  _SendStageDelta( JMap.getInt(data, "stageDelta") )
+
   _lastPollingTime = Now()
   RegisterForSingleUpdate(_pollingInterval)
-EndFunction
-
-; Apply normal traning decay.
-Function _DecayTraining()
-  float decay = _PollAdjust(TrainingDecay())
-  md.LogVerb("Training decayed by: " + decay)
-  ; Set directly and not by event because we don't want the widget to flash.
-  _training = JValue.evalLuaFlt(0, "return dmlib.forcePositve(" + (_training - decay) + ")")
-  ; This event will be sent anyway if player is in catabolic state.
-  If !_isInCatabolic
-    SendModEvent(ev.TRAINING, "", _training)
-  EndIf
-EndFunction
-
-; Apply losses by inactivity.
-Function _CatabolicLosses()
-  If !_isInCatabolic
-    return
-  EndIf
-  md.LogInfo("Player is losing gains due catabolism.")
-  ev.SendTrainingChange("Catabolism", _PollAdjust(TrainingCatabolism()) * -1)
-  float gainsCatabolism = JValue.evalLuaFlt(0, "return maxick.GainsCatabolism("+ _stage + ")")
-  ev.SendGainsChange(_PollAdjust(gainsCatabolism) * -1)
-EndFunction
-
-; Calculates a value adjusted by polling time.
-float Function _PollAdjust(float decayValue)
-  return (Now() - _lastPollingTime) * decayValue
 EndFunction
 
 ;>========================================================
 ;>===                    TRAINING                    ===<;
 ;>========================================================
 
-; Player got some training.
-Event OnGainsDelta(string _, string __, float delta, Form ___)
-  md.LogVerb("Got gains: " + delta)
-  _SetGains(_gains + delta)
-EndEvent
+;> Value setting
 
-; Sets gains to some value and sends the mod event saying gains has a new value.
+; Sets `gains` to some value and sends the mod event saying `gains` has a new value.
 Function _SetGains(float value)
   _gains = value
-  ; TODO: Change levels if appropiate. Ignore when in testing mode
-  SendModEvent(ev.GAINS, "", value)
+  SendModEvent(ev.GAINS, "", _gains)
 EndFunction
 
-; Player got some training.
-Event OnTrain(string _, string skillName, float __, Form ___)
-  md.LogVerb("Skill level up: " + skillName)
-  _GetTraining(skillName)
-EndEvent
-
-; Gets training for a skill from Lua.
-Function _GetTraining(string skillName)
-  int data = JMap.object()
-  JMap.setStr(data, "skill", skillName)
-  JMap.setFlt(data, "training", 0.0)
-  JMap.setFlt(data, "activity", 0.0)
-
-  data = JValue.evalLuaObj(data, "return maxick.Train(jobject)")
-  ev.SendTrainingAndInactivity(skillName, JMap.getFlt(data, "training"), -JMap.getFlt(data, "activity"))
-EndFunction
-
-; Got the value for which the `training` will change.
-Event OnTrainDelta(string _, string __, float delta, Form ___)
-  md.LogVerb("Training change: " + delta)
-  float nVal = _training + delta
-  _training = JValue.evalLuaFlt(0, "return dmlib.forceRange(0, " + MaxTraining() + ")(" + nVal + ")")
+; Sets `training` and sends the notification.
+Function _SetTraining(float value)
+  _training = value
   SendModEvent(ev.TRAINING, "", _training)
-EndEvent
+EndFunction
 
-; Got the value for which the `inactivity` will change.
-Event OnInactivityDelta(string _, string __, float delta, Form ___)
-  md.LogVerb("Inactivity change: " + delta)
-  _ChangeInactivity(ToGameHours(delta))
-EndEvent
+; Sets `player stage` and sends the notification.
+Function _SetStage(int value)
+  _stage = value
+  SendModEvent(ev.PLAYER_STAGE, "", _stage)
+EndFunction
 
-; Changes `inactivity` and sends the event saying `inactivity` has changed.
-Function _ChangeInactivity(float deltaIngameHours)
-  float now = Now()
-  ; Make sure inactivity is within acceptable values before updating
-  _lastTrained = _CapInactivity(now, _lastTrained)
-  ; Update value
-  _lastTrained = _CapInactivity(now, _lastTrained - deltaIngameHours)
+;> Other
+
+; Sends a notification saying if player gained or lost a fitness lvl (_Player Stage_).
+Function _SendStageDelta(int delta)
+  If delta != 0
+    md.LogInfo("Player changed stage by " + delta)
+    SendModEvent(ev.PLAYER_STAGE_DELTA, "", delta)
+  EndIf
+EndFunction
+
+; Calculates inactivity as a number in `[0..100]` and then tests if player entered _Catabolic State_.
+Function _InactivityCalculation()
+  ; Never allow inactivity get out of bounds
+  _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", 0)")
 
   float inactivityPercent = HourSpan(_lastTrained) / InactivityTimeLimit() * 100
   SendModEvent(ev.INACTIVITY, "", inactivityPercent)
-  ; Didn't catch this as an event because we want to test this as soon as possible
-  ; and other mod authors shouldn't be sending `INACTIVITY`, anyway.
   _CatabolicTest(inactivityPercent)
-EndFunction
-
-; Inactivity can't exceed `Now()` because that would mean the player trained worth
-; more than the current time; but can't be lower than the inactivity time limit, because
-; we want to get out of catabolic state as soon as the player trains.
-float Function _CapInactivity(float now, float newVal)
-  float maxInactive = now - ToGameHours(InactivityTimeLimit())
-  return JValue.evalLuaFlt(0, "return dmlib.forceRange(" + maxInactive + ", " + now + ")(" + newVal + ")")
 EndFunction
 
 ; Tests if player is in catabolic state and sends events accordingly.
 Function _CatabolicTest(float inactivityPercent)
   md.LogVerb("Inactivity percent: " + inactivityPercent)
   bool old = _isInCatabolic
-  _isInCatabolic = JValue.evalLuaInt(0, "return dmlib.floatEquals(" + inactivityPercent + ", 100, 0.01)") as bool
+  ; Don't use 100 due to float and time imprecision
+  _isInCatabolic = inactivityPercent >= 99.8
   If _isInCatabolic != old
     md.LogVerb("There was a change in catabolic state.")
     If _isInCatabolic
@@ -244,9 +203,66 @@ Function _CatabolicTest(float inactivityPercent)
   EndIf
 EndFunction
 
+;>========================================================
+;>===               EVENTS FROM ADDONS               ===<;
+;>========================================================
+
 ; Player woke up.
+; - Set training.
+; - Send gains delta.
 Event OnSleep(string _, string __, float hoursSlept, Form ___)
+  md.LogVerb("=====================================")
   md.LogVerb("Hours slept: " + hoursSlept)
+
+  int data = LuaTable("maxick.OnSleep", hoursSlept, _training, _gains, _stage)
+  _SetGains( JMap.getFlt(data, "newGains") )
+  _SetTraining( JMap.getFlt(data, "newTraining") )
+  _SetStage( JMap.getInt(data, "newStage") )
+  _SendStageDelta( JMap.getInt(data, "stageDelta") )
+  SendModEvent(ev.GAINS_CHANGE, "", JMap.getFlt(data, "gainsDelta"))
+  md.LogVerb("=====================================")
+EndEvent
+
+; Player got direct `gains` from an addon.
+Event OnGainsDelta(string _, string __, float delta, Form sender)
+  If sender == self
+    md.LogVerb("Maxick_Player script got an OnGainsDelta event that it send itself. Skipping value setting because that was already done.")
+  EndIf
+  md.LogVerb("Got gains change: " + delta)
+  _SetGains(_gains + delta)
+EndEvent
+
+; Player got some training.
+Event OnTrain(string _, string skillName, float __, Form ___)
+  md.LogVerb("Skill level up: " + skillName)
+  ; Get training for a skill from Lua.
+  ; TODO: Clean this mess
+  int data = JMap.object()
+  JMap.setStr(data, "skill", skillName)
+  JMap.setFlt(data, "training", 0.0)
+  JMap.setFlt(data, "activity", 0.0)
+
+  data = JValue.evalLuaObj(data, "return maxick.Train(jobject)")
+  ev.SendTrainingAndActivity(skillName, JMap.getFlt(data, "training"), JMap.getFlt(data, "activity"))
+EndEvent
+
+; Got the value for which the `training` will change.
+Event OnTrainDelta(string _, string __, float delta, Form ___)
+  md.LogVerb("Training change: " + delta)
+  If delta == 0
+    return
+  EndIf
+  float nVal = _training + delta
+  ; TODO: Make a CapTraining function in Lua
+  float capped = JValue.evalLuaFlt(0, "return dmlib.forceRange(0, " + MaxTraining() + ")(" + nVal + ")")
+  _SetTraining(capped)
+EndEvent
+
+; Got the value for which the `inactivity` will change.
+Event OnInactivityDelta(string _, string __, float delta, Form ___)
+  md.LogVerb("Inactivity change: " + delta)
+  _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", " + ToGameHours(delta) +")")
+  _InactivityCalculation()
 EndEvent
 
 ;>========================================================
@@ -432,6 +448,9 @@ State TestingMode
     md.LogVerb("Can't gain while testing")
   EndEvent
 
+  Event OnGainsDelta(string _, string __, float delta, Form sender)
+    md.LogVerb("Can't gain while testing")
+  EndEvent
 EndState
 
 State Slideshow
@@ -461,6 +480,10 @@ State Slideshow
   Event OnSleep(string _, string __, float ____, Form ___)
     md.LogVerb("Can't gain while testing")
   EndEvent
+
+  Event OnGainsDelta(string _, string __, float delta, Form sender)
+    md.LogVerb("Can't gain while testing")
+  EndEvent
 EndState
 
 ;>========================================================
@@ -487,10 +510,6 @@ int Function _InitData()
   JMap.setFlt(data, "training", 0)
   JMap.setFlt(data, "gains", _gains)
   JMap.setFlt(data, "headSize", 0.0)
-
-  ; Events
-  JMap.setInt(data, "evChangeStage", 0)
-
   return data
 EndFunction
 

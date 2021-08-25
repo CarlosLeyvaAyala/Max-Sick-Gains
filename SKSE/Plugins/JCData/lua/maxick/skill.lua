@@ -3,7 +3,6 @@ local skill = {}
 local l = jrequire 'dmlib'
 -- local serpent = require("__serpent")
 
--- local sampleTable = {
 --   skill = "TwoHanded",
 --   training = 0,
 --   activity = 0,
@@ -16,7 +15,7 @@ skill.skillTypes = {
   phys = {train = 0.5, activity = 0.8},
   mag = {train = 0.1, activity = 0.3},
   sack = {train = 1, activity = 2},
-  sex = {train = 0.005, activity = 0.2}
+  sex = {train = 10.005, activity = 0.2}
 }
 
 --- Represents a skill the player just leveled up.

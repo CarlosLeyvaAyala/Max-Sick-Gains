@@ -158,6 +158,39 @@ local function meh3()
   end
 end
 
-print(l.padZeros(4, 21))
-print(l.inRange(-1.5, -2, -1))
-print(l.floatEquals(99.999, 100, 0.01))
+
+local function outer(x)
+  local function inlineVoid()
+    print ("Printed", x)
+  end
+  local anonInlineVoid = function (a)
+    print("Anon printed", a)
+  end
+  inlineVoid()
+  anonInlineVoid(x)
+
+  local function add(y)
+    return x + y
+  end
+  local r = add(10)
+  inlineVoid()
+  anonInlineVoid(r)
+
+  local addAnon = function (y) return x + y end
+  inlineVoid()
+  anonInlineVoid(addAnon(20))
+
+  return function ()
+    print("Result print", x)
+  end
+end
+
+local hiOrder = outer(5)
+-- inlineVoid()   -- <==  Trying to do that is an error
+
+print("\nWhen you evaluate the resulting anonymous function:")
+hiOrder()
+
+print(l.ToHumanHours(0.5))
+print(l.ToGameHours(12))
+print(l.floatEquals(100, 100.04, 0.1))

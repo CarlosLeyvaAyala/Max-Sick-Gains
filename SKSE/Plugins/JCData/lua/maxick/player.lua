@@ -26,11 +26,6 @@ local samplePlayer = {
   --- Calculated head size.
   --- **`Out`** variable.
   headSize = 1.0,
-
-  --;> Variables used to send mod events
-
-  --- When changing player stage, tells how many stages went forward or back.
-  evChangeStage = 0
 }
 
 
@@ -212,24 +207,29 @@ end
 -- ;>========================================================
 
 ---Calculates gains based on training and hours slept.
----@param actor Actor
----@param hoursSlept number In ***human hours***.
----@return number gains This value will get out to Skyrim as a delta.
+---@param hoursSlept number
+---@param training number
+---@param stage integer
+---@return number gainsDelta This value will get out to Skyrim as a delta.
 ---@return number training This value will be set "as is" in Skyrim; bypassing widget flashes.
-local function _CalcGains(actor, hoursSlept)
+local function _CalcGains(hoursSlept, training, stage)
   local sleepGains = l.forcePercent(hoursSlept / 10)
-  sleepGains = math.min(sleepGains, actor.training)
-  local maxGainsPerDay = 100 / _Stage(actor.stage).minDays
-  return sleepGains * maxGainsPerDay, actor.training - sleepGains
+  sleepGains = math.min(sleepGains, training)
+  local maxGainsPerDay = 100 / _Stage(stage).minDays
+  return sleepGains * maxGainsPerDay, training - sleepGains
 end
 
----Sets calulated gains.
----@param actor Actor
+---Makes gains when sleeping.
 ---@param hoursSlept number
----@return Actor
-local function _SetGains(actor, hoursSlept)
-  actor.gains, actor.training = _CalcGains(actor, hoursSlept)
-  return actor
+---@param training number
+---@param stage integer
+---@param gains number
+---@return number gainsDelta
+---@return number newTraining
+---@return number newGains
+local function _MakeGains(hoursSlept, training, stage, gains)
+  local gainsDelta, newTraining = _CalcGains(hoursSlept, training, stage)
+  return gainsDelta, newTraining, gains + gainsDelta
 end
 
 --- Makes player advance levels if possible. Returns surplus Gains.
@@ -254,7 +254,7 @@ local function _Regress(stage, gains)
   return stage - 1, gains
 end
 
---- Adjusts gains to new state ratio.
+--- Adjusts gains to new stage ratio.
 ---@param gains number
 ---@param oldStage integer
 ---@param currentStage integer
@@ -263,7 +263,7 @@ local function _AdjustGainsOnProgress(gains, oldStage, currentStage)
   return gains * (_Stage(oldStage).minDays / _Stage(currentStage).minDays)
 end
 
---- Adjusts gains to new state ratio.
+--- Adjusts gains to new stage ratio.
 ---@param gains number
 ---@param oldStage integer
 ---@param currentStage integer
@@ -275,48 +275,35 @@ local function _AdjustGainsOnRegress(gains, oldStage, currentStage)
 end
 
 ---Changes stage while some predicate is true. Returns adjusted gains for the new stage.
----@param actor table
----@param predicate function
----@param f function
----@param AdjustGains function
----@return table
-local function _ChangeStage(actor, predicate, f, AdjustGains)
-  while predicate(actor) do
-    local oldStage = actor.stage
-    actor.stage, actor.gains = f(oldStage, actor.gains)
-    actor.gains = AdjustGains(actor.gains, oldStage, actor.stage)
+local function _ChangeStage(stage, gains, predicate, f, AdjustGains)
+  while predicate(gains) do
+    local oldStage = stage
+    stage, gains = f(oldStage, gains)
+    gains = AdjustGains(gains, oldStage, stage)
   end
-  return actor
+  return stage, gains
 end
+
+---Returns a new stage and adjusted gains depending on current `gains`.
+---Can gain or lose levels.
+---@param stage integer
+---@param gains number
+---@return integer newStage
+---@return number newGains
+---@return integer stageDelta
+local function _AdjustStage(stage, gains)
+  local oldStage
+  if gains >= 100 then
+    return _ChangeStage(stage, gains, function (x) return x > 100 end, _Progress, _AdjustGainsOnProgress)
+  elseif gains < 0 then
+    return _ChangeStage(stage, gains, function (x) return x < 0 end, _Regress, _AdjustGainsOnRegress)
+  end
+  return stage, gains
+end
+
 -- ;>========================================================
 -- ;>===                MAIN PROCESSING                 ===<;
 -- ;>========================================================
-
----Progress to next level if conditions are right.
----Returns the new `stage` and `gains` adjusted to that stage.
----@param actor Actor
----@return Actor
-function player.Progress(actor)
-  return _ChangeStage(actor, function (x) return x.gains > 100 end, _Progress, _AdjustGainsOnProgress)
-end
-
----Regress to next level if conditions are right.
----Returns the new `stage` and `gains` adjusted to that stage.
----@param actor Actor
----@return Actor
-function player.Regress(actor)
-  return _ChangeStage(actor, function (x) return x.gains < 0 end, _Regress, _AdjustGainsOnRegress)
-end
-
----Attempts to make gains when sleeping.
----@param actor Actor
----@param hoursSlept number
----@return Actor
-function player.OnSleep(actor, hoursSlept)
-  return l.processActor(actor, {
-    l.curryLast(_SetGains, hoursSlept),
-  })
-end
 
 ---Makes the calculations needed to change the player's appearance.
 ---@param actor Actor
@@ -330,17 +317,83 @@ function player.ChangeAppearance(actor)
   })
 end
 
-function player.GetGains(gainsTable)
+---Attempts to make gains when sleeping.
+---@param hoursSlept number
+---@param training number
+---@param gains number
+---@param stage integer
+---@return table
+function player.OnSleep(hoursSlept, training, gains, stage)
+  local gainsDelta, newTraining, newGains = _MakeGains(hoursSlept, training, stage, gains)
+  local newStage, adjustedGains = _AdjustStage(stage, newGains)
+  return {
+    gainsDelta = gainsDelta,
+    newTraining = newTraining,
+    newGains = adjustedGains,
+    newStage = newStage,
+    stageDelta = newStage - stage
+  }
 end
 
-local sampleGains = {
-  training = 10,
-  gains = -8,
-  stage = 3
-}
+--- How much time could pass before entering catabolic state.
+---@type HumanHours
+player.inactivityTimeLimit = 48
+
+---Calculates last training time given a change in it.
+---Used to calculate inactivity.
+---@param now SkyrimHours Captain Obvious to the rescue!
+---@param lastTrained SkyrimHours Captain Obvious to the rescue!
+---@param delta SkyrimHours Maybe doesn't have sense to make negative values. Let's what people comes out with.
+---@return SkyrimHours newLastTrained Adjusted value for activity.
+function player.HadActivity(now, lastTrained, delta)
+  local Cap = function (x) return l.forceRange(l.ToGameHours(player.inactivityTimeLimit), now)(x) end
+  -- Make sure inactivity is within acceptable values before updating
+  local capped = Cap(lastTrained)
+  -- Update value
+  return Cap(capped + delta)
+end
+
+print(player.HadActivity(10, 9, 2))
+
+-- ;>========================================================
+-- ;>===                    POLLING                     ===<;
+-- ;>========================================================
+
+player.trainingDecay = 0.3
+player.trainingCatabolism = 0.5
+player.gainsCatabolism = 0.5
+
+local function _GainsCatabolism(stage)
+  return 1 / db.playerStages[stage].minDays * player.gainsCatabolism
+end
+
+---Makes the calculations that should be done each step.
+---@param now SkyrimHours Time for this poll.
+---@param lastPoll SkyrimHours Last time the poll was run.
+---@param training number Player training.
+---@param gains number Player gains.
+---@param stage integer Player stage id.
+---@param inCatabolism SkyrimBool Is player losing because too inactive?
+function player.Polling(now, lastPoll, training, gains, stage, inCatabolism)
+  local PollAdjust = function (x) return (now - lastPoll) * x end
+  local Catabolism = function (x) return l.IfThen(l.SkyrimBool(inCatabolism), PollAdjust(x), 0) end
+
+  local trainingDecay = PollAdjust(player.trainingDecay)
+  -- Catabolism calculations
+  local trainingCatabolism = Catabolism(player.trainingCatabolism)
+  local gainsCatabolism = Catabolism(_GainsCatabolism(stage))
+  local newStage, adjustedGains = _AdjustStage(stage, gains - gainsCatabolism)
+  return {
+    newGains = adjustedGains,
+    newTraining = l.forcePositve(training - trainingCatabolism - trainingDecay),
+    newStage = newStage,
+    stageDelta = newStage - stage,
+  }
+end
+
+-- print(serpent.block(player.Polling(1, 0, 10, 0, 2, 1)))
 -- print(serpent.block(player.ChangeAppearance(samplePlayer)))
--- print(serpent.block(player.OnSleep(sampleGains, 10)))
--- print(serpent.block(player.Progress(sampleGains)))
--- print(serpent.block(player.Regress(sampleGains)))
+-- print(serpent.block(player.OnSleep(10, 0.2, -6, 3)))
+-- print(serpent.block(player.CatabolicWaste(3, 6)))
 
 return player

@@ -1,6 +1,7 @@
 Scriptname Maxick_Debug extends Quest
 
 import Maxick_Utils
+Maxick_EventNames Property ev Auto
 
 int _lvlNone = 1
 int _lvlCrit = 2
@@ -36,6 +37,7 @@ Function _LoadData()
   _lvlCrit = JMap.getInt(vals, "logLvl_Critical")
   _lvlInfo = JMap.getInt(vals, "logLvl_Info")
   _lvlVerb = JMap.getInt(vals, "logLvl_Verbose")
+  SendModEvent(ev.UPDATE_INTERVAL, "", JMap.getInt(vals, "updateInterval", 5))
 EndFunction
 
 ; Log with no regarding of logging level.

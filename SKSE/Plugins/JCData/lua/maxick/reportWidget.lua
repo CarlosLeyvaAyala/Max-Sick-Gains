@@ -41,6 +41,10 @@ local sampleWidget = {
   hAlign = HAlign.left,
   hA = "left",
   vA = "top",
+  --- This used to be the value for the rate of refresh, and it was tied
+  --- with the rate at which polling calculations were done (quite a bad
+  --- design on my part), but was left here just for compatibility, albeit
+  --- not being used anymore.
   widgetRefresh = 60,
   --#endregion
 
