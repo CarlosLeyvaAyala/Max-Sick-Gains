@@ -23,7 +23,7 @@ No. I don't have LE and don't see the point of going back to the 32 bits era.
 <figcaption>Yeah... you may have better ENB, <strong>but can your game allocate more than 4GB memory?</strong> Ha ha! I thought so.</figcaption>
 </figure>
 
-However, if you want to backport it, be my guest.
+However, if you want to try to backport it, be my guest.
 I don't know how much help I can provide you on the conversion process, but don't be afraid to ask me anything about this mod.
 
 ## Is this mod lightweight?
@@ -60,7 +60,7 @@ Those are the kind of scripts that give a bad reputation to all scripts and are 
 
 You are totally not wondering about this, but one of the many reasons I'm using JContainers and the Lua programming language to make this mod is because Lua is lightning fast, and in my (admittely, meager) testings it runs way many times faster than the equivalent code made in Papyrus.
 
-Still, I've noticed new locations take about 1 second more than they used to take[^BeforeOptimizations], but you play games made by Bethesda, so you are already get used to wait long times in-between loading screens.
+Still, I've noticed new locations take about 1 second more than they used to take[^BeforeOptimizations], but you play games made by Bethesda, so you already got used to wait long times in-between loading screens.
 
 [^BeforeOptimizations]: This line was written before optimizations. It should take noticeably less time in your game.
 
@@ -239,6 +239,11 @@ Well, some of those things may not happen, but why risk the chances?
 Also remember this: having a human (like me[^ZuckerBot]) filling an esp file with many thousands of records has an great inherent risk of introducing hard to track bugs.
 It's no coincidence Skyrim is so bugged and needs so many unofficial patches to get it to somewhat properly work.
 
+I used a script to count all records related to appearance[^NoManualCount] and they were 216 just for one kind of skin and only for vanilla races.
+Since most of editing when adding new textures and such has to be manually done, you can understand why I'm not doing that.
+
+[^NoManualCount]: Because you can bet your ass I wouldn't count those one by one myself.
+
 [^ZuckerBot]: What the hell? Only androids like [The Zuckerbot] need to reassure they are human.
 
 ## This mod broke my _\<other mod\>_ that relies on actors weight
@@ -257,7 +262,7 @@ In Max Sick Gains, **weight is only used to change NPC muscle definition** if yo
 And it will be used as a reference.
 ***This mod doesn't manipulate weight at all***.
 
-Still, due to it requiring having zerod Bodyslide presets, it is posible to have some minor incompatibilities with mods that rely on weight to change player appearance.
+Still, due to it requiring having zeroed Bodyslide presets, it is posible to have incompatibilities with mods that rely on weight to change player appearance.
 
 These incompatibilities shouldn't be of the CTD kind (hopefully), so don't worry. It's just that, even if those mods are making their calculations correctly, you may not see them reflected on the shape of your body due to your zeroed armors.
 
