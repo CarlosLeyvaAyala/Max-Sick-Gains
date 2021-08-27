@@ -9,6 +9,27 @@ Maxick_ActorAppearance Property looksHandler Auto
 Maxick_Debug Property md Auto
 Maxick_EventNames Property ev Auto
 
+Function OnGameReload()
+  ; RegisterForKey(0x9c)
+EndFunction
+
+; Force an NPC to get updated.
+Function ForceUpdate()
+  md.LogVerb("Forcing change on NPC.")
+  Actor npc = Game.GetCurrentConsoleRef() as Actor
+  If npc == main.player
+    md.Log("Yeah... nice try, Einstein. GO EARN YOUR GAINS, YOU LOAFER.")
+    return
+  EndIf
+  ChangeAppearance(npc)
+EndFunction
+
+; Event OnKeyDown(Int KeyCode)
+;   If KeyCode == 0x9c
+;     ForceUpdate()
+;   EndIf
+; EndEvent
+
 ; Gets all the info needed to apply visual changes to an NPC.
 ; Returns a handle to a `JMap` (a Lua table, actually) that contains all
 ; needed data.

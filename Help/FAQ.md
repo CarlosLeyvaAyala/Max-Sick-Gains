@@ -3,6 +3,9 @@
 
 ## I don't understand how to make this mod to work
 
+lol good luck git gud :v
+
+Ok, no...
 If you don't manage to make this work after following all ==tutorials== and/or [setting off all muscle definition options][MCMTab], then this mod is too advanced for you[^Condescending].
 
 [^Condescending]: I'm not trying to be a condescending asshole, trust me. This mod just can't be plug and play and it requires some modding knowledge on your part.
@@ -133,7 +136,8 @@ If you use any other body or version, you need to ==generate the sliders for it=
 
 1. If the problem is a _Known NPC_, remember some NPCs have many different versions (ie. Rikke, Cicero...), so you need to add all versions of them to _Known NPCs_.
 
-1. You may got unlucky and ==Skyrim refused to find all data needed to change an NPC appearance==. This is more of an annoyance than a serious problem and will eventually correct itself.
+1. You may got unlucky and Skyrim refused to find all data needed to change an NPC appearance.
+This is more of an annoyance than a serious problem. Use the [hotkey for solving that][McmHotkeys].
 
 ### How do I know if I have problem 2?
 
@@ -287,3 +291,5 @@ But I never noticed that before, even after many years using both of them!
 [tech-muscleDef]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md
 
 [The Zuckerbot]: https://youtu.be/2qGVVxaosDM
+
+[McmHotkeys]: TO-DO

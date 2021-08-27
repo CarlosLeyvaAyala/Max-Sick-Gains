@@ -1,0 +1,261 @@
+{
+  "modName": "Max Sick Gains",
+  "displayName": "_Max Sick Gains",
+  "minMcmVersion": 11,
+  "cursorFillMode": "topToBottom",
+  "customContent": {
+    "source": "maxick/splash.dds"
+  },
+  "pages": [
+    {
+      "pageDisplayName": "Main",
+      "cursorFillMode": "topToBottom",
+      "content": [
+        {
+          "text": "Player options",
+          "type": "header"
+        },
+        {
+          "text": "Apply muscle definition",
+          "type": "toggle",
+          "help": "Captain Obvious to the rescue!\nIf you enable this, muscle definition will be applied."
+        },
+        {
+          "text": "Known NPCs",
+          "type": "header"
+        },
+        {
+          "text": "Apply Bodyslide presets",
+          "type": "toggle",
+          "help": "Captain Obvious to the rescue!\nIf you enable this, body shape will change according to your defined Bodyslide presets."
+        },
+        {
+          "text": "Apply muscle definition",
+          "type": "toggle",
+          "help": "Captain Obvious is tired of rescuing you."
+        },
+        {
+          "text": "Generic NPCs (female)",
+          "type": "header"
+        },
+        {
+          "text": "Apply Bodyslide presets",
+          "type": "toggle"
+        },
+        {
+          "text": "Apply muscle definition",
+          "type": "toggle"
+        },
+        {
+          "text": "Other options",
+          "type": "header"
+        },
+        {
+          "text": "Loss checking",
+          "type": "slider",
+          "help": "Inactivity and training decay are checked every <n> seconds. Higher values mean better performance, but less smooth calculations.",
+          "valueOptions": {
+            "min": 3,
+            "max": 10,
+            "step": 1,
+            "formatString": "Check every {0} seconds"
+          }
+        },
+        {
+          "id": "hk_NpcForce",
+          "text": "Force apply config",
+          "type": "keymap",
+          "help": "Some pesky NPC didn't get their settings applied? Select them in the console, GET OUT THE CONSOLE and press this key."
+        },
+        {
+          "text": "Logging level",
+          "type": "enum",
+          "help": "How much spam do you want in your Skyrim console?",
+          "valueOptions": {
+            "options": [
+              "None",
+              "Critical (errors and important things)",
+              "Info (maybe irrelevant info)",
+              "Verbose (detailed info for bug reporting)"
+            ],
+            "shortNames": [
+              "None",
+              "Critical",
+              "Info",
+              "Verbose"
+            ]
+          }
+        },
+        {
+          "text": "Generic NPCs (male)",
+          "position": 11,
+          "type": "header"
+        },
+        {
+          "text": "Apply Bodyslide presets",
+          "type": "toggle"
+        },
+        {
+          "text": "Apply muscle definition",
+          "type": "toggle"
+        },
+        {
+          "text": "Widget options",
+          "type": "header"
+        },
+        {
+          "id": "hk_WidgetToggle",
+          "text": "Toggle visibility",
+          "type": "keymap"
+        },
+        {
+          "text": "X displacement",
+          "type": "slider",
+          "help": "Where to put the widget on screen.",
+          "valueOptions": {
+            "min": -425,
+            "max": 425,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "text": "Y displacement",
+          "type": "slider",
+          "help": "Where to put the widget on screen.",
+          "valueOptions": {
+            "min": -240,
+            "max": 240,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "text": "H. align",
+          "type": "enum",
+          "help": "Where to put the widget on screen.",
+          "valueOptions": {
+            "options": [
+              "Left",
+              "Center",
+              "Right"
+            ]
+          }
+        },
+        {
+          "text": "V. align",
+          "type": "enum",
+          "help": "Where to put the widget on screen.",
+          "valueOptions": {
+            "options": [
+              "Top",
+              "Center",
+              "Bottom"
+            ]
+          }
+        },
+        {
+          "text": "Meter width",
+          "type": "slider",
+          "valueOptions": {
+            "min": 20,
+            "max": 450,
+            "step": 5,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "text": "Meter height",
+          "type": "slider",
+          "valueOptions": {
+            "min": 10,
+            "max": 50,
+            "step": 1,
+            "formatString": "{0}"
+          }
+        },
+        {
+          "text": "Separation",
+          "type": "slider",
+          "help": "Vertical gap between meters. Higher values will separate them more.",
+          "valueOptions": {
+            "min": -0.5,
+            "max": 20,
+            "step": 0.1,
+            "formatString": "{1}"
+          }
+        },
+        {
+          "text": "Meter 1",
+          "type": "color"
+        },
+        {
+          "text": "Meter 2",
+          "type": "color"
+        },
+        {
+          "text": "Meter 3",
+          "type": "color"
+        }
+      ]
+    },
+    {
+      "pageDisplayName": "Testing mode",
+      "cursorFillMode": "topToBottom",
+      "content": [
+        {
+          "text": "Hotkeys",
+          "type": "header"
+        },
+        {
+          "id": "hk_Gains0",
+          "text": "Jump backwards",
+          "type": "keymap",
+          "help": "Sets your gains to 0. If they already were 0, goes to the ending of previous stage."
+        },
+        {
+          "id": "hk_Gains100",
+          "text": "Jump forward",
+          "type": "keymap",
+          "help": "Sets your gains to 100. If they already were 100, goes to the beginning of next stage."
+        },
+        {
+          "id": "hk_PrevLvl",
+          "text": "Previous stage",
+          "type": "keymap",
+          "help": "Goes to the ending of previous stage."
+        },
+        {
+          "id": "hk_NextLvl",
+          "text": "Next stage",
+          "type": "keymap",
+          "help": "Goes to the beginning of next stage."
+        },
+        {
+          "id": "hk_Regress",
+          "text": "Gains -5",
+          "type": "keymap",
+          "help": "Substracts 5 to gains. May change stage at less than 0."
+        },
+        {
+          "id": "hk_Progress",
+          "text": "Gains +5",
+          "type": "keymap",
+          "help": "Adds 5 to gains. May change stage at 100."
+        },
+        {
+          "id": "hk_Slideshow",
+          "text": "Slideshow",
+          "type": "keymap",
+          "help": "Enters/exits Slideshow mode. In that mode, gains are added continually until you reach your final form.\nUseful for watching an overview of your fitness journey and catching errors in your setup."
+        },
+        {
+          "position": 3,
+          "text": "Help",
+          "type": "text",
+          "help": "Testing mode can't be enabled here; you need to do that in Max Sick Gains.exe. Once you enabled and exported your data in there, (quick) reload a save to start Testing mode."
+        }
+      ]
+    }
+  ]
+}

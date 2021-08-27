@@ -22,6 +22,7 @@ Maxick_EventNames Property ev Auto
 
 Event OnInit()
   OnGameReload()
+  PcHandler.ChangeAppearance()
 EndEvent
 
 ; int Function GetDataTree()
@@ -36,6 +37,7 @@ Function OnGameReload()
   _RegisterEvents()
   looksHandler.OnGameReload()
   PcHandler.OnGameReload()
+  NpcHandler.OnGameReload()
   widget.OnGameReload()
   _TestingModeOperations()
 EndFunction

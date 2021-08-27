@@ -331,7 +331,9 @@ EndFunction
 
 Event OnKeyDown(Int KeyCode)
   ; FIXME: Toggle widget
-  md.LogVerb("Hotkeys only enabled while in testing mode.")
+  If KeyCode == hkGains0 || KeyCode == hkGains100 || KeyCode == hkNextLvl || KeyCode == hkPrevLvl|| KeyCode == hkAdvance|| KeyCode == hkRegress || KeyCode == hkSlideshow
+    md.LogInfo("Hotkeys only enabled while in testing mode.")
+  EndIf
 EndEvent
 
 ; What to do when the `hkGains0` hotkey was pressed.

@@ -194,3 +194,11 @@ hiOrder()
 print(l.ToHumanHours(0.5))
 print(l.ToGameHours(12))
 print(l.K(100)(nil))
+print(l.K(l.I)(6)(7))
+local first =l.K
+local second = l.K(l.I)
+print(first(1)(2))
+print(second(1)(2))
+local latin = function(selector) return selector("primus")("secundus") end
+print(latin(first))
+print(latin(second))

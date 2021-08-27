@@ -1,0 +1,16 @@
+{
+  "modName": "Max Sick Gains",
+  "keybinds": [
+    {
+      "id": "hk_NpcForce",
+      "desc": "Force appearance update on NPC",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_NPC",
+        "function": "ForceUpdate",
+        "params": []
+      }
+    }
+  ]
+}

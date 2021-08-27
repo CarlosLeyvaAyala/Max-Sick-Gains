@@ -28,6 +28,7 @@
         <Import>@MO\Fores New Idles in Skyrim SE - FNIS SE\source\scripts\</Import>
         <Import>@MO\FNIS Creature Pack SE 7.0\source\scripts\</Import>
         <Import>@MO\JContainers SE\scripts\source</Import>
+        <Import>@MO\MCM SDK\Source\Scripts</Import>
         <Import>@lib\Source</Import>
         <Import>@lib</Import>
     </Imports>
