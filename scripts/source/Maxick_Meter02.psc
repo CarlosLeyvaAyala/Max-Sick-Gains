@@ -1,4 +1,5 @@
 Scriptname Maxick_Meter02 extends Maxick_MeterBase
+{Training meter}
 
 ; Id used for loading data from the Lua tree.
 int Function Id()

@@ -25,10 +25,6 @@ Event OnInit()
   PcHandler.ChangeAppearance()
 EndEvent
 
-; int Function GetDataTree()
-;   return JDB.solveObj(".maxick")
-; EndFunction
-
 ; These functions are called sequentially and not hooked as callbacks because we want to
 ; make sure these settings are initializated in this precise order.
 Function OnGameReload()

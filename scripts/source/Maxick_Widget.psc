@@ -2,48 +2,58 @@ Scriptname Maxick_Widget extends Quest
 {Deals with everything related to display status information to the player.}
 
 import Maxick_Utils
+import DM_Utils
 
 Maxick_Debug Property md Auto
+Maxick_MCM Property mcmHandler Auto
 Maxick_EventNames Property ev Auto
 Maxick_Meter01 Property Gains Auto
 Maxick_Meter02 Property Training Auto
 Maxick_Meter03 Property Inactivity Auto
 
+; float Property x = 0.0 Auto
+; float Property y = 0.0 Auto
+; float Property meterW = 150.0 Auto
+; float Property meterH = 17.5 Auto
+; float Property vGap = -0.15 Auto
+; int Property hAlign = 2 Auto
+; int Property vAlign = 1 Auto
+; int Property Meter1Color = 0xc0c0c0 Auto
+; int Property Meter2Color = 0x6b17cc Auto
+; int Property Meter3Color = 0xf2e988 Auto
+
 int _updateInterval = 2
-int _flashNormal
-int _flashDanger
-int _flashUp
-int _flashWarning
-int _flashDown
-int _flashCritical
+int _flashNormal = 0xffffff     ; White
+int _flashDanger = 0xff6d01     ; Orange
+int _flashUp = 0x4f8a35         ; Green
+int _flashWarning = 0xffd966    ; Gold
+int _flashDown = 0xcc0000       ; Dark red
+int _flashCritical = 0xff0000   ; Red
+
+bool _hidden = false
 
 ;>========================================================
 ;>===                 INITIALIZATION                 ===<;
 ;>========================================================
 
 Function OnGameReload()
-  _LoadData()
+  mcmHandler.UpdateWidget()
+  ; SetAppearanceance()
   _RegisterEvents()
 EndFunction
 
 ; Gets data from Lua.
-Function _LoadData()
-  int data = JValue.readFromFile(widgetFile())
-  JValue.evalLuaObj(data, "return maxick.InitWidget(jobject)")
-  _InitWidget(data)
-  Gains.LoadData(data)
-  Training.LoadData(data)
-  Inactivity.LoadData(data)
+Function SetAppearanceance(float x, float y, float meterH, float meterW, float vGap, int hAlign, int vAlign)
+  md.LogVerb("Widget.SetAppearanceance()")
+  md.LogVerb(x + ", " + y + ", " + meterH + ", " + meterW + ", " + vGap + ", " + hAlign + ", " + vAlign)
+  int data = LuaTable("maxick.WidgetMeterPositions", x, y, meterH, vGap, hAlign + 1, vAlign + 1)
+  ; LuaDebugTable(data, "widget")
+  Gains.SetData(data, meterH, meterW, hAlign + 1, vAlign + 1)
+  Training.SetData(data, meterH, meterW, hAlign + 1, vAlign + 1)
+  Inactivity.SetData(data, meterH, meterW, hAlign + 1, vAlign + 1)
 EndFunction
 
-Function _InitWidget(int data)
-  _flashNormal = JValue.solveInt(data, ".flashColors.normal", 16777215)
-  _flashDanger = JValue.solveInt(data, ".flashColors.danger", 16739585)
-  _flashUp = JValue.solveInt(data, ".flashColors.up", 5212725)
-  _flashWarning = JValue.solveInt(data, ".flashColors.warning", 16767334)
-  _flashDown = JValue.solveInt(data, ".flashColors.down", 13369344)
-  _flashCritical = JValue.solveInt(data, ".flashColors.critical", 16711680)
-
+Function _InitWidget()
   _updateInterval = 2
   md.LogVerb("Widget update interval: " + _updateInterval)
 EndFunction
@@ -163,6 +173,20 @@ EndState
 ;>========================================================
 ;>===                   DISPLAYING                   ===<;
 ;>========================================================
+
+Function Toggle()
+  _hidden = !_hidden
+  float fadeTime = 0.5
+  If _hidden
+    Gains.FadeTo(0.0, fadeTime)
+    Training.FadeTo(0.0, fadeTime)
+    Inactivity.FadeTo(0.0, fadeTime)
+  Else
+    Gains.FadeTo(100.0, fadeTime)
+    Training.FadeTo(100.0, fadeTime)
+    Inactivity.FadeTo(100.0, fadeTime)
+  EndIf
+EndFunction
 
 Event OnChangeStage(string _, string __, float delta, Form ___)
   int d = delta as int

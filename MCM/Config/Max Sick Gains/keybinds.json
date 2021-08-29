@@ -2,6 +2,94 @@
   "modName": "Max Sick Gains",
   "keybinds": [
     {
+      "id": "hk_WidgetToggle",
+      "desc": "Toggle widget visibility",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Widget",
+        "function": "Toggle",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_Gains0",
+      "desc": "Testing mode jump backguards",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Player",
+        "function": "HkGains0",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_Gains100",
+      "desc": "Testing mode jump forward",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Player",
+        "function": "HkGains100",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_PrevLvl",
+      "desc": "Testing mode previous stage",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Player",
+        "function": "HkNextLvl",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_NextLvl",
+      "desc": "Testing mode next stage",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Player",
+        "function": "HkPrevLvl",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_Regress",
+      "desc": "Testing mode substract 5 to gains",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Player",
+        "function": "HkRegress",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_Progress",
+      "desc": "Testing mode add 5 to gains",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Player",
+        "function": "HkAdvance",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_Slideshow",
+      "desc": "Slideshow mode",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Player",
+        "function": "HkSlideshow",
+        "params": []
+      }
+    },
+    {
       "id": "hk_NpcForce",
       "desc": "Force appearance update on NPC",
       "action": {
@@ -10,6 +98,14 @@
         "scriptName": "Maxick_NPC",
         "function": "ForceUpdate",
         "params": []
+      }
+    },
+    {
+      "id": "hk_NpcForceAll",
+      "desc": "Toggle Menu Display",
+      "action": {
+        "type": "RunConsoleCommand",
+        "command": "ToggleMenus"
       }
     }
   ]

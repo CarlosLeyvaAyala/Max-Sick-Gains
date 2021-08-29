@@ -109,6 +109,7 @@
           "type": "keymap"
         },
         {
+          "id": "fX:Widget",
           "text": "X displacement",
           "type": "slider",
           "help": "Where to put the widget on screen.",
@@ -116,10 +117,19 @@
             "min": -425,
             "max": 425,
             "step": 5,
-            "formatString": "{0}"
+            "formatString": "{0}",
+            "sourceType": "ModSettingFloat"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_MCM",
+            "function": "UpdateWidget",
+            "params": []
           }
         },
         {
+          "id": "fY:Widget",
           "text": "Y displacement",
           "type": "slider",
           "help": "Where to put the widget on screen.",
@@ -127,10 +137,19 @@
             "min": -240,
             "max": 240,
             "step": 5,
-            "formatString": "{0}"
+            "formatString": "{0}",
+            "sourceType": "ModSettingFloat"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_MCM",
+            "function": "UpdateWidget",
+            "params": []
           }
         },
         {
+          "id": "iHalign:Widget",
           "text": "H. align",
           "type": "enum",
           "help": "Where to put the widget on screen.",
@@ -139,10 +158,19 @@
               "Left",
               "Center",
               "Right"
-            ]
+            ],
+            "sourceType": "ModSettingInt"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_MCM",
+            "function": "UpdateWidget",
+            "params": []
           }
         },
         {
+          "id": "iValign:Widget",
           "text": "V. align",
           "type": "enum",
           "help": "Where to put the widget on screen.",
@@ -151,51 +179,74 @@
               "Top",
               "Center",
               "Bottom"
-            ]
+            ],
+            "sourceType": "ModSettingInt"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_MCM",
+            "function": "UpdateWidget",
+            "params": []
           }
         },
         {
+          "id": "fW:Widget",
           "text": "Meter width",
           "type": "slider",
           "valueOptions": {
             "min": 20,
             "max": 450,
             "step": 5,
-            "formatString": "{0}"
+            "formatString": "{0}",
+            "sourceType": "ModSettingFloat"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_MCM",
+            "function": "UpdateWidget",
+            "params": []
           }
         },
         {
+          "id": "fH:Widget",
           "text": "Meter height",
           "type": "slider",
           "valueOptions": {
             "min": 10,
             "max": 50,
-            "step": 1,
-            "formatString": "{0}"
+            "step": 0.5,
+            "formatString": "{1}",
+            "sourceType": "ModSettingFloat"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_MCM",
+            "function": "UpdateWidget",
+            "params": []
           }
         },
         {
+          "id": "fVgap:Widget",
           "text": "Separation",
           "type": "slider",
           "help": "Vertical gap between meters. Higher values will separate them more.",
           "valueOptions": {
             "min": -0.5,
             "max": 20,
-            "step": 0.1,
-            "formatString": "{1}"
+            "step": 0.05,
+            "formatString": "{2}",
+            "sourceType": "ModSettingFloat"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_MCM",
+            "function": "UpdateWidget",
+            "params": []
           }
-        },
-        {
-          "text": "Meter 1",
-          "type": "color"
-        },
-        {
-          "text": "Meter 2",
-          "type": "color"
-        },
-        {
-          "text": "Meter 3",
-          "type": "color"
         }
       ]
     },

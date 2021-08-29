@@ -24,12 +24,6 @@ Function ForceUpdate()
   ChangeAppearance(npc)
 EndFunction
 
-; Event OnKeyDown(Int KeyCode)
-;   If KeyCode == 0x9c
-;     ForceUpdate()
-;   EndIf
-; EndEvent
-
 ; Gets all the info needed to apply visual changes to an NPC.
 ; Returns a handle to a `JMap` (a Lua table, actually) that contains all
 ; needed data.

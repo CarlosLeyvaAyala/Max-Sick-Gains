@@ -10,6 +10,7 @@ local db = jrequire 'maxick.database'
 local sk = jrequire 'maxick.skill'
 local ml = jrequire 'maxick.lib'
 local widget = jrequire 'maxick.reportWidget'
+local gc = jrequire 'maxick.genConst'
 
 local maxick = {}
 math.randomseed( os.time() )
@@ -25,8 +26,12 @@ math.randomseed( os.time() )
 -- ;>===              PUBLISHED FUNCTIONS               ===<;
 -- ;>========================================================
 
+maxick.HAlign = gc.HAlign
+maxick.VAlign = gc.VAlign
+
+maxick.WidgetMeterPositions = l.toJMap(widget.MeterPositions)
+
 maxick.ChangeNpcAppearance = npc.ChangeAppearance
-maxick.InitWidget = widget.Init
 
 maxick.ChangePlayerAppearance = player.ChangeAppearance
 maxick.OnSleep = l.toJMap(player.OnSleep)

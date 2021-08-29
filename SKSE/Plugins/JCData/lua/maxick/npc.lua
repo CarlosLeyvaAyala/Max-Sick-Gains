@@ -217,7 +217,7 @@ end
 ---@param actor Actor
 local function _Stop_SkyrimIsBeingAnAsshole(actor)
   actor.shouldProcess = 0
-  ml.LogCrit("WARNING: Skyrim didn't provide enough data to know who or what this actor is. Don't worry; this annoyance will eventually correct itself")
+  ml.LogCrit("WARNING: Skyrim didn't provide enough data to know who or what this actor is. Don't worry; you can fix this yourself with the Force Appearance hotkey.")
 end
 
 ---Tries to find the race of the actor so it can be processed by other functions.

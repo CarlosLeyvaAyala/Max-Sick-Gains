@@ -57,17 +57,8 @@ float _lastTrainedWithSacks = 0.0
 float _training = 0.0
 int _stage = 1
 bool _isInCatabolic = false
-int _pollingInterval = 10
+int _pollingInterval = 5
 float _lastPollingTime = 0.0
-
-;> Hotkeys
-int hkGains0
-int hkGains100
-int hkAdvance
-int hkRegress
-int hkNextLvl
-int hkPrevLvl
-int hkSlideshow
 
 ;>========================================================
 ;>===                     SETUP                      ===<;
@@ -82,12 +73,12 @@ EndEvent
 Function OnGameReload()
   _EnterTestingMode()
   RegisterEvents()
-  SetHotkeys()
 EndFunction
 
 ; Enters testing mode if needed.
 Function _EnterTestingMode()
   If md.testMode
+    Game.SetInChargen(true, true, false)  ; Disable game saving while in Testing mode
     GotoState("TestingMode")
   Else
     GotoState("")
@@ -117,7 +108,6 @@ EndEvent
 
 ; These are done each `n` seconds defined by the player when setting the
 ; widget refresh rate in the MCM.
-
 Event OnUpdate()
   _Poll()
 EndEvent
@@ -264,13 +254,13 @@ EndEvent
 ;>========================================================
 
 ; How much time (seconds) between steps in Slideshow view.
-float _slStepTime = 0.5
+float _slStepTime = 0.3
 
 ; Stops the slideshow.
-Function _SlideshowStop()
+Function _SlideshowStop(string msg = "Last stage reached")
   GotoState("TestingMode")
   UnregisterForUpdate()
-  Debug.Notification("Last stage reached")
+  Debug.Notification(msg)
 EndFunction
 
 ; Goes to the next stage of the slideshow. Stops if reached the last Player stage.
@@ -300,25 +290,6 @@ Function _SlideshowPreviousStage()
   EndIf
 EndFunction
 
-; Setups the hotkeys that will be used in testing mode.
-Function SetHotkeys()
-  ;FIXME: Initialize elsewhere
-  hkGains0 = 203
-  hkGains100 = 205
-  hkPrevLvl = 208
-  hkNextLvl = 200
-  hkRegress = 75
-  hkAdvance = 77
-  hkSlideshow = 28
-  RegisterForKey(hkGains0)
-  RegisterForKey(hkGains100)
-  RegisterForKey(hkPrevLvl)
-  RegisterForKey(hkNextLvl)
-  RegisterForKey(hkRegress)
-  RegisterForKey(hkAdvance)
-  RegisterForKey(hkSlideshow)
-EndFunction
-
 Function _SlideshowAdvance(float delta)
   _SetGains(_gains + delta)
   If ((_gains > 100.0) && (delta > 0))
@@ -329,99 +300,91 @@ Function _SlideshowAdvance(float delta)
   ChangeAppearance()
 EndFunction
 
-Event OnKeyDown(Int KeyCode)
-  ; FIXME: Toggle widget
-  If KeyCode == hkGains0 || KeyCode == hkGains100 || KeyCode == hkNextLvl || KeyCode == hkPrevLvl|| KeyCode == hkAdvance|| KeyCode == hkRegress || KeyCode == hkSlideshow
-    md.LogInfo("Hotkeys only enabled while in testing mode.")
-  EndIf
-EndEvent
+;> Hotkey functions are called by MCM Helper
 
-; What to do when the `hkGains0` hotkey was pressed.
-Function _HkGains0()
-  If _gains <= 0.0
-    _SlideshowPreviousStage()
-  Else
-    _SetGains(0.0)
-  EndIf
-  ChangeAppearance()
+; Disabled outside testing mode.
+Function HkGains0()
 EndFunction
 
-; What to do when the `hkGains100` hotkey was pressed.
-Function _HkGains100()
-  If _gains >= 100.0
-    _SlideShowNextStage()
-  Else
-    _SetGains(100.0)
-  EndIf
-  ChangeAppearance()
+; Disabled outside testing mode.
+Function HkGains100()
 EndFunction
 
-; What to do when the `hkNextLvl` hotkey was pressed.
-Function _HkNextLvl()
-  _SlideShowNextStage()
-  ChangeAppearance()
+; Disabled outside testing mode.
+Function HkNextLvl()
 EndFunction
 
-; What to do when the `hkPrevLvl` hotkey was pressed.
-Function _HkPrevLvl()
-  _SlideshowPreviousStage()
-  ChangeAppearance()
+; Disabled outside testing mode.
+Function HkPrevLvl()
 EndFunction
 
-; What to do when the `hkAdvance` hotkey was pressed.
-Function _HkAdvance()
-  _SlideshowAdvance(5.0)
-  ChangeAppearance()
+; Disabled outside testing mode.
+Function HkAdvance()
 EndFunction
 
-; What to do when the `hkRegress` hotkey was pressed.
-Function _HkRegress()
-  _SlideshowAdvance(-5.0)
-  ChangeAppearance()
+; Disabled outside testing mode.
+Function HkRegress()
 EndFunction
 
-; What to do when the `hkSlideshow` hotkey was pressed.
-Function _HkSlideshow()
-  _SetGains(0.0)
-  _SetStage(1)
-  _SetTraining(0)
-  ChangeAppearance()
-  Debug.Notification("Started slideshow")
-  GotoState("Slideshow")
-  RegisterForSingleUpdate(_slStepTime)
+; Disabled outside testing mode.
+Function HkSlideshow()
 EndFunction
 
 State TestingMode
-  Event OnKeyDown(Int KeyCode)
-    If KeyCode == hkGains0
-      _HkGains0()
-      return
+  ; What to do when the `hkGains0` hotkey was pressed.
+  Function HkGains0()
+    If _gains <= 0.0
+      _SlideshowPreviousStage()
+    Else
+      _SetGains(0.0)
     EndIf
-    If KeyCode == hkGains100
-      _HkGains100()
-      return
+    ChangeAppearance()
+  EndFunction
+
+  ; What to do when the `hkGains100` hotkey was pressed.
+  Function HkGains100()
+    If _gains >= 100.0
+      _SlideShowNextStage()
+    Else
+      _SetGains(100.0)
     EndIf
-    If KeyCode == hkNextLvl
-      _HkNextLvl()
-      return
-    EndIf
-    If KeyCode == hkPrevLvl
-      _HkPrevLvl()
-      return
-    EndIf
-    If KeyCode == hkAdvance
-      _HkAdvance()
-      return
-    EndIf
-    If KeyCode == hkRegress
-      _HkRegress()
-      return
-    EndIf
-    If KeyCode == hkSlideshow
-      _HkSlideshow()
-      return
-    EndIf
-  EndEvent
+    ChangeAppearance()
+  EndFunction
+
+  ; What to do when the `hkNextLvl` hotkey was pressed.
+  Function HkNextLvl()
+    _SlideShowNextStage()
+    ChangeAppearance()
+  EndFunction
+
+  ; What to do when the `hkPrevLvl` hotkey was pressed.
+  Function HkPrevLvl()
+    _SlideshowPreviousStage()
+    ChangeAppearance()
+  EndFunction
+
+  ; What to do when the `hkAdvance` hotkey was pressed.
+  Function HkAdvance()
+    _SlideshowAdvance(5.0)
+    ChangeAppearance()
+  EndFunction
+
+  ; What to do when the `hkRegress` hotkey was pressed.
+  Function HkRegress()
+    _SlideshowAdvance(-5.0)
+    ChangeAppearance()
+  EndFunction
+
+  ; What to do when the `hkSlideshow` hotkey was pressed.
+  Function HkSlideshow()
+    _SetGains(0.0)
+    _SetStage(1)
+    _SetTraining(0)
+    ChangeAppearance()
+    Debug.Notification("Started slideshow")
+    GotoState("Slideshow")
+    RegisterForSingleUpdate(_slStepTime)
+  EndFunction
 
   Event OnUpdate()
     ; Losses and inactivity aren't calculated while in testing mode.
@@ -455,11 +418,9 @@ State Slideshow
     RegisterForSingleUpdate(_slStepTime)
   EndEvent
 
-  Event OnKeyDown(Int KeyCode)
-    If KeyCode == hkSlideshow
-      _SlideshowStop()
-    EndIf
-  EndEvent
+  Function HkSlideshow()
+    _SlideshowStop("You stopped Slideshow mode")
+  EndFunction
 
   Event OnTrain(string _, string ___, float __, Form ____)
     md.LogVerb("Can't train while testing")

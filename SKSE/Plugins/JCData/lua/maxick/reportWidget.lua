@@ -4,82 +4,29 @@ local db = jrequire 'maxick.database'
 -- local serpent = require('__serpent')
 
 ---@alias Meters table
----@alias Meter table
+---@alias Meter table<string, number>
 ---@alias Widget table
 
 local reportWidget = {}
-
--- local function _GenWidgetJson(widget)
---   local luna = jrequire 'maxick.lunajson'
---   local dataTree = luna.encode(widget)
---   print(dataTree)
---   local ft = io.open("../../../Maxick/widget.json", "w+")
---   io.output(ft)
---   io.write(dataTree)
---   io.close()
--- end
 
 -- ;>========================================================
 -- ;>===                   CONSTANTS                    ===<;
 -- ;>========================================================
 
+---@alias HAlign
+---|'1' "left"
+---|'2' "center"
+---|'3' "right"
+
+---@alias VAlign
+---|'1' "top"
+---|'2' "center"
+---|'3' "bottom"
+
+---@type HAlign
 local HAlign = gc.HAlign
 local VAlign = gc.VAlign
 
---- Use this for reference on what Papyrus should send here.
-local sampleWidget = {
-  --#region Values coming from database.
-
-  --- Delta x for the whole widget
-  x = 40,
-  --- Delta Y for the whole widget
-  y = 40,
-  meterH = 10,
-  meterW = 15,
-  vGap = 0,
-  vAlign = VAlign.top,
-  hAlign = HAlign.left,
-  hA = "left",
-  vA = "top",
-  --- This used to be the value for the rate of refresh, and it was tied
-  --- with the rate at which polling calculations were done (quite a bad
-  --- design on my part), but was left here just for compatibility, albeit
-  --- not being used anymore.
-  widgetRefresh = 60,
-  --#endregion
-
-  --#region Values actually calculated by this script:
-
-  meters = {
-    meter1 = { x = 0, y = 0, color = 0, n = 1, },
-    meter2 = { x = 0, y = 0, color = 0, n = 2, },
-    meter3 = { x = 0, y = 0, color = 0, n = 3, },
-  },
-  flashColors =   {
-    normal = 0, warning = 0, danger = 0, critical = 0, down = 0, up = 0,
-  },
-  --#endregion
-}
-
---- Colors are assigned here and not in Papyrus because their values get baked into game saves in there.
---- Dynamically changing them is a pain in the ass.
-local meterColors = {
-  0xc0c0c0,    -- Silver. Gains meter.
-  0x6b17cc,    -- Violet. Training meter.
-  0xf2e988,    -- Yellow. Inactivity meter.
-  -- 0xa6c942,    -- Green (used in Sandow Plus Plus, not here; but left in case it will be used in the future)
-}
-
---- Colors are assigned here and not in Papyrus because their values get baked into game saves in there.
---- Dynamically changing them is a pain in the ass.
-local flashColors = {
-  normal = 0xffffff,    -- White
-  warning = 0xffd966,   -- Gold
-  danger = 0xff6d01,    -- Orange
-  critical = 0xff0000,  -- Red
-  down = 0xcc0000,      -- Darker red
-  up = 0x4f8a35,        -- Green
-}
 
 --- Hardcoded value for the screen size the `"\interface\exported\widgets\...\meter.swf"` flash file uses for positioning a meter.
 local screenX = 1280
@@ -93,19 +40,16 @@ local screenY = 720
 
 --#region Helpers for setting Y position
 
----The height of a meter.
-local _meterH = 0
-
----The height of a meter; vertical gap included.
-local _fullMeterH = 0
-
----The height for the whole widget.
-local _fullWidgetH = 0
-
-local function _DefineWholeWidgetDimensions(widget)
-  _meterH = widget.meterH
-  _fullMeterH = _meterH + (_meterH * widget.vGap)
-  _fullWidgetH = (_fullMeterH * (l.tableLen(widget.meters) - 1)) + _meterH
+---Gets the vertical dimensions of the whole widget.
+---@param numMeters integer Number of meters in the widget.
+---@param meterH number Height for each meter.
+---@param vGap number Vertical gap between meters.
+---@return number fullMeterH Height for each meter in the widget. Gaps included.
+---@return number fullWidgetH Height for the whole widget.
+local function _DefineWholeWidgetDimensions(numMeters, meterH, vGap)
+  local fullMeterH = meterH + (meterH * vGap)
+  local fullWidgetH = (fullMeterH * (numMeters - 1)) + meterH
+  return fullMeterH, fullWidgetH
 end
 
 ---Gets the actual Y position of the whole widget on screen.
@@ -113,9 +57,9 @@ end
 ---This function makes displacements to take into account how vertical anchors in `"\interface\exported\widgets\...\meter.swf"` change depending on alignment.
 ---@param vAlign integer
 ---@return number
-local function _WidgetScreenY(vAlign)
+local function _WidgetScreenY(vAlign, meterH, fullWidgetH)
   if vAlign ~= VAlign.top then
-    local displace = screenY + (_meterH - _fullWidgetH)
+    local displace = screenY + (meterH - fullWidgetH)
     if vAlign == VAlign.center then displace = displace / 2 end
     return displace
   end
@@ -145,98 +89,60 @@ end
 ---@param meter Meter Meter data.
 ---@param relPos integer Relative position of this particular meter on the stack.
 ---@param dY number Delta Y to displace the whole widget.
----@param vAlign integer Vertical alignment of the whole widget.
----@return Meter
-local function _SetMeterY(meter, relPos, dY, vAlign)
-  meter.y = _WidgetScreenY(vAlign) + (relPos * _fullMeterH) + dY
+---@param vAlign VAlign Vertical alignment of the whole widget.
+---@param meterH number Individual meter height.
+---@param fullMeterH number Height for each meter in the widget. Gaps included.
+---@param fullWidgetH number Height for the whole widget.
+---@return Meter meter Individual meter data.
+local function _SetMeterY(meter, relPos, dY, vAlign, meterH, fullMeterH, fullWidgetH)
+  meter.y = _WidgetScreenY(vAlign, meterH, fullWidgetH) + (relPos * fullMeterH) + dY
   return meter
 end
-
----Sets `x` and `y` positions for all meters.
----@param widget Widget
----@return fun(meters: Meters): Meters
-local function _SetMeterPositions(widget)
-  return function (meters)
-    return l.pipe(
-      l.map(function (v) return _SetMeterX(v, widget.x, widget.hAlign) end),
-      l.map(function (v) return _SetMeterY(v, v.n - 1, widget.y, widget.vAlign) end)
-    )(meters)
-  end
-end
-
 
 -- ;>========================================================
 -- ;>===                     SETUP                      ===<;
 -- ;>========================================================
 
----Changes only the meters in the widget.
----@param func fun(meters: Meters): Meters Function that alters only the meters on a widget.
----@return fun(widget: Widget): Widget
-local function _ChangeMeters(func)
-  return function (widget)
-    l.assign(widget.meters, func(widget.meters))
-    return widget
-  end
+-- ---Creates a table from an array of numbers (usually generated with `range`).
+-- ---@param array table<integer, integer> Array of numbers to transform.
+-- ---@param indexGen fun(index:integer, value: integer): any Index transformation function.
+-- ---@param valGen fun(val: integer, key: any): any Value transformation function.
+-- local function tableFromNumbers(array, indexGen, valGen)
+--   return l.pipe(indexGen, valGen)(array)
+-- end
+
+-- ---Appends a value to a string.
+-- ---@param str string
+-- ---@return fun(val: any): string
+-- local function appendStr(str) return function (val) return str..tostring(val) end end
+
+---Creates the table skeleton for all the meters in the widget.
+---@return table<string, Meter>
+local function _CreateMeters()
+  return l.tableFromNumbers(
+    l.range(3),
+    l.buildKeys(l.appendStr("meter")),
+    l.map(function (v) return {x = 0, y = 0, n = v } end)
+  )
 end
 
----Assigns its corresponding color to each meter.
----@param meters Meters
----@return Meters
-local function _SetColors(meters)
-  return l.map(meters, function (v)
-    v.color = meterColors[v.n]
-    return v
-  end)
+---Calculates the screen position of each meter based on settings.
+---@param x number
+---@param y number
+---@param meterH number
+---@param vGap number
+---@param hAlign HAlign
+---@param vAlign VAlign
+---@return table<string, Meter>
+function reportWidget.MeterPositions(x, y, meterH, vGap, hAlign, vAlign)
+  local meters = _CreateMeters()
+  local fullMeterH, fullWidgetH = _DefineWholeWidgetDimensions(l.tableLen(meters), meterH, vGap)
+  return l.pipe(
+    l.map(function (v) return _SetMeterX(v, x, hAlign) end),
+    l.map(function (v) return _SetMeterY(v, v.n - 1, y, vAlign, meterH, fullMeterH, fullWidgetH) end)
+  )(meters)
 end
 
----Sets the values for the color flashes.
----@param widget Widget
----@return Widget
-local function _SetFlashColors(widget)
-  l.assign(widget.flashColors, l.map(widget.flashColors, function (_, k)
-    return flashColors[k]
-  end))
-  return widget
-end
-
----Sets the position for all meters in the widget.
----@param widget Widget
----@return Widget
-local function _SetPosition(widget)
-  return _ChangeMeters(_SetMeterPositions(widget))(widget)
-end
-
----Initializes data generated by _Max Sick Gains.exe_.
----@param widget Widget
----@return Widget
-local function _InitFromDB(widget)
-  widget.x = db.mcm.widgetX
-  widget.y = db.mcm.widgetY
-  widget.widgetRefresh = db.mcm.widgetRefresh
-  widget.meterH = db.mcm.widgetMH
-  widget.meterW = db.mcm.widgetMW
-  widget.vGap = db.mcm.widgetMGap
-  widget.vAlign = db.mcm.widgetVAlign
-  widget.hAlign = db.mcm.widgetHAlign
-  widget.hA = HAlign[widget.hAlign]
-  widget.vA = VAlign[widget.vAlign]
-  return widget
-end
-
----Sets the initial data for a widget.
----@param widget Widget
----@return Widget
-function reportWidget.Init(widget)
-  return l.processTable(widget, {
-    _InitFromDB,
-    l.tap(_DefineWholeWidgetDimensions),
-    _ChangeMeters(_SetColors),
-    _SetPosition,
-    _SetFlashColors,
-  })
-end
-
--- print(serpent.block(reportWidget.Init(sampleWidget)))
--- _GenWidgetJson(reportWidget.Init(sampleWidget))
+-- print(serpent.block(reportWidget.MeterPositions(0,0, 17.5, -0.15, HAlign.right, VAlign.center)))
 
 return reportWidget

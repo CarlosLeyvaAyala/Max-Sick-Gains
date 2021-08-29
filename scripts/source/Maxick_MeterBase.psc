@@ -1,5 +1,7 @@
 Scriptname Maxick_MeterBase extends DM_MeterWidgetScript Hidden
 
+Maxick_Debug Property md Auto
+
 float Property Position Hidden
   float Function Get()
     return Percent * 100
@@ -28,17 +30,26 @@ Function FlashNow(int color)
   ForceFlash()
 EndFunction
 
-Function LoadData(int data)
-  ; FillDirection = "right"
-  Width = JMap.getFlt(data, "meterW", 250.0)
-  Height = JMap.getFlt(data, "meterH", 20.0)
-  HAnchor = JMap.getStr(data, "hA", "right")
-  VAnchor = JMap.getStr(data, "vA", "center")
-  string p = ".meters." + Key() + "."
+Function SetData(int data, float H, float W, int hAlign, int vAlign)
+  md.LogVerb("Setting " + WidgetName + " data")
+  FillDirection = "right"
+  Width = W
+  Height = H
+  HAnchor = JValue.evalLuaStr(0, "return maxick.HAlign[" + hAlign + "]")
+  VAnchor = JValue.evalLuaStr(0, "return maxick.VAlign[" + vAlign + "]")
+
+  string p = "." + WidgetName + "."
   X = JValue.solveFlt(data, p + "x")
   Y = JValue.solveFlt(data, p + "y")
-  PrimaryColor = JValue.solveInt(data, p + "color")
-  ; _SetGradientColor(JValue.solveInt(data, p + "color"))   ; Looks too bright
+
+  md.LogVerb(Key() + ".dataTree: " + data)
+  md.LogVerb(Key() + ".x: " + X)
+  md.LogVerb(Key() + ".y: " + Y)
+  md.LogVerb(Key() + ".width: " + W)
+  md.LogVerb(Key() + ".height: " + H)
+  md.LogVerb(Key() + ".height: " + H)
+  md.LogVerb(Key() + ".HAnchor: " + HAnchor)
+  md.LogVerb(Key() + ".VAnchor: " + VAnchor)
 EndFunction
 
 Function _SetGradientColor(int color)
