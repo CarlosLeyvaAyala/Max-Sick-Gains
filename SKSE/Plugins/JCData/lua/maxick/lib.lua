@@ -67,6 +67,7 @@ lib.GetLog = function () return l.trim(fullLog) end
 
 ---Makes possible to get messages out from here to Skyrim.
 function lib.EnableSkyrimLogging()
+  fullLog = ""
   lib.LogCrit = LogLevel(gc.LoggingLvl.critical)
   lib.LogInfo = LogLevel(gc.LoggingLvl.info)
   lib.LogVerbose = LogLevel(gc.LoggingLvl.verbose)
@@ -79,10 +80,9 @@ end
 -- ;>========================================================
 
 ---Returns the sex of the actor as string.
----@param actor Actor
 ---@return "female"|"male"
-function lib.SexAsStr(actor)
-  if actor.isFem == 1 then
+function lib.SexAsStr(isFem)
+  if isFem == 1 then
     return "female"
   else
     return "male"

@@ -10,7 +10,6 @@ Maxick_Debug Property md Auto
 Maxick_EventNames Property ev Auto
 
 Function OnGameReload()
-  ; RegisterForKey(0x9c)
 EndFunction
 
 ; Force an NPC to get updated.
@@ -37,24 +36,27 @@ int Function _InitNpcData(Actor npc)
   int data = JMap.object()
   JMap.setStr(data, "name", DM_Utils.GetActorName(npc))
   JMap.setInt(data, "formId", base.GetFormID())
-  JMap.setInt(data, "isKnown", 0)
-
-  looksHandler.InitCommonData(data, npc, base.GetWeight(), 0)
-
-  JMap.setInt(data, "fitStage", 1)        ; Set the default stage from MaxSickGains.exe
-  JMap.setStr(data, "racialGroup", "")    ; Lua will get this
-  JMap.setStr(data, "raceDisplay", "")    ; Lua will get this
+  JMap.setFlt(data, "weight", base.GetWeight())
   JMap.setStr(data, "class", base.GetClass().GetName())
+  JMap.setStr(data, "raceEDID", looksHandler.GetRace(npc))
+  JMap.setInt(data, "isFem", looksHandler.IsFemale(npc) as int)
+  ; looksHandler.InitCommonData(data, npc, base.GetWeight(), 0)
 
-  ; _CheckIfNpcIsKnown(npc, data)
+  int mcmOptions = JMap.object()
+  JMap.setInt(mcmOptions, "kNpcBs", true as int)
+  JMap.setInt(mcmOptions, "kNpcMuscleDef", true as int)
+  JMap.setInt(mcmOptions, "gNpcFemBs", true as int)
+  JMap.setInt(mcmOptions, "gNpcFemMuscleDef", true as int)
+  JMap.setInt(mcmOptions, "gNpcManBs", true as int)
+  JMap.setInt(mcmOptions, "gNpcManMuscleDef", true as int)
+  JMap.setObj(data, "mcm", mcmOptions)
   return data
 EndFunction
 
 ; Executes the Lua function that makes all calculations on one NPC
 int Function _GetAppearance(Actor npc)
   md.LogCrit("NPC found: '" + DM_Utils.GetActorName(npc) + "'")
-  int data = _InitNpcData(npc)
-  return JValue.evalLuaObj(data, "return maxick.ChangeNpcAppearance(jobject)")
+  return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearance(jobject)")
 EndFunction
 
 ; Changes the appearance of some NPC based on their data.
@@ -84,7 +86,4 @@ Function _CheckIfNpcIsKnown(ActorBase npc, int data)
   EndWhile
 EndFunction
 
-
 ; https://www.creationkit.com/index.php?title=Unit
-; JValue.writeToFile(JDB.solveObj("." + root), JContainers.userDirectory() + "Maxick.json")
-; MiscUtil.PrintConsole(JContainers.userDirectory() + "Maxick.json")

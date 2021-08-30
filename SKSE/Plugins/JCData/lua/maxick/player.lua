@@ -313,6 +313,8 @@ function player.ChangeAppearance(raceEDID, isFem, playerStage, gains, applyMuscl
   local bs = _GetBodyslide(isFem, playerStage, gains)
   local md, mdt = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID)
   return {
+    --- Irrelevant, but sent explicitly for clarity.
+    weight = 100,
     --- Fully calculated appearance.
     bodySlide = bs,
     --- Muscle definition level.

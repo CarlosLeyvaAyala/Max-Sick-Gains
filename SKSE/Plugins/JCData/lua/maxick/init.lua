@@ -19,6 +19,16 @@ math.randomseed( os.time() )
 ---|'0'
 ---|'1'
 
+---@alias MuscleDef
+---|'-1' Don't apply
+---|'0' Use Skin texture swap list. Weight based.
+---|'1'
+---|'2'
+---|'3'
+---|'4'
+---|'5'
+---|'6'
+
 ---@alias MuscleDefType
 ---|'-1' Don't apply
 ---|'0' Plain
@@ -28,6 +38,7 @@ math.randomseed( os.time() )
 ---@alias BodyslidePreset table<string, number> Calculated preset that will be applied.
 ---@alias SkyrimHours number Hours as fractions of a day.
 ---@alias HumanHours number Hours as numbers in a day.
+---@alias LoggingFunc fun(message: string)
 
 -- ;>========================================================
 -- ;>===              PUBLISHED FUNCTIONS               ===<;
@@ -38,7 +49,7 @@ maxick.VAlign = gc.VAlign
 
 maxick.WidgetMeterPositions = l.toJMap(widget.MeterPositions)
 
-maxick.ChangeNpcAppearance = npc.ChangeAppearance
+maxick.ChangeNpcAppearance = l.toJMap(npc.ChangeAppearance)
 
 maxick.ChangePlayerAppearance = l.toJMap(player.ChangeAppearance)
 maxick.OnSleep = l.toJMap(player.OnSleep)

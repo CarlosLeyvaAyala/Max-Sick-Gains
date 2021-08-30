@@ -102,34 +102,3 @@ local blindDate = l.once(function() return "Sure, what could go wrong?" end)
 print(blindDate())
 print(blindDate())
 print(blindDate())
-
--- print("============")
--- local xx = l.map(l.range(10), rand)
--- l.foreach(xx, l.unary(print))
-
----`unpack` function seems not to be available in JContainers.\
---- This is a hack that lets you get up until 20 items from a vararg table. Hopefully you will never need more than those.
----@param t table
----@return any
-local unpack20 = function (t)
-  return t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10],t[11],t[12],t[13],t[14],t[15],t[16],t[17],t[18],t[19],t[20]
-end
-
-local function curryAll(f)
-  return function (...)
-    local curried = {...}
-    return function (x)
-      return f(x, unpack(curried))
-    end
-  end
-end
-
-local f = function (x, y, z)
-  print(x, y, z)
-end
-
-f(1,2,3)
-local c = curryAll(f)(2,3)
-c(12)
-local arr = {1,2}
-print(arr[10])
