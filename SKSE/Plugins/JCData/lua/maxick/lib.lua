@@ -23,24 +23,28 @@ lib.sampleSliders = {
 --#region
 
 ---Logs a message in the `actor`.
----@param actor Actor
+---@param variable string
 ---@return LoggingFunc
-local LogFactory = function (actor)
+local LogFactory = function (variable)
   return function (message)
     if message and (message ~= "") then
-      actor.msg = actor.msg .. message .. ". "
+      variable = variable .. message .. ". "
+      print(variable, "log factory")
+      return variable
     end
   end
 end
 
+local fullLog = ""
+
 ---Logs only messages that fit certain logging level.
----@param actor Actor
 ---@param lvl integer
 ---@return LoggingFunc
-local LogLevel = function (actor, lvl)
+local LogLevel = function (lvl)
   return function (message)
-    if db.mcm.loggingLvl >= lvl then
-      LogFactory(actor)(message)
+    if db.mcm.loggingLvl >= lvl and message and (message ~= "") then
+      fullLog = fullLog .. message .. ". "
+      return fullLog
     end
   end
 end
@@ -57,14 +61,15 @@ lib.LogInfo = nil
 ---@type LoggingFunc
 lib.LogVerbose = nil
 
+---Returns the log with all messages appended so far.
+---@return string
+lib.GetLog = function () return l.trim(fullLog) end
+
 ---Makes possible to get messages out from here to Skyrim.
----@param actor Actor
----@return Actor
-function lib.EnableSkyrimLogging(actor)
-  lib.LogCrit = LogLevel(actor, gc.LoggingLvl.critical)
-  lib.LogInfo = LogLevel(actor, gc.LoggingLvl.info)
-  lib.LogVerbose = LogLevel(actor, gc.LoggingLvl.verbose)
-  return actor
+function lib.EnableSkyrimLogging()
+  lib.LogCrit = LogLevel(gc.LoggingLvl.critical)
+  lib.LogInfo = LogLevel(gc.LoggingLvl.info)
+  lib.LogVerbose = LogLevel(gc.LoggingLvl.verbose)
 end
 
 --#endregion
@@ -92,17 +97,19 @@ function lib.RaceInList(race, raceList)
   return l.any(raceList, function (v) return string.find(race, v) end)
 end
 
+---Returns an invalid muscle defintion.
+---@return nil muscleDef
+---@return nil muscleDefType
+function lib.InvalidMuscleDef() return nil, nil end
+
 ---Returns wether the actor is banned from muscle definition applying due to her race.
----@param actor Actor
----@return Actor
-function lib.MuscleDefRaceBanned(actor)
-  local found, race = lib.RaceInList(string.lower(actor.raceEDID), db.muscleDefBanRace)
-  if found then
-    lib.LogCrit(l.fmt("Banned race '%s'", race))
-    actor.muscleDef = -1
-    actor.muscleDefType = -1
-  end
-  return actor
+---@param raceEDID string
+---@return boolean
+function lib.MuscleDefRaceBanned(raceEDID)
+  local raceedid = string.lower(raceEDID)
+  local found, race = lib.RaceInList(raceedid, db.muscleDefBanRace)
+  if found then lib.LogCrit(l.fmt("Banned race '%s'", race)) end
+  return found
 end
 
 return lib

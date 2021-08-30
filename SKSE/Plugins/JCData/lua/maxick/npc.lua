@@ -14,49 +14,53 @@ local disable = -1
 --- Table structure for visually processing NPCs.
 --- This is a dummy variable used only for reference.
 local sampleNPC = {
+  -- ;> IN
   --- Actor name. Used to try to find it in the known npcs database.
-  name = "Lydia",
+  name = "Lydia", -- in
   --- Used to try to find it in the known npcs database.
-  formId = 0xa2c8e,
-  --- Gotten by Lua. Used to apply MCM settings based on NPC type.
-  isKnown = 0,
-  --- Additional info of the operation. This is output to the Skyrim console.
-  msg = "",
+  formId = 0xa2c8e, -- in
+  --- Used to calculate body slider values. Range: `[0..100]`.
+  --- Either user assigned in Known NPCs or gotten from the game.
+  weight = math.random(100), -- in
+  --- Class name as gotten from PapyrusUtil.
+  class = "Warriosr", -- in
+  -- ;> IN COMMON
+  --- Actor race as registered in the esp file.
+  raceEDID = "NordRace", -- in
   --- Sex is gotten from in game, not the master esp, in case the player had
   --- installed a mod that makes everyone women or something.
   --- This selects the Bodyslide preset used.
-  isFem = 1,
+  isFem = 1, --in
+  -- ;> OUT
+  --- Additional info of the operation. This is output to the Skyrim console.
+  msg = "", -- out
   --- Not a Bodyslide preset, but the slider data that will be applied to an actor.
   --- Actual Bodyslide presets are taken from `database.lua`.
-  bodySlide = ml.sampleSliders,
-  --- Used to calculate body slider values. Range: `[0..100]`.
-  --- Either user assigned in Known NPCs or gotten from the game.
-  weight = math.random(100),
-  --- Used to determine Bodyslide preset and muscle definition. Created by player.
-  fitStage = 1,
+  bodySlide = ml.sampleSliders, -- out
   --- What kind of muscle definition the `Actor` has. Since it relies on Armors and SetSkin()
   --- it is advisable to disable for some kind of races.
   --- * `-1`: Don't change muscle definition.
   --- * `0`: Plain looking. Average looking textures.
   --- * `1`: Fit looking. Athletic. Use ripped textures.
   --- * `2`: Fat. Actual average looks in real life (at least in my country). Use flabby textures.
-  muscleDefType = -1,
+  muscleDefType = -1, -- out
   --- `[-1 to 6]`.
   --- * `-1` is "disabled"
   --- * `0` sets an armor with a variable texture list to dinamically change muscle definition
   --- based on weight.
   --- * `1-6` force that muscle definition on actor.
-  muscleDef = -1,
-  --- Actor race as registered in the esp file.
-  raceEDID = "NordRace",
-  --- Result from detecting if the race is known. Used for muscle definition.
-  racialGroup = "",
-  --- Used to print to the Skyrim console which race was matched in `database.races`.
-  raceDisplay = "",
-  --- Class name as gotten from PapyrusUtil.
-  class = "Warriosr",
+  muscleDef = -1, -- out
   --- Wether to process the `Actor` at all. Always `false` for unknown races.
-  shouldProcess = 0
+  shouldProcess = 0, -- out
+  -- ;> INTERMEDIATE
+  --- Gotten by Lua. Used to apply MCM settings based on NPC type.
+  isKnown = 0, -- intermediate
+  --- Used to determine Bodyslide preset and muscle definition. Created by player.
+  fitStage = 1, -- intermediate
+  --- Result from detecting if the race is known. Used for muscle definition.
+  racialGroup = "", -- intermediate
+  --- Used to print to the Skyrim console which race was matched in `database.races`.
+  raceDisplay = "", -- intermediate
 }
 
 -- ;>========================================================
@@ -458,12 +462,12 @@ end
 ---@param actor Actor
 ---@return Actor
 function npc.ChangeAppearance(actor)
-  return l.processActor(actor, {
-    ml.EnableSkyrimLogging,
-    _GetToKnowNPC,
-    _ProcessKnownNPC,
-    -- l.tap(serpent.piped)
-  })
+  return 0
+  -- return l.processActor(actor, {
+  --   ml.EnableSkyrimLogging,
+  --   _GetToKnowNPC,
+  --   _ProcessKnownNPC,
+  -- })
 end
 
 -- npc.ChangeAppearance(sampleNPC)

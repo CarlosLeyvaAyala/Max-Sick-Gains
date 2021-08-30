@@ -1,6 +1,8 @@
 local sliderCalc = {}
 
 local l = jrequire 'dmlib'
+local db = jrequire 'maxick.database'
+-- local serpent = require("__serpent")
 
 
 -- ;>========================================================
@@ -41,7 +43,7 @@ end
 ---@param blend number
 ---@return function
 function sliderCalc.BlendMorph(blend)
-  return l.wrap(sliderCalc.StdMorph, function (func, ...) return func(...) * blend end)
+  return l.wrap(sliderCalc.StdMorph, function (f, ...) return f(...) * blend end)
 end
 
 -- ;>========================================================
@@ -61,6 +63,30 @@ function sliderCalc.CalcSliders(sliders, weight, fitStageBs, method)
   )(sliders)
 
   return l.joinTables(resetBs, newVals, _GetCalculated)
+end
+
+---Gets the slider values from database for a _Fitness stage_.
+---@param fitStage integer
+---@param isFem Sex
+---@return table<string, table>
+local function _GetSliders(fitStage, isFem)
+  local st = db.fitStages[fitStage]
+  return l.IfThen(l.SkyrimBool(isFem), st.femBs, st.manBs)
+end
+
+---Returns a table with all slider numbers using some `method`.
+---@param weight number
+---@param fitStage integer
+---@param isFem Sex
+---@param method fun(gains: number, min: number, max: number): number
+---@return BodyslidePreset
+function sliderCalc.GetBodyslide(weight, fitStage, isFem, method)
+  local fitStageBs = _GetSliders(fitStage, isFem)
+  local sliders = l.keys(fitStageBs)
+  return l.pipe(
+    l.buildKeys(function (_, v) return v end),
+    l.map(function (_, k) return method(weight, fitStageBs[k].min, fitStageBs[k].max) end)
+  )(sliders)
 end
 
 ---Sets all slider numbers for an actor using some `method`.

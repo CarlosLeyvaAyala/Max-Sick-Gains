@@ -20,27 +20,8 @@ player.gainsCatabolism = 0.5
 --- Max amount of training the player can have.
 player.maxTraining = 12
 
---- Same named variables as [sampleNPC](npc.lua) have the same function. No need to document.
-local samplePlayer = {
-  bodySlide = ml.sampleSliders,
-  isFem = 1,
-  msg = "",
-  muscleDefType = -1,
-  muscleDef = -1,
-  ---Used to know if muscle definition is banned for her race.
-  raceEDID = "NordRaceAstrid",
-  --- Current Player stage.
-  stage = 1,
-  --- Training that will get converted to `gains`. `[0..12]`
-  training = 12,
-  --- Player stage completition value. `If >= 100`, go up. `If < 0`, go down. `[0..100]`
-  gains = math.random(100),
-  --- Calculated head size.
-  --- **`Out`** variable.
-  headSize = 1.0,
-}
 
--- Shortcuts to avoid too much words.
+--;> Shortcuts to avoid too much words.
 
 ---Gets the current _Player stage_ as a table.
 ---@param playerStage number
@@ -56,15 +37,18 @@ local function _Fitstage(playerStage) return db.fitStages[_Stage(playerStage).fi
 -- ;>===            APPEARANCE CALCULATIONS             ===<;
 -- ;>========================================================
 
+--#region
+
 ---Calculates the head size for the player according to database.
----@param actor Actor
----@return Actor
-local function _SetHeadSize(actor)
-  local st = _Stage(actor.stage)
+---@param playerStage integer
+---@param gains number
+---@return number
+local function _GetHeadSize(playerStage, gains)
+  local st = _Stage(playerStage)
   --Head size is a percent value.
-  actor.headSize = l.linCurve({x=0, y=st.headLo}, {x=100, y=st.headHi})(actor.gains) / 100
-  ml.LogVerbose(l.fmt("Head size: %.1f%%", actor.headSize * 100))
-  return actor
+  local headSize = l.linCurve({x=0, y=st.headLo}, {x=100, y=st.headHi})(gains) / 100
+  ml.LogVerbose(l.fmt("Head size: %.1f%%", headSize * 100))
+  return headSize
 end
 
 ---Sets a display message only if a possible message exists in the database.
@@ -83,60 +67,58 @@ function player.StageMessage(stage)
   return _StageChangeMsg(stage, "Now you look %s.")
 end
 
+--#endregion
 
 -- ;>========================================================
 -- ;>===               MUSCLE DEFINITION                ===<;
 -- ;>========================================================
 
----Logs if the muscle definition won't be changed.
----@param actor Actor
-local function _LogNotChangingMuscleDef(actor)
-  if actor.muscleDef < 0 then
-    ml.LogCrit("Won't change muscle definition")
+--#region
+
+---Logs that the muscle definition won't be changed.
+local function _LogNotChangingMuscleDef() ml.LogCrit("Won't change muscle definition") end
+
+---Logs that muscle definition won't be changed.
+---@return nil, nil
+local function _MDefBanned() _LogNotChangingMuscleDef() return ml.InvalidMuscleDef() end
+
+---Logs that muscle definition was disabled in the MCM.
+---@return nil, nil
+local function _MDefMcmBanned() ml.LogCrit("MCM: muscle definition changing banned") return _MDefBanned() end
+
+---Sets a valid muscle definition.
+---@param playerStage integer
+---@param gains number
+---@return integer muscleDef
+---@return MuscleDefType muscleDefType
+local function _ValidMuscleDef(playerStage, gains)
+  local stage = _Stage(playerStage)
+  local muscleDef = l.round(sl.WeightBasedAdjust(gains, stage.muscleDefLo, stage.muscleDefHi))
+  local muscleDefType = _Fitstage(playerStage).muscleDefType
+  return muscleDef, muscleDefType
+end
+
+---Returns the muscle definition the player should have.
+---@param playerStage integer
+---@param gains number
+---@param applyMuscleDef SkyrimBool
+---@param raceEDID string
+---@return integer|nil muscleDef Muscle definition level.
+---@return MuscleDefType|nil muscleDefType Muscle definition type.
+local function _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID)
+  if not l.SkyrimBool(applyMuscleDef) then return _MDefMcmBanned()
+  elseif ml.MuscleDefRaceBanned(raceEDID) then return _MDefBanned()
+  else return _ValidMuscleDef(playerStage, gains)
   end
 end
 
----Sets the invalid muscle definition.
----@param actor Actor
----@return Actor
-local function _SetInvalidMuscleDef(actor)
-  actor.muscleDef = -1
-  actor.muscleDefType = -1
-  ml.LogCrit("MCM: muscle definition changing banned")
-  return actor
-end
-
----Sets a valid muscle definition.
----@param actor Actor
----@return Actor
-local function _SetValidMuscleDef(actor)
-  local stage = _Stage(actor.stage)
-  actor.muscleDef = l.round(sl.WeightBasedAdjust(actor.gains, stage.muscleDefLo, stage.muscleDefHi))
-  actor.muscleDefType = _Fitstage(actor.stage).muscleDefType
-  return actor
-end
-
----Sets the muscle definition depending on MCM settings.
----@param actor Actor
----@return Actor
-local function _SetMcmMuscleDef(actor)
-  return l.alt2(db.mcm.playerMuscleDef, _SetValidMuscleDef, _SetInvalidMuscleDef)(actor)
-end
-
----Sets muscle definition.
----@param actor Actor
----@return Actor
-local function _SetMuscleDef(actor)
-  return l.pipe(
-    _SetMcmMuscleDef,
-    ml.MuscleDefRaceBanned,
-    l.tap(_LogNotChangingMuscleDef)
-  )(actor)
-end
+--#endregion
 
 -- ;>========================================================
 -- ;>===                   BODYSLIDE                    ===<;
 -- ;>========================================================
+
+--#region
 
 ---Gets the values used for blending stages.
 ---@param currentStage integer
@@ -148,20 +130,17 @@ end
 ---@return number blendStageBlend How much the blend stage contributes to blending.
 ---@return number blendStageGains  On which `gains` the blending stage will be calculated.
 local function _GetBlends(currentStage, gains)
-  local b1, b2, blendStage, g2 = 0, 0, 0, 0
-  local lBlendLim = db.playerStages[currentStage].blend
-  local uBlendLim = 100 - db.playerStages[currentStage].blend
+  local b1, b2, blendStage, g2, bl = 0, 0, 0, 0, db.playerStages[currentStage].blend
+  local lBlendLim, uBlendLim = bl, 100 - bl
 
   if (lBlendLim >= gains) and (currentStage > 1) then
-    ml.LogVerbose("Current stage was blended with previous.")
-    blendStage = currentStage - 1
+    ml.LogVerbose("Current stage was blended with previous")
+    blendStage, g2 = currentStage - 1, 100
     b1 = l.linCurve({x=0, y=0.5}, {x=lBlendLim, y=1})(gains)
-    g2 = 100
   elseif (uBlendLim <= gains) and (currentStage < #db.playerStages) then
-    ml.LogVerbose("Current stage was blended with next.")
-    blendStage = currentStage + 1
+    ml.LogVerbose("Current stage was blended with next")
+    blendStage, g2 = currentStage + 1, 0
     b1 = l.linCurve({x=uBlendLim, y=1}, {x=100, y=0.5})(gains)
-    g2 = 0
   else
     ml.LogVerbose("No blending needed")
     b1 = 1
@@ -171,47 +150,35 @@ local function _GetBlends(currentStage, gains)
 end
 
 ---Calculates slider values.
----@param stageId integer Stage to getting sliders from.
+---@param playerStage integer Stage to getting sliders from.
 ---@param gains number Current gains to calculate slider values.
 ---@param blend number How much does `stageId` contributes to overall shape.
 ---@param isFem Sex Player sex.
----@param sliders table Table with the sliders the player has.
----@return table sliders
-local function _GetSliders(stageId, isFem, gains, sliders, blend)
-  if (stageId < 1) or (blend == 0) then return {} end -- Nothing to calculate
-  local stage = _Stage(stageId)
-  local fitStage = db.fitStages[stage.fitStage]
-  local bs = l.IfThen(isFem == 1, fitStage.femBs, fitStage.manBs)
+---@return BodyslidePreset sliders Calculated sliders.
+local function _GetSliders(isFem, playerStage, gains, blend)
+  if (playerStage < 1) or (blend == 0) then return {} end -- Nothing to calculate
+  local stage = _Stage(playerStage)
   local weight = sl.WeightBasedAdjust(gains, stage.bsLo, stage.bsHi)
-
-  return sl.CalcSliders(sliders, weight, bs, sl.BlendMorph(blend))
+  return sl.GetBodyslide(weight, stage.fitStage, isFem, sl.BlendMorph(blend))
 end
 
----Calculates the slider values for an actor.
----@param actor Actor Player actor.
----@param stageId integer Stage to getting sliders from.
----@param gains number Current gains to calculate slider values.
----@param blend number How much does `stageId` contributes to overall shape.
----@return table sliders
-local function _GetActorSliders(actor, stageId, gains, blend)
-  return _GetSliders(stageId, actor.isFem, gains, actor.bodySlide, blend)
-end
-
----Sets a blended Bodyslide for the player.
----@param actor Actor
----@return Actor
-local function _SetBodyslide(actor)
+---Gets the blended Bodyslide for the player.
+---@param isFem Sex
+---@param playerStage integer
+---@param gains number
+---@return BodyslidePreset
+local function _GetBodyslide(isFem, playerStage, gains)
   ml.LogCrit("Setting player appearance")
-  local st1, bl1, g1, st2, bl2, g2 = _GetBlends(actor.stage, actor.gains)
+  local st1, bl1, g1, st2, bl2, g2 = _GetBlends(playerStage, gains)
   -- Current stage sliders
-  local sl1 = _GetActorSliders(actor, st1, g1, bl1)
+  local sl1 = _GetSliders(isFem, st1, g1, bl1)
   -- Blend stage sliders
-  local sl2 = _GetActorSliders(actor, st2, g2, bl2)
+  local sl2 = _GetSliders(isFem, st2, g2, bl2)
   -- Combine
-  local blended = l.joinTables(sl1, sl2, function (v1, v2) return v1 + v2 end)
-  l.assign(actor.bodySlide, blended)
-  return actor
+  return l.joinTables(sl1, sl2, function (v1, v2) return v1 + v2 end)
 end
+
+--#endregion
 
 -- ;>========================================================
 -- ;>===                     GAINS                      ===<;
@@ -336,16 +303,30 @@ player.CapTraining = function (x) return l.forceRange(0, player.maxTraining)(x) 
 -- ;>========================================================
 
 ---Makes the calculations needed to change the player's appearance.
----@param actor Actor
----@return Actor
-function player.ChangeAppearance(actor)
-  return l.processActor(actor, {
-    ml.EnableSkyrimLogging,
-    _SetBodyslide,
-    _SetMuscleDef,
-    _SetHeadSize,
-  })
+---@param raceEDID string
+---@param isFem Sex
+---@param playerStage integer
+---@param gains number
+---@param applyMuscleDef SkyrimBool
+function player.ChangeAppearance(raceEDID, isFem, playerStage, gains, applyMuscleDef)
+  ml.EnableSkyrimLogging()
+  local bs = _GetBodyslide(isFem, playerStage, gains)
+  local md, mdt = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID)
+  return {
+    --- Fully calculated appearance.
+    bodySlide = bs,
+    --- Muscle definition level.
+    muscleDef = md or -1,
+    muscleDefType = mdt or -1,
+    headSize = _GetHeadSize(playerStage, gains),
+    --- Description of all operations that were done.
+    msg = ml.GetLog(),
+    --- Player should be always processed by `Maxick_ActorAppearance.ChangeAppearance()`.
+    shouldProcess = 1,
+  }
 end
+
+-- print(serpent.block(player.ChangeAppearance("NordRaceAstri", 1, 3, 100, 1)))
 
 ---Attempts to make gains when sleeping.
 ---@param hoursSlept number
@@ -384,6 +365,8 @@ end
 -- ;>===                    POLLING                     ===<;
 -- ;>========================================================
 
+--#region
+
 ---Calculates losses on `gains` when in _Catabolic State_.
 ---@param stage integer
 ---@return number
@@ -414,6 +397,8 @@ function player.Polling(now, lastPoll, training, gains, stage, inCatabolism)
     stageDelta = newStage - stage,
   }
 end
+
+--#endregion
 
 -- print(serpent.block(player.Polling(1, 0, 10, 0, 2, 1)))
 -- print(serpent.block(player.ChangeAppearance(samplePlayer)))

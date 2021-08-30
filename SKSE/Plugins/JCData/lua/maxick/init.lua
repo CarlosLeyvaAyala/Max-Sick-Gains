@@ -19,6 +19,13 @@ math.randomseed( os.time() )
 ---|'0'
 ---|'1'
 
+---@alias MuscleDefType
+---|'-1' Don't apply
+---|'0' Plain
+---|'1' Fit
+---|'2' Fat
+
+---@alias BodyslidePreset table<string, number> Calculated preset that will be applied.
 ---@alias SkyrimHours number Hours as fractions of a day.
 ---@alias HumanHours number Hours as numbers in a day.
 
@@ -33,7 +40,7 @@ maxick.WidgetMeterPositions = l.toJMap(widget.MeterPositions)
 
 maxick.ChangeNpcAppearance = npc.ChangeAppearance
 
-maxick.ChangePlayerAppearance = player.ChangeAppearance
+maxick.ChangePlayerAppearance = l.toJMap(player.ChangeAppearance)
 maxick.OnSleep = l.toJMap(player.OnSleep)
 maxick.Poll = l.toJMap(player.Polling)
 maxick.trainingDecay = player.trainingDecay

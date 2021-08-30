@@ -473,5 +473,8 @@ EndFunction
 
 ; Gets the player appearance from Lua.
 int Function _GetAppearance()
-  return JValue.evalLuaObj(_InitData(), "return maxick.ChangePlayerAppearance(jobject)")
+  ;FIXME: Get MCM settings
+  return LuaTable("maxick.ChangePlayerAppearance", Arg(looksHandler.GetRace(player)), \
+    looksHandler.IsFemale(player) as Int, _stage, _gains, 1)
+  ; return JValue.evalLuaObj(_InitData(), "return maxick.ChangePlayerAppearance(jobject)")
 EndFunction
