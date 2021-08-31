@@ -79,13 +79,23 @@ Function _RegisterForSex()
     RegisterForModEvent("StageEnd", "SexLabEvent")
     RegisterForModEvent("AnimationEnd", "SexLabEvent")
   EndIf
+  RegisterForModEvent("ostim_animationchanged", "OStimEvent")
+  RegisterForModEvent("ostim_end", "OStimEvent")
 EndFunction
+
+; OStim integration.
+Event OStimEvent(string _, string __, float ___, form ____)
+  If OUtils.GetOStim().IsActorActive(player)
+    md.LogInfo("OStim event detected")
+    SendModEvent(ev.TRAIN, "Sex")
+  EndIf
+EndEvent
 
 ; Sexlab integration.
 Event SexLabEvent(string _, string __, float ___, form sender)
   sslThreadController c = sender as sslThreadController
   If c && c.HasPlayer
-    md.LogVerb("SexLab event detected")
+    md.LogInfo("SexLab event detected")
     SendModEvent(ev.TRAIN, "Sex")
   EndIf
 EndEvent

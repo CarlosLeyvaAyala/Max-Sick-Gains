@@ -29,6 +29,9 @@
         <Import>@MO\FNIS Creature Pack SE 7.0\source\scripts\</Import>
         <Import>@MO\JContainers SE\scripts\source</Import>
         <Import>@MO\MCM SDK\Source\Scripts</Import>
+        <Import>@MO\OStim - OSex overhaul and API\Scripts\Source</Import>
+        <Import>@MO\Mfg Fix\source\scripts</Import>
+        <Import>@MO\OSA - Skyrim Ascendancy Engine\Scripts\Source</Import>
         <Import>@lib\Source</Import>
         <Import>@lib</Import>
     </Imports>

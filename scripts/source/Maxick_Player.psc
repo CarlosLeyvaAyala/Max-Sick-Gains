@@ -84,6 +84,7 @@ Function _EnterTestingMode()
   Else
     GotoState("")
     _RestoreHeadSize()
+    RegisterForSingleUpdate(_pollingInterval)
   EndIf
 EndFunction
 

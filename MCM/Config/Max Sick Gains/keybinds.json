@@ -112,11 +112,35 @@
       }
     },
     {
-      "id": "hk_NpcForceAll",
+      "id": "hk_TM",
       "desc": "Toggle Menu Display",
       "action": {
         "type": "RunConsoleCommand",
         "command": "ToggleMenus"
+      }
+    },
+    {
+      "id": "hk_TFC",
+      "desc": "TFC",
+      "action": {
+        "type": "RunConsoleCommand",
+        "command": "tfc"
+      }
+    },
+    {
+      "id": "hk_fov45",
+      "desc": "fov 45",
+      "action": {
+        "type": "RunConsoleCommand",
+        "command": "fov 45"
+      }
+    },
+    {
+      "id": "hk_fov90",
+      "desc": "fov 90",
+      "action": {
+        "type": "RunConsoleCommand",
+        "command": "fov 90"
       }
     }
   ]
