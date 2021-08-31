@@ -102,3 +102,5 @@ local blindDate = l.once(function() return "Sure, what could go wrong?" end)
 print(blindDate())
 print(blindDate())
 print(blindDate())
+
+print(string.find("--{RELEASE} local npc = {}", "{RELEASE}"))

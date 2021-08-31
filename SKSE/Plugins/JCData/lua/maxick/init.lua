@@ -1,3 +1,5 @@
+--{RELEASE}
+
 -- package.path = package.path..";F:/Skyrim SE/MO2/mods/DM-SkyrimSE-Library/SKSE/Plugins/JCData/lua/?/init.lua"
 -- package.path = package.path..";F:/Skyrim SE/MO2/mods/JContainers SE/SKSE/Plugins/JCData/lua/?/init.lua"
 -- package.path = package.path..";F:/Skyrim SE/MO2/mods/Max Sick Gains/SKSE/Plugins/JCData/lua/maxick/?.lua"
@@ -73,6 +75,7 @@ end
 ---Shows the _"next stage reached"_ message while in slideshow mode.
 ---@param stage number
 ---@return string
-function maxick.SlideshowStageMsg(stage) return player.StageMessage(stage) end
+maxick.SlideshowStageMsg = player.StageMessage
+maxick.PlayerStageMsg = player.StageMessage
 
 return maxick

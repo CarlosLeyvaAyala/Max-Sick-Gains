@@ -1,3 +1,5 @@
+--{RELEASE}
+
 local l = jrequire 'dmlib'
 local gc = jrequire 'maxick.genConst'
 local db = jrequire 'maxick.database'

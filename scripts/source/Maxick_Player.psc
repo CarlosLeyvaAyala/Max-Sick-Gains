@@ -78,7 +78,7 @@ EndFunction
 ; Enters testing mode if needed.
 Function _EnterTestingMode()
   If md.testMode
-    Game.SetInChargen(true, true, false)  ; Disable game saving while in Testing mode
+    ; Game.SetInChargen(true, true, false)  ; Disable game saving while in Testing mode
     GotoState("TestingMode")
     ; Appearance will be changed by Maxick_Main._TestingModeOperations()
   Else
@@ -163,7 +163,9 @@ EndFunction
 Function _SendStageDelta(int delta)
   If delta != 0
     md.LogInfo("Player changed stage by " + delta)
-    SendModEvent(ev.PLAYER_STAGE_DELTA, "", delta)
+    SendModEvent(ev.PLAYER_STAGE_DELTA, \
+      JLua.evalLuaStr("return maxick.PlayerStageMsg(" + _stage + ")", 0), \
+      delta)
   EndIf
 EndFunction
 

@@ -1,3 +1,5 @@
+--{RELEASE}
+
 local sliderCalc = {}
 
 local l = jrequire 'dmlib'

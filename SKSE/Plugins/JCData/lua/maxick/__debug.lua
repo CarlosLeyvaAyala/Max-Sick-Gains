@@ -24,9 +24,12 @@ local function revertLibRequire(content, libName)
 end
 
 local function makeRelease(content)
+  if string.find(content, "{RELEASE}") then return content end
+  content = string.gsub(content, "{DEBUG}", "{RELEASE}")
   content = string.gsub(content, "package.path = ", "-- package.path = ")
   content = string.gsub(content, " = require ", " = jrequire ")
   content = string.gsub(content, "require '", requireMod)
+  content = string.gsub(content, "local serpent = require", "-- local serpent = require")
 
   -- ;TODO: Modify these
   content = revertLibRequire(content, "jc")
@@ -35,8 +38,11 @@ local function makeRelease(content)
 end
 
 local function makeDebug(content)
+  if string.find(content, "{DEBUG}") then return content end
+  content = string.gsub(content, "{RELEASE}", "{DEBUG}")
   content = string.gsub(content, "-- package.path = ", "package.path = ")
   content = string.gsub(content, " = jrequire ", " = require ")
+  content = string.gsub(content, "-- local serpent = require", "local serpent = require")
   content = string.gsub(content, requireMod, "require '")
   return content
 end

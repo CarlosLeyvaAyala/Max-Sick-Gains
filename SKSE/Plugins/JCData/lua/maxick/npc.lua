@@ -1,3 +1,5 @@
+--{RELEASE}
+
 local npc = {}
 
 local l = jrequire 'dmlib'
@@ -238,13 +240,13 @@ end
 ---@return table possibleArchetypes All archetypes this NPC belongs to.
 local function _AllAllowedArchetypes(raceEDID, classMatch)
   local raceedid = string.lower(raceEDID)
-  return l.filter(
+  return l.dropNils(l.filter(
     l.flatten(classMatch),
     function (archId)
       local racesList = db.classArchetypes[archId].raceExclusive
-      return _ClassArchetypeAllowed(raceedid, racesList)
+      return (_ClassArchetypeAllowed(raceedid, racesList))
     end
-  )
+  ))
 end
 
 ---Returns a list with the archetypes where the NPC has race exclusivity. \
@@ -484,8 +486,8 @@ end
 --     kNpcMuscleDef = 1,
 --     gNpcFemBs = 1,
 --     gNpcFemMuscleDef = 1,
---     gNpcManBs = 0,
---     gNpcManMuscleDef = 0,
+--     gNpcManBs = 1,
+--     gNpcManMuscleDef = 1,
 --   },
 --   --- Actor name. Used to try to find it in the known npcs database.
 --   name = "Laydia",

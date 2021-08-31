@@ -1,3 +1,5 @@
+--{RELEASE}
+
 local skill = {}
 
 local l = jrequire 'dmlib'

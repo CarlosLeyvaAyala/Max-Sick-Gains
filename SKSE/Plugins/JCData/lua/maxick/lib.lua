@@ -1,3 +1,5 @@
+--{RELEASE}
+
 --- Shared functions that only make sense for this mod
 local lib = {}
 

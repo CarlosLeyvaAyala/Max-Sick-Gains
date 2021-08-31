@@ -11,17 +11,6 @@ Maxick_Meter01 Property Gains Auto
 Maxick_Meter02 Property Training Auto
 Maxick_Meter03 Property Inactivity Auto
 
-; float Property x = 0.0 Auto
-; float Property y = 0.0 Auto
-; float Property meterW = 150.0 Auto
-; float Property meterH = 17.5 Auto
-; float Property vGap = -0.15 Auto
-; int Property hAlign = 2 Auto
-; int Property vAlign = 1 Auto
-; int Property Meter1Color = 0xc0c0c0 Auto
-; int Property Meter2Color = 0x6b17cc Auto
-; int Property Meter3Color = 0xf2e988 Auto
-
 int _updateInterval = 2
 int _flashNormal = 0xffffff     ; White
 int _flashDanger = 0xff6d01     ; Orange
@@ -38,7 +27,6 @@ bool _hidden = false
 
 Function OnGameReload()
   mcmHandler.UpdateWidget()
-  ; SetAppearanceance()
   _RegisterEvents()
 EndFunction
 
@@ -188,7 +176,7 @@ Function Toggle()
   EndIf
 EndFunction
 
-Event OnChangeStage(string _, string __, float delta, Form ___)
+Event OnChangeStage(string _, string msg, float delta, Form ___)
   int d = delta as int
   md.LogVerb("Widget got Player Stage change: " + d)
   If d > 0
@@ -197,5 +185,8 @@ Event OnChangeStage(string _, string __, float delta, Form ___)
     Debug.Notification("You lost gains, but don't fret; you can always come back.")
   Else
     return
+  EndIf
+  If msg
+    Debug.Notification(msg)
   EndIf
 EndEvent

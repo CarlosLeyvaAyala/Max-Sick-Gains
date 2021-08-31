@@ -1,3 +1,5 @@
+--{RELEASE}
+
 local player = {}
 
 local l = jrequire 'dmlib'
@@ -47,7 +49,9 @@ function player.GetHeadSize(playerStage, gains)
   local st = _Stage(playerStage)
   --Head size is a percent value.
   local headSize = l.linCurve({x=0, y=st.headLo}, {x=100, y=st.headHi})(gains) / 100
-  ml.LogVerbose(l.fmt("Head size: %.1f%%", headSize * 100))
+  if ml.LogVerbose then
+    ml.LogVerbose(l.fmt("Head size: %.1f%%", headSize * 100))
+  end
   return headSize
 end
 
