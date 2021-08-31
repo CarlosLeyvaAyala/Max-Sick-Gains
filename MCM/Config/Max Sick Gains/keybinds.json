@@ -91,12 +91,23 @@
     },
     {
       "id": "hk_NpcForce",
-      "desc": "Force appearance update on NPC",
+      "desc": "Force appearance update on NPC (console)",
       "action": {
         "type": "CallFunction",
         "form": "Max Sick Gains.esp|D76",
         "scriptName": "Maxick_NPC",
         "function": "ForceUpdate",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_NpcForceCrosshair",
+      "desc": "Force appearance update on NPC (crosshair)",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_NPC",
+        "function": "ForceUpdateCrosshair",
         "params": []
       }
     },

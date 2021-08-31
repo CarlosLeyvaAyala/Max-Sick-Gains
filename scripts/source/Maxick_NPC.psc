@@ -16,6 +16,19 @@ EndFunction
 Function ForceUpdate()
   md.LogVerb("Forcing change on NPC.")
   Actor npc = Game.GetCurrentConsoleRef() as Actor
+  _ForceNPCUpdate(npc)
+EndFunction
+
+Function ForceUpdateCrosshair()
+  md.LogVerb("Forcing change on NPC.")
+  Actor npc = Game.GetCurrentCrosshairRef() as Actor
+  _ForceNPCUpdate(npc)
+EndFunction
+
+Function _ForceNPCUpdate(Actor npc)
+  If !npc
+    return
+  EndIf
   If npc == main.player
     md.Log("Yeah... nice try, Einstein. GO EARN YOUR GAINS, YOU LOAFER.")
     return
@@ -42,13 +55,14 @@ int Function _InitNpcData(Actor npc)
   JMap.setInt(data, "isFem", looksHandler.IsFemale(npc) as int)
   ; looksHandler.InitCommonData(data, npc, base.GetWeight(), 0)
 
+  string mod = "Max Sick Gains"
   int mcmOptions = JMap.object()
-  JMap.setInt(mcmOptions, "kNpcBs", true as int)
-  JMap.setInt(mcmOptions, "kNpcMuscleDef", true as int)
-  JMap.setInt(mcmOptions, "gNpcFemBs", true as int)
-  JMap.setInt(mcmOptions, "gNpcFemMuscleDef", true as int)
-  JMap.setInt(mcmOptions, "gNpcManBs", true as int)
-  JMap.setInt(mcmOptions, "gNpcManMuscleDef", true as int)
+  JMap.setInt(mcmOptions, "kNpcBs", MCM.GetModSettingBool(mod, "bKNBsFem:Appearance") as int)
+  JMap.setInt(mcmOptions, "kNpcMuscleDef", MCM.GetModSettingBool(mod, "bKNMusDefFem:Appearance") as int)
+  JMap.setInt(mcmOptions, "gNpcFemBs", MCM.GetModSettingBool(mod, "bUNBsFem:Appearance") as int)
+  JMap.setInt(mcmOptions, "gNpcFemMuscleDef", MCM.GetModSettingBool(mod, "bUNMusDefFem:Appearance") as int)
+  JMap.setInt(mcmOptions, "gNpcManBs", MCM.GetModSettingBool(mod, "bUNBsMan:Appearance") as int)
+  JMap.setInt(mcmOptions, "gNpcManMuscleDef", MCM.GetModSettingBool(mod, "bUNMusDefMan:Appearance") as int)
   JMap.setObj(data, "mcm", mcmOptions)
   return data
 EndFunction

@@ -80,8 +80,10 @@ Function _EnterTestingMode()
   If md.testMode
     Game.SetInChargen(true, true, false)  ; Disable game saving while in Testing mode
     GotoState("TestingMode")
+    ; Appearance will be changed by Maxick_Main._TestingModeOperations()
   Else
     GotoState("")
+    _RestoreHeadSize()
   EndIf
 EndFunction
 
@@ -456,25 +458,17 @@ Function ChangeAppearance()
   looksHandler.ChangeHeadSize(player, JMap.getFlt(appearance, "headSize", 2.2))
 EndFunction
 
-; Initializes the data that will be used to change appearance.
-int Function _InitData()
-  int data = JMap.object()
-
-  ; Weight is irrelevant. It's only set so `looksHandler.ChangeAppearance` sets the
-  ; Bodyslide preset.
-  looksHandler.InitCommonData(data, player, 0, 1)
-
-  JMap.setInt(data, "stage", _stage)       ; Current player stage
-  JMap.setFlt(data, "training", 0)
-  JMap.setFlt(data, "gains", _gains)
-  JMap.setFlt(data, "headSize", 0.0)
-  return data
+; Resets head size when reloading a game.
+Function _RestoreHeadSize()
+  md.LogInfo("Restoring head size on game reload.")
+  float hs = JLua.evalLuaFlt("return maxick.PlayerHeadSize(" + _stage + ", " + _gains + ")", 0)
+  looksHandler.ChangeHeadSize(player, hs)
 EndFunction
 
 ; Gets the player appearance from Lua.
 int Function _GetAppearance()
   ;FIXME: Get MCM settings
   return LuaTable("maxick.ChangePlayerAppearance", Arg(looksHandler.GetRace(player)), \
-    looksHandler.IsFemale(player) as Int, _stage, _gains, 1)
+    looksHandler.IsFemale(player) as Int, _stage, _gains, MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance") as int)
   ; return JValue.evalLuaObj(_InitData(), "return maxick.ChangePlayerAppearance(jobject)")
 EndFunction

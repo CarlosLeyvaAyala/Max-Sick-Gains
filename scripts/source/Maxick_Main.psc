@@ -43,7 +43,7 @@ Function OnCellLoad()
   Actor[] npcs = MiscUtil.ScanCellNPCs(player, 0, None, false)
   int i = npcs.length
   While i > 0
-    If npcs[i] != Player
+    If npcs[i] && (npcs[i] != Player)
       NpcHandler.ChangeAppearance(npcs[i])
     EndIf
     i -= 1

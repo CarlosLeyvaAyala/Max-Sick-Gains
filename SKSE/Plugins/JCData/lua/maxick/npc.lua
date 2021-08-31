@@ -29,6 +29,14 @@ local function _SolveBodyslide(fitStage, weight, isFem)
   end
 end
 
+---Logs a message saying it won't change muscle definition and sends out invalid values.
+---@return nil
+---@return nil
+local function _WontChangeMuscleDef()
+  ml.LogInfo("Won't change muscle definition")
+  return nil, nil
+end
+
 ---Sets an actor muscle definition if it should be done.
 ---@param fitStage integer
 ---@param muscleDef MuscleDef
@@ -36,8 +44,8 @@ end
 ---@return nil|MuscleDef muscleDef
 ---@return nil|MuscleDefType muscleDefType
 local function _SolveMuscleDef(fitStage, muscleDef, raceEDID)
-  if not muscleDef or muscleDef < 0 then ml.LogInfo("Won't change muscle definition") return nil, nil end
-  if ml.MuscleDefRaceBanned(raceEDID) then return nil, nil end
+  if not muscleDef or muscleDef < 0 then return _WontChangeMuscleDef() end
+  if ml.MuscleDefRaceBanned(raceEDID) then return _WontChangeMuscleDef() end
   return muscleDef, db.fitStages[fitStage].muscleDefType
 end
 

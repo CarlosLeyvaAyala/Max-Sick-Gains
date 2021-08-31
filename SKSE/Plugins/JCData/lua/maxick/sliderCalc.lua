@@ -2,6 +2,7 @@ local sliderCalc = {}
 
 local l = jrequire 'dmlib'
 local db = jrequire 'maxick.database'
+local ml = jrequire 'maxick.lib'
 -- local serpent = require("__serpent")
 
 
@@ -51,19 +52,19 @@ end
 -- ;>========================================================
 
 ---Returns a table with all slider numbers using some `method`.
----@param sliders table
----@param weight integer
----@param fitStageBs table
----@param method function
-function sliderCalc.CalcSliders(sliders, weight, fitStageBs, method)
-  local resetBs = l.map(sliders, _Clear)
-  local newVals = l.pipe(
-    l.reject(function (_, key) return fitStageBs[key] == nil end),
-    l.map(function (_, k) return method(weight, fitStageBs[k].min, fitStageBs[k].max) end)
-  )(sliders)
+-- ---@param sliders table
+-- ---@param weight integer
+-- ---@param fitStageBs table
+-- ---@param method function
+-- function sliderCalc.CalcSliders(sliders, weight, fitStageBs, method)
+--   local resetBs = l.map(sliders, _Clear)
+--   local newVals = l.pipe(
+--     l.reject(function (_, key) return fitStageBs[key] == nil end),
+--     l.map(function (_, k) return method(weight, fitStageBs[k].min, fitStageBs[k].max) end)
+--   )(sliders)
 
-  return l.joinTables(resetBs, newVals, _GetCalculated)
-end
+--   return l.joinTables(resetBs, newVals, _GetCalculated)
+-- end
 
 ---Gets the slider values from database for a _Fitness stage_.
 ---@param fitStage integer
@@ -81,6 +82,7 @@ end
 ---@param method fun(gains: number, min: number, max: number): number
 ---@return BodyslidePreset
 function sliderCalc.GetBodyslide(weight, fitStage, isFem, method)
+  ml.LogInfo(l.fmt("Applied weight: %.1f", weight))
   local fitStageBs = _GetSliders(fitStage, isFem)
   local sliders = l.keys(fitStageBs)
   return l.pipe(
@@ -89,13 +91,13 @@ function sliderCalc.GetBodyslide(weight, fitStage, isFem, method)
   )(sliders)
 end
 
----Sets all slider numbers for an actor using some `method`.
----@param actor table
----@param weight integer
----@param fitStageBs table
----@param method function
-function sliderCalc.SetBodySlide(actor, weight, fitStageBs, method)
-  l.assign(actor.bodySlide, sliderCalc.CalcSliders(actor.bodySlide, weight, fitStageBs, method))
-end
+-- ---Sets all slider numbers for an actor using some `method`.
+-- ---@param actor table
+-- ---@param weight integer
+-- ---@param fitStageBs table
+-- ---@param method function
+-- function sliderCalc.SetBodySlide(actor, weight, fitStageBs, method)
+--   l.assign(actor.bodySlide, sliderCalc.CalcSliders(actor.bodySlide, weight, fitStageBs, method))
+-- end
 
 return sliderCalc

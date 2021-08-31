@@ -57,6 +57,7 @@ maxick.Poll = l.toJMap(player.Polling)
 maxick.trainingDecay = player.trainingDecay
 maxick.HadActivity = player.HadActivity
 maxick.CapTraining = player.CapTraining
+maxick.PlayerHeadSize =player.GetHeadSize
 
 maxick.Train = l.toJMap(sk.Train)
 

@@ -129,17 +129,23 @@ If you don't understand it or just want to play the damn game without spending m
 
 Some possible issues:
 
-1. This mod is setup by default to work with **3BA 2.0** for women and **HIMBO 4.2** for men.
-If you use any other body or version, you need to ==generate the sliders for it==.
+1. If using muscle definition, you forgot to generate all normal maps needed[^EvenMe].
 
-1. You may be using an *.xml file that contains many Bodyslide presets. **This program only supports one preset per file**.
+1. HIMBO 4.0 has some sliders that seem to have a default value of 100 (like the forearm size, for example), so when you set a value to 100, it doesn't get saved to the xml file and _Max Sick Gains.exe_ can't export that slider value.\
+Try setting all those values to 99, instead. That should solve your problem.
 
 1. If the problem is a _Known NPC_, remember some NPCs have many different versions (ie. Rikke, Cicero...), so you need to add all versions of them to _Known NPCs_.
 
 1. You may got unlucky and Skyrim refused to find all data needed to change an NPC appearance.
 This is more of an annoyance than a serious problem. Use the [hotkey for solving that][McmHotkeys].
 
-### How do I know if I have problem 2?
+1. You may be using an *.xml file that contains many Bodyslide presets. **This mod only supports one preset per file**.
+
+[^EvenMe]: That happened even to me! While this mod was at its first playable stage, humanoid men looked quite bad.
+I knew the scripts were bug free, so I triple checked the esp records instead and everything was fine.
+When I opened the CK to make sure all texture paths were correctly setup, turned out I forgot to generate normal maps for humanoid men.
+
+### How do I know if I have that last problem?
 
 Open your *.xml preset file in Notepad or whatever.
 <figure>
@@ -175,7 +181,7 @@ If you enable console logging for this mod, you will see the NPC won't be named 
 <figcaption>You will know you have this problem when you see something like this in the Skyrim console.</figcaption>
 </figure>
 
-_PapyrusUtil_ sometimes works again the first time you close and open the game, it sometimes may take many tries for it to work... but don't worry; it will eventually properly load the NPC data, and once it finds the NPC, expect them to never be at zero sliders once again.
+_PapyrusUtil_ sometimes works again the first time you close and open the game, it sometimes may take many tries for it to work... but don't worry; that's precisely why I added a hotkey for forcing an NPC to get updated.
 
 ## I got textures mismatches on some NPCs
 

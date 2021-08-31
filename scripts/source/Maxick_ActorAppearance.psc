@@ -1,41 +1,13 @@
 Scriptname Maxick_ActorAppearance extends Quest
 
 import Maxick_Utils
+import DM_Utils
 
 Maxick_Debug Property md Auto
 FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
 
 Function OnGameReload()
-  InitSliders()
-EndFunction
-
-;>========================================================
-;>===                    SLIDERS                     ===<;
-;>========================================================
-
-; Initializes known female and male sliders for the installed body types.
-; All posible sliders need to be known before we can change their values on a
-; per `Actor` basis.
-;
-; Generate both files using the **Slider Generator** tool in _Max Sick Gains.exe_.
-Function InitSliders()
-  int data = JMap.object()
-  JMap.setObj(data, "femSliders", _LoadSliders(femSliders()))
-  JMap.setObj(data, "manSliders", _LoadSliders(manSliders()))
-  JDB.setObj("maxick", data)
-EndFunction
-
-; Initializes known sliders from some file and inits them at `0.0`.
-int Function _LoadSliders(string aPath)
-  int result = JMap.object()
-  int sliders = JValue.readFromFile(aPath)
-  int i = JArray.count(sliders)
-  While (i > 0)
-    i -= 1
-    JMap.setFlt(result, JArray.getStr(sliders, i), 0.0)
-  EndWhile
-  return result
 EndFunction
 
 ;>========================================================
@@ -46,6 +18,7 @@ EndFunction
 Function _ApplyBodyslide(Actor aAct, int bodyslide, float weight)
   If weight >= 0 ; Change shape if not banned from doing so
     NiOverride.ClearMorphs(aAct)
+    ; LuaDebugTable(bodyslide, GetActorName(aAct))
 
     string slider = JMap.nextKey(bodyslide)
     While slider != ""
@@ -116,32 +89,6 @@ EndFunction
 ; Gets the race EDID for an actor as a string.
 string Function GetRace(Actor aAct)
   return MiscUtil.GetActorRaceEditorID(aAct)
-EndFunction
-
-; Initializes data shared between actors processed by this mod:
-; * Sex
-; * Sliders
-; * Race EDID
-; * Muscle definition
-; * Muscle definition type
-; * Weight
-; * Lua logging message
-; * Should they be processed? (always 1 for player)
-Function InitCommonData(int data, Actor aAct, float weight, int shouldProcess)
-  bool isFem = IsFemale(aAct)
-  JMap.setInt(data, "isFem", isFem as int)
-  If isFem
-    JMap.setObj(data, "bodySlide",  JValue.deepCopy(JDB.solveObj(".maxick.femSliders")))
-  Else
-    JMap.setObj(data, "bodySlide", JValue.deepCopy(JDB.solveObj(".maxick.manSliders")))
-  EndIf
-
-  JMap.setStr(data, "raceEDID", GetRace(aAct))
-  JMap.setInt(data, "muscleDefType", -1)
-  JMap.setInt(data, "muscleDef", -1)
-  JMap.setFlt(data, "weight", weight)
-  JMap.setStr(data, "msg", "")              ; Extra info from Lua
-  JMap.setInt(data, "shouldProcess", shouldProcess)
 EndFunction
 
 ;@Deprecated:

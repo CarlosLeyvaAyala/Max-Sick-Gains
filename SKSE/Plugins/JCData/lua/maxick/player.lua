@@ -43,7 +43,7 @@ local function _Fitstage(playerStage) return db.fitStages[_Stage(playerStage).fi
 ---@param playerStage integer
 ---@param gains number
 ---@return number
-local function _GetHeadSize(playerStage, gains)
+function player.GetHeadSize(playerStage, gains)
   local st = _Stage(playerStage)
   --Head size is a percent value.
   local headSize = l.linCurve({x=0, y=st.headLo}, {x=100, y=st.headHi})(gains) / 100
@@ -320,7 +320,7 @@ function player.ChangeAppearance(raceEDID, isFem, playerStage, gains, applyMuscl
     --- Muscle definition level.
     muscleDef = md or -1,
     muscleDefType = mdt or -1,
-    headSize = _GetHeadSize(playerStage, gains),
+    headSize = player.GetHeadSize(playerStage, gains),
     --- Description of all operations that were done.
     msg = ml.GetLog(),
     --- Player should be always processed by `Maxick_ActorAppearance.ChangeAppearance()`.

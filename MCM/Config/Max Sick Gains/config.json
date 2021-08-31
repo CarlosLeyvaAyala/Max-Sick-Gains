@@ -16,41 +16,62 @@
           "type": "header"
         },
         {
+          "id": "bPlMusDef:Appearance",
           "text": "Apply muscle definition",
           "type": "toggle",
-          "help": "Captain Obvious to the rescue!\nIf you enable this, muscle definition will be applied."
+          "help": "Captain Obvious to the rescue!\nIf you enable this, muscle definition will be applied.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "text": "Known NPCs",
           "type": "header"
         },
         {
+          "id": "bKNBsFem:Appearance",
           "text": "Apply Bodyslide presets",
           "type": "toggle",
-          "help": "Captain Obvious to the rescue!\nIf you enable this, body shape will change according to your defined Bodyslide presets."
+          "help": "Captain Obvious to the rescue!\nIf you enable this, body shape will change according to your defined Bodyslide presets.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
+          "id": "bKNMusDefFem:Appearance",
           "text": "Apply muscle definition",
           "type": "toggle",
-          "help": "Captain Obvious is tired of rescuing you."
+          "help": "Captain Obvious is tired of rescuing you.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "text": "Generic NPCs (female)",
           "type": "header"
         },
         {
+          "id": "bUNBsFem:Appearance",
           "text": "Apply Bodyslide presets",
-          "type": "toggle"
+          "type": "toggle",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
+          "id": "bUNMusDefFem:Appearance",
           "text": "Apply muscle definition",
-          "type": "toggle"
+          "type": "toggle",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "text": "Other options",
           "type": "header"
         },
         {
+          "id": "iPolling:Other",
           "text": "Loss checking",
           "type": "slider",
           "help": "Inactivity and training decay are checked every <n> seconds. Higher values mean better performance, but less smooth calculations.",
@@ -58,33 +79,59 @@
             "min": 3,
             "max": 10,
             "step": 1,
-            "formatString": "Check every {0} seconds"
+            "formatString": "Check every {0} seconds",
+            "sourceType": "ModSettingInt"
           }
         },
         {
           "id": "hk_NpcForce",
-          "text": "Force apply config",
+          "text": "Force apply console",
           "type": "keymap",
-          "help": "Some pesky NPC didn't get their settings applied? Select them in the console, GET OUT THE CONSOLE and press this key."
+          "help": "Some pesky NPC didn't get their settings applied? Select them in the console, GET OUT THE CONSOLE and then press this key."
         },
         {
+          "id": "hk_NpcForceCrosshair",
+          "text": "Force apply crosshair",
+          "type": "keymap",
+          "help": "Some pesky NPC didn't get their settings applied? Put them under the cross hair, then press this key."
+        },
+        {
+          "id": "iLogLvl:Other",
           "text": "Logging level",
           "type": "enum",
           "help": "How much spam do you want in your Skyrim console?",
           "valueOptions": {
             "options": [
-              "None",
+              "-None-",
               "Critical (errors and important things)",
               "Info (maybe irrelevant info)",
               "Verbose (detailed info for bug reporting)"
             ],
             "shortNames": [
-              "None",
+              "-None-",
               "Critical",
               "Info",
               "Verbose"
-            ]
+            ],
+            "sourceType": "ModSettingInt"
           }
+        },
+        {
+          "position": 1,
+          "text": "This space is reserved in the",
+          "type": "text"
+        },
+        {
+          "text": "(unlikely) case options for",
+          "type": "text"
+        },
+        {
+          "text": "Known NCPs are added to differentiate",
+          "type": "text"
+        },
+        {
+          "text": "them by sex.",
+          "type": "text"
         },
         {
           "text": "Generic NPCs (male)",
@@ -92,12 +139,20 @@
           "type": "header"
         },
         {
+          "id": "bUNBsMan:Appearance",
           "text": "Apply Bodyslide presets",
-          "type": "toggle"
+          "type": "toggle",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
+          "id": "bUNMusDefMan:Appearance",
           "text": "Apply muscle definition",
-          "type": "toggle"
+          "type": "toggle",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          }
         },
         {
           "text": "Widget options",
