@@ -13,9 +13,115 @@ Scriptname Maxick_EventNames extends Quest
 ; https://github.com/CarlosLeyvaAyala/DM-SkyrimSE-Library/blob/master/scripts/Source/DM_Utils.psc
 import DM_Utils
 
-;>========================================================
-;>===        EVENTS YOU CAN SEND AND RECEIVE         ===<;
-;>========================================================
+
+; !  ██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ███████╗
+; !  ██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗██╔════╝
+; !  ███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝███████╗
+; !  ██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗╚════██║
+; !  ██║  ██║███████╗███████╗██║     ███████╗██║  ██║███████║
+; !  ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝
+
+; Dummy function to let the Visual Studio Code plugin correctly show documentation for
+; all functions below.
+;
+; Do yourself a favor and dowload it from here:
+; https://marketplace.visualstudio.com/items?itemname=joelday.papyrus-lang-vscode
+Function _Dummy()
+EndFunction
+
+; Skyrim's `Utility.GetCurrentGameTime()` gets time as fractions of a day, where `1`
+; means one day, while `0.5` means half a day.
+; This function converts Skyrim time to human readable hours, so `0.5` becomes `12`.
+;
+; Use this to easily change time for functions and events that ask for _human time_.
+float Function ToHumanHours(float gameHours)
+  return ToRealHours(gameHours)
+EndFunction
+
+; Sends an event saying the player has trained an [skill defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
+;
+; List of possible values:
+; - "TwoHanded"
+; - "OneHanded"
+; - "Block"
+; - "Marksman" (archery)
+; - "HeavyArmor"
+; - "LightArmor"
+; - "Sneak"
+; - "Smithing"
+; - "Alteration"
+; - "Conjuration"
+; - "Destruction"
+; - "Illusion"
+; - "Restoration"
+; - "Sex"
+; - "SackS" (small training sack)
+; - "SackM" (medium training sack)
+; - "SackL" (large training sack)
+;
+; Always prefer this function over `SendTrainingAndActivity()`.
+Function SendPlayerHasTrained(string skillName)
+  SendModEvent(TRAIN, skillName)
+EndFunction
+
+; Sends the mod event to change `gains`.
+; **Gains meter will flash**.
+;
+; - `gainsChange`: How much gains will be added/substracted to player.
+Function SendGainsChange(float gainsChange)
+  SendModEvent(GAINS_CHANGE, "", gainsChange)
+EndFunction
+
+; Sends the mod event to change `training`.
+; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
+; **Training meter will flash**.
+;
+; - `skillName`: The skill that went up/down. ***NEVER SEND STRINGS THAT CONTAIN DOUBLE QUOTES***.
+;    I'm talking about this:
+;         "This string contains ""double quotes"" and it's invalid".
+;         "This string is totally valid".
+; - `trainingChange`: How much training will be added/substracted to player.
+Function SendTrainingChange(string skillName, float trainingChange)
+  SendModEvent(TRAINING_CHANGE, skillName, trainingChange)
+EndFunction
+
+; Sends the mod event to change `inactivity`.
+; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
+; **Training meter will NOT flash**.
+;
+; - `skillName`: The skill that went up/down. ***NEVER SEND STRINGS THAT CONTAIN DOUBLE QUOTES***.
+;    I'm talking about this:
+;         "This string contains ""double quotes"" and it's invalid".
+;         "This string is totally valid".
+; - `activityChange`: How much activity will be added/substracted ***IN HUMAN HOURS***. Send positive values to simulate training; negative values for simulating inactivity.
+Function SendActivityChange(string skillName, float activityChange)
+  SendModEvent(ACTIVITY_CHANGE, skillName, activityChange)
+EndFunction
+
+; Sends the mod events to change both `training` and `inactivity`.
+; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
+; **Training meter will flash**, but not the inactivity one.
+;
+; -  See `SendTrainingChange()`.
+; -  See `SendActivityChange()`.
+Function SendTrainingAndActivity(string skillName, float trainingChange, float activityChange)
+  SendTrainingChange(skillName, trainingChange)
+  SendActivityChange(skillName, activityChange)
+EndFunction
+
+; Sends an event after sleeping.
+; - `humanHoursSlept`: Time slept ***IN HUMAN HOURS***.
+Function SendSleep(float humanHoursSlept)
+  SendModEvent(SLEEP, "", humanHoursSlept)
+EndFunction
+
+
+; !  ███████╗███████╗███╗   ██╗██████╗      █████╗ ███╗   ██╗██████╗     ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗
+; !  ██╔════╝██╔════╝████╗  ██║██╔══██╗    ██╔══██╗████╗  ██║██╔══██╗    ██╔══██╗██╔════╝██╔════╝██╔════╝██║██║   ██║██╔════╝
+; !  ███████╗█████╗  ██╔██╗ ██║██║  ██║    ███████║██╔██╗ ██║██║  ██║    ██████╔╝█████╗  ██║     █████╗  ██║██║   ██║█████╗
+; !  ╚════██║██╔══╝  ██║╚██╗██║██║  ██║    ██╔══██║██║╚██╗██║██║  ██║    ██╔══██╗██╔══╝  ██║     ██╔══╝  ██║╚██╗ ██╔╝██╔══╝
+; !  ███████║███████╗██║ ╚████║██████╔╝    ██║  ██║██║ ╚████║██████╔╝    ██║  ██║███████╗╚██████╗███████╗██║ ╚████╔╝ ███████╗
+; !  ╚══════╝╚══════╝╚═╝  ╚═══╝╚═════╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝     ╚═╝  ╚═╝╚══════╝ ╚═════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝
 
 ; You are better using the functions provided by this file if you want to send these events,
 ; but here's the whole reference, so you know what they do.
@@ -67,9 +173,13 @@ string Property SLEEP = "Maxick_Sleep" AutoReadOnly
 
 - You can simulate the player sleeping by sending this event, thus making gains calculations on sleeping.}
 
-;>========================================================
-;>===          EVENTS YOU CAN ONLY RECEIVE           ===<;
-;>========================================================
+
+; !  ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗     ██████╗ ███╗   ██╗██╗  ██╗   ██╗
+; !  ██╔══██╗██╔════╝██╔════╝██╔════╝██║██║   ██║██╔════╝    ██╔═══██╗████╗  ██║██║  ╚██╗ ██╔╝
+; !  ██████╔╝█████╗  ██║     █████╗  ██║██║   ██║█████╗      ██║   ██║██╔██╗ ██║██║   ╚████╔╝
+; !  ██╔══██╗██╔══╝  ██║     ██╔══╝  ██║╚██╗ ██╔╝██╔══╝      ██║   ██║██║╚██╗██║██║    ╚██╔╝
+; !  ██║  ██║███████╗╚██████╗███████╗██║ ╚████╔╝ ███████╗    ╚██████╔╝██║ ╚████║███████╗██║
+; !  ╚═╝  ╚═╝╚══════╝ ╚═════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝     ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝
 
 ; ***NEVER*** SEND THIS EVENTS YOURSELF with `SendModEvent()`.
 ; These aren't meant to be sent by addon creators and you may end up breaking this mod.
@@ -127,77 +237,19 @@ string Property CATABOLISM_END = "Maxick_CatabolismEnd" AutoReadOnly
 `numArg`: `0`. Use this to manage this event and `CATABOLISM_START` with only one event.
 }
 
+string Property LOGGING_LVL = "Maxick_LoggingLvl" AutoReadOnly
+{**Activation**: When the logging level is set.
+
+`int numArg`: These are the possible values:
+  1. None
+  2. Critical - Errors and important things.
+  3. Info - Meant to be detailed info for players.
+  4. Verbose - Extremely detailed info for debugging purposes. Not really meant for players.
+
+You are unlikely to need this event, but I do.}
+
 string Property UPDATE_INTERVAL = "Maxick_UpdateInterval" AutoReadOnly
-{**Activation**: When the update interval for widget/losses is read from file.
-`numArg`: The value for the update interval.
+{**Activation**: When the update interval for calculating losses is set.
+`int numArg`: The value for the update interval.
 
-You are unlikely to need this, but I do.}
-
-
-;>========================================================
-;>===                HELPER FUNCTIONS                ===<;
-;>========================================================
-
-; Dummy function to let Visual Studio Code plugin correctly show documentation for
-; all functions below
-Function _Dummy()
-EndFunction
-
-; Skyrim's `Utility.GetCurrentGameTime()` gets time as fractions of a day, where `1`
-; means one day, while `0.5` means half a day.
-; This function converts Skyrim time to human readable hours, so `0.5` becomes `12`.
-;
-; Use this to easily change time for functions and events that ask for _human time_.
-float Function ToHumanHours(float gameHours)
-  return ToRealHours(gameHours)
-EndFunction
-
-; Sends an event saying the player has trained an [skill defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
-Function SendPlayerHasTrained(string skillName)
-  SendModEvent(TRAIN, skillName)
-EndFunction
-
-; Sends the mod event to change `gains`.
-; **Gains meter will flash**.
-;
-; - `gainsChange`: How much gains will be added/substracted to player.
-Function SendGainsChange(float gainsChange)
-  SendModEvent(GAINS_CHANGE, "", gainsChange)
-EndFunction
-
-; Sends the mod event to change `training`.
-; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
-; **Training meter will flash**.
-;
-; - `skillName`: The skill that went up/down. ***NEVER SEND STRINGS THAT CONTAIN DOUBLE QUOTES***.
-; - `trainingChange`: How much training will be added/substracted to player.
-Function SendTrainingChange(string skillName, float trainingChange)
-  SendModEvent(TRAINING_CHANGE, skillName, trainingChange)
-EndFunction
-
-; Sends the mod event to change `inactivity`.
-; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
-; **Training meter will NOT flash**.
-;
-; - `skillName`: The skill that went up/down. ***NEVER SEND STRINGS THAT CONTAIN DOUBLE QUOTES***.
-; - `activityChange`: How much activity will be added/substracted ***IN HUMAN HOURS***. Send positive values to simulate training; negative values for simulating inactivity.
-Function SendActivityChange(string skillName, float activityChange)
-  SendModEvent(ACTIVITY_CHANGE, skillName, activityChange)
-EndFunction
-
-; Sends the mod events to change both `training` and `inactivity`.
-; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
-; **Training meter will flash**, but not the inactivity one.
-;
-; -  See `SendTrainingChange()`.
-; -  See `SendActivityChange()`.
-Function SendTrainingAndActivity(string skillName, float trainingChange, float activityChange)
-  SendTrainingChange(skillName, trainingChange)
-  SendActivityChange(skillName, activityChange)
-EndFunction
-
-; Sends an event after sleeping.
-; - `humanHoursSlept`: Time slept ***IN HUMAN HOURS***.
-Function SendSleep(float humanHoursSlept)
-  SendModEvent(SLEEP, "", humanHoursSlept)
-EndFunction
+You are unlikely to need this event, but I do.}

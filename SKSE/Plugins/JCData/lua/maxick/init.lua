@@ -46,6 +46,9 @@ math.randomseed( os.time() )
 -- ;>===              PUBLISHED FUNCTIONS               ===<;
 -- ;>========================================================
 
+maxick.testingMode = db.mcm.testingMode
+maxick.SetLoggingLvl = ml.SetLoggingLvl
+
 maxick.HAlign = gc.HAlign
 maxick.VAlign = gc.VAlign
 

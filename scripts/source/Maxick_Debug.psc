@@ -10,41 +10,106 @@ int _lvlVerb = 4
 int _loggingLvl = 1
 bool _testMode = false
 
+
+; !  ██╗   ██╗███████╗███████╗    ████████╗██╗  ██╗███████╗███████╗███████╗
+; !  ██║   ██║██╔════╝██╔════╝    ╚══██╔══╝██║  ██║██╔════╝██╔════╝██╔════╝
+; !  ██║   ██║███████╗█████╗         ██║   ███████║█████╗  ███████╗█████╗
+; !  ██║   ██║╚════██║██╔══╝         ██║   ██╔══██║██╔══╝  ╚════██║██╔══╝
+; !  ╚██████╔╝███████║███████╗       ██║   ██║  ██║███████╗███████║███████╗
+; !   ╚═════╝ ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
+
 int Property loggingLvl Hidden
-{Logging level the player wants.}
+{Logging level the player wants. Read only.}
   int Function Get()
     return _loggingLvl
   EndFunction
 EndProperty
 
 bool Property testMode Hidden
-{Was test mode enabled?}
+{Was Testing mode enabled?}
   bool Function Get()
     return _testMode
   EndFunction
 EndProperty
 
-Function OnGameReload()
-  _LoadData()
-EndFunction
-
-; Loads data from generated config file.
-Function _LoadData()
-  int vals = JValue.readFromFile(genCfg())
-  _testMode = JMap.getInt(vals, "testMode") as bool
-  _loggingLvl = JMap.getInt(vals, "loggingLvl")
-  _lvlNone = JMap.getInt(vals, "logLvl_None")
-  _lvlCrit = JMap.getInt(vals, "logLvl_Critical")
-  _lvlInfo = JMap.getInt(vals, "logLvl_Info")
-  _lvlVerb = JMap.getInt(vals, "logLvl_Verbose")
-  SendModEvent(ev.UPDATE_INTERVAL, "", JMap.getInt(vals, "updateInterval", 5))
-EndFunction
-
-; Log with no regarding of logging level.
+; Log with no regard of logging level.
+; Use sparsely.
 Function Log(string msg)
   If msg
     MiscUtil.PrintConsole("[Makicx] " + msg)
   EndIf
+EndFunction
+
+; Log as critical.
+; Critical info are errors and things that require inmediate attention.
+Function LogCrit(string msg)
+  _LogLvl(msg, _lvlCrit)
+EndFunction
+
+; Log as info.
+; This is detailed info meant to be read by players so they know what's happening with their
+; settings.
+Function LogInfo(string msg)
+  _LogLvl(msg, _lvlInfo)
+EndFunction
+
+; Log as verbose.
+; Really detailed info that is meant to be read only by developers for debugging purposes.
+Function LogVerb(string msg)
+  _LogLvl(msg, _lvlVerb)
+EndFunction
+
+
+; !  ██╗ ██████╗ ███╗   ██╗ ██████╗ ██████╗ ███████╗    ████████╗██╗  ██╗███████╗███████╗███████╗
+; !  ██║██╔════╝ ████╗  ██║██╔═══██╗██╔══██╗██╔════╝    ╚══██╔══╝██║  ██║██╔════╝██╔════╝██╔════╝
+; !  ██║██║  ███╗██╔██╗ ██║██║   ██║██████╔╝█████╗         ██║   ███████║█████╗  ███████╗█████╗
+; !  ██║██║   ██║██║╚██╗██║██║   ██║██╔══██╗██╔══╝         ██║   ██╔══██║██╔══╝  ╚════██║██╔══╝
+; !  ██║╚██████╔╝██║ ╚████║╚██████╔╝██║  ██║███████╗       ██║   ██║  ██║███████╗███████║███████╗
+; !  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝
+
+Event OnInit()
+  _InitFromMcm()
+EndEvent
+
+; Initializes data from MCM settings. Used so the player doesn't have to configure this
+; mod each new stealthy archer they create.
+Function _InitFromMcm()
+  SetLoggingLvl(MCM.GetModSettingInt("Max Sick Gains", "iLogLvl:Other"))
+EndFunction
+
+Function OnGameReload()
+  Log("Current logging level: " + _loggingLvl)
+  RegisterForModEvent(ev.LOGGING_LVL, "OnGetLoggingLvl")
+  _LoadData()
+EndFunction
+
+; Dummy event. Used to make sure the logging level was correctly sent to addons.
+Event OnGetLoggingLvl(string _, string __, float lvl, Form ___)
+  LogVerb("Logging level was correctly sent: " + lvl)
+EndEvent
+
+; Called from MCM Helper when the user changed the logging level.
+Function SetLoggingLvl(int lvl)
+  lvl += 1
+  Log("Logging level was set to " + lvl as int)
+  _loggingLvl = lvl as int
+  _SetLuaLoggingLvl()
+  SendModEvent(ev.LOGGING_LVL, "", _loggingLvl)
+EndFunction
+
+; Tells Lua which is the logging level.
+Function _SetLuaLoggingLvl()
+  JLua.evalLuaInt("maxick.SetLoggingLvl(" + _loggingLvl + ")", 0)
+EndFunction
+
+; Bridges debug data between Lua and Papyrus.
+Function _LoadData()
+  _testMode = JLua.evalLuaInt("return maxick.testingMode", 0) as bool
+  _SetLuaLoggingLvl()
+  _lvlNone = 1
+  _lvlCrit = 2
+  _lvlInfo = 3
+  _lvlVerb = 4
 EndFunction
 
 ; Log at certain level.
@@ -52,19 +117,4 @@ Function _LogLvl(string msg, int lvl)
   If _loggingLvl >= lvl
     Log(msg)
   EndIf
-EndFunction
-
-; Log as critical.
-Function LogCrit(string msg)
-  _LogLvl(msg, _lvlCrit)
-EndFunction
-
-; Log as info.
-Function LogInfo(string msg)
-  _LogLvl(msg, _lvlInfo)
-EndFunction
-
-; Log as verbose.
-Function LogVerb(string msg)
-  _LogLvl(msg, _lvlVerb)
 EndFunction

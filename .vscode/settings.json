@@ -217,6 +217,16 @@
                 "color": "#1f1f1f"
             }
         ],
+        "(; ?!.*)": [
+            {
+                "overviewRulerLane": 4,
+                "overviewRulerColor": "#666",
+                "backgroundColor": "#666",
+                "color": "#1f1f1f",
+                "fontWeight": "normal",
+                "fontStyle": "normal"
+            }
+        ],
         "(;@.*:)(.*)": [
             {
                 "overviewRulerColor": "tomato",

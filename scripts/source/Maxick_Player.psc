@@ -65,10 +65,17 @@ float _lastPollingTime = 0.0
 ;>========================================================
 
 Event OnInit()
+  _InitFromMcm()
   OnGameReload()
   _lastTrained = Now()
   _lastPollingTime = Now()
 EndEvent
+
+; Initializes data from MCM settings. Used so the player doesn't have to configure this
+; mod each new stealthy archer they create.
+Function _InitFromMcm()
+  SetUpdateInterval(MCM.GetModSettingInt("Max Sick Gains", "iPolling:Other"))
+EndFunction
 
 Function OnGameReload()
   _EnterTestingMode()
@@ -98,12 +105,18 @@ Function RegisterEvents()
   RegisterForModEvent(ev.SLEEP, "OnSleep")
 EndFunction
 
-; Gets the update interval to calculate losses.
+; Dummy event. Used to make sure the logging level was correctly sent to addons.
 Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
-  md.LogVerb("Player got update interval: " + interval)
-  _pollingInterval = interval as int
-  _Poll()
+  md.LogVerb("Polling interval was correctly sent: " + interval)
 EndEvent
+
+; Called from MCM Helper when the user changed the polling interval.
+Function SetUpdateInterval(int interval)
+  md.Log("Polling interval set to: " + interval)
+  _pollingInterval = interval
+  SendModEvent(ev.UPDATE_INTERVAL, "", _pollingInterval)
+  _Poll()
+EndFunction
 
 ;>========================================================
 ;>===              POLLING CALCULATIONS              ===<;

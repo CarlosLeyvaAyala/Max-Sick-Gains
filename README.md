@@ -25,16 +25,18 @@ As a player, you need these mods and all their requirements to make it work.
 
 - Skyrim SE
 - NiOverride ([Racemenu][])
-- Bodyslide
+- [Bodyslide][]
 - Bodyslide presets
 - [JContainers SE][jcontainers-se]
-- Papyrus Util
+- [MCM Helper][]
+- [Papyrus Util][]
 
 ## Integrations
 
 Not required, but this mod will detect them and act accordingly.
 
 - [Sexlab framework][sexlab-framework]
+- [OStim][]
 
 # Build dependencies
 
@@ -91,6 +93,7 @@ https://badge.fury.io/hooks/github
 
 
 <!-- -------------------------------------------- -->
+[Bodyslide]: https://www.nexusmods.com/skyrimspecialedition/mods/201
 [clipboard-manager]: https://marketplace.visualstudio.com/items?itemname=edgardmessias.clipboard-manager
 [clipboard]: http://luaforge.net/projects/jaslatrix/
 [dmlib]: https://github.com/carlosleyvaayala/dm-skyrimse-library.git
@@ -98,17 +101,20 @@ https://badge.fury.io/hooks/github
 [fold-plus]: https://marketplace.visualstudio.com/items?itemname=dakara.dakara-foldplus
 [hightlight]: https://marketplace.visualstudio.com/items?itemname=fabiospampinato.vscode-highlight
 [jcontainers-se]: https://www.nexusmods.com/skyrimspecialedition/mods/16495
+[Lazarus docs]: _Tools/TexRename
 [lua-language-server]: https://marketplace.visualstudio.com/items?itemname=sumneko.lua
-[markdown-styleguide]: https://arcticicestudio.github.io/styleguide-markdown/
 [markdown-preview]: https://marketplace.visualstudio.com/items?itemname=shd101wyy.markdown-preview-enhanced
+[markdown-styleguide]: https://arcticicestudio.github.io/styleguide-markdown/
+[MCM Helper]: https://www.nexusmods.com/skyrimspecialedition/mods/53000
 [numbered-bookmarks]: https://marketplace.visualstudio.com/items?itemname=alefragnani.numbered-bookmarks
+[OStim]: https://www.nexusmods.com/skyrimspecialedition/mods/40725
+[Papyrus Util]: https://www.nexusmods.com/skyrimspecialedition/mods/13048
+[Python docs]: _Tools/MainPython
 [racemenu]: https://www.nexusmods.com/skyrimspecialedition/mods/19080
+[Separators]: https://marketplace.visualstudio.com/items?itemName=alefragnani.separators
 [serpent]: http://notebook.kulchenko.com/programming/serpent-lua-serializer-pretty-printer
 [sexlab-framework]: https://www.loverslab.com/topic/91861-sexlab-framework-se-163-beta-8-november-22nd-2019/
 [tokyo-night]: https://marketplace.visualstudio.com/items?itemname=enkia.tokyo-night
 [visual-studio-code]: https://code.visualstudio.com/
 [vscode-papyrus]: https://marketplace.visualstudio.com/items?itemname=joelday.papyrus-lang-vscode
 [zerobrane-studio]: https://studio.zerobrane.com/
-[Python docs]: _Tools/MainPython
-[Lazarus docs]: _Tools/TexRename
-[Separators]: https://marketplace.visualstudio.com/items?itemName=alefragnani.separators

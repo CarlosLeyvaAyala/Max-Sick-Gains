@@ -81,6 +81,15 @@
             "step": 1,
             "formatString": "Check every {0} seconds",
             "sourceType": "ModSettingInt"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_Player",
+            "function": "SetUpdateInterval",
+            "params": [
+              "{value}"
+            ]
           }
         },
         {
@@ -104,7 +113,7 @@
             "options": [
               "-None-",
               "Critical (errors and important things)",
-              "Info (maybe irrelevant info)",
+              "Info (detailed info for players)",
               "Verbose (detailed info for bug reporting)"
             ],
             "shortNames": [
@@ -114,6 +123,15 @@
               "Verbose"
             ],
             "sourceType": "ModSettingInt"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_Debug",
+            "function": "SetLoggingLvl",
+            "params": [
+              "{value}"
+            ]
           }
         },
         {

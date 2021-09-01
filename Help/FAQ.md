@@ -63,7 +63,7 @@ Those are the kind of scripts that give a bad reputation to all scripts and are 
 
 You are totally not wondering about this, but one of the many reasons I'm using JContainers and the Lua programming language to make this mod is because Lua is lightning fast, and in my (admittely, meager) testings it runs way many times faster than the equivalent code made in Papyrus.
 
-Still, I've noticed new locations take about 1 second more than they used to take[^BeforeOptimizations], but you play games made by Bethesda, so you already got used to wait long times in-between loading screens.
+Still, I've noticed new locations take about 1 second more to load than they used to take[^BeforeOptimizations], but you play games made by Bethesda, so you already got used to wait long times in-between loading screens.
 
 [^BeforeOptimizations]: This line was written before optimizations. It should take noticeably less time in your game.
 
@@ -119,7 +119,7 @@ OK, that's not an answer (but a valid suggestion, nonetheless :v). The real answ
 Yeah. It's the most complex feature to get properly running... by far.
 
 Don't waste your time getting marveled at the complex and arcane mysteries it entails.
-If you don't understand it or just want to play the damn game without spending many frustrating hours trying to setup some obscure mod made by some random asshole, just uncheck all muscle definition options at the [MCM tab][MCMTab] and enjoy the game.
+If you don't understand it or just want to play the damn game without spending many frustrating hours trying to setup some obscure mod made by some random asshole, just uncheck all muscle definition options at the [MCM][MCMTab] and enjoy the game.
 
 ## How do I add _Known NPCs_ from non vanilla mods?
 
@@ -131,7 +131,12 @@ Some possible issues:
 
 1. If using muscle definition, you forgot to generate all normal maps needed[^EvenMe].
 
-1. HIMBO 4.0 has some sliders that seem to have a default value of 100 (like the forearm size, for example), so when you set a value to 100, it doesn't get saved to the xml file and _Max Sick Gains.exe_ can't export that slider value.\
+1. Make sure you didn't actually put a male bodyslide preset in the female field inside the [Fitness stages tab][McmFitnessStages][^EvenMe2].
+
+1. Some armor sliders are simply badly done.
+Before you blame my mod[^EvenMe3], make sure to look at your characters while naked ( ͡° ͜ʖ ͡°) (them, **NOT you**).
+
+1. HIMBO 4.x has some sliders that seem to have a default value of 100 (like the forearm size, for example), so when you set a value to 100, it doesn't get saved to the xml file and _Max Sick Gains.exe_ can't export that slider value because it doesn't actually exist inside the file.\
 Try setting all those values to 99, instead. That should solve your problem.
 
 1. If the problem is a _Known NPC_, remember some NPCs have many different versions (ie. Rikke, Cicero...), so you need to add all versions of them to _Known NPCs_.
@@ -144,6 +149,12 @@ This is more of an annoyance than a serious problem. Use the [hotkey for solving
 [^EvenMe]: That happened even to me! While this mod was at its first playable stage, humanoid men looked quite bad.
 I knew the scripts were bug free, so I triple checked the esp records instead and everything was fine.
 When I opened the CK to make sure all texture paths were correctly setup, turned out I forgot to generate normal maps for humanoid men.
+
+[^EvenMe2]: Yep. I did that, too \>_\>
+
+[^EvenMe3]: Do you really want to know how many problems not caused by my mod I thought were caused by it while I was creating it?
+This one was related to the vanilla armor conversions of HIMBO 4.2.
+My mod was supposing to work as expected, but characters didn't look the part, so I stripped naked some random guard and turned out my mod was actually working as expected; the ones that didn't work quite well were the armors all along.
 
 ### How do I know if I have that last problem?
 
@@ -171,17 +182,35 @@ That's all.
 
 I'm quite aware about that, but ***there's nothing I can do about it***.
 
-I use _PapyrusUtil_ for getting all NPCs inside the cell the player is located, and for some unknown reason, it sometimes finds an NPC but doesn't get all the data this mod needs to know for how to apply changes to them.
+I use _PapyrusUtil_ for getting all NPCs inside the cell the player is located, and for some unknown reason, it seems it sometimes finds an NPC but gets invalidated data for it.
 Hell... I don't even know if that is a _PapyrusUtil_ or a Skyrim issue.
 
-If you enable console logging for this mod, you will see the NPC won't be named and their race will be blank as well, thus failing to even set the _Default Fitness Stage_ for them because if there's no race, my mod thinks they may very well be some piece of furniture.
+_PapyrusUtil_ sometimes works again the first time you close and open the game, it sometimes may take many tries for it to work... but don't worry; **that's precisely why I added a hotkey for forcing an NPC to get updated**.
+
+## All my problems are related to men
+
+Of course they are!
 
 <figure>
-<img class="hImg" src="img/skyrim-acting-like-an-asshole.jpg"/>
-<figcaption>You will know you have this problem when you see something like this in the Skyrim console.</figcaption>
+<img class="hImg" src="img/faq/not-cool.jpg"/>
+<figcaption>We aren't the root of all evil for nothing!</figcaption>
 </figure>
 
-_PapyrusUtil_ sometimes works again the first time you close and open the game, it sometimes may take many tries for it to work... but don't worry; that's precisely why I added a hotkey for forcing an NPC to get updated.
+Men bodies are severily lacking behing compared to women's, so they are relatively more untested and unstable.
+
+In 2010 there were some options to change male vanilla bodies, but in 2020 in Skyrim SE, there aren't as much options as there were in the past.
+
+There have been made some advancements in recent years, but they haven't been as widely adopted and used as CBBE or UNP (and let us be honest: they will never be).
+
+<figure>
+<img class="hImg" src="img/faq/nice-ass.jpg"/>
+<figcaption>In any single game I have the option to choose my sex, I always go for a woman because if I'm going to stare at an ass for the next 1000+ hours, at least I want it to be a beautiful and shapely one... and you can bet I'm not the only one that thinks that way.</figcaption>
+</figure>
+
+Fortunately, things seem to be changing with the arrival of HIMBO (specially V4.2, which is compatible with everything SOS related) and I've seen more people making armors specifically made for men.
+
+Once knowledge about how to work with HIMBO gets widely gathered and spread, expect to have men bodies that _It just works_&trade; the same way women bodies just work along with this mod without too much hassle.
+My mod doesn't make much distinction between men and women whatsoever, so expect it to be ready for battle when that fabled time finally comes.
 
 ## I got textures mismatches on some NPCs
 
@@ -290,12 +319,14 @@ But I never noticed that before, even after many years using both of them!
 
 [Fix tex mismatches]: https://www.loverslab.com/files/file/18289-fix-texture-mismatches-lesewhatever/
 
-[MCMTab]: TO-DO
-
 [KnownNPCAdding]: TO-DO
+
+[McmFitnessStages]: TO-DO
+
+[McmHotkeys]: TO-DO
+
+[MCMTab]: TO-DO
 
 [tech-muscleDef]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md
 
 [The Zuckerbot]: https://youtu.be/2qGVVxaosDM
-
-[McmHotkeys]: TO-DO

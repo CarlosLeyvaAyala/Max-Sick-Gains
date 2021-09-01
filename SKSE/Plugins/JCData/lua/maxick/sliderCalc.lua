@@ -85,6 +85,8 @@ end
 ---@return BodyslidePreset
 function sliderCalc.GetBodyslide(weight, fitStage, isFem, method)
   ml.LogInfo(l.fmt("Applied weight: %.1f", weight))
+  ml.LogVerbose(l.fmt("Applied fitStage: [%d] %s", fitStage, db.fitStages[fitStage].iName))
+
   local fitStageBs = _GetSliders(fitStage, isFem)
   local sliders = l.keys(fitStageBs)
   return l.pipe(

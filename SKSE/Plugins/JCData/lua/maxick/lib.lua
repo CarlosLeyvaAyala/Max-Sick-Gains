@@ -24,27 +24,20 @@ lib.sampleSliders = {
 
 --#region
 
----Logs a message in the `actor`.
----@param variable string
----@return LoggingFunc
-local LogFactory = function (variable)
-  return function (message)
-    if message and (message ~= "") then
-      variable = variable .. message .. ". "
-      print(variable, "log factory")
-      return variable
-    end
-  end
-end
-
 local fullLog = ""
+local loggingLvl = 999    -- Log everything if failed to set logging value
+
+---Sets the logging level so messages can be logged.\
+---***This always needs to be called `OnGameReload`***.
+---@param lvl integer
+function lib.SetLoggingLvl(lvl) loggingLvl = lvl end
 
 ---Logs only messages that fit certain logging level.
 ---@param lvl integer
 ---@return LoggingFunc
 local LogLevel = function (lvl)
   return function (message)
-    if db.mcm.loggingLvl >= lvl and message and (message ~= "") then
+    if loggingLvl >= lvl and message and (message ~= "") then
       fullLog = fullLog .. message .. ". "
       return fullLog
     end
