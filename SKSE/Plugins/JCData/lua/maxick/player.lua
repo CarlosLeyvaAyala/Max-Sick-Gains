@@ -67,8 +67,42 @@ end
 ---Returns the message displayed when going up in stages.
 ---@param stage integer Current stage.
 ---@return string
-function player.StageMessage(stage)
-  return _StageChangeMsg(stage, "Now you look %s.")
+function player.StageMessage(stage) return _StageChangeMsg(stage, "Now you look %s.") end
+
+
+---Calculates percentage of the total journey only taking into account fitness stage progression.
+---@param playerStage integer
+---@param gains number
+---@return number percent Number between [0, 1].
+local function _TotalJourneyInStages(playerStage, gains)
+  local f = l.linCurve({x=0, y=0}, {x=#db.playerStages, y=1})
+  return l.forcePercent( f(playerStage - 1 + (gains / 100)) )
+end
+
+---Calculates percentage of the total journey only taking into account days of progression.
+---@param playerStage integer
+---@param gains number
+---@return number percent Number between [0, 1].
+local function _TotalJourneyInDays(playerStage, gains)
+  local SumDays = function (a, v) return a + v.minDays end
+  local totalDays = l.reduce(db.playerStages, 0, SumDays)
+  local pastDays = l.pipe(
+    l.takeA(playerStage - 1),
+    l.reduce(0, SumDays)
+  )(db.playerStages) + (db.playerStages[playerStage].minDays * (gains / 100))
+  return l.forcePercent(pastDays / totalDays)
+end
+
+---Calculates percentage of the total journey so far.
+---@param playerStage integer
+---@param gains number
+---@return number stagePercent Number between [0, 1].
+---@return number daysPercent Number between [0, 1].
+---@return number averagePercent Number between [0, 1].
+local function _TotalJourney(playerStage, gains)
+  local stagePercent = _TotalJourneyInStages(playerStage, gains)
+  local daysPercent = _TotalJourneyInDays(playerStage, gains)
+  return stagePercent, daysPercent, (stagePercent + daysPercent) / 2
 end
 
 --#endregion
@@ -344,12 +378,19 @@ function player.OnSleep(hoursSlept, training, gains, stage)
   local gainsDelta, newTraining, newGains = _MakeGains(hoursSlept, training, stage, gains)
   local newStage, adjustedGains = _AdjustStage(stage, newGains)
   local Cap = function (g) return l.IfThen(LastStage(newStage), l.forceMax(100)(g), g) end
+  local cappedGains = Cap(adjustedGains)
+  local stagePercent, daysPercent, averagePercent = _TotalJourney(newStage, cappedGains)
   return {
     gainsDelta = gainsDelta,
     newTraining = newTraining,
-    newGains = Cap(adjustedGains),
+    newGains = cappedGains,
     newStage = newStage,
-    stageDelta = newStage - stage
+    stageDelta = newStage - stage,
+
+    -- Percents of the whole journey made so far
+    stagePercent = stagePercent,
+    daysPercent = daysPercent,
+    averagePercent = averagePercent,
   }
 end
 

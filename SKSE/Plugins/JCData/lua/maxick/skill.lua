@@ -12,7 +12,7 @@ skill.skillTypes = {
   phys = {train = 0.5, activity = 0.8},
   mag = {train = 0.1, activity = 0.3},
   sack = {train = 1, activity = 2},
-  sex = {train = 0.001, activity = 0.2}
+  sex = {train = 10.001, activity = 0.2}
 }
 
 --- Represents a skill the player just leveled up.

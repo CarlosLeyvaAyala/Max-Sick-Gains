@@ -1,29 +1,10 @@
 package.path = package.path..";F:/Skyrim SE/MO2/mods/DM-SkyrimSE-Library/SKSE/Plugins/JCData/lua/?/init.lua"
+package.path = package.path..";F:/Skyrim SE/MO2/mods/Max Sick Gains/SKSE/Plugins/JCData/lua/maxick/?.lua"
+package.path = package.path..";F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src/SKSE/Plugins/JCData/lua/maxick/?.lua"
 
 local l = require 'dmlib'
-local serpent = require("serpent")
-
--- ####################################################################################
-
--- -- Simulate 10 hour sleep
--- local hoursSlept = 10
--- local gains = 0.0
--- local lvl = 1
--- local slider = "Boobs"
--- -- local i = 1
--- while gains < 1.0 do
---   -- Simulate sleeping
---   gains = gains + (1.0 / fitness[lvl].days) * (hoursSlept / 10)
---   GetBlendedMorph(lvl, gains, slider)
--- end
-
--- gains = 0
--- lvl = lvl + 1
--- -- while gains < 1.0 do
--- --   -- Simulate sleeping
--- --   gains = gains + (1.0 / fitness[lvl].days) * (hoursSlept / 10)
--- --   GetBlendedMorph(lvl, gains, slider)
--- -- end
+local serpent = require("__serpent")
+local db = require 'database'
 
 local add2 = function(x) return x + 2 end
 local sub1 = function(x) return x - 1 end
@@ -73,7 +54,6 @@ local operations = {
 -- print(pipe(pipedAdd(20), pipedAdd(50))(30))
 -- print(pipedAdd(2,3))
 
-
 -- print("$$$$$$$$$$$$")
 local p = l.pipe(operations)
 p(data)
@@ -103,4 +83,29 @@ print(blindDate())
 print(blindDate())
 print(blindDate())
 
-print(string.find("--{RELEASE} local npc = {}", "{RELEASE}"))
+-- -- local ga = 100
+-- local clipboard = require'clipboard'
+
+-- print("$$$$$$$$$$$$$$$$$$$$$$$")
+-- local table = "|-------|---------------|-----------------------|-----------------------|---------------|\n"
+-- table = table .. "| stage\t| gains\t\t\t| Progress by stage %\t| Progress by days %\t| Average % \t|\n"
+-- table = table .. "|-------|---------------|-----------------------|-----------------------|---------------|\n"
+-- for st = 1, #db.playerStages, 1 do
+--   for ga = 0, 100, 10 do
+--     table = table .. string.format("| %d\t\t| %-3.0f\t\t\t| %.1f\t\t\t\t\t| %.1f\t\t\t\t\t| %.1f\t\t\t|\n", st, ga, _TotalJourney(st, ga))
+--   end
+-- end
+-- table = table .. "|-------|---------------|-----------------------|-----------------------|---------------|\n"
+
+-- clipboard.settext( table)
+-- print( clipboard.gettext() )
+-- print(table)
+-- print("|---------------|---------------|-----------------------|-----------------------|---------------|")
+-- print("| stage\t", "| gains\t", "| Progress by stage %", "| Progress by days %", "| Average % \t|")
+-- print("|---------------|---------------|-----------------------|-----------------------|---------------|")
+-- for st = 1, #db.playerStages, 1 do
+--   for ga = 0, 100, 10 do
+--     print(string.format("| %d\t\t| %.0f\t\t| %.1f\t\t\t| %.1f\t\t\t| %.1f\t\t|", st, ga, _TotalJourney(st, ga)))
+--   end
+-- end
+-- print("|---------------|---------------|-----------------------|-----------------------|---------------|")

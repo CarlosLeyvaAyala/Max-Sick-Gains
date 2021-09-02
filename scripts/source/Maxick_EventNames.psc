@@ -116,6 +116,109 @@ Function SendSleep(float humanHoursSlept)
 EndFunction
 
 
+; !  ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗     ██████╗ ███╗   ██╗██╗  ██╗   ██╗
+; !  ██╔══██╗██╔════╝██╔════╝██╔════╝██║██║   ██║██╔════╝    ██╔═══██╗████╗  ██║██║  ╚██╗ ██╔╝
+; !  ██████╔╝█████╗  ██║     █████╗  ██║██║   ██║█████╗      ██║   ██║██╔██╗ ██║██║   ╚████╔╝
+; !  ██╔══██╗██╔══╝  ██║     ██╔══╝  ██║╚██╗ ██╔╝██╔══╝      ██║   ██║██║╚██╗██║██║    ╚██╔╝
+; !  ██║  ██║███████╗╚██████╗███████╗██║ ╚████╔╝ ███████╗    ╚██████╔╝██║ ╚████║███████╗██║
+; !  ╚═╝  ╚═╝╚══════╝ ╚═════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝     ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝
+
+; ***NEVER*** SEND THESE EVENTS YOURSELF with `SendModEvent()`.
+; These aren't meant to be sent by addon creators and you may end up breaking this mod.
+; It's completely secure (and encouraged) to listen to these events using
+; `RegisterForModEvent()`, though.
+
+string Property JOURNEY_AVERAGE = "Maxick_JourneyByAverage" AutoReadOnly
+{**Activation**: When `gains` are set.
+
+`float numArg`: Average of the total percent of the player journey that the other methods reported.
+
+- Use this to know how how much the player has advanced towards their fitness goals.
+- This is the preferred method to gauge player progress.}
+
+string Property JOURNEY_DAYS = "Maxick_JourneyByDays" AutoReadOnly
+{**Activation**: When `gains` are set.
+
+`float numArg`: Total percent of the player journey (based on Player Stages).
+
+- Use this to know how how much the player has advanced towards their fitness goals.}
+
+string Property JOURNEY_STAGE = "Maxick_JourneyByStage" AutoReadOnly
+{**Activation**: When `gains` are set.
+
+`float numArg`: Total percent of the player journey (based on Player Stages).
+
+- Use this to know how how much the player has advanced towards their fitness goals.}
+
+string Property GAINS = "Maxick_Gains" AutoReadOnly
+{**Activation**: When `gains` are set.
+
+`float numArg`: The new value for `gains`: `[0..100]`.
+
+- Use this for reference. So you can do things based on current `gains`.
+- This event adjusts the widget value display.}
+
+string Property TRAINING = "Maxick_Training" AutoReadOnly
+{**Activation**: When `training` is set.
+***This refers to the `training` variable, not the act of training***, which is what `TRAIN` is for.
+
+`float numArg`: The new value for `training`: `[0..12]`.
+
+- Use this for reference. So you can do things based on current `training`.
+- This event adjusts the widget value display.}
+
+string Property INACTIVITY = "Maxick_Inactivity" AutoReadOnly
+{**Activation**: When `inactivity` is set.
+
+`float numArg`: The new value for `inactivity` `[0..100]`.
+
+- This event adjusts the widget value display.}
+
+string Property PLAYER_STAGE_DELTA = "Maxick_PlayerStageDelta" AutoReadOnly
+{**Activation**: When a new `playerStage` is set.
+
+`int numArg`: How many stages have changed. Negative when regressing.
+
+- This event makes the widget to show a message saying that Player Stage has changed.}
+
+string Property PLAYER_STAGE = "Maxick_PlayerStage" AutoReadOnly
+{**Activation**: When a new `playerStage` is set.
+
+`int numArg`: The new Player Stage.
+}
+
+string Property CATABOLISM_START = "Maxick_CatabolismStart" AutoReadOnly
+{**Activation**: When the player enters catabolic state and starts to lose gains.
+
+`int numArg = 1`. Use this to manage this event and `CATABOLISM_END` with only one event.
+
+- This event tells the widget to flash loses every step (affected by `UPDATE_INTERVAL`).
+}
+
+string Property CATABOLISM_END = "Maxick_CatabolismEnd" AutoReadOnly
+{**Activation**: When the player exits catabolic state by training.
+
+`numArg = 0`. Use this to manage this event and `CATABOLISM_START` with only one event.
+}
+
+string Property LOGGING_LVL = "Maxick_LoggingLvl" AutoReadOnly
+{**Activation**: When the logging level is set.
+
+`int numArg`: These are the possible values:
+  1. None
+  2. Critical - Errors and important things.
+  3. Info - Meant to be detailed info for players.
+  4. Verbose - Extremely detailed info for debugging purposes. Not really meant for players.
+
+You are unlikely to need this event, but I do.}
+
+string Property UPDATE_INTERVAL = "Maxick_UpdateInterval" AutoReadOnly
+{**Activation**: When the update interval for calculating losses is set.
+`int numArg`: The value for the update interval.
+
+You are unlikely to need this event, but I do.}
+
+
 ; !  ███████╗███████╗███╗   ██╗██████╗      █████╗ ███╗   ██╗██████╗     ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗
 ; !  ██╔════╝██╔════╝████╗  ██║██╔══██╗    ██╔══██╗████╗  ██║██╔══██╗    ██╔══██╗██╔════╝██╔════╝██╔════╝██║██║   ██║██╔════╝
 ; !  ███████╗█████╗  ██╔██╗ ██║██║  ██║    ███████║██╔██╗ ██║██║  ██║    ██████╔╝█████╗  ██║     █████╗  ██║██║   ██║█████╗
@@ -172,84 +275,3 @@ string Property SLEEP = "Maxick_Sleep" AutoReadOnly
 `numArg`: Number of hours slept ***IN HUMAN HOURS***, NOT game time.
 
 - You can simulate the player sleeping by sending this event, thus making gains calculations on sleeping.}
-
-
-; !  ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗     ██████╗ ███╗   ██╗██╗  ██╗   ██╗
-; !  ██╔══██╗██╔════╝██╔════╝██╔════╝██║██║   ██║██╔════╝    ██╔═══██╗████╗  ██║██║  ╚██╗ ██╔╝
-; !  ██████╔╝█████╗  ██║     █████╗  ██║██║   ██║█████╗      ██║   ██║██╔██╗ ██║██║   ╚████╔╝
-; !  ██╔══██╗██╔══╝  ██║     ██╔══╝  ██║╚██╗ ██╔╝██╔══╝      ██║   ██║██║╚██╗██║██║    ╚██╔╝
-; !  ██║  ██║███████╗╚██████╗███████╗██║ ╚████╔╝ ███████╗    ╚██████╔╝██║ ╚████║███████╗██║
-; !  ╚═╝  ╚═╝╚══════╝ ╚═════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝     ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝
-
-; ***NEVER*** SEND THIS EVENTS YOURSELF with `SendModEvent()`.
-; These aren't meant to be sent by addon creators and you may end up breaking this mod.
-; It's completely secure (and encouraged) to listen to these events using
-; `RegisterForModEvent()`, though.
-
-string Property GAINS = "Maxick_Gains" AutoReadOnly
-{**Activation**: When `gains` are set.
-
-`numArg`: The new value for `gains`: `[0..100]`.
-
-- Use this for reference. So you can do things based on current `gains`.
-- This event adjusts the widget value display.}
-
-string Property TRAINING = "Maxick_Training" AutoReadOnly
-{**Activation**: When `training` is set.
-***This refers to the `training` variable, not the act of training***, which is what `TRAIN` is for.
-
-`numArg`: The new value for `training`: `[0..12]`.
-
-- Use this for reference. So you can do things based on current `training`.
-- This event adjusts the widget value display.}
-
-string Property INACTIVITY = "Maxick_Inactivity" AutoReadOnly
-{**Activation**: When `inactivity` is set.
-
-`numArg`: The new value for `inactivity` `[0..100]`.
-
-- This event adjusts the widget value display.}
-
-string Property PLAYER_STAGE_DELTA = "Maxick_PlayerStageDelta" AutoReadOnly
-{**Activation**: When a new `playerStage` is set.
-
-`int numArg`: How many stages have changed. Negative when regressing.
-
-- This event makes the widget to show a message saying that Player Stage has changed.}
-
-string Property PLAYER_STAGE = "Maxick_PlayerStage" AutoReadOnly
-{**Activation**: When a new `playerStage` is set.
-
-`int numArg`: The new Player Stage.
-}
-
-string Property CATABOLISM_START = "Maxick_CatabolismStart" AutoReadOnly
-{**Activation**: When the player enters catabolic state and starts to lose gains.
-
-`numArg`: `1`. Use this to manage this event and `CATABOLISM_END` with only one event.
-
-- This event tells the widget to flash loses every step (affected by `UPDATE_INTERVAL`).
-}
-
-string Property CATABOLISM_END = "Maxick_CatabolismEnd" AutoReadOnly
-{**Activation**: When the player exits catabolic state by training.
-
-`numArg`: `0`. Use this to manage this event and `CATABOLISM_START` with only one event.
-}
-
-string Property LOGGING_LVL = "Maxick_LoggingLvl" AutoReadOnly
-{**Activation**: When the logging level is set.
-
-`int numArg`: These are the possible values:
-  1. None
-  2. Critical - Errors and important things.
-  3. Info - Meant to be detailed info for players.
-  4. Verbose - Extremely detailed info for debugging purposes. Not really meant for players.
-
-You are unlikely to need this event, but I do.}
-
-string Property UPDATE_INTERVAL = "Maxick_UpdateInterval" AutoReadOnly
-{**Activation**: When the update interval for calculating losses is set.
-`int numArg`: The value for the update interval.
-
-You are unlikely to need this event, but I do.}

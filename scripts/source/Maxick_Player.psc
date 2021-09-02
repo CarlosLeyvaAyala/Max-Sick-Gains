@@ -103,6 +103,10 @@ Function RegisterEvents()
   RegisterForModEvent(ev.ACTIVITY_CHANGE, "OnInactivityDelta")
   RegisterForModEvent(ev.UPDATE_INTERVAL, "OnGetUpdateInterval")
   RegisterForModEvent(ev.SLEEP, "OnSleep")
+
+  RegisterForModEvent(ev.JOURNEY_AVERAGE, "OnJourneyAverage")
+  RegisterForModEvent(ev.JOURNEY_DAYS, "OnJourneyDays")
+  RegisterForModEvent(ev.JOURNEY_STAGE, "OnJourneyStage")
 EndFunction
 
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
@@ -227,7 +231,11 @@ Event OnSleep(string _, string __, float hoursSlept, Form ___)
   _SetTraining( JMap.getFlt(data, "newTraining") )
   _SetStage( JMap.getInt(data, "newStage") )
   _SendStageDelta( JMap.getInt(data, "stageDelta") )
+
   SendModEvent( ev.GAINS_CHANGE, "", JMap.getFlt(data, "gainsDelta") )
+  SendModEvent( ev.JOURNEY_AVERAGE, "", JMap.getFlt(data, "averagePercent") )
+  SendModEvent( ev.JOURNEY_DAYS, "", JMap.getFlt(data, "daysPercent") )
+  SendModEvent( ev.JOURNEY_STAGE, "", JMap.getFlt(data, "stagePercent") )
 
   ChangeAppearance()
   md.LogVerb("=====================================")
@@ -266,6 +274,19 @@ Event OnInactivityDelta(string _, string __, float delta, Form ___)
   _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", " + ToGameHours(delta) +")")
   _InactivityCalculation()
 EndEvent
+
+Event OnJourneyAverage(string _, string __, float journey, Form ___)
+  md.LogVerb("Journey average sucessfully sent: " + journey)
+EndEvent
+
+Event OnJourneyStage(string _, string __, float journey, Form ___)
+  md.LogVerb("Journey by stage sucessfully sent: " + journey)
+EndEvent
+
+Event OnJourneyDays(string _, string __, float journey, Form ___)
+  md.LogVerb("Journey by days sucessfully sent: " + journey)
+EndEvent
+
 
 ;>========================================================
 ;>===                  TESTING MODE                  ===<;

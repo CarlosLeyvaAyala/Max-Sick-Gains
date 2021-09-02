@@ -141,5 +141,6 @@ local serpent = { _NAME = n, _COPYRIGHT = c, _DESCRIPTION = d, _VERSION = v, ser
   block = function(a, opts) return s(a, merge({indent = '  ', sortkeys = true, comment = true}, opts)) end}
 serpent.piped = function (data) print(serpent.block(data)) end
 serpent.pipedLine = function (data) print(serpent.line(data)) end
+serpent.print = serpent.piped
 
 return serpent

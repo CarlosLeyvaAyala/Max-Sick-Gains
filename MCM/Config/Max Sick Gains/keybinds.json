@@ -132,7 +132,7 @@
       "desc": "fov 45",
       "action": {
         "type": "RunConsoleCommand",
-        "command": "fov 45"
+        "command": "fov 50"
       }
     },
     {
@@ -140,7 +140,7 @@
       "desc": "fov 90",
       "action": {
         "type": "RunConsoleCommand",
-        "command": "fov 90"
+        "command": "fov 80"
       }
     }
   ]
