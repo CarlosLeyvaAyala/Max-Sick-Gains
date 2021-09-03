@@ -305,8 +305,7 @@ end
 ---@return nil|number archetypeId Id of the archetype that will be applied.
 local function _GetClassArchetype(Class, raceEDID)
   local class = string.lower(Class)
-  -- ;WARNING: Modify this if function can't find the actor class. Make a substring search, not an equality.
-  local classMatch = l.filter(db.classes, function (_, k) return class == k end)
+  local classMatch = l.filter(db.classes, function (_, k) return string.find(class, k) end)
   if not l.isEmpty(classMatch) then
     ml.LogCrit(l.fmt("Class found: '%s'", Class))
   else

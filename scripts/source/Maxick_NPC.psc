@@ -33,7 +33,7 @@ Function _ForceNPCUpdate(Actor npc)
     md.Log("Yeah... nice try, Einstein. GO EARN YOUR GAINS, YOU LOAFER.")
     return
   EndIf
-  ChangeAppearance(npc)
+  ForceChangeAppearance(npc)
 EndFunction
 
 ; Gets all the info needed to apply visual changes to an NPC.
@@ -75,7 +75,17 @@ EndFunction
 
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
-  ; TODO: Optimization goes here.
+  ; First crude optimization step
+  string[] morphs = NiOverride.GetMorphNames(npc)
+  If morphs.Length > 0
+    md.LogInfo("An appearance for " + DM_Utils.GetActorName(npc) + " was already set. Skipping.")
+    return
+  EndIf
+  ForceChangeAppearance(npc)
+EndFunction
+
+; Changes an actor appearance regardless of optimizations.
+Function ForceChangeAppearance(Actor npc)
   looksHandler.ChangeAppearance(npc, _GetAppearance(npc))
 EndFunction
 
