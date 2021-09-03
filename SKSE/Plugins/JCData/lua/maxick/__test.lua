@@ -5,6 +5,7 @@ package.path = package.path..";F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src/SKSE/Plu
 local l = require 'dmlib'
 local serpent = require("__serpent")
 local db = require 'database'
+local sk = require 'skill'
 
 local add2 = function(x) return x + 2 end
 local sub1 = function(x) return x - 1 end
@@ -49,27 +50,22 @@ local operations = {
   l.foreach(print)
 }
 
--- local function add(x, y) return x + y end
--- local pipedAdd = l.makePipeable(add, 2)
--- print(pipe(pipedAdd(20), pipedAdd(50))(30))
--- print(pipedAdd(2,3))
+-- print("$$$$$$$$$$$$")
+-- local p = l.pipe(operations)
+-- p(data)
 
 -- print("$$$$$$$$$$$$")
-local p = l.pipe(operations)
-p(data)
+-- pipe(operations)(data)
 
-print("$$$$$$$$$$$$")
-pipe(operations)(data)
+-- print("$$$$$$$$$$$$")
 
-print("$$$$$$$$$$$$")
-
-print(l.K(100)(nil))
-print(l.K(l.I)(6)(7))
-local first =l.K
-local second = l.K(l.I)
-print(first(1)(2))
-print(second(1)(2))
-print("$$$$$$$$$$$$")
+-- print(l.K(100)(nil))
+-- print(l.K(l.I)(6)(7))
+-- local first =l.K
+-- local second = l.K(l.I)
+-- print(first(1)(2))
+-- print(second(1)(2))
+-- print("$$$$$$$$$$$$")
 -- local latin = function(selector) return selector("primus")("secundus") end
 -- print(latin(first))
 -- print(latin(second))

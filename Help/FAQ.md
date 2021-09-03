@@ -17,6 +17,31 @@ Play any other mod. I can't do this easier to work with.
 <figcaption>Here; take these kittens. They are proof I'm not an angry asswipe.</figcaption>
 </figure>
 
+## This mod starts too late. It ruins muh immersion \>:'v
+
+<figure>
+<img class="vImg" src="img/faq/wojak-crying.png"/>
+</figure>
+
+You are too old to be throwing around temper tantrums like that.
+Get off my lawn, you fucking millenial!
+
+<figure>
+<img class="hImg" src="img/faq/old-man-angry.jpg"/>
+<figcaption>Heh... you just wait to see all my sexist jokes.</figcaption>
+</figure>
+
+Ok...
+If you are a normal person that can be rea  soned with[^YouAreBreathtaking], I need to tell you there's a reason for that.
+
+I deliberately added a 60 seconds delay when starting this mod, so it gives Skyrim some breathing room when you are starting a new game.
+This means it will pass a whole minute before you see changes made by this mod.
+
+I wish more mod authors add some delay to their non-essential mod initialization.
+In my opinion, it's more "immersion" breaking to have malfunctioning MCMs and things like that because Skyrim tried to setup too many things at once.
+
+[^YouAreBreathtaking]: Of course you are! You have tolerated all my jokes so far :v
+
 ## Will you port this to LE?
 
 No. I don't have LE and don't see the point of going back to the 32 bits era.

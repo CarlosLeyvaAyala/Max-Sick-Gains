@@ -20,9 +20,13 @@ Maxick_Widget Property widget Auto
 {Widget.}
 Maxick_EventNames Property ev Auto
 
+Spell Property ChangeCellSpell Auto
+
 Event OnInit()
+  Utility.Wait(60)    ; Wait some time because too many scripts may fuck this up
   OnGameReload()
   PcHandler.ChangeAppearance()
+  player.AddSpell(ChangeCellSpell)
 EndEvent
 
 ; These functions are called sequentially and not hooked as callbacks because we want to
@@ -40,6 +44,9 @@ EndFunction
 
 ; Main NPC processing function.
 Function OnCellLoad()
+  GoToState("CellLoading")
+
+  ; https://www.creationkit.com/index.php?title=Unit
   Actor[] npcs = MiscUtil.ScanCellNPCs(player, 0, None, false)
   int i = npcs.length
   While i > 0
@@ -48,7 +55,8 @@ Function OnCellLoad()
     EndIf
     i -= 1
   EndWhile
-  ; JValue.writeToFile(JDB.solveObj(".maxick"), JContainers.userDirectory() + "Maxick.json")
+
+  GoToState("")
 EndFunction
 
 ; Things to do when loading a game in testing mode.
@@ -68,6 +76,7 @@ EndFunction
 
 ; Registers events needed for this mod to work.
 Function _RegisterEvents()
+  RegisterForModEvent(ev.CELL_CHANGE, "OnCellChange")
   RegisterForSleep()
   _RegisterForSex()
 EndFunction
@@ -82,6 +91,18 @@ Function _RegisterForSex()
   RegisterForModEvent("ostim_animationchanged", "OStimEvent")
   RegisterForModEvent("ostim_end", "OStimEvent")
 EndFunction
+
+; Apply settings to NPCs when encountering them
+Event OnCellChange(string _, string __, float ___, form ____)
+  md.LogVerb("Main script got an OnCellChange event.")
+  OnCellLoad()
+EndEvent
+
+State CellLoading
+  Event OnCellChange(string _, string __, float ___, form ____)
+    md.LogVerb("Main script got an OnCellChange event, but it's still working on changing NPCs. Ignore.")
+  EndEvent
+EndState
 
 ; OStim integration.
 Event OStimEvent(string _, string __, float ___, form ____)

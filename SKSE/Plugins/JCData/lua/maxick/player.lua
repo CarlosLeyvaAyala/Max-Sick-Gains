@@ -14,7 +14,7 @@ local ml = jrequire 'maxick.lib'
 ---@type HumanHours
 player.inactivityTimeLimit = 48
 --- How much `training` is lost a day due to decay.
-player.trainingDecay = 0.3
+player.trainingDecay = 0.2
 --- How much `training` is lost a day when in _Catabolic State_.
 player.trainingCatabolism = 0.5
 --- How much `gains` are lost a day when in _Catabolic State_.
@@ -401,7 +401,7 @@ end
 ---@param delta SkyrimHours Maybe doesn't have sense to make negative values. Let's what people comes out with.
 ---@return SkyrimHours newLastTrained Adjusted value for activity.
 function player.HadActivity(now, lastTrained, delta)
-  local Cap = function (x) return l.forceRange(l.ToGameHours(player.inactivityTimeLimit), now)(x) end
+  local Cap = function (x) return l.forceRange(now - l.ToGameHours(player.inactivityTimeLimit), now)(x) end
   -- Make sure inactivity is within acceptable values before updating
   local capped = Cap(lastTrained)
   -- Update value

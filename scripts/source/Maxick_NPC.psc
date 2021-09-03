@@ -75,6 +75,7 @@ EndFunction
 
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
+  ; TODO: Optimization goes here.
   looksHandler.ChangeAppearance(npc, _GetAppearance(npc))
 EndFunction
 
@@ -99,5 +100,3 @@ Function _CheckIfNpcIsKnown(ActorBase npc, int data)
     EndIf
   EndWhile
 EndFunction
-
-; https://www.creationkit.com/index.php?title=Unit

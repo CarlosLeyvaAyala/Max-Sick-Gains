@@ -9,5 +9,5 @@ Event OnPlayerLoadGame()
 EndEvent
 
 Event OnCellLoad()
-  (GetOwningQuest() as Maxick_Main).OnCellLoad()
+  ; (GetOwningQuest() as Maxick_Main).OnCellLoad()
 endEvent

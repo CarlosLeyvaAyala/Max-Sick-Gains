@@ -1,10 +1,16 @@
+; This script includes some functions to easily communicate with Max Sick Gains.
+; Those are listed under the HELPERS section.
+;
+; Here you will also find all events this mod can send and receive.
+;
 ; All events can be received by you so you can do things according to it, but
 ; some of them can be also sent by you to alter things inside this mod.
-; Use those kind of events to make your own addons or adding compatibility to
-; your mod if you want.
 ;
-; This script also includes some functions to easily send your own mod events to
-; your convenience.
+; But if you want to send events, it's preferable to do that through the functions
+; declared in the HELPERS section; they already send events for you in a quite
+; convenient way.
+;
+; Use functions in Maxick_Compatibility before you can plug to this script.
 
 Scriptname Maxick_EventNames extends Quest
 
@@ -40,26 +46,30 @@ EndFunction
 
 ; Sends an event saying the player has trained an [skill defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 ;
-; List of possible values:
-; - "TwoHanded"
-; - "OneHanded"
-; - "Block"
-; - "Marksman" (archery)
-; - "HeavyArmor"
-; - "LightArmor"
-; - "Sneak"
-; - "Smithing"
+; You usually won't need to call this function if you are using standard means to activate
+; sex and if you are incrementing skills via `Game.AdvanceSkill()`.
+;
+; ## List of possible values
+;
 ; - "Alteration"
+; - "Block"
 ; - "Conjuration"
 ; - "Destruction"
+; - "HeavyArmor"
 ; - "Illusion"
+; - "LightArmor"
+; - "Marksman" (archery)
+; - "OneHanded"
 ; - "Restoration"
-; - "Sex"
-; - "SackS" (small training sack)
-; - "SackM" (medium training sack)
 ; - "SackL" (large training sack)
+; - "SackM" (medium training sack)
+; - "SackS" (small training sack)
+; - "Sex"
+; - "Smithing"
+; - "Sneak"
+; - "TwoHanded"
 ;
-; Always prefer this function over `SendTrainingAndActivity()`.
+; Always prefer this function over `Maxick_EventNames.SendTrainingAndActivity()`.
 Function SendPlayerHasTrained(string skillName)
   SendModEvent(TRAIN, skillName)
 EndFunction
@@ -72,6 +82,17 @@ Function SendGainsChange(float gainsChange)
   SendModEvent(GAINS_CHANGE, "", gainsChange)
 EndFunction
 
+; Sends the mod events to change both `training` and `inactivity`.
+; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
+; **Training meter will flash**, but not the inactivity one.
+;
+; -  See `Maxick_EventNames.SendTrainingChange()` for details.
+; -  See `Maxick_EventNames.SendActivityChange()` for details.
+Function SendTrainingAndActivity(string skillName, float trainingChange, float activityChange)
+  SendTrainingChange(skillName, trainingChange)
+  SendActivityChange(skillName, activityChange)
+EndFunction
+
 ; Sends the mod event to change `training`.
 ; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 ; **Training meter will flash**.
@@ -81,6 +102,29 @@ EndFunction
 ;         "This string contains ""double quotes"" and it's invalid".
 ;         "This string is totally valid".
 ; - `trainingChange`: How much training will be added/substracted to player.
+;
+; ## Numbers sent by Max Sick Gains
+; Use this table for reference on what numbers you can send with this function.
+;
+; | Skill       | Training |
+; |-------------|----------|
+; | Alteration  | 0.1      |
+; | Block       | 0.5      |
+; | Conjuration | 0.01     |
+; | Destruction | 0.07     |
+; | HeavyArmor  | 0.5      |
+; | Illusion    | 0.01     |
+; | LightArmor  | 0.15     |
+; | Marksman    | 0.1      |
+; | OneHanded   | 0.35     |
+; | Restoration | 0.1      |
+; | SackL       | 1.5      |
+; | SackM       | 1        |
+; | SackS       | 0.7      |
+; | Sex         | 0.001    |
+; | Smithing    | 0.1      |
+; | Sneak       | 0.15     |
+; | TwoHanded   | 0.5      |
 Function SendTrainingChange(string skillName, float trainingChange)
   SendModEvent(TRAINING_CHANGE, skillName, trainingChange)
 EndFunction
@@ -94,23 +138,45 @@ EndFunction
 ;         "This string contains ""double quotes"" and it's invalid".
 ;         "This string is totally valid".
 ; - `activityChange`: How much activity will be added/substracted ***IN HUMAN HOURS***. Send positive values to simulate training; negative values for simulating inactivity.
+;
+; ## Numbers sent by Max Sick Gains
+; Use this table for reference on what numbers you can send with this function.
+;
+; | Skill       | Activity |
+; |-------------|----------|
+; | Alteration  | 7.2      |
+; | Block       | 19.2     |
+; | Conjuration | 7.2      |
+; | Destruction | 7.2      |
+; | HeavyArmor  | 19.2     |
+; | Illusion    | 7.2      |
+; | LightArmor  | 19.2     |
+; | Marksman    | 19.2     |
+; | OneHanded   | 19.2     |
+; | Restoration | 7.2      |
+; | SackL       | 48       |
+; | SackM       | 36       |
+; | SackS       | 24       |
+; | Sex         | 4.8      |
+; | Smithing    | 19.2     |
+; | Sneak       | 19.2     |
+; | TwoHanded   | 19.2     |
+;
+; All these numbers are time in human hours, not Skyrim hours.
+; This means large training sacks (`SackL`) are worth 48 hours of activity; ie. two days.
+;
+; Sex is so "low" because that number of hours is added at each single change of
+; sexual position and when finishing the sex act, so just one session can easily
+; rake up to 20+ hours worth of activity.
 Function SendActivityChange(string skillName, float activityChange)
   SendModEvent(ACTIVITY_CHANGE, skillName, activityChange)
 EndFunction
 
-; Sends the mod events to change both `training` and `inactivity`.
-; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
-; **Training meter will flash**, but not the inactivity one.
-;
-; -  See `SendTrainingChange()`.
-; -  See `SendActivityChange()`.
-Function SendTrainingAndActivity(string skillName, float trainingChange, float activityChange)
-  SendTrainingChange(skillName, trainingChange)
-  SendActivityChange(skillName, activityChange)
-EndFunction
-
 ; Sends an event after sleeping.
+;
 ; - `humanHoursSlept`: Time slept ***IN HUMAN HOURS***.
+;
+; Use this if your mod simulates sleeping by doing some fade to black scene or something.
 Function SendSleep(float humanHoursSlept)
   SendModEvent(SLEEP, "", humanHoursSlept)
 EndFunction
@@ -125,38 +191,71 @@ EndFunction
 
 ; ***NEVER*** SEND THESE EVENTS YOURSELF with `SendModEvent()`.
 ; These aren't meant to be sent by addon creators and you may end up breaking this mod.
-; It's completely secure (and encouraged) to listen to these events using
+;
+; It's completely secure (and encouraged) to listen to these events by using
 ; `RegisterForModEvent()`, though.
+;
+; https://www.creationkit.com/index.php?title=RegisterForModEvent_-_Form
+
+;------------------------------------------------------------------------------------
 
 string Property JOURNEY_AVERAGE = "Maxick_JourneyByAverage" AutoReadOnly
-{**Activation**: When `gains` are set.
+{
+**Activation**: When `gains` are set.
 
-`float numArg`: Average of the total percent of the player journey that the other methods reported.
+- `float numArg`: Number between `[0..1]`.
+Average of the total percent of the player journey that the other methods reported.
 
-- Use this to know how how much the player has advanced towards their fitness goals.
-- This is the preferred method to gauge player progress.}
+### Remarks
+
+- Use this to know how much the player has advanced towards their fitness goals.
+- This is the preferred method for gauging player progress.
+
+### Sample usage:
+
+```
+Event OnJourneyAverage(string _, string __, float journey, Form ___)
+  Log("Journey average sucessfully got: " + journey)
+EndEvent
+```
+}
+
+;------------------------------------------------------------------------------------
 
 string Property JOURNEY_DAYS = "Maxick_JourneyByDays" AutoReadOnly
-{**Activation**: When `gains` are set.
+{
+**Activation**: When `gains` are set.
 
 `float numArg`: Total percent of the player journey (based on Player Stages).
 
-- Use this to know how how much the player has advanced towards their fitness goals.}
+- Use this to know how much the player has advanced towards their fitness goals.
+}
+
+;------------------------------------------------------------------------------------
 
 string Property JOURNEY_STAGE = "Maxick_JourneyByStage" AutoReadOnly
-{**Activation**: When `gains` are set.
+{
+**Activation**: When `gains` are set.
+
 
 `float numArg`: Total percent of the player journey (based on Player Stages).
 
-- Use this to know how how much the player has advanced towards their fitness goals.}
+- Use this to know how much the player has advanced towards their fitness goals.
+}
+
+;------------------------------------------------------------------------------------
 
 string Property GAINS = "Maxick_Gains" AutoReadOnly
-{**Activation**: When `gains` are set.
+{
+**Activation**: When `gains` are set.
 
 `float numArg`: The new value for `gains`: `[0..100]`.
 
 - Use this for reference. So you can do things based on current `gains`.
-- This event adjusts the widget value display.}
+- This event adjusts the widget value display.
+}
+
+;------------------------------------------------------------------------------------
 
 string Property TRAINING = "Maxick_Training" AutoReadOnly
 {**Activation**: When `training` is set.
@@ -167,6 +266,8 @@ string Property TRAINING = "Maxick_Training" AutoReadOnly
 - Use this for reference. So you can do things based on current `training`.
 - This event adjusts the widget value display.}
 
+;------------------------------------------------------------------------------------
+
 string Property INACTIVITY = "Maxick_Inactivity" AutoReadOnly
 {**Activation**: When `inactivity` is set.
 
@@ -174,18 +275,25 @@ string Property INACTIVITY = "Maxick_Inactivity" AutoReadOnly
 
 - This event adjusts the widget value display.}
 
+;------------------------------------------------------------------------------------
+
 string Property PLAYER_STAGE_DELTA = "Maxick_PlayerStageDelta" AutoReadOnly
 {**Activation**: When a new `playerStage` is set.
 
 `int numArg`: How many stages have changed. Negative when regressing.
 
-- This event makes the widget to show a message saying that Player Stage has changed.}
+- This event makes the widget to show a message saying that Player Stage has changed.
+}
+
+;------------------------------------------------------------------------------------
 
 string Property PLAYER_STAGE = "Maxick_PlayerStage" AutoReadOnly
 {**Activation**: When a new `playerStage` is set.
 
 `int numArg`: The new Player Stage.
 }
+
+;------------------------------------------------------------------------------------
 
 string Property CATABOLISM_START = "Maxick_CatabolismStart" AutoReadOnly
 {**Activation**: When the player enters catabolic state and starts to lose gains.
@@ -195,28 +303,46 @@ string Property CATABOLISM_START = "Maxick_CatabolismStart" AutoReadOnly
 - This event tells the widget to flash loses every step (affected by `UPDATE_INTERVAL`).
 }
 
+;------------------------------------------------------------------------------------
+
 string Property CATABOLISM_END = "Maxick_CatabolismEnd" AutoReadOnly
 {**Activation**: When the player exits catabolic state by training.
 
 `numArg = 0`. Use this to manage this event and `CATABOLISM_START` with only one event.
 }
 
+;------------------------------------------------------------------------------------
+
+string Property CELL_CHANGE = "Maxick_CellChange" AutoReadOnly
+{
+**Activation**: When player enters a new cell.
+
+- I use this event to apply appearance settings to NPCs.
+- It may be useful to you for other reasons, though.
+}
+
+;------------------------------------------------------------------------------------
+
 string Property LOGGING_LVL = "Maxick_LoggingLvl" AutoReadOnly
 {**Activation**: When the logging level is set.
 
 `int numArg`: These are the possible values:
-  1. None
-  2. Critical - Errors and important things.
-  3. Info - Meant to be detailed info for players.
-  4. Verbose - Extremely detailed info for debugging purposes. Not really meant for players.
+1. None
+2. Critical - Errors and important things.
+3. Info - Meant to be detailed info for players.
+4. Verbose - Extremely detailed info for debugging purposes. Not really meant for players.
 
 You are unlikely to need this event, but I do.}
+
+;------------------------------------------------------------------------------------
 
 string Property UPDATE_INTERVAL = "Maxick_UpdateInterval" AutoReadOnly
 {**Activation**: When the update interval for calculating losses is set.
 `int numArg`: The value for the update interval.
 
 You are unlikely to need this event, but I do.}
+
+;------------------------------------------------------------------------------------
 
 
 ; !  ███████╗███████╗███╗   ██╗██████╗      █████╗ ███╗   ██╗██████╗     ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗

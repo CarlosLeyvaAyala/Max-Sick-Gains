@@ -12,7 +12,7 @@ skill.skillTypes = {
   phys = {train = 0.5, activity = 0.8},
   mag = {train = 0.1, activity = 0.3},
   sack = {train = 1, activity = 2},
-  sex = {train = 10.001, activity = 0.2}
+  sex = {train = 0.001, activity = 0.2}
 }
 
 --- Represents a skill the player just leveled up.
@@ -27,6 +27,7 @@ skill.skills ={
   HeavyArmor = {skType = skill.skillTypes.phys, train = 1},
   LightArmor = {skType = skill.skillTypes.phys, train = 0.3},
   Sneak = {skType = skill.skillTypes.phys, train = 0.3},
+  Pickpocket = {skType = skill.skillTypes.phys, train = 0.05, activity = 0.1},
   Smithing = {skType = skill.skillTypes.phys, train = 0.2},
   Alteration = {skType = skill.skillTypes.mag, train = 1},
   Conjuration = {skType = skill.skillTypes.mag, train = 0.1},
@@ -72,5 +73,17 @@ function skill.Train(skillName)
     trainingDelta = l.alt(_GetTraining, f0)(sk),
   }
 end
+
+-- print("| Skill | Activity |")
+-- print("|---|---|")
+-- for name, sk in pairs(skill.skills) do
+--   print("| ", name, "| ", _GetActivity(sk), " |")
+-- end
+
+-- print("| Skill | Training |")
+-- print("|---|---|")
+-- for name, sk in pairs(skill.skills) do
+--   print("| ", name, "| ", _GetTraining(sk), " |")
+-- end
 
 return skill

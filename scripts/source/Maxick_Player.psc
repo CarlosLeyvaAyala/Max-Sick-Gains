@@ -65,10 +65,10 @@ float _lastPollingTime = 0.0
 ;>========================================================
 
 Event OnInit()
-  _InitFromMcm()
-  OnGameReload()
   _lastTrained = Now()
   _lastPollingTime = Now()
+  _InitFromMcm()
+  ; OnGameReload()
 EndEvent
 
 ; Initializes data from MCM settings. Used so the player doesn't have to configure this
@@ -80,6 +80,7 @@ EndFunction
 Function OnGameReload()
   _EnterTestingMode()
   RegisterEvents()
+  ChangeAppearance()
 EndFunction
 
 ; Enters testing mode if needed.
@@ -206,10 +207,10 @@ Function _CatabolicTest(float inactivityPercent)
   If _isInCatabolic != old
     md.LogVerb("There was a change in catabolic state.")
     If _isInCatabolic
-      md.LogVerb("Player entered catabolic state.")
+      md.LogInfo("Player entered catabolic state.")
       SendModEvent(ev.CATABOLISM_START, "", 1)
     Else
-      md.LogVerb("Player got out from catabolic state.")
+      md.LogInfo("Player got out from catabolic state.")
       SendModEvent(ev.CATABOLISM_END, "", 0)
     EndIf
   EndIf
