@@ -7,7 +7,7 @@ FormList Property KnownNPCs Auto
 Maxick_Main Property main Auto
 Maxick_ActorAppearance Property looksHandler Auto
 Maxick_Debug Property md Auto
-Maxick_EventNames Property ev Auto
+Maxick_Events Property ev Auto
 
 Function OnGameReload()
 EndFunction

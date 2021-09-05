@@ -5,7 +5,7 @@ package.path = package.path..";F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src/SKSE/Plu
 local l = require 'dmlib'
 local serpent = require("__serpent")
 local db = require 'database'
-local sk = require 'skill'
+--local sk = require 'skill'
 
 local add2 = function(x) return x + 2 end
 local sub1 = function(x) return x - 1 end
@@ -105,3 +105,5 @@ print(blindDate())
 --   end
 -- end
 -- print("|---------------|---------------|-----------------------|-----------------------|---------------|")
+
+print("uu\"eiu\" ei")

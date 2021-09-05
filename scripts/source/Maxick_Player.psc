@@ -14,7 +14,7 @@ Maxick_Main Property main Auto
 Maxick_ActorAppearance Property looksHandler Auto
 Actor Property player Auto
 Maxick_Debug Property md Auto
-Maxick_EventNames Property ev Auto
+Maxick_Events Property ev Auto
 
 ;>========================================================
 ;>===                  PLAYER DATA                   ===<;
@@ -92,7 +92,8 @@ Function _EnterTestingMode()
   Else
     GotoState("")
     _RestoreHeadSize()
-    RegisterForSingleUpdate(_pollingInterval)
+    _Poll()
+    ; RegisterForSingleUpdate(_pollingInterval)
   EndIf
 EndFunction
 

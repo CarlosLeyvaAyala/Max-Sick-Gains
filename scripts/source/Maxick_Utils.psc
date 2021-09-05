@@ -37,5 +37,22 @@ bool Function NiOverrideExists() Global
 EndFunction
 
 bool Function JContainersExists() Global
-  Return JContainers.isInstalled()
+  If !JContainers.isInstalled()
+    Debug.MessageBox("Max Sick Gains: JContainers is a hard requirement and you did not install it. Read the requirements carefully.")
+    return false
+  EndIf
+  Return true
+EndFunction
+
+; Tries to return a handle to iWantWidgets. Shows a message if failed to do so.
+iwant_widgets Function iWantWidgetsHandle() Global
+  iwant_widgets iWidgets = Game.GetFormFromFile(0x000800, "iWant Widgets.esl") as iwant_widgets
+
+  If !iWidgets
+    iWidgets = Game.GetFormFromFile(0x000800, "iWant Widgets.esp") as iwant_widgets
+    If !iWidgets
+      Debug.MessageBox("Max Sick Gains: iWant Widgets is a hard requirement and you did not install it. Read the requirements carefully.")
+    EndIf
+  EndIf
+  return iWidgets
 EndFunction

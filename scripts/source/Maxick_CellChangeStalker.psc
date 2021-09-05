@@ -5,7 +5,7 @@ Scriptname Maxick_CellChangeStalker extends ObjectReference
 
 Actor property player auto
 
-Maxick_EventNames property ev auto
+Maxick_Events property ev auto
 Maxick_Debug Property md Auto
 
 Event OnCellDetach()

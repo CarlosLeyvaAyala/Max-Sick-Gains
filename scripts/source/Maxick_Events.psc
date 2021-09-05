@@ -12,12 +12,8 @@
 ;
 ; Use functions in Maxick_Compatibility before you can plug to this script.
 
-Scriptname Maxick_EventNames extends Quest
-
-; You will have this script by virtue of having downloaded Mak Sick Gains,
-; but if your compiler complains of this not being present, download it from:
-; https://github.com/CarlosLeyvaAyala/DM-SkyrimSE-Library/blob/master/scripts/Source/DM_Utils.psc
-import DM_Utils
+Scriptname Maxick_Events extends Quest
+{Communication with Max Sick Gains via events.}
 
 
 ; !  ██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ ███████╗
@@ -33,15 +29,6 @@ import DM_Utils
 ; Do yourself a favor and dowload it from here:
 ; https://marketplace.visualstudio.com/items?itemname=joelday.papyrus-lang-vscode
 Function _Dummy()
-EndFunction
-
-; Skyrim's `Utility.GetCurrentGameTime()` gets time as fractions of a day, where `1`
-; means one day, while `0.5` means half a day.
-; This function converts Skyrim time to human readable hours, so `0.5` becomes `12`.
-;
-; Use this to easily change time for functions and events that ask for _human time_.
-float Function ToHumanHours(float gameHours)
-  return ToRealHours(gameHours)
 EndFunction
 
 ; Sends an event saying the player has trained an [skill defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
@@ -69,7 +56,7 @@ EndFunction
 ; - "Sneak"
 ; - "TwoHanded"
 ;
-; Always prefer this function over `Maxick_EventNames.SendTrainingAndActivity()`.
+; Always prefer this function over `Maxick_Events.SendTrainingAndActivity()`.
 Function SendPlayerHasTrained(string skillName)
   SendModEvent(TRAIN, skillName)
 EndFunction
@@ -86,8 +73,8 @@ EndFunction
 ; Use this when you want to send an event not [defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 ; **Training meter will flash**, but not the inactivity one.
 ;
-; -  See `Maxick_EventNames.SendTrainingChange()` for details.
-; -  See `Maxick_EventNames.SendActivityChange()` for details.
+; -  See `Maxick_Events.SendTrainingChange()` for details.
+; -  See `Maxick_Events.SendActivityChange()` for details.
 Function SendTrainingAndActivity(string skillName, float trainingChange, float activityChange)
   SendTrainingChange(skillName, trainingChange)
   SendActivityChange(skillName, activityChange)

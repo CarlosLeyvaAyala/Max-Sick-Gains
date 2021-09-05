@@ -18,7 +18,7 @@ Maxick_Debug Property md Auto
 {Handles everything debgging related.}
 Maxick_Widget Property widget Auto
 {Widget.}
-Maxick_EventNames Property ev Auto
+Maxick_Events Property ev Auto
 
 Spell Property ChangeCellSpell Auto
 

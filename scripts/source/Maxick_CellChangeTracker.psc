@@ -5,7 +5,7 @@ Scriptname Maxick_CellChangeTracker extends ActiveMagicEffect
 Actor property player auto
 ObjectReference property XMarker auto
 
-Maxick_EventNames property ev auto
+Maxick_Events property ev auto
 Maxick_Debug Property md Auto
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)

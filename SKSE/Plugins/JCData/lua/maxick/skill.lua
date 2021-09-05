@@ -27,7 +27,7 @@ skill.skills ={
   HeavyArmor = {skType = skill.skillTypes.phys, train = 1},
   LightArmor = {skType = skill.skillTypes.phys, train = 0.3},
   Sneak = {skType = skill.skillTypes.phys, train = 0.3},
-  Pickpocket = {skType = skill.skillTypes.phys, train = 0.05, activity = 0.1},
+  -- Pickpocket = {skType = skill.skillTypes.phys, train = 0.05, activity = 0.1},
   Smithing = {skType = skill.skillTypes.phys, train = 0.2},
   Alteration = {skType = skill.skillTypes.mag, train = 1},
   Conjuration = {skType = skill.skillTypes.mag, train = 0.1},

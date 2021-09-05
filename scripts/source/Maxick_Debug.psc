@@ -1,7 +1,7 @@
 Scriptname Maxick_Debug extends Quest
 
 import Maxick_Utils
-Maxick_EventNames Property ev Auto
+Maxick_Events Property ev Auto
 
 int _lvlNone = 1
 int _lvlCrit = 2
@@ -78,6 +78,7 @@ Function _InitFromMcm()
 EndFunction
 
 Function OnGameReload()
+  _InitFromMcm()
   Log("Current logging level: " + _loggingLvl)
   RegisterForModEvent(ev.LOGGING_LVL, "OnGetLoggingLvl")
   _LoadData()
