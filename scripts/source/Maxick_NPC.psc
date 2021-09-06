@@ -10,6 +10,13 @@ Maxick_Debug Property md Auto
 Maxick_Events Property ev Auto
 
 Function OnGameReload()
+  Maxick_DB.SaveFlt("Test_ueioioeieu", 9000)
+  Maxick_DB.SaveInt("intest", 9001)
+  Maxick_DB.SaveToFile("Testing values")
+  md.Log("================================")
+  md.Log(Maxick_DB.GetFlt("Test_ueioioeieu"))
+  md.Log(Maxick_DB.GetInt("intest"))
+  md.Log("================================")
 EndFunction
 
 ; Force an NPC to get updated.
@@ -69,7 +76,7 @@ EndFunction
 
 ; Executes the Lua function that makes all calculations on one NPC
 int Function _GetAppearance(Actor npc)
-  md.LogCrit("NPC found: '" + DM_Utils.GetActorName(npc) + "'")
+  ; md.LogCrit("NPC found: '" + DM_Utils.GetActorName(npc) + "'")
   return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearance(jobject)")
 EndFunction
 

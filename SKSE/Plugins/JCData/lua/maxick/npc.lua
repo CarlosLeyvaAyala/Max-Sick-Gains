@@ -460,9 +460,12 @@ end
 ---Makes all the calculations to change an NPC appearance.
 function npc.ChangeAppearance(data)
   ml.EnableSkyrimLogging()
+  ml.LogCrit(l.fmt("NPC found: '%s'", data.name))
+
   local fitStage, weight, muscleDef, shouldProcess =
   _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm)
   local bs, md, mdt, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
+
   return {
     --- Used to know if will get Bodyslide applied.
     weight = weight or -1,
