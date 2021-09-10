@@ -90,7 +90,15 @@ You are totally not wondering about this, but one of the many reasons I'm using 
 
 Still, I've noticed new locations take about 1 second more to load than they used to take[^BeforeOptimizations], but you play games made by Bethesda, so you already got used to wait long times in-between loading screens.
 
-[^BeforeOptimizations]: This line was written before optimizations. It should take noticeably less time in your game.
+[^BeforeOptimizations]: This line was written before optimizations. Most of the time you shouldn't notice this mod is working.
+
+## Will this mod bloat my SKSE co-save?
+
+Totally.
+
+Using [NetImmerse Override Cleaner SE][] perodically is a must for a modded Skyrim anyway, but now you need to use it after each 50 hours of gameplay or so, instead of the usual 70.
+
+You will know it's time to use it when save times become unusually long.
 
 ## Will Charmers of the Reach...?
 
@@ -355,3 +363,5 @@ But I never noticed that before, even after many years using both of them!
 [tech-muscleDef]: https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md
 
 [The Zuckerbot]: https://youtu.be/2qGVVxaosDM
+
+[NetImmerse Override Cleaner SE]: https://www.loverslab.com/files/file/13709-netimmerse-override-cleaner-se-skse64-co-save-cleaner-utility/

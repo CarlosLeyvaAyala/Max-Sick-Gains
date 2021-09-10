@@ -45,101 +45,124 @@ Maxick_Events ev
 ; Hook to Max Sick Gains debugging functions.
 Maxick_Debug md
 
+string addonName = "officialTrainingSacks"
+
+; Remove tired icon after some time passes.
+Event OnUpdateGameTime()
+  ; Need to check this because another training session (one with an injury risk) may have extended the tired time.
+  If PlayerIsTired()
+    return
+  EndIf
+  ; TODO: Remove tired icon
+endEvent
+
 ; What to do when activating a training sack.
 Event OnActivate(ObjectReference _)
-  _InitVars()
+  InitVars()
   If !ev || !md
-    _ShowInitializationError()
+    ShowInitializationError()
     return
   EndIf
 
   md.LogVerb("Training sack activated")
-  _ShowNormalMenu()
+  ShowNormalMenu()
 EndEvent
 
-Function _ShowInitializationError()
+Function ShowInitializationError()
   ; There's no guarantee Maxick_Debug exists. Print directly.
   MiscUtil.PrintConsole("[Maxick] Events hook: " + ev)
   Debug.MessageBox("Something failed when trying to train with sacks. Report to mod author.")
 EndFunction
 
 ; Initialize script variables.
-Function _InitVars()
+Function InitVars()
   player = Game.GetPlayer()
   ev = Maxick___Compatibility.HookToEvents()
   md = Maxick___Compatibility.HookToDebugging()
 EndFunction
 
 ; Show the normal menu and act according to selection.
-Function _ShowNormalMenu()
+Function ShowNormalMenu()
   int selection = normalMenu.Show()
   If selection == 0
-    If _PlayerIsTired()
-      _ShowTiredMenu()
+    If PlayerIsTired()
+      ShowTiredMenu()
     Else
-      _Train()
+      Train()
       ; TODO: Set tired icon
     EndIf
   ElseIf selection == 1
-    _Pickup()
+    Pickup()
   EndIf
 EndFunction
 
 ; Has the player not gotten a full recovery since last trained with sacks?
-bool Function _PlayerIsTired()
-  ; TODO: Get last time trained
-  return false
+bool Function PlayerIsTired()
+  return Maxick___Compatibility.GetFlt(addonName, "notTiredAt") <= DM_Utils.Now()
 EndFunction
 
-Function _ShowTiredMenu()
+; Shows a different set of training options when still tired from last session.
+Function ShowTiredMenu()
   If tiredMsg.Show() != 1
-    return
+    return    ; Player chose wisely not to train
   EndIf
-  _Train()
-  _RiskInjury()
+  Train()
+  RiskInjury()
 EndFunction
 
-Function _RiskInjury()
+Function RiskInjury()
   If Utility.RandomFloat() > injuryRisk
     return
   EndIf
   ; TODO: Get injury
+  ; TODO: Hurt training and gains
   Debug.MessageBox("Congratulations! You pushed yourself too far with your ego lifting and now you got " + "!")
 EndFunction
 
 ; Perform training maneuvers.
-Function _Train()
+Function Train()
   md.LogVerb("Player has trained with " + trainingType)
-  _FadeOut()
-  _AdvanceHours(0.25)     ; Spend 15 minutes training
-  ; TODO: Set last time trained
-  ; TODO: Reset icon timer
+
+  FadeOut()
+  AdvanceHours(0.25)     ; Spend 15 minutes training
+  SetRecoveryHour()
   ev.SendPlayerHasTrained(trainingType)
-  _FadeIn()
+  FadeIn()
+  RegisterForSingleUpdateGameTime(Maxick___Compatibility.ToSkyrimHours(hoursToRest)) ; Reset tired icon timer
+EndFunction
+
+; Sets the hour at which the player can safely train again.
+Function SetRecoveryHour()
+  float now = DM_Utils.Now()
+  float recoveryHour = now + Maxick___Compatibility.ToSkyrimHours(hoursToRest)
+  Maxick___Compatibility.SaveFlt(addonName, "notTiredAt", recoveryHour)
+
+  md.LogVerb("Trained with sack at time: " + now)
+  md.LogVerb("Player will be ready to train again at: " + Maxick___Compatibility.GetFlt(addonName, "notTiredAt"))
 EndFunction
 
 ; Fade out the screen to simulate time passing.
-Function _FadeOut()
+Function FadeOut()
   Game.DisablePlayerControls()
   Game.FadeOutGame(True, True, 0.5, 1.0)
   Utility.Wait(0.5)
 EndFunction
 
 ; Fade in the screen to simulate time passing.
-Function _FadeIn()
+Function FadeIn()
   Utility.Wait(0.5)
   Game.FadeOutGame(False, True, 0.5, 1.0)
   Game.EnablePlayerControls()
 EndFunction
 
 ; Pick up training weight to inventory.
-Function _Pickup()
+Function Pickup()
   player.AddItem(spawner, 1, True)
   DisableNoWait(True)
   Delete()
 EndFunction
 
 ; How many hours the player spent training.
-Function _AdvanceHours(float aHours)
+Function AdvanceHours(float aHours)
   GameHour.Mod(aHours)
 EndFunction

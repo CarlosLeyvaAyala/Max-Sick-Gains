@@ -47,3 +47,23 @@ EndFunction
 int Function GetInt(string aKey, int default = 0) Global
   return JDB.solveInt(_Path(aKey), default)
 EndFunction
+
+; Saves a string.
+Function SaveStr(string aKey, string aValue) Global
+  JDB.solveStrSetter(_Path(aKey), aValue, true)
+EndFunction
+
+; Gets a string. Returns `default` if key was not found.
+string Function GetStr(string aKey, string default = "") Global
+  return JDB.solveStr(_Path(aKey), default)
+EndFunction
+
+; Saves a JContainers object.
+Function SaveObj(string aKey, int aHandle) Global
+  JDB.solveObjSetter(_Path(aKey), aHandle, true)
+EndFunction
+
+; Gets a JContainers object handle. Returns `default` if key was not found.
+int Function GetObj(string aKey, int default = 0) Global
+  return JDB.solveObj(_Path(aKey), default)
+EndFunction

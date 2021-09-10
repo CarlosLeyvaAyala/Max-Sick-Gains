@@ -33,8 +33,8 @@ EndFunction
 
 ; Sends an event saying the player has trained an [skill defined by this mod](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/SKSE/Plugins/JCData/lua/maxick/skill.lua).
 ;
-; You usually won't need to call this function if you are using standard means to activate
-; sex and if you are incrementing skills via `Game.AdvanceSkill()`.
+; You don't need to call this function if you are using standard means to activate
+; sex or if you are incrementing skills via `Game.AdvanceSkill()`.
 ;
 ; ## List of possible values
 ;

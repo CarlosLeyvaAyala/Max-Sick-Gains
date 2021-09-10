@@ -278,7 +278,7 @@ Event OnInactivityDelta(string _, string __, float delta, Form ___)
 EndEvent
 
 Event OnJourneyAverage(string _, string __, float journey, Form ___)
-  md.LogVerb("Journey average sucessfully sent: " + journey)
+  md.LogInfo("Journey average sucessfully sent: " + journey)
 EndEvent
 
 Event OnJourneyStage(string _, string __, float journey, Form ___)
