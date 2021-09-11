@@ -33,6 +33,7 @@
         <Import>@MO\Mfg Fix\source\scripts</Import>
         <Import>@MO\OSA - Skyrim Ascendancy Engine\Scripts\Source</Import>
         <Import>@MO\iWant Widgets\Source\Scripts</Import>
+        <Import>@MO\powerofthree's Papyrus Extender for SSE\source\scripts</Import>
         <Import>@lib\Source</Import>
         <Import>@lib</Import>
     </Imports>

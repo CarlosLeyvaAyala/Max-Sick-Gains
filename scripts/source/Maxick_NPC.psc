@@ -10,22 +10,22 @@ Maxick_Debug Property md Auto
 Maxick_Events Property ev Auto
 
 Function OnGameReload()
-  Maxick_DB.SaveFlt("Test_ueioioeieu", 9000)
-  Maxick_DB.SaveInt("intest", 9001)
-  Maxick_DB.SaveStr("strtest", "9001")
-  Maxick_DB.SaveStr("strtest", "9001")
-  int data = JMap.object()
-  JMap.setFlt(data, "flt", 340.23)
-  JMap.setInt(data, "pp", 4645)
-  Maxick_DB.SaveObj("obj", data)
-  Maxick_DB.SaveToFile("Testing values")
-  md.Log("================================")
-  md.Log(Maxick_DB.GetFlt("Test_ueioioeieu"))
-  md.Log(Maxick_DB.GetInt("intest"))
-  md.Log(Maxick_DB.GetStr("strtest"))
-  Maxick___Compatibility.SaveFlt("TrainingSacks", "lastTrained", DM_Utils.Now())
-  md.Log(Maxick___Compatibility.GetFlt("TrainingSacks", "lastTrained"))
-  md.Log("================================")
+  ; Maxick_DB.SaveFlt("Test_ueioioeieu", 9000)
+  ; Maxick_DB.SaveInt("intest", 9001)
+  ; Maxick_DB.SaveStr("strtest", "9001")
+  ; Maxick_DB.SaveStr("strtest", "9001")
+  ; int data = JMap.object()
+  ; JMap.setFlt(data, "flt", 340.23)
+  ; JMap.setInt(data, "pp", 4645)
+  ; Maxick_DB.SaveObj("obj", data)
+  ; Maxick_DB.SaveToFile("Testing values")
+  ; md.Log("================================")
+  ; md.Log(Maxick_DB.GetFlt("Test_ueioioeieu"))
+  ; md.Log(Maxick_DB.GetInt("intest"))
+  ; md.Log(Maxick_DB.GetStr("strtest"))
+  ; Maxick___Compatibility.SaveFlt("TrainingSacks", "lastTrained", DM_Utils.Now())
+  ; md.Log(Maxick___Compatibility.GetFlt("TrainingSacks", "lastTrained"))
+  ; md.Log("================================")
 EndFunction
 
 ; Force an NPC to get updated.
@@ -52,15 +52,22 @@ Function _ForceNPCUpdate(Actor npc)
   ForceChangeAppearance(npc)
 EndFunction
 
+; Gets an npc `ActorBase` by using `GetLeveledActorBase()`.
+;
+; Was made as a separate function because these alternatives were viable as well
+; and may or may not be used instead:
+; - npc.GetActorBase()
+; - npc.GetBaseObject()
+ActorBase Function _GetBase(Actor npc)
+  return npc.GetLeveledActorBase()
+EndFunction
+
 ; Gets all the info needed to apply visual changes to an NPC.
 ; Returns a handle to a `JMap` (a Lua table, actually) that contains all
 ; needed data.
 ; See `init.lua` to learn about the table structure this function creates.
 int Function _InitNpcData(Actor npc)
-  ; Alternatives:
-  ; npc.GetActorBase()
-  ; npc.GetBaseObject()
-  ActorBase base = npc.GetLeveledActorBase()
+  ActorBase base = _GetBase(npc)
 
   int data = JMap.object()
   JMap.setStr(data, "name", DM_Utils.GetActorName(npc))
@@ -83,26 +90,45 @@ int Function _InitNpcData(Actor npc)
   return data
 EndFunction
 
-; Executes the Lua function that makes all calculations on one NPC
+; Executes the Lua function that makes all calculations on one NPC.
 int Function _GetAppearance(Actor npc)
-  ; md.LogCrit("NPC found: '" + DM_Utils.GetActorName(npc) + "'")
   return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearance(jobject)")
+EndFunction
+
+; Executes the memoized Lua function that makes all calculations on one NPC.
+int Function _GetAppearanceMem(Actor npc)
+  return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearanceMem(jobject)")
+EndFunction
+
+; Tests if unique characters should change appearance.
+;
+; Unlike non unique NPCs, uniques seem to retain their body morph data when unloaded,
+; so an easy check to see if they have morphs applied works quite well.
+bool Function _OptimizeUnique(Actor npc)
+  If _GetBase(npc).IsUnique()
+    string[] morphs = NiOverride.GetMorphNames(npc)
+    If morphs.Length > 0
+      md.LogInfo("An appearance for " + DM_Utils.GetActorName(npc) + " was already set. Skipping.")
+      return true
+    EndIf
+  EndIf
+  return false
 EndFunction
 
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
-  ; First crude optimization step
-  string[] morphs = NiOverride.GetMorphNames(npc)
-  If morphs.Length > 0
-    md.LogInfo("An appearance for " + DM_Utils.GetActorName(npc) + " was already set. Skipping.")
+  ; Optimization step
+  If _OptimizeUnique(npc)
     return
   EndIf
   ForceChangeAppearance(npc)
+  ; looksHandler.ChangeAppearance(npc, _GetAppearanceMem(npc)) ;TODO: Get memoized
 EndFunction
 
 ; Changes an actor appearance regardless of optimizations.
 Function ForceChangeAppearance(Actor npc)
   looksHandler.ChangeAppearance(npc, _GetAppearance(npc))
+  ;TODO: Save memo table to DB
 EndFunction
 
 ;@Hint: Deprecated

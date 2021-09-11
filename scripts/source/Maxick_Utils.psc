@@ -1,5 +1,6 @@
 Scriptname Maxick_Utils Hidden
 
+;@Deprecated: No longer neeeded
 ; Path to mod configuration folder.
 string Function cfgDir() Global
   return "Data/SKSE/Plugins/Maxick/"

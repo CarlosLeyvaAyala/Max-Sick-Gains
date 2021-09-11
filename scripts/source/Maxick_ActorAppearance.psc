@@ -8,6 +8,7 @@ FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
 
 Function OnGameReload()
+  ; TODO: Load memoization table into Lua
 EndFunction
 
 ;>========================================================
