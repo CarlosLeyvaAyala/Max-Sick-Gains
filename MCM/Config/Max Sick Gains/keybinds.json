@@ -90,6 +90,17 @@
       }
     },
     {
+      "id": "hk_TestIdeas",
+      "desc": "Testing ideas",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Player",
+        "function": "Test",
+        "params": []
+      }
+    },
+    {
       "id": "hk_NpcForce",
       "desc": "Force appearance update on NPC (console)",
       "action": {

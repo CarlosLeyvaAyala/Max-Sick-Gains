@@ -60,6 +60,23 @@ bool _isInCatabolic = false
 int _pollingInterval = 5
 float _lastPollingTime = 0.0
 
+; FIXME: Delete from CK too
+FormList Property HumFemNormal_Textures Auto
+Function Test()
+  ; 0 diffuse
+  ; 1 normal HumFemNormal_Textures
+  md.Log("************************* LIST " + HumFemNormal_Textures)
+  md.Log("************************* FORMLIST " + HumFemNormal_Textures as FormList)
+  md.Log("************************* FIT " + HumFemNormal_Textures.GetAt(1) as FormList)
+  md.Log("************************* FIT TEX " + (HumFemNormal_Textures.GetAt(1) as FormList).GetAt(5) as TextureSet)
+  TextureSet tx = (HumFemNormal_Textures.GetAt(1) as FormList).GetAt(5) as TextureSet
+  ; PO3_SKSEFunctions.ReplaceSkinTextureSet(player, none, tx, 0x4, -1)
+  PO3_SKSEFunctions.ReplaceSkinTextureSet(player, none, tx, 0x4, 1)
+  Debug.Notification(tx)
+  md.Log("************************* FIT TEX " + tx)
+  md.Log("************************* END " + tx)
+EndFunction
+
 ;>========================================================
 ;>===                     SETUP                      ===<;
 ;>========================================================
@@ -68,7 +85,6 @@ Event OnInit()
   _lastTrained = Now()
   _lastPollingTime = Now()
   _InitFromMcm()
-  ; OnGameReload()
 EndEvent
 
 ; Initializes data from MCM settings. Used so the player doesn't have to configure this
@@ -488,6 +504,21 @@ EndState
 ;>===                   APPEARANCE                   ===<;
 ;>========================================================
 
+; Sets the correct skin when player changes into werewolf/vampire lord/etc.
+Function OnTransformation()
+  string newRace = looksHandler.GetRace(player)
+  If StringUtil.Find(newRace, "werewolf") != -1
+    _MakeWerewolf()
+  Else
+    ChangeAppearance()
+  EndIf
+EndFunction
+
+Function _MakeWerewolf()
+  md.LogInfo("Player will now use a werewolf skin.")
+  looksHandler.MakeWerewolf(player)
+EndFunction
+
 ; Changes player appearance.
 Function ChangeAppearance()
   md.LogInfo("Player is changing appearance.")
@@ -506,7 +537,6 @@ EndFunction
 
 ; Gets the player appearance from Lua.
 int Function _GetAppearance()
-  ;FIXME: Get MCM settings
   return LuaTable("maxick.ChangePlayerAppearance", Arg(looksHandler.GetRace(player)), \
     looksHandler.IsFemale(player) as Int, _stage, _gains, MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance") as int)
   ; return JValue.evalLuaObj(_InitData(), "return maxick.ChangePlayerAppearance(jobject)")

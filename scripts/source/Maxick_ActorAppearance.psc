@@ -4,11 +4,14 @@ import Maxick_Utils
 import DM_Utils
 
 Maxick_Debug Property md Auto
+Armor Property SkinNakedWerewolfBeast Auto
 FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
 
+; Actor player
 Function OnGameReload()
   ; TODO: Load memoization table into Lua
+  ; player = Game.GetPlayer()
 EndFunction
 
 ;>========================================================
@@ -41,11 +44,25 @@ Function _ApplyMuscleDef(Actor aAct, int data)
       return  ; Should never get here, but still added it as a redundant safeguard
     EndIf
 
-    ActorBase b = aAct.GetBaseObject() as ActorBase
     FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
-    b.SetSkin(defType.GetAt(muscleDef) as Armor)
-    UpdateNiNode(aAct)
+    _SetSkin(aAct, defType.GetAt(muscleDef) as Armor)
+    ; ActorBase b = aAct.GetBaseObject() as ActorBase
+    ; b.SetSkin(defType.GetAt(muscleDef) as Armor)
+    ; UpdateNiNode(aAct)
   EndIf
+EndFunction
+
+Function MakeWerewolf(Actor aAct)
+  _SetSkin(aAct, _GetWerewolfSkin())
+  ; ActorBase b = aAct.GetBaseObject() as ActorBase
+  ; b.SetSkin(_GetWerewolfSkin())
+  ; UpdateNiNode(aAct)
+EndFunction
+
+Function _SetSkin(Actor aAct, Armor skin)
+  ActorBase b = aAct.GetBaseObject() as ActorBase
+  b.SetSkin(skin)
+  UpdateNiNode(aAct)
 EndFunction
 
 ; Changes an actor appearance based on the `data` collected from them.
@@ -119,4 +136,10 @@ string Function _GetHeadNode(Actor aAct)
       EndIf
   endWhile
   return ""
+EndFunction
+
+; TODO: Add compatibilty with Growl
+Armor Function _GetWerewolfSkin()
+  ; Vanilla wolf skin
+  return Game.GetFormFromFile(0xCDD87, "Skyrim.esm") as Armor
 EndFunction
