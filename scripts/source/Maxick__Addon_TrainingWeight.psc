@@ -98,7 +98,13 @@ EndFunction
 
 ; Has the player not gotten a full recovery since last trained with sacks?
 bool Function PlayerIsTired()
-  return Maxick___Compatibility.GetFlt(addonName, "notTiredAt") <= DM_Utils.Now()
+  float notTired = Maxick___Compatibility.GetFlt(addonName, "notTiredAt")
+  float now = DM_Utils.Now()
+
+  md.LogVerb("Expected time not to be tired: " + notTired)
+  md.LogVerb("Now: " + now)
+
+  return notTired <= now
 EndFunction
 
 ; Shows a different set of training options when still tired from last session.

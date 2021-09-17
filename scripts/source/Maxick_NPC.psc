@@ -106,26 +106,32 @@ EndFunction
 ; so an easy check to see if they have morphs applied works quite well.
 bool Function _OptimizeUnique(Actor npc)
   If _GetBase(npc).IsUnique()
-    string[] morphs = NiOverride.GetMorphNames(npc)
-    If morphs.Length > 0
-      md.LogInfo("An appearance for " + DM_Utils.GetActorName(npc) + " was already set. Skipping.")
-      return true
-    EndIf
+    return _OptimizeNPC(npc)
   EndIf
   return false
+EndFunction
+
+; Optimizes appearance setting.
+bool Function _OptimizeNPC(Actor npc)
+  string[] morphs = NiOverride.GetMorphNames(npc)
+  bool result = morphs.Length > 0
+  If result
+    md.LogInfo("An appearance for " + DM_Utils.GetActorName(npc) + " was already set (either by this or another mod). Skipping.")
+  EndIf
+  return result
 EndFunction
 
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
   ; Optimization step
-  If _OptimizeUnique(npc)
+  If _OptimizeNPC(npc)
     return
   EndIf
   ForceChangeAppearance(npc)
   ; looksHandler.ChangeAppearance(npc, _GetAppearanceMem(npc)) ;TODO: Get memoized
 EndFunction
 
-; Changes an actor appearance regardless of optimizations.
+; Changes an actor appearance while skipping optimizations.
 Function ForceChangeAppearance(Actor npc)
   looksHandler.ChangeAppearance(npc, _GetAppearance(npc))
   ;TODO: Save memo table to DB

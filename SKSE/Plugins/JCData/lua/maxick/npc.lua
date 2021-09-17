@@ -294,7 +294,7 @@ local function _GetBestArchetypeMatch(raceEDID, classMatch)
   end
   -- Give preference to exclusive race archetypes
   local usefulArchetypes = _OnlyExclusiveArchetypes(raceEDID, possibleArchetypes)
-  ml.LogVerbose(l.fmt("Matching archetype(s): %s", _ArchetypesNames(usefulArchetypes)))
+  ml.LogInfo(l.fmt("Matching archetype(s): %s", _ArchetypesNames(usefulArchetypes)))
   -- Return value
   return _GetSingleArchetype(usefulArchetypes)
 end

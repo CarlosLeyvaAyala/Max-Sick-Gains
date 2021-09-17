@@ -123,6 +123,17 @@
       }
     },
     {
+      "id": "hk_NpcForceArea",
+      "desc": "Force appearance update on NPCs in area",
+      "action": {
+        "type": "CallFunction",
+        "form": "Max Sick Gains.esp|D76",
+        "scriptName": "Maxick_Main",
+        "function": "ForceSurroundingNPCs",
+        "params": []
+      }
+    },
+    {
       "id": "hk_TM",
       "desc": "Toggle Menu Display",
       "action": {
@@ -136,6 +147,14 @@
       "action": {
         "type": "RunConsoleCommand",
         "command": "tfc"
+      }
+    },
+    {
+      "id": "hk_TFCSlow",
+      "desc": "TFC",
+      "action": {
+        "type": "RunConsoleCommand",
+        "command": "sucsm 0.5"
       }
     },
     {

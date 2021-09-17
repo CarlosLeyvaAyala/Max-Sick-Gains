@@ -98,7 +98,20 @@ Totally.
 
 Using [NetImmerse Override Cleaner SE][] perodically is a must for a modded Skyrim anyway, but now you need to use it after each 50 hours of gameplay or so, instead of the usual 70.
 
-You will know it's time to use it when save times become unusually long.
+You will know it's time to use it when save times become absurdly long.
+
+Just for reference, in my testing playthroughs where I only set women appearance, I had to do my first co-save cleaning at around 40 Skyrim days and I got so far as getting the [dreaded crash on save bug][] (not related to my mod at all) way before needing to do a second cleaning.
+
+That may give you an idea of how unexpectedly light this mod is on your co-save.
+To be honest, I was expecting my mod to bloat the co-save pretty fast, but fortunately that doesn't seem to be the case at all.
+
+## Will you add a bloat prevention method?
+
+Nah.
+It would mean delving in obscure undocumented functions that no one seems to know they even exist, or relying on hacks that will overcomplicate my mod logic... **YET ONCE AGAIN**.
+
+And for what? For nothing.
+You and me are almost 100% sure using other mods that cause save bloat, so that cleaning has to be done anyway; with or without my mod.
 
 ## Will Charmers of the Reach...?
 
@@ -132,7 +145,7 @@ At this point, many things could happen:
 Congratulations. Go play the game and get hot by training.
 &nbsp;
 
-* **It looks right, but lacks some feature, like a succubus tail**.
+* **It looks right, but lacks some feature, like a succubus tail... or the whole body is invisible**.
 Share your mod with me and ***maybe*** I can make a patch to make it work.
 &nbsp;
 
@@ -160,24 +173,25 @@ If you don't understand it or just want to play the damn game without spending m
 
 ## Characters don't look as expected
 
-Some possible issues:
+You may got unlucky and ==Skyrim refused to find all data needed to change an NPC appearance==.
+This is the most common issue by far and it's more an annoyance than a serious problem. Use the [hotkey for solving that][McmHotkeys].
+
+If using the hotkey doesn't work, then check any of the following possible issues.
+
+### _Max Sick Gains.exe_ related issues
+
+It often happens you just didn't set the right settings in _Max Sick Gains.exe_.
+
+1. Enable `logging level: info` in the MCM and make sure the NPC is getting the appearance it is supposed to.
+If not, modify your file and generate it again using F9.
 
 1. If using muscle definition, you forgot to generate all normal maps needed[^EvenMe].
 
 1. Make sure you didn't actually put a male bodyslide preset in the female field inside the [Fitness stages tab][McmFitnessStages][^EvenMe2].
 
-1. Some armor sliders are simply badly done.
-Before you blame my mod[^EvenMe3], make sure to look at your characters while naked ( ͡° ͜ʖ ͡°) (them, **NOT you**).
-
-1. HIMBO 4.x has some sliders that seem to have a default value of 100 (like the forearm size, for example), so when you set a value to 100, it doesn't get saved to the xml file and _Max Sick Gains.exe_ can't export that slider value because it doesn't actually exist inside the file.\
-Try setting all those values to 99, instead. That should solve your problem.
-
 1. If the problem is a _Known NPC_, remember some NPCs have many different versions (ie. Rikke, Cicero...), so you need to add all versions of them to _Known NPCs_.
 
-1. You may got unlucky and Skyrim refused to find all data needed to change an NPC appearance.
-This is more of an annoyance than a serious problem. Use the [hotkey for solving that][McmHotkeys].
-
-1. You may be using an *.xml file that contains many Bodyslide presets. **This mod only supports one preset per file**.
+1. You may be ==[using an *.xml file that contains many Bodyslide presets][]==. **This mod only supports one preset per file**.
 
 [^EvenMe]: That happened even to me! While this mod was at its first playable stage, humanoid men looked quite bad.
 I knew the scripts were bug free, so I triple checked the esp records instead and everything was fine.
@@ -185,11 +199,24 @@ When I opened the CK to make sure all texture paths were correctly setup, turned
 
 [^EvenMe2]: Yep. I did that, too \>_\>
 
+### Sliders related issues
+
+1. Some armor sliders are simply badly done.
+Before you blame my mod[^EvenMe3], make sure to look at your characters while naked ( ͡° ͜ʖ ͡°) (them, **NOT you**).
+
+1. Make sure your armor/Bodyside preset actually supports the body version you are using.
+For example, CBBE 3BA 2.x has many new sliders that won't be applied on 1.x armors, for obvious reasons. Those armors need to be converted to 2.x before they can use those new sliders.
+
+1. HIMBO 4.x has some sliders that have a default value of 100[^HIMBO100Technical] (like the forearm size, for example), so when you set a value to 100, it doesn't get saved to the xml file and _Max Sick Gains.exe_ can't export that slider value because it doesn't actually exist inside the file.\
+Try setting all those values to 99, instead. That should solve your problem.
+
 [^EvenMe3]: Do you really want to know how many problems not caused by my mod I thought were caused by it while I was creating it?
-This one was related to the vanilla armor conversions of HIMBO 4.2.
+This particular one was related to the vanilla armor conversions of HIMBO 4.2.
 My mod was supposing to work as expected, but characters didn't look the part, so I stripped naked some random guard and turned out my mod was actually working as expected; the ones that didn't work quite well were the armors all along.
 
-### How do I know if I have that last problem?
+[^HIMBO100Technical]: There's no need to "fix" this. The HIMBO author himself gave me [the technical reason][HIMBO100Sliders] why this is the way it is.
+
+## How to fix the many presets per file error
 
 Open your *.xml preset file in Notepad or whatever.
 <figure>
@@ -213,12 +240,14 @@ That's all.
 
 ## Your mod doesn't apply changes to some NPCs
 
-I'm quite aware about that, but ***there's nothing I can do about it***.
+I'm quite aware about that, but ***there's nothing I can do about it***... except giving you [hotkeys for manually solving that][McmHotkeys] and finding a more reliable method to correctly get all NPCs surrounding the player (I'm working on that last one).
+In the meantime, expect it to be a pretty common issue.
 
-I use _PapyrusUtil_ for getting all NPCs inside the cell the player is located, and for some unknown reason, it seems it sometimes finds an NPC but gets invalidated data for it.
+Here's the technical reason:
+I use a function in _PapyrusUtil_ for getting all NPCs inside the cell the player is located, and for some unknown reason, it seems it sometimes finds an NPC but gets invalidated data for it; as if the NPC was a piece of furniture instead of an `Actor` or something.
 Hell... I don't even know if that is a _PapyrusUtil_ or a Skyrim issue.
 
-_PapyrusUtil_ sometimes works again the first time you close and open the game, it sometimes may take many tries for it to work... but don't worry; **that's precisely why I added a hotkey for forcing an NPC to get updated**.
+This function I'm talking about sometimes works again the first time you close and open the game, it sometimes may take many tries for it to work... it's quite random, to be honest.
 
 ## All my problems are related to men
 
@@ -226,10 +255,10 @@ Of course they are!
 
 <figure>
 <img class="hImg" src="img/faq/not-cool.jpg"/>
-<figcaption>We aren't the root of all evil for nothing!</figcaption>
+<figcaption>We aren't the root of all evil for nothing.</figcaption>
 </figure>
 
-Men bodies are severily lacking behing compared to women's, so they are relatively more untested and unstable.
+Men bodies are lacking behing compared to women's, so they are relatively more untested and unstable.
 
 In 2010 there were some options to change male vanilla bodies, but in 2020 in Skyrim SE, there aren't as much options as there were in the past.
 
@@ -242,7 +271,7 @@ There have been made some advancements in recent years, but they haven't been as
 
 Fortunately, things seem to be changing with the arrival of HIMBO (specially V4.2, which is compatible with everything SOS related) and I've seen more people making armors specifically made for men.
 
-Once knowledge about how to work with HIMBO gets widely gathered and spread, expect to have men bodies that _It just works_&trade; the same way women bodies just work along with this mod without too much hassle.
+Once knowledge about how to work with HIMBO gets widely gathered and spread, atd bugs corrected, expect to have men bodies that _It just works_&trade; the same way women bodies just work along with this mod without too much hassle.
 My mod doesn't make much distinction between men and women whatsoever, so expect it to be ready for battle when that fabled time finally comes.
 
 ## I got textures mismatches on some NPCs
@@ -365,3 +394,7 @@ But I never noticed that before, even after many years using both of them!
 [The Zuckerbot]: https://youtu.be/2qGVVxaosDM
 
 [NetImmerse Override Cleaner SE]: https://www.loverslab.com/files/file/13709-netimmerse-override-cleaner-se-skse64-co-save-cleaner-utility/
+
+[dreaded crash on save bug]: https://www.nexusmods.com/skyrimspecialedition/articles/3031
+
+[HIMBO100Sliders]: https://www.loverslab.com/topic/175246-physical-characteristics-framework/?tab=comments#comment-3508399

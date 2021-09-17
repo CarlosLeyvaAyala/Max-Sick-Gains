@@ -507,6 +507,7 @@ EndState
 ; Sets the correct skin when player changes into werewolf/vampire lord/etc.
 Function OnTransformation()
   string newRace = looksHandler.GetRace(player)
+  md.LogVerb("Current race: " + newRace)
   If StringUtil.Find(newRace, "werewolf") != -1
     _MakeWerewolf()
   Else
@@ -519,8 +520,18 @@ Function _MakeWerewolf()
   looksHandler.MakeWerewolf(player)
 EndFunction
 
+bool Function _IsTransformed()
+  string newRace = looksHandler.GetRace(player)
+  return StringUtil.Find(newRace, "were") != -1
+EndFunction
+
 ; Changes player appearance.
 Function ChangeAppearance()
+  If _IsTransformed()
+    md.LogInfo("Can't change appearance because player is transformed.")
+    return
+  EndIf
+
   md.LogInfo("Player is changing appearance.")
   int appearance = _GetAppearance()
   looksHandler.ChangeAppearance(player, appearance)

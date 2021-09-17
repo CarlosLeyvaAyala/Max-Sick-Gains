@@ -46,12 +46,31 @@ EndFunction
 Function OnCellLoad()
   GoToState("CellLoading")
 
-  ; https://www.creationkit.com/index.php?title=Unit
   Actor[] npcs = MiscUtil.ScanCellNPCs(player, 0, None, false)
   int i = npcs.length
   While i > 0
     If npcs[i] && (npcs[i] != Player)
       NpcHandler.ChangeAppearance(npcs[i])
+    EndIf
+    i -= 1
+  EndWhile
+
+  GoToState("")
+EndFunction
+
+; Forces to set an appearance to surrounding NPCs.
+; This function bypasses optimizations.
+;
+; See [Skyrim measure units](https://www.creationkit.com/index.php?title=Unit).
+Function ForceSurroundingNPCs()
+  md.LogInfo("You tried to forcefully set an appearance on living surrounding NPCs.")
+  GoToState("CellLoading")
+
+  Actor[] npcs = MiscUtil.ScanCellNPCs(player, 1024, None, false)
+  int i = npcs.length
+  While i > 0
+    If npcs[i] && (npcs[i] != Player)
+      NpcHandler.ForceChangeAppearance(npcs[i])
     EndIf
     i -= 1
   EndWhile

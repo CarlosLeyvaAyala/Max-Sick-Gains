@@ -105,6 +105,12 @@
           "help": "Some pesky NPC didn't get their settings applied? Put them under the cross hair, then press this key."
         },
         {
+          "id": "hk_NpcForceArea",
+          "text": "Force apply area",
+          "type": "keymap",
+          "help": "Tries to forcefully set an appearance to all living NPCs around 1024 units (that's about 14m or 48 ft).\nUseful when many NPCs refuse to get their appearance updated or after doing an SKSE co-save cleaning."
+        },
+        {
           "id": "iLogLvl:Other",
           "text": "Logging level",
           "type": "enum",
