@@ -56,8 +56,9 @@ EndFunction
 ;
 ; Was made as a separate function because these alternatives were viable as well
 ; and may or may not be used instead:
-; - npc.GetActorBase()
-; - npc.GetBaseObject()
+; - npc.GetActorBase() <- Always gets 'dremora' as the NPC class. Not viable.
+; - npc.GetBaseObject() <- Always gets 'dremora' as the NPC class. Not viable.
+; - npc.GetLeveledActorBase()
 ActorBase Function _GetBase(Actor npc)
   return npc.GetLeveledActorBase()
 EndFunction
@@ -116,7 +117,7 @@ bool Function _OptimizeNPC(Actor npc)
   string[] morphs = NiOverride.GetMorphNames(npc)
   bool result = morphs.Length > 0
   If result
-    md.LogInfo("An appearance for " + DM_Utils.GetActorName(npc) + " was already set (either by this or another mod). Skipping.")
+    md.LogVerb("An appearance for " + DM_Utils.GetActorName(npc) + " was already set (either by this or another mod). Skipping.")
   EndIf
   return result
 EndFunction
@@ -124,17 +125,32 @@ EndFunction
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
   ; Optimization step
-  If _OptimizeNPC(npc)
-    return
+  ; If _OptimizeNPC(npc)
+  ;   return
+  ; EndIf
+  int memo = Maxick_DB.FormGetObj(npc.GetActorBase(), "memoized")
+  If memo
+    md.LogVerb("OPTIMIZATION. An appearance for " + DM_Utils.GetActorName(npc) + " was already calculated. Will use it instead of calculating it again.")
+    JMap.setStr(memo, "msg", "")    ; Calculated log is not needed anymore. Discard
   EndIf
-  ForceChangeAppearance(npc)
-  ; looksHandler.ChangeAppearance(npc, _GetAppearanceMem(npc)) ;TODO: Get memoized
+  ForceChangeAppearance(npc, memo)
 EndFunction
 
 ; Changes an actor appearance while skipping optimizations.
-Function ForceChangeAppearance(Actor npc)
-  looksHandler.ChangeAppearance(npc, _GetAppearance(npc))
-  ;TODO: Save memo table to DB
+Function ForceChangeAppearance(Actor npc, int appearance = 0)
+  bool saveAppearance = false
+  If !appearance
+    appearance = _GetAppearance(npc)
+    saveAppearance = true   ; A new appearance was calculated. Save it.
+  EndIf
+
+  looksHandler.ChangeAppearance(npc, appearance)
+
+  ; Memoize data for BaseForm only if it was actually calculated instead of gotten
+  ; from memoized data.
+  If saveAppearance
+    Maxick_DB.FormSaveObj(npc.GetActorBase(), "memoized", appearance)
+  EndIf
 EndFunction
 
 ;@Hint: Deprecated

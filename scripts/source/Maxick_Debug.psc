@@ -94,19 +94,19 @@ Function SetLoggingLvl(int lvl)
   lvl += 1
   Log("Logging level was set to " + lvl as int)
   _loggingLvl = lvl as int
-  _SetLuaLoggingLvl()
+  SetLuaLoggingLvl()
   SendModEvent(ev.LOGGING_LVL, "", _loggingLvl)
 EndFunction
 
 ; Tells Lua which is the logging level.
-Function _SetLuaLoggingLvl()
+Function SetLuaLoggingLvl()
   JLua.evalLuaInt("maxick.SetLoggingLvl(" + _loggingLvl + ")", 0)
 EndFunction
 
 ; Bridges debug data between Lua and Papyrus.
 Function _LoadData()
   _testMode = JLua.evalLuaInt("return maxick.testingMode", 0) as bool
-  _SetLuaLoggingLvl()
+  SetLuaLoggingLvl()
   _lvlNone = 1
   _lvlCrit = 2
   _lvlInfo = 3

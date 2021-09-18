@@ -38,7 +38,8 @@ function lib.SetLoggingLvl(lvl) loggingLvl = lvl end
 local LogLevel = function (lvl)
   return function (message)
     if loggingLvl >= lvl and message and (message ~= "") then
-      fullLog = fullLog .. message .. ". "
+      local tmp = "("..loggingLvl.." >= "..lvl..")"
+      fullLog = fullLog .. tmp .. message .. ". "
       return fullLog
     end
   end

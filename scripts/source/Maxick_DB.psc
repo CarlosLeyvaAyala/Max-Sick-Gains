@@ -67,3 +67,23 @@ EndFunction
 int Function GetObj(string aKey, int default = 0) Global
   return JDB.solveObj(_Path(aKey), default)
 EndFunction
+
+; Saves a form.
+Function SaveForm(string aKey, Form aValue) Global
+  JDB.solveFormSetter(_Path(aKey), aValue, true)
+EndFunction
+
+; Gets a form. Returns `default` if key was not found.
+Form Function GetForm(string aKey, Form default = None) Global
+  return JDB.solveForm(_Path(aKey), default)
+EndFunction
+
+; Asociates a JContainers object to some form.
+Function FormSaveObj(Form fKey, string aPath, int aHandle) Global
+  JFormDB.solveObjSetter(fKey, _Path(aPath), aHandle, true)
+EndFunction
+
+; Gets a JContainers object handle. Returns `default` if form key or path were not found.
+int Function FormGetObj(Form fKey, string aPath, int default = 0) Global
+  return JFormDB.solveObj(fKey, _Path(aPath), default)
+EndFunction

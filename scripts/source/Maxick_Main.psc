@@ -23,7 +23,7 @@ Maxick_Events Property ev Auto
 Spell Property ChangeCellSpell Auto
 
 Event OnInit()
-  Utility.Wait(60)    ; Wait some time because too many scripts may fuck this up
+  Utility.Wait(10)    ; Wait some time because too many scripts may fuck this up
   OnGameReload()
   PcHandler.ChangeAppearance()
   player.AddSpell(ChangeCellSpell)
@@ -44,16 +44,37 @@ EndFunction
 
 ; Main NPC processing function.
 Function OnCellLoad()
+  _ChangeNPCsInCell(false)
+EndFunction
+
+Function _ChangeNPCsInCell(bool forceAppearance)
   GoToState("CellLoading")
 
-  Actor[] npcs = MiscUtil.ScanCellNPCs(player, 0, None, false)
-  int i = npcs.length
-  While i > 0
-    If npcs[i] && (npcs[i] != Player)
-      NpcHandler.ChangeAppearance(npcs[i])
-    EndIf
-    i -= 1
-  EndWhile
+  int kNPC = 43 ; https://www.creationkit.com/index.php?title=GetType_-_Form
+  Cell kCell = player.GetParentCell()
+  Int n = kCell.GetNumRefs(kNPC)
+  Actor npc = None
+  md.SetLuaLoggingLvl()
+  ; This looks horrible, but it's faster than asking the same question each iteration.
+  ; Would be trivial to change functions if functions were first class citizens in Papyrus,
+  ; but Papyrus is basically a toy language.
+  If forceAppearance
+    While n
+      n -= 1
+      npc = kCell.GetNthRef(n, kNPC) as Actor
+      If !npc.IsDisabled() && (npc != Player)
+        NpcHandler.ForceChangeAppearance(npc)
+      EndIf
+    EndWhile
+  Else
+    While n
+      n -= 1
+      npc = kCell.GetNthRef(n, kNPC) as Actor
+      If !npc.IsDisabled() && (npc != Player)
+        NpcHandler.ChangeAppearance(npc)
+      EndIf
+    EndWhile
+  EndIf
 
   GoToState("")
 EndFunction
@@ -63,19 +84,8 @@ EndFunction
 ;
 ; See [Skyrim measure units](https://www.creationkit.com/index.php?title=Unit).
 Function ForceSurroundingNPCs()
-  md.LogInfo("You tried to forcefully set an appearance on living surrounding NPCs.")
-  GoToState("CellLoading")
-
-  Actor[] npcs = MiscUtil.ScanCellNPCs(player, 1024, None, false)
-  int i = npcs.length
-  While i > 0
-    If npcs[i] && (npcs[i] != Player)
-      NpcHandler.ForceChangeAppearance(npcs[i])
-    EndIf
-    i -= 1
-  EndWhile
-
-  GoToState("")
+  md.LogInfo("You tried to forcefully set an appearance on NPCs in current cell.")
+  _ChangeNPCsInCell(true)
 EndFunction
 
 ; Things to do when loading a game in testing mode.
@@ -96,9 +106,22 @@ EndFunction
 ; Registers events needed for this mod to work.
 Function _RegisterEvents()
   RegisterForModEvent(ev.CELL_CHANGE, "OnCellChange")
+  ; PO3_Events_Form.RegisterForCellFullyLoaded(self)
   RegisterForSleep()
   _RegisterForSex()
 EndFunction
+
+Cell lastLoadedCell = None
+
+; Event OnCellFullyLoaded(Cell akCell)
+  ; If lastLoadedCell == akCell
+  ;   return
+  ; EndIf
+  ; lastLoadedCell = akCell
+  ; md.Log("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| " + akCell)
+  ; md.LogVerb("Main script got an OnCellChange event. Cell name: "  + akCell)
+  ; OnCellLoad()
+; endEvent
 
 ; Captures when player is having sex.
 Function _RegisterForSex()
@@ -113,7 +136,13 @@ EndFunction
 
 ; Apply settings to NPCs when encountering them
 Event OnCellChange(string _, string __, float ___, form ____)
-  md.LogVerb("Main script got an OnCellChange event.")
+  Cell newCell = player.GetParentCell()
+  If lastLoadedCell == newCell
+    return
+  EndIf
+  lastLoadedCell = newCell
+  md.LogVerb("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ")
+  md.LogVerb("Player changed cells. New cell: " + newCell)
   OnCellLoad()
 EndEvent
 
@@ -121,6 +150,11 @@ State CellLoading
   Event OnCellChange(string _, string __, float ___, form ____)
     md.LogVerb("Main script got an OnCellChange event, but it's still working on changing NPCs. Ignore.")
   EndEvent
+
+  ; Event OnCellFullyLoaded(Cell akCell)
+  ;   ; md.Log("||||||||||||||||||| " + player.GetParentCell() + "||||||||||||||||||| ")
+  ;   ; md.LogVerb("Main script got an OnCellChange event, but it's still working on changing NPCs. Ignore.")
+  ; endEvent
 EndState
 
 ; OStim integration.

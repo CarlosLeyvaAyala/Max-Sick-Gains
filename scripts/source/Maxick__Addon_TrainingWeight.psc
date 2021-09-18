@@ -104,7 +104,7 @@ bool Function PlayerIsTired()
   md.LogVerb("Expected time not to be tired: " + notTired)
   md.LogVerb("Now: " + now)
 
-  return notTired <= now
+  return notTired > now
 EndFunction
 
 ; Shows a different set of training options when still tired from last session.

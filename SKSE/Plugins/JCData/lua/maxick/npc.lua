@@ -64,7 +64,7 @@ end
 ---@return MuscleDefType|nil
 ---@return SkyrimBool
 local function _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, raceEDID, isFem)
-  if not weight and not muscleDef then ml.LogCrit("Nothing to process") return {}, nil, nil, 0 end
+  if not weight and not muscleDef then ml.LogVerbose("Nothing to process") return {}, nil, nil, 0 end
   if not l.SkyrimBool(shouldProcess) then return {}, nil, nil, 0 end
 
   local bs = _SolveBodyslide(fitStage, weight, isFem)
@@ -131,7 +131,7 @@ local function _McmGenericBanned(isFem, mcm)
 end
 
 local function _DisableGeneric(isFem)
-  ml.LogCrit(l.fmt("Generic %s NPC processing was disabled in MCM", ml.SexAsStr(isFem)))
+  ml.LogVerbose(l.fmt("Generic %s NPC processing was disabled in MCM", ml.SexAsStr(isFem)))
   return nil
 end
 
@@ -156,7 +156,7 @@ end
 ---Race is not recognized. Stop processing actor.
 ---@param raceEDID string
 local function _Stop_CouldBeAnSpider(raceEDID)
-  ml.LogCrit(l.fmt("Race '%s' is not known by this mod", raceEDID))
+  ml.LogVerbose(l.fmt("Race '%s' is not known by this mod", raceEDID))
   return nil
 end
 
@@ -460,11 +460,13 @@ end
 ---Makes all the calculations to change an NPC appearance.
 function npc.ChangeAppearance(data)
   ml.EnableSkyrimLogging()
-  ml.LogCrit(l.fmt("NPC found: '%s'", data.name))
+  -- ml.LogInfo(l.fmt("NPC found: '%s'", data.name))
 
   local fitStage, weight, muscleDef, shouldProcess =
   _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm)
   local bs, md, mdt, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
+  local currLog = ml.GetLog()
+  local fullLog = l.IfThen(currLog ~= "", l.fmt("NPC found: '%s'. ", data.name) .. currLog, currLog)
 
   return {
     --- Used to know if will get Bodyslide applied.
@@ -475,7 +477,7 @@ function npc.ChangeAppearance(data)
     muscleDef = md or -1,
     muscleDefType = mdt or -1,
     --- Description of all operations that were done.
-    msg = ml.GetLog(),
+    msg = fullLog,--ml.GetLog(),
     --- Should it be processed by `Maxick_ActorAppearance.ChangeAppearance()`?
     shouldProcess = process or 0,
   }
