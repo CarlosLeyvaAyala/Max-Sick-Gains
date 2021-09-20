@@ -61,21 +61,21 @@ int _pollingInterval = 5
 float _lastPollingTime = 0.0
 
 ; FIXME: Delete from CK too
-FormList Property HumFemNormal_Textures Auto
-Function Test()
-  ; 0 diffuse
-  ; 1 normal HumFemNormal_Textures
-  md.Log("************************* LIST " + HumFemNormal_Textures)
-  md.Log("************************* FORMLIST " + HumFemNormal_Textures as FormList)
-  md.Log("************************* FIT " + HumFemNormal_Textures.GetAt(1) as FormList)
-  md.Log("************************* FIT TEX " + (HumFemNormal_Textures.GetAt(1) as FormList).GetAt(5) as TextureSet)
-  TextureSet tx = (HumFemNormal_Textures.GetAt(1) as FormList).GetAt(5) as TextureSet
-  ; PO3_SKSEFunctions.ReplaceSkinTextureSet(player, none, tx, 0x4, -1)
-  PO3_SKSEFunctions.ReplaceSkinTextureSet(player, none, tx, 0x4, 1)
-  Debug.Notification(tx)
-  md.Log("************************* FIT TEX " + tx)
-  md.Log("************************* END " + tx)
-EndFunction
+; FormList Property HumFemNormal_Textures Auto
+; Function Test()
+;   ; 0 diffuse
+;   ; 1 normal HumFemNormal_Textures
+;   md.Log("************************* LIST " + HumFemNormal_Textures)
+;   md.Log("************************* FORMLIST " + HumFemNormal_Textures as FormList)
+;   md.Log("************************* FIT " + HumFemNormal_Textures.GetAt(1) as FormList)
+;   md.Log("************************* FIT TEX " + (HumFemNormal_Textures.GetAt(1) as FormList).GetAt(5) as TextureSet)
+;   TextureSet tx = (HumFemNormal_Textures.GetAt(1) as FormList).GetAt(5) as TextureSet
+;   ; PO3_SKSEFunctions.ReplaceSkinTextureSet(player, none, tx, 0x4, -1)
+;   PO3_SKSEFunctions.ReplaceSkinTextureSet(player, none, tx, 0x4, 1)
+;   Debug.Notification(tx)
+;   md.Log("************************* FIT TEX " + tx)
+;   md.Log("************************* END " + tx)
+; EndFunction
 
 ;>========================================================
 ;>===                     SETUP                      ===<;
@@ -509,7 +509,7 @@ Function OnTransformation()
   string newRace = looksHandler.GetRace(player)
   md.LogVerb("Current race: " + newRace)
   If StringUtil.Find(newRace, "werewolf") != -1
-    _MakeWerewolf()
+    _MakeWerewolf() ; TODO: Delete
   Else
     ChangeAppearance()
   EndIf
@@ -537,6 +537,8 @@ Function ChangeAppearance()
   looksHandler.ChangeAppearance(player, appearance)
   ; Make head size obviously wrong when getting default values to help catch bugs.
   looksHandler.ChangeHeadSize(player, JMap.getFlt(appearance, "headSize", 2.2))
+  ; TODO: Deal with this once/if PO3_SKSEFunctions.ReplaceSkinTextureSet() becomes persistent
+  ; Maxick_DB.MemoizeAppearance(player, appearance) ; Needed for resetting muscle definition when un/equipping armor
 EndFunction
 
 ; Resets head size when reloading a game.

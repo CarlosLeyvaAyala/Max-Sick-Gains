@@ -87,3 +87,18 @@ EndFunction
 int Function FormGetObj(Form fKey, string aPath, int default = 0) Global
   return JFormDB.solveObj(fKey, _Path(aPath), default)
 EndFunction
+
+; Returns a valid ActorBase that can be used for memoization.
+ActorBase Function MemoActor(Actor aAct) Global
+  return aAct.GetActorBase()
+EndFunction
+
+; Saves an actor's calculated appearance to memory database.
+Function MemoizeAppearance(Actor aAct, int appearance) Global
+  Maxick_DB.FormSaveObj(Maxick_DB.MemoActor(aAct), "memoized", appearance)
+EndFunction
+
+; Gets an actor's calculated appearance from memory database.
+int Function GetMemoizedAppearance(Actor aAct) Global
+  return Maxick_DB.FormGetObj(Maxick_DB.MemoActor(aAct), "memoized")
+EndFunction

@@ -3,11 +3,10 @@
 local npc = {}
 
 local l = jrequire 'dmlib'
--- local gc = jrequire 'maxick.genConst'
 local db = jrequire 'maxick.database'
+local r = jrequire 'maxick.race'
 local sl = jrequire 'maxick.sliderCalc'
 local ml = jrequire 'maxick.lib'
--- local serpent = require("__serpent")
 
 math.randomseed( os.time() )
 
@@ -137,78 +136,6 @@ end
 
 --#endregion
 
-
--- ;>========================================================
--- ;>===                  RACE SOLVING                  ===<;
--- ;>========================================================
-
---#region
-
----Gets **all** the races from `database.races` an actor matches.
----This function can return if the race is banned and if it's humanoid/beast.
----@param raceEDID string
----@return table racialMatches A table with all races this actor matched with.
-local function _GetRacialMatches(raceEDID)
-  local raceedid = string.lower(raceEDID)
-  return l.filter(db.races, function (_, race) return string.find(raceedid, race) end)
-end
-
----Race is not recognized. Stop processing actor.
----@param raceEDID string
-local function _Stop_CouldBeAnSpider(raceEDID)
-  ml.LogVerbose(l.fmt("Race '%s' is not known by this mod", raceEDID))
-  return nil
-end
-
----Actor race is banned. Stop.
----@param raceEDID string
----@param display string The name of the race as written by the player in _Max Sick Gains.exe_
-local function _Stop_IsBanned(raceEDID, display)
-  local txt = "Can't change appearance; actor race '%s' matched with banned race '%s'"
-  ml.LogCrit(l.fmt(txt, raceEDID, display))
-  return nil
-end
-
----Searches on all the matched races for a banned match and returns it.
----@param matches table
----@return table
-local function _IsBanned(matches)
-  return l.pipe(
-    l.filter(function (val) return val.group == "Ban" end),
-    l.extractValue
-  )(matches)
-end
-
----The actor race was added by the player in _Max Sick Gains.exe_. If the NPC matches many races, only one will be taken.
----@param matches table All racial matches the NPC belongs to.
----@return SkyrimBool shouldProcess
-local function _IsKnownRace(matches)
-  local val = l.pipe(l.take(1), l.extractValue)(matches)
-  ml.LogInfo(l.fmt("Actor race is '%s'", val.display))
-  return 1
-end
-
----Skyrim/PapyrusUtil didn't get all the actor info. Stop processing.
----@param actor Actor
-local function _Stop_SkyrimIsBeingAnAsshole(actor)
-  ml.LogCrit("WARNING: Skyrim didn't provide enough data to know who or what this actor is. Don't worry; you can fix this yourself with the Force Appearance hotkey")
-end
-
----Tries to find the race of the actor so it can be processed by other functions.
-local function _RaceIsValid(raceEDID)
-  if raceEDID == "" then return _Stop_SkyrimIsBeingAnAsshole() end
-
-  local matches = _GetRacialMatches(raceEDID)
-  if l.isEmpty(matches) then return _Stop_CouldBeAnSpider(raceEDID) end
-
-  local isBanned = _IsBanned(matches)
-  if isBanned then return _Stop_IsBanned(raceEDID, isBanned.display) end
-
-  return _IsKnownRace(matches)
-end
-
---#endregion
-
 -- ;>========================================================
 -- ;>===                 CLASS SOLVING                  ===<;
 -- ;>========================================================
@@ -326,7 +253,7 @@ local function _SetDefaultFitnessStage(isFem, mcm, weight)
   local values = {
     fitStage = 1,
     weight = weight,
-    muscleDef = 0,
+    muscleDef = l.round(sl.WeightBasedAdjust(weight, 1, 6)),
     muscleDefType = db.fitStages[1].muscleDefType
   }
   values = _McmBan(_McmGenericBsBySex(isFem, mcm), _McmGenericMusDefBySex(isFem, mcm), values)
@@ -364,8 +291,7 @@ end
 local function _FilterKNownNPC(formId, Name, raceEDID, isFem, Class)
   local fId = string.format("%.x", formId)
   local class, name, raceedid = string.lower(Class), string.lower(Name), string.lower(raceEDID)
-  -- ;FIXME: Make a takeFirst function
-  return l.filter(
+  return l.firstIn(
     function(values, candidate)
       local idMatch = string.find(fId, candidate)
       local classMatch = values.class == class
@@ -390,17 +316,16 @@ end
 ---@return number weight
 ---@return MuscleDef muscleDef
 ---@return SkyrimBool shouldProcess
+---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
 local function _FindKnownNPC(formId, name, raceEDID, isFem, class, weight, mcm)
-  local npcMatch = l.pipe(
-    _FilterKNownNPC(formId, name, raceEDID, isFem, class),
-    l.take(1),
-    l.extractValue
-  )(db.npcs)
+  local npcMatch = _FilterKNownNPC(formId, name, raceEDID, isFem, class)(db.npcs)
 
   if npcMatch then
     ml.LogCrit(l.fmt("*** Explicitly added NPC: '%s' ***", name))
     -- TODO: Weight calculation by skills is possible to do right here
-    return _IsKnown(_McmBan(mcm.kNpcBs, mcm.kNpcMuscleDef, npcMatch), weight)
+    local racialGroup =  r.RacialGroup(raceEDID)
+    local fitStage, newWeight, muscleDef, shouldProcess = _IsKnown(_McmBan(mcm.kNpcBs, mcm.kNpcMuscleDef, npcMatch), weight)
+    return fitStage, newWeight, muscleDef, shouldProcess, racialGroup
   end
 
   return nil
@@ -430,9 +355,14 @@ end
 ---@return number weight
 ---@return MuscleDef muscleDef
 ---@return SkyrimBool shouldProcess
+---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
 local function _FindUnknownNPCData(raceEDID, isFem, class, weight, mcm)
   if _McmGenericBanned(isFem, mcm) then return _DisableGeneric(isFem) end
-  if _RaceIsValid(raceEDID) then return _GetGenericNPCData(class, raceEDID, isFem, mcm, weight) end
+  local racialGroup = r.RacialGroup(raceEDID)
+  if racialGroup then
+    local fitStage, newWeight, muscleDef, shouldProcess = _GetGenericNPCData(class, raceEDID, isFem, mcm, weight)
+    return fitStage, newWeight, muscleDef, shouldProcess, racialGroup
+  end
   return nil
 end
 
@@ -441,14 +371,16 @@ end
 ---@return number weight
 ---@return MuscleDef muscleDef
 ---@return SkyrimBool shouldProcess
+---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
 local function _GetToKnowNPC(formId, name, raceEDID, isFem, class, weight, mcm)
-  local fitStage, newWeight, muscleDef, shouldProcess =
+  local fitStage, newWeight, muscleDef, shouldProcess, racialGroup =
     _FindKnownNPC(formId, name, raceEDID, isFem, class, weight, mcm)
+
   if not shouldProcess then
     -- It's a generic NPC
     return _FindUnknownNPCData(raceEDID, isFem, class, weight, mcm)
   end
-  return fitStage, newWeight, muscleDef, shouldProcess
+  return fitStage, newWeight, muscleDef, shouldProcess, racialGroup
 end
 
 --#endregion
@@ -460,9 +392,8 @@ end
 ---Makes all the calculations to change an NPC appearance.
 function npc.ChangeAppearance(data)
   ml.EnableSkyrimLogging()
-  -- ml.LogInfo(l.fmt("NPC found: '%s'", data.name))
 
-  local fitStage, weight, muscleDef, shouldProcess =
+  local fitStage, weight, muscleDef, shouldProcess, racialGroup =
   _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm)
   local bs, md, mdt, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
   local currLog = ml.GetLog()
@@ -473,6 +404,8 @@ function npc.ChangeAppearance(data)
     weight = weight or -1,
     --- Fully calculated appearance.
     bodySlide = bs,
+    --- Formlist index of the racial group for the actor. Used to set muscle definition by texture.
+    racialGroup = racialGroup,
     --- Muscle definition level.
     muscleDef = md or -1,
     muscleDefType = mdt or -1,
@@ -482,29 +415,5 @@ function npc.ChangeAppearance(data)
     shouldProcess = process or 0,
   }
 end
-
--- print(serpent.block(npc.ChangeAppearance({
---   --- MCM options from Papyrus
---   mcm = {
---     kNpcBs = 1,
---     kNpcMuscleDef = 1,
---     gNpcFemBs = 1,
---     gNpcFemMuscleDef = 1,
---     gNpcManBs = 1,
---     gNpcManMuscleDef = 1,
---   },
---   --- Actor name. Used to try to find it in the known npcs database.
---   name = "Laydia",
---   --- Used to try to find it in the known npcs database.
---   formId = 0xa2c8e,
---   --- Used to calculate body slider values. Range: `[0..100]`.
---   --- Either user assigned in Known NPCs or gotten from the game.
---   weight = math.random(100),
---   --- Class name as gotten from PapyrusUtil.
---   class = "Warrior",
---   raceEDID = "NordRace",
---   isFem = 0,
--- })
--- ))
 
 return npc

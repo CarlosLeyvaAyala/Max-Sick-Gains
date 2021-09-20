@@ -39,6 +39,7 @@ local LogLevel = function (lvl)
   return function (message)
     if loggingLvl >= lvl and message and (message ~= "") then
       local tmp = "("..loggingLvl.." >= "..lvl..")"
+      tmp = ""
       fullLog = fullLog .. tmp .. message .. ". "
       return fullLog
     end

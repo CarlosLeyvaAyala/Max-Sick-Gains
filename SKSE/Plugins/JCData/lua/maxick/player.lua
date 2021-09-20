@@ -6,8 +6,8 @@ local l = jrequire 'dmlib'
 local db = jrequire 'maxick.database'
 local sl = jrequire 'maxick.sliderCalc'
 local ml = jrequire 'maxick.lib'
+local r = jrequire 'maxick.race'
 
--- local serpent = require("__serpent")
 -- math.randomseed( os.time() )
 
 --- How much time could pass before entering catabolic state.
@@ -114,7 +114,7 @@ end
 --#region
 
 ---Logs that the muscle definition won't be changed.
-local function _LogNotChangingMuscleDef() ml.LogCrit("Won't change muscle definition") end
+local function _LogNotChangingMuscleDef() ml.LogVerbose("Won't change muscle definition") end
 
 ---Logs that muscle definition won't be changed.
 ---@return nil, nil
@@ -129,11 +129,12 @@ local function _MDefMcmBanned() ml.LogCrit("MCM: muscle definition changing bann
 ---@param gains number
 ---@return integer muscleDef
 ---@return MuscleDefType muscleDefType
-local function _ValidMuscleDef(playerStage, gains)
+---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
+local function _ValidMuscleDef(playerStage, gains, raceEDID)
   local stage = _Stage(playerStage)
   local muscleDef = l.round(sl.WeightBasedAdjust(gains, stage.muscleDefLo, stage.muscleDefHi))
   local muscleDefType = _Fitstage(playerStage).muscleDefType
-  return muscleDef, muscleDefType
+  return muscleDef, muscleDefType, r.RacialGroup(raceEDID)
 end
 
 ---Returns the muscle definition the player should have.
@@ -143,10 +144,11 @@ end
 ---@param raceEDID string
 ---@return integer|nil muscleDef Muscle definition level.
 ---@return MuscleDefType|nil muscleDefType Muscle definition type.
+---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
 local function _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID)
   if not l.SkyrimBool(applyMuscleDef) then return _MDefMcmBanned()
   elseif ml.MuscleDefRaceBanned(raceEDID) then return _MDefBanned()
-  else return _ValidMuscleDef(playerStage, gains)
+  else return _ValidMuscleDef(playerStage, gains, raceEDID)
   end
 end
 
@@ -349,12 +351,14 @@ player.CapTraining = function (x) return l.forceRange(0, player.maxTraining)(x) 
 function player.ChangeAppearance(raceEDID, isFem, playerStage, gains, applyMuscleDef)
   ml.EnableSkyrimLogging()
   local bs = _GetBodyslide(isFem, playerStage, gains)
-  local md, mdt = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID)
+  local md, mdt, rg = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID)
   return {
     --- Irrelevant, but sent explicitly for clarity.
     weight = 100,
     --- Fully calculated appearance.
     bodySlide = bs,
+    --- Formlist index of the racial group for the actor. Used to set muscle definition by texture.
+    racialGroup = rg,
     --- Muscle definition level.
     muscleDef = md or -1,
     muscleDefType = mdt or -1,
@@ -365,8 +369,6 @@ function player.ChangeAppearance(raceEDID, isFem, playerStage, gains, applyMuscl
     shouldProcess = 1,
   }
 end
-
--- print(serpent.block(player.ChangeAppearance("NordRaceAstri", 1, 3, 100, 1)))
 
 ---Attempts to make gains when sleeping.
 ---@param hoursSlept number

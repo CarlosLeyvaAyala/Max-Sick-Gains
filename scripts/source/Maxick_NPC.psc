@@ -3,7 +3,7 @@ Scriptname Maxick_NPC extends Quest
 
 import Maxick_Utils
 
-FormList Property KnownNPCs Auto
+; FormList Property KnownNPCs Auto
 Maxick_Main Property main Auto
 Maxick_ActorAppearance Property looksHandler Auto
 Maxick_Debug Property md Auto
@@ -125,10 +125,8 @@ EndFunction
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
   ; Optimization step
-  ; If _OptimizeNPC(npc)
-  ;   return
-  ; EndIf
-  int memo = Maxick_DB.FormGetObj(npc.GetActorBase(), "memoized")
+  ; int memo = Maxick_DB.FormGetObj(Maxick_DB.MemoActor(npc), "memoized")
+  int memo = Maxick_DB.GetMemoizedAppearance(npc)
   If memo
     md.LogVerb("OPTIMIZATION. An appearance for " + DM_Utils.GetActorName(npc) + " was already calculated. Will use it instead of calculating it again.")
     JMap.setStr(memo, "msg", "")    ; Calculated log is not needed anymore. Discard
@@ -149,7 +147,8 @@ Function ForceChangeAppearance(Actor npc, int appearance = 0)
   ; Memoize data for BaseForm only if it was actually calculated instead of gotten
   ; from memoized data.
   If saveAppearance
-    Maxick_DB.FormSaveObj(npc.GetActorBase(), "memoized", appearance)
+    ; Maxick_DB.FormSaveObj(Maxick_DB.MemoActor(npc), "memoized", appearance)
+    Maxick_DB.MemoizeAppearance(npc, appearance)
   EndIf
 EndFunction
 
@@ -158,19 +157,19 @@ EndFunction
 ; This method is slow and unflexible, but 100% reliable. Left here because I may
 ; need to use it if the `"Name-class-race(-EDID) Matching"` method doesn't work.
 Function _CheckIfNpcIsKnown(ActorBase npc, int data)
-  If !KnownNPCs.HasForm(npc)
-    md.LogCrit("Generic NPC.")
-    return
-  EndIf
+  ; If !KnownNPCs.HasForm(npc)
+  ;   md.LogCrit("Generic NPC.")
+  ;   return
+  ; EndIf
 
-  Int i = KnownNPCs.GetSize()
-  While i > 0
-    i -= 1
-    If npc == KnownNPCs.GetAt(i)
-      md.LogCrit("Actor known")
-      JMap.setInt(data, "isKnown", i)
-      JMap.setInt(data, "shouldProcess", 1)
-      return
-    EndIf
-  EndWhile
+  ; Int i = KnownNPCs.GetSize()
+  ; While i > 0
+  ;   i -= 1
+  ;   If npc == KnownNPCs.GetAt(i)
+  ;     md.LogCrit("Actor known")
+  ;     JMap.setInt(data, "isKnown", i)
+  ;     JMap.setInt(data, "shouldProcess", 1)
+  ;     return
+  ;   EndIf
+  ; EndWhile
 EndFunction

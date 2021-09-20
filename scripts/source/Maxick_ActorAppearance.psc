@@ -7,6 +7,8 @@ Maxick_Debug Property md Auto
 Armor Property SkinNakedWerewolfBeast Auto
 FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
+FormList Property ManNormal_Textures Auto
+FormList Property FemNormal_Textures Auto
 
 ; Reserved for possible future use.
 Function OnGameReload()
@@ -33,19 +35,43 @@ Function _ApplyBodyslide(Actor aAct, int bodyslide, float weight)
   EndIf
 EndFunction
 
+; Returns the normal texture corresponding to some calculated data.
+; TODO: Deal with this once/if PO3_SKSEFunctions.ReplaceSkinTextureSet() becomes persistent
+TextureSet Function _GetNormalTexture(FormList list, int racialGroup, int muscleDefType, int muscleDef)
+  FormList rg = list.GetAt(racialGroup) as FormList
+  FormList mt = rg.GetAt(muscleDefType) as FormList
+  return mt.GetAt(muscleDef - 1) as TextureSet
+EndFunction
+
 ; Tries to apply muscle definition to an actor based on collected `data`.
 ; See this [technical document](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md) to understand this method.
 Function _ApplyMuscleDef(Actor aAct, int data)
-  int muscleDefType = JMap.getInt(data, "muscleDefType")
-  If muscleDefType >= 0 ; Not banned from changing muscle definition
-    int muscleDef = JMap.getInt(data, "muscleDef")
-    If muscleDef < 0    ; Banned from changing muscle definition
-      return  ; Should never get here, but still added it as a redundant safeguard
-    EndIf
-
-    FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
-    _SetSkin(aAct, defType.GetAt(muscleDef) as Armor)
+  int muscleDefType = JMap.getInt(data, "muscleDefType", -1)
+  int muscleDef = JMap.getInt(data, "muscleDef", -1)
+  If muscleDefType < 0 || muscleDef < 0  ; Not banned from changing muscle definition
+    return
   EndIf
+
+  FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
+  _SetSkin(aAct, defType.GetAt(muscleDef) as Armor)
+EndFunction
+
+; Tries to apply muscle definition to an actor based on collected `data`.
+; TODO: Deal with this once/if PO3_SKSEFunctions.ReplaceSkinTextureSet() becomes persistent
+Function ApplyMuscleDef(Actor aAct, int data)
+  int muscleDefType = JMap.getInt(data, "muscleDefType", -1)
+  int muscleDef = JMap.getInt(data, "muscleDef", -1)
+  int racialGroup = JMap.getInt(data, "racialGroup", -1)
+  md.LogVerb(DM_Utils.GetActorName(aAct) +": applying muscle definition. " + muscleDefType + " " + muscleDef + " " + racialGroup)
+  If muscleDefType < 0 || muscleDef < 1 || racialGroup < 0
+    return ; Banned from changing muscle definition
+  EndIf
+
+  TextureSet fem = _GetNormalTexture(FemNormal_Textures, racialGroup, muscleDefType, muscleDef)
+  TextureSet man = _GetNormalTexture(ManNormal_Textures, racialGroup, muscleDefType, muscleDef)
+  md.LogVerb("Fem tex: " + fem)
+  md.LogVerb("Man tex: " + man)
+  PO3_SKSEFunctions.ReplaceSkinTextureSet(aAct, man, fem, 0x4, 1) ; aiTextureType = 1 means normal map
 EndFunction
 
 Function MakeWerewolf(Actor aAct)
