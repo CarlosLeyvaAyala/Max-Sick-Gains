@@ -26,7 +26,7 @@ int Property loggingLvl Hidden
 EndProperty
 
 bool Property testMode Hidden
-{Was Testing mode enabled?}
+{_Was Testing mode enabled?_ Read only.}
   bool Function Get()
     return _testMode
   EndFunction
@@ -72,7 +72,7 @@ Event OnInit()
 EndEvent
 
 ; Initializes data from MCM settings. Used so the player doesn't have to configure this
-; mod each new stealthy archer they create.
+; mod for each new stealthy archer they create.
 Function _InitFromMcm()
   SetLoggingLvl(MCM.GetModSettingInt("Max Sick Gains", "iLogLvl:Other"))
 EndFunction
@@ -86,14 +86,14 @@ EndFunction
 
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
 Event OnGetLoggingLvl(string _, string __, float lvl, Form ___)
-  LogVerb("Logging level was correctly sent: " + lvl)
+  LogVerb("Logging level was correctly sent: " + lvl as int)
 EndEvent
 
 ; Called from MCM Helper when the user changed the logging level.
 Function SetLoggingLvl(int lvl)
   lvl += 1
-  Log("Logging level was set to " + lvl as int)
   _loggingLvl = lvl as int
+  Log("Logging level was set to " + _loggingLvl)
   SetLuaLoggingLvl()
   SendModEvent(ev.LOGGING_LVL, "", _loggingLvl)
 EndFunction

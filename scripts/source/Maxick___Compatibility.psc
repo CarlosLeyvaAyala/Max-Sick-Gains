@@ -1,6 +1,7 @@
 Scriptname Maxick___Compatibility Hidden
 {Make your mod compatible with Max Sick Gains.}
 
+
 ; Skyrim's `Utility.GetCurrentGameTime()` gets time as fractions of a day, where `1`
 ; means one day, while `0.5` means half a day.
 ; This function converts Skyrim time to human readable hours, so `0.5` becomes `12`.
@@ -19,10 +20,12 @@ float Function ToSkyrimHours(float humanHours) Global
   return DM_Utils.ToGameHours(humanHours)
 EndFunction
 
+; Returns a variable that lets you hook to events sent by this mod.
 Maxick_Events Function HookToEvents() Global
   return _MaxickMain() as Maxick_Events
 EndFunction
 
+; Returns a variable that lets you hook to all debugging functions on this mod.
 Maxick_Debug Function HookToDebugging() Global
   return _MaxickMain() as Maxick_Debug
 EndFunction

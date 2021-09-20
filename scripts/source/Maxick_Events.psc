@@ -10,7 +10,7 @@
 ; declared in the HELPERS section; they already send events for you in a quite
 ; convenient way.
 ;
-; Use functions in Maxick_Compatibility before you can plug to this script.
+; Use `Maxick___Compatibility.HookToEvents()` before you can plug into this script.
 
 Scriptname Maxick_Events extends Quest
 {Communication with Max Sick Gains via events.}
@@ -112,6 +112,7 @@ EndFunction
 ; | Smithing    | 0.1      |
 ; | Sneak       | 0.15     |
 ; | TwoHanded   | 0.5      |
+;
 Function SendTrainingChange(string skillName, float trainingChange)
   SendModEvent(TRAINING_CHANGE, skillName, trainingChange)
 EndFunction

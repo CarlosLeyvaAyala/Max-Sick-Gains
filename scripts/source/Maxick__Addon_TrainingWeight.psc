@@ -1,6 +1,11 @@
 Scriptname Maxick__Addon_TrainingWeight extends ObjectReference
 {
   Train with sacks when player activated a training sack Activator.
+
+  Maxick___Compatibility script is used for making integrations.
+  If you want to make a mod integration with mine, look at both
+  the source code for that script and all the places where that
+  script was used in this file.
 }
 
 Message Property normalMenu Auto
@@ -27,7 +32,7 @@ Possible values:
 - "SackM"
 - "SackL"
 
-This is a standard Max Sick Gains training type, so **you shouldn't** call
+Since this is a standard Max Sick Gains training type, **you shouldn't** call
 `Maxick_Events.SendTrainingAndActivity()`, but `Maxick_Events.SendPlayerHasTrained()`
 instead.
 }
@@ -45,6 +50,8 @@ Maxick_Events ev
 ; Hook to Max Sick Gains debugging functions.
 Maxick_Debug md
 
+; This is used for saving data related to this addon.
+; When you do your own addon, make sure to select a name no one except you will likely use.
 string addonName = "officialTrainingSacks"
 
 ; Remove tired icon after some time passes.

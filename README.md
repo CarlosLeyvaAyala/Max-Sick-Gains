@@ -10,26 +10,48 @@ Many different shapes are possible by changing Bodyslide shapes at different fit
 NPCs body shapes can be varied as well.
 
 
+This mod's philosophy is to **make people to look like they should according to their profession**.\
+Warriors should be muscular and ripped, mages should be thin... or even fat and flabby.
+
+
 # Features
 
 - Change fitness levels (stages) by training.
-- Player can have a different body shape and/or muscle definition at each stage.
+- Player can have a different body shape (Bodyslide preset) and/or muscle definition at each stage.
 - Unlimited fitness levels for PC.
 - Unlimited body types for NPCs.
+- Works for men and women alike.
 - All vanilla races supported.
+- Custom race support is possible with almost no hassle.
 - Optional use of normal maps to make characters ripped/fat/plain according to their body type (this means: no fat bodies with ripped abs).
+- Total control on how each NPC should look like. No randomness for the sake of randomness.
+
+It's as simple to use as it can be.
+
+- Powerful and flexible.
+- No patches.
+- No need to delve into arcane configuration files. This mod does that for you.
+
+# Features for modders
+
+Want your mod to take into account how your PC looks like? It's a breeze to integrate it with mine.
+
+- An easy to use API for quickly integration.
+- Communication with external mods via mod events.
+- Functions to save data related to this mod.
 
 # Requirements
 
 As a player, you need these mods and all their requirements to make it work.
 
 - Skyrim SE
-- NiOverride ([Racemenu][])
 - [Bodyslide][]
-- Bodyslide presets
+- [iWant Widgets][]
 - [JContainers SE][jcontainers-se]
 - [MCM Helper][]
 - [Papyrus Util][]
+- NiOverride ([Racemenu][])
+- Some Bodyslide presets
 
 ## Integrations
 
@@ -118,3 +140,4 @@ https://badge.fury.io/hooks/github
 [visual-studio-code]: https://code.visualstudio.com/
 [vscode-papyrus]: https://marketplace.visualstudio.com/items?itemname=joelday.papyrus-lang-vscode
 [zerobrane-studio]: https://studio.zerobrane.com/
+[iWant Widgets]: https://www.nexusmods.com/skyrimspecialedition/mods/36457

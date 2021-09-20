@@ -8,9 +8,8 @@ Armor Property SkinNakedWerewolfBeast Auto
 FormList Property NakedBodiesList Auto
 {A list that contains lists of textures used to change people's muscle definition levels}
 
-; Actor player
+; Reserved for possible future use.
 Function OnGameReload()
-  ; TODO: Load memoization table into Lua
   ; player = Game.GetPlayer()
 EndFunction
 
@@ -26,7 +25,7 @@ Function _ApplyBodyslide(Actor aAct, int bodyslide, float weight)
 
     string slider = JMap.nextKey(bodyslide)
     While slider != ""
-      NiOverride.SetMorphValue(aAct, slider, JMap.getFlt(bodyslide, slider))
+      NiOverride.SetBodyMorph(aAct, slider, "Maxick", JMap.getFlt(bodyslide, slider))
       slider = JMap.nextKey(bodyslide, slider)
     EndWhile
 
@@ -46,17 +45,11 @@ Function _ApplyMuscleDef(Actor aAct, int data)
 
     FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
     _SetSkin(aAct, defType.GetAt(muscleDef) as Armor)
-    ; ActorBase b = aAct.GetBaseObject() as ActorBase
-    ; b.SetSkin(defType.GetAt(muscleDef) as Armor)
-    ; UpdateNiNode(aAct)
   EndIf
 EndFunction
 
 Function MakeWerewolf(Actor aAct)
   _SetSkin(aAct, _GetWerewolfSkin())
-  ; ActorBase b = aAct.GetBaseObject() as ActorBase
-  ; b.SetSkin(_GetWerewolfSkin())
-  ; UpdateNiNode(aAct)
 EndFunction
 
 Function _SetSkin(Actor aAct, Armor skin)
