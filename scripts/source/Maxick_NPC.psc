@@ -28,6 +28,19 @@ Function OnGameReload()
   ; md.Log("================================")
 EndFunction
 
+Function Test()
+  Actor npc = Game.GetCurrentConsoleRef() as Actor
+  If !npc
+    npc = Game.GetCurrentCrosshairRef() as Actor
+  EndIf
+  ; string h = looksHandler._GetHeadNode(npc)
+  md.Log("*****************************************")
+  md.Log("Hands " + NetImmerse.HasNode(npc, "Hands", false))
+  md.Log("HIMBO Hands " + NetImmerse.HasNode(npc, "HIMBO - Hands", false))
+  looksHandler.TestMuscleDef(npc)
+  md.Log("*****************************************")
+EndFunction
+
 ; Force an NPC to get updated.
 Function ForceUpdate()
   md.LogVerb("Forcing change on NPC.")

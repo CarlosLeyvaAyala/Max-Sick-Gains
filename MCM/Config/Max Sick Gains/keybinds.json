@@ -95,7 +95,7 @@
       "action": {
         "type": "CallFunction",
         "form": "Max Sick Gains.esp|D76",
-        "scriptName": "Maxick_Player",
+        "scriptName": "Maxick_NPC",
         "function": "Test",
         "params": []
       }
