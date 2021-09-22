@@ -29,6 +29,12 @@ Event OnInit()
   player.AddSpell(ChangeCellSpell)
 EndEvent
 
+Event OnUpdate()
+  md.LogVerb("//////////////////////////////////////////////////")
+  md.LogVerb("polling")
+  _AppearanceByPolling()
+EndEvent
+
 ; These functions are called sequentially and not hooked as callbacks because we want to
 ; make sure these settings are initializated in this precise order.
 Function OnGameReload()
@@ -40,6 +46,7 @@ Function OnGameReload()
   NpcHandler.OnGameReload()
   widget.OnGameReload()
   _TestingModeOperations()
+  _AppearanceByPolling()
 EndFunction
 
 ; Main NPC processing function.
@@ -49,6 +56,7 @@ EndFunction
 
 Function _ChangeNPCsInCell(bool forceAppearance)
   GoToState("CellLoading")
+  float t = Utility.GetCurrentRealTime()
 
   int kNPC = 43 ; https://www.creationkit.com/index.php?title=GetType_-_Form
   Cell kCell = player.GetParentCell()
@@ -76,13 +84,43 @@ Function _ChangeNPCsInCell(bool forceAppearance)
     EndWhile
   EndIf
 
+  md.LogVerb("Changed NPCs in cell in " + (Utility.GetCurrentRealTime() - t) + " seconds")
   GoToState("")
 EndFunction
 
-; Forces to set an appearance to surrounding NPCs.
-; This function bypasses optimizations.
+; Sets an appearance to NPCs really close to player. Used for pesky NPCs that simply refuse to change by normal means.
 ;
 ; See [Skyrim measure units](https://www.creationkit.com/index.php?title=Unit).
+Function _AppearanceByPolling()
+  GoToState("CellLoading")
+  float t = Utility.GetCurrentRealTime()
+
+  int kNPC = 43 ; https://www.creationkit.com/index.php?title=GetType_-_Form
+  Cell kCell = player.GetParentCell()
+  Int n = kCell.GetNumRefs(kNPC)
+  Actor npc = None
+  md.SetLuaLoggingLvl()
+  While n
+    n -= 1
+    npc = kCell.GetNthRef(n, kNPC) as Actor
+    If !npc.IsDisabled() && (npc != Player) && (npc.GetDistance(player) < 1024)
+      NpcHandler.ChangeAppearance(npc)
+    EndIf
+  EndWhile
+
+  md.LogVerb("Changed NPCs around player in " + (Utility.GetCurrentRealTime() - t) + " seconds")
+  RegisterForSingleUpdate(8)
+  GoToState("")
+EndFunction
+
+State CellLoading
+  Function _AppearanceByPolling()
+    RegisterForSingleUpdate(8)
+  EndFunction
+EndState
+
+; Forces to set an appearance to surrounding NPCs.
+; This function bypasses optimizations.
 Function ForceSurroundingNPCs()
   md.LogInfo("You tried to forcefully set an appearance on NPCs in current cell.")
   _ChangeNPCsInCell(true)
@@ -95,7 +133,6 @@ Function _TestingModeOperations()
     return
   EndIf
   md.LogVerb("***TESTING MODE ENABLED***")
-  PcHandler.ChangeAppearance()
   OnCellLoad()
 EndFunction
 

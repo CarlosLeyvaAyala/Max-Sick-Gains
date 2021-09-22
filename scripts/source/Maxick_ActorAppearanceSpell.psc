@@ -8,6 +8,10 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
   md.LogVerb("Maxick Spell attached to " + akTarget)
 EndEvent
 
+Event OnEffectFinish(Actor akTarget, Actor akCaster)
+  md.LogVerb("Maxick Spell finished on " + akTarget)
+endEvent
+
 Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
   Armor arm = akBaseObject as Armor
   if !arm || !arm.IsCuirass() ; TODO: Can fail because some armors are badly setup. Find another method.

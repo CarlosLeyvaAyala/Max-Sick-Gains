@@ -35,19 +35,19 @@ end
 ---@return nil
 local function _WontChangeMuscleDef()
   ml.LogInfo("Won't change muscle definition")
-  return nil, nil
+  return ""
 end
 
 ---Sets an actor muscle definition if it should be done.
 ---@param fitStage integer
 ---@param muscleDef MuscleDef
 ---@param raceEDID string
----@return nil|MuscleDef muscleDef
----@return nil|MuscleDefType muscleDefType
-local function _SolveMuscleDef(fitStage, muscleDef, raceEDID)
+---@return MuscleDef string
+local function _SolveMuscleDef(fitStage, muscleDef, raceEDID, isFem)
   if not muscleDef or muscleDef < 0 then return _WontChangeMuscleDef() end
   if ml.MuscleDefRaceBanned(raceEDID) then return _WontChangeMuscleDef() end
-  return muscleDef, db.fitStages[fitStage].muscleDefType
+  -- return muscleDef, db.fitStages[fitStage].muscleDefType
+  return ml.GetNormalMapPath(muscleDef, db.fitStages[fitStage].muscleDefType, r.RacialGroup(raceEDID), isFem)
 end
 
 --- Sets BodySlide sliders to a known `Actor` and determines which kind of muscle definition
@@ -67,8 +67,8 @@ local function _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, race
   if not l.SkyrimBool(shouldProcess) then return {}, nil, nil, 0 end
 
   local bs = _SolveBodyslide(fitStage, weight, isFem)
-  local md, mdt = _SolveMuscleDef(fitStage, muscleDef, raceEDID)
-  return bs, md, mdt, 1
+  local md = _SolveMuscleDef(fitStage, muscleDef, raceEDID, isFem)
+  return bs, md, 1
 end
 
 ---`Actor` identity has bees solved. Process it.
@@ -395,7 +395,7 @@ function npc.ChangeAppearance(data)
 
   local fitStage, weight, muscleDef, shouldProcess, racialGroup =
   _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm)
-  local bs, md, mdt, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
+  local bs, md, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
   local currLog = ml.GetLog()
   local fullLog = l.IfThen(currLog ~= "", l.fmt("NPC found: '%s'. ", data.name) .. currLog, currLog)
 
@@ -407,8 +407,8 @@ function npc.ChangeAppearance(data)
     --- Formlist index of the racial group for the actor. Used to set muscle definition by texture.
     racialGroup = racialGroup,
     --- Muscle definition level.
-    muscleDef = md or -1,
-    muscleDefType = mdt or -1,
+    muscleDef = md,
+    -- muscleDefType = mdt or -1,
     --- Description of all operations that were done.
     msg = fullLog,--ml.GetLog(),
     --- Should it be processed by `Maxick_ActorAppearance.ChangeAppearance()`?

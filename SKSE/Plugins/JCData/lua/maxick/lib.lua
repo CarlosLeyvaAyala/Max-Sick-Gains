@@ -86,6 +86,24 @@ function lib.SexAsStr(isFem)
   end
 end
 
+lib.SexAsStrPath = l.enum({"Man", "Fem"})
+lib.RacialGroups = l.enum({"Hum","Kha","Arg"})
+lib.MuscleDefTypes = l.enum({"Meh","Fit","Fat"})
+
+---Returns the file path for the normal texture set that will be applied to an actor.
+---@param muscleDef integer
+---@param muscleDefType integer
+---@param racialGroup integer
+---@param isFem SkyrimBool
+---@return string
+function lib.GetNormalMapPath(muscleDef, muscleDefType, racialGroup, isFem)
+  if not racialGroup then return "" end
+  local path = "actors\\character\\Maxick\\%s\\%s%s_%.2d.dds"
+  local val = l.fmt(path, lib.RacialGroups[racialGroup+1], lib.SexAsStrPath[isFem+1], lib.MuscleDefTypes[muscleDefType+1], muscleDef)
+  lib.LogVerbose("'" .. val .. "'")
+  return val
+end
+
 ---Finds if some race is in a race list.
 ---@param race string
 ---@param raceList table

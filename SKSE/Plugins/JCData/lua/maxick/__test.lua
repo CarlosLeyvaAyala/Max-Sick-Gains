@@ -11,4 +11,4 @@ local player = require 'player'
 local serpent = require("__serpent")
 
 require("__test_npc").Run()
-serpent.print(player.ChangeAppearance("Khajiit", 1, 1, 50, 1))
+serpent.print(player.ChangeAppearance("Argonian", 0, 1, 50, 1))

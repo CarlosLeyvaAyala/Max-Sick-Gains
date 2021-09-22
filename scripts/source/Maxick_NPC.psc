@@ -10,35 +10,13 @@ Maxick_Debug Property md Auto
 Maxick_Events Property ev Auto
 
 Function OnGameReload()
-  ; Maxick_DB.SaveFlt("Test_ueioioeieu", 9000)
-  ; Maxick_DB.SaveInt("intest", 9001)
-  ; Maxick_DB.SaveStr("strtest", "9001")
-  ; Maxick_DB.SaveStr("strtest", "9001")
-  ; int data = JMap.object()
-  ; JMap.setFlt(data, "flt", 340.23)
-  ; JMap.setInt(data, "pp", 4645)
-  ; Maxick_DB.SaveObj("obj", data)
-  ; Maxick_DB.SaveToFile("Testing values")
-  ; md.Log("================================")
-  ; md.Log(Maxick_DB.GetFlt("Test_ueioioeieu"))
-  ; md.Log(Maxick_DB.GetInt("intest"))
-  ; md.Log(Maxick_DB.GetStr("strtest"))
-  ; Maxick___Compatibility.SaveFlt("TrainingSacks", "lastTrained", DM_Utils.Now())
-  ; md.Log(Maxick___Compatibility.GetFlt("TrainingSacks", "lastTrained"))
-  ; md.Log("================================")
 EndFunction
 
 Function Test()
-  Actor npc = Game.GetCurrentConsoleRef() as Actor
-  If !npc
-    npc = Game.GetCurrentCrosshairRef() as Actor
-  EndIf
-  ; string h = looksHandler._GetHeadNode(npc)
-  md.Log("*****************************************")
-  md.Log("Hands " + NetImmerse.HasNode(npc, "Hands", false))
-  md.Log("HIMBO Hands " + NetImmerse.HasNode(npc, "HIMBO - Hands", false))
-  looksHandler.TestMuscleDef(npc)
-  md.Log("*****************************************")
+  ; Actor npc = Game.GetCurrentConsoleRef() as Actor
+  ; If !npc
+  ;   npc = Game.GetCurrentCrosshairRef() as Actor
+  ; EndIf
 EndFunction
 
 ; Force an NPC to get updated.
@@ -62,7 +40,9 @@ Function _ForceNPCUpdate(Actor npc)
     md.Log("Yeah... nice try, Einstein. GO EARN YOUR GAINS, YOU LOAFER.")
     return
   EndIf
+  float t = Utility.GetCurrentRealTime()
   ForceChangeAppearance(npc)
+  md.LogVerb("ForceChangeAppearance: " + (Utility.GetCurrentRealTime() - t) + " seconds")
 EndFunction
 
 ; Gets an npc `ActorBase` by using `GetLeveledActorBase()`.
@@ -118,32 +98,39 @@ EndFunction
 ;
 ; Unlike non unique NPCs, uniques seem to retain their body morph data when unloaded,
 ; so an easy check to see if they have morphs applied works quite well.
-bool Function _OptimizeUnique(Actor npc)
-  If _GetBase(npc).IsUnique()
-    return _OptimizeNPC(npc)
-  EndIf
-  return false
-EndFunction
+; bool Function _OptimizeUnique(Actor npc)
+;   If _GetBase(npc).IsUnique()
+;     return _OptimizeNPC(npc)
+;   EndIf
+;   return false
+; EndFunction
 
 ; Optimizes appearance setting.
-bool Function _OptimizeNPC(Actor npc)
-  string[] morphs = NiOverride.GetMorphNames(npc)
-  bool result = morphs.Length > 0
-  If result
-    md.LogVerb("An appearance for " + DM_Utils.GetActorName(npc) + " was already set (either by this or another mod). Skipping.")
-  EndIf
-  return result
-EndFunction
+; bool Function _OptimizeNPC(Actor npc)
+;   string[] morphs = NiOverride.GetMorphNames(npc)
+;   bool result = morphs.Length > 0
+;   If result
+;     md.LogVerb("An appearance for " + DM_Utils.GetActorName(npc) + " was already set (either by this or another mod). Skipping.")
+;   EndIf
+;   return result
+; EndFunction
 
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
   ; Optimization step
-  ; int memo = Maxick_DB.FormGetObj(Maxick_DB.MemoActor(npc), "memoized")
+  bool processed = NiOverride.GetBodyMorph(npc, "MaxickProcessed", "Maxick")
+  If (processed)
+    md.LogVerb("OPTIMIZATION. " + DM_Utils.GetActorName(npc) +" still retains an appearance setting. Skipping.")
+    return
+  EndIf
+
+  ; Optimization step
   int memo = Maxick_DB.GetMemoizedAppearance(npc)
   If memo
     md.LogVerb("OPTIMIZATION. An appearance for " + DM_Utils.GetActorName(npc) + " was already calculated. Will use it instead of calculating it again.")
     JMap.setStr(memo, "msg", "")    ; Calculated log is not needed anymore. Discard
   EndIf
+
   ForceChangeAppearance(npc, memo)
 EndFunction
 
