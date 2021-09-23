@@ -8,6 +8,7 @@ int _lvlCrit = 2
 int _lvlInfo = 3
 int _lvlVerb = 4
 int _loggingLvl = 1
+int _lvlOptim = -1
 bool _testMode = false
 
 
@@ -59,6 +60,18 @@ Function LogVerb(string msg)
   _LogLvl(msg, _lvlVerb)
 EndFunction
 
+; Log as optimization.
+;
+; This mode is used exclusively by developers and should be enabled at compile time
+; in `Maxick_Debug.OnGameReload()` by setting `_InitFromMcm(true)`.
+;
+; ***NEVER RELEASE THIS MOD WITH OPTIMIZATION LOGGING ACTIVATED***.
+Function LogOptim(string msg)
+  If _loggingLvl == _lvlOptim
+    Log(msg)
+  EndIf
+EndFunction
+
 
 ; !  ██╗ ██████╗ ███╗   ██╗ ██████╗ ██████╗ ███████╗    ████████╗██╗  ██╗███████╗███████╗███████╗
 ; !  ██║██╔════╝ ████╗  ██║██╔═══██╗██╔══██╗██╔════╝    ╚══██╔══╝██║  ██║██╔════╝██╔════╝██╔════╝
@@ -71,17 +84,24 @@ Event OnInit()
   _InitFromMcm()
 EndEvent
 
-; Initializes data from MCM settings. Used so the player doesn't have to configure this
-; mod for each new stealthy archer they create.
-Function _InitFromMcm()
-  SetLoggingLvl(MCM.GetModSettingInt("Max Sick Gains", "iLogLvl:Other"))
-EndFunction
-
 Function OnGameReload()
   _InitFromMcm()
   Log("Current logging level: " + _loggingLvl)
   RegisterForModEvent(ev.LOGGING_LVL, "OnGetLoggingLvl")
   _LoadData()
+EndFunction
+
+; Initializes data from MCM settings. Used so the player doesn't have to configure this
+; mod for each new stealthy archer they create.
+;
+; Logging at optimization level is done at compile time because this doesn't concern
+; users at all.
+Function _InitFromMcm(bool setOptimizationLvl = false)
+  If setOptimizationLvl
+    SetLoggingLvl(_lvlOptim - 1)
+  Else
+    SetLoggingLvl(MCM.GetModSettingInt("Max Sick Gains", "iLogLvl:Other"))
+  EndIf
 EndFunction
 
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
@@ -111,6 +131,7 @@ Function _LoadData()
   _lvlCrit = 2
   _lvlInfo = 3
   _lvlVerb = 4
+  _lvlOptim = -1
 EndFunction
 
 ; Log at certain level.

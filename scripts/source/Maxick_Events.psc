@@ -301,13 +301,13 @@ string Property CATABOLISM_END = "Maxick_CatabolismEnd" AutoReadOnly
 
 ;------------------------------------------------------------------------------------
 
-string Property CELL_CHANGE = "Maxick_CellChange" AutoReadOnly
-{
-**Activation**: When player enters a new cell.
+; string Property CELL_CHANGE = "Maxick_CellChange" AutoReadOnly
+; {
+; **Activation**: When player enters a new cell.
 
-- I use this event to apply appearance settings to NPCs.
-- It may be useful to you for other reasons, though.
-}
+; - I use this event to apply appearance settings to NPCs.
+; - It may be useful to you for other reasons, though.
+; }
 
 ;------------------------------------------------------------------------------------
 

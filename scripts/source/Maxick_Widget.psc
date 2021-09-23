@@ -104,9 +104,8 @@ Function _RegisterEvents()
 EndFunction
 
 Event OniWantWidgetsReset(string _, string __, float ___, Form sender)
-  md.Log("========================================================")
-  md.LogVerb("Initializing iWantWidget")
-
+  ; md.Log("========================================================")
+  md.LogVerb("Initializing iWantWidget. OniWantWidgetsReset.")
 EndEvent
 
 

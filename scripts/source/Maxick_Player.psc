@@ -115,7 +115,7 @@ EndEvent
 
 ; Called from MCM Helper when the user changed the polling interval.
 Function SetUpdateInterval(int interval)
-  md.Log("Polling interval set to: " + interval)
+  md.LogVerb("Polling interval set to: " + interval)
   _pollingInterval = interval
   SendModEvent(ev.UPDATE_INTERVAL, "", _pollingInterval)
   _Poll()
@@ -500,7 +500,7 @@ bool Function _IsTransformed()
 EndFunction
 
 ; Changes player appearance.
-Function ChangeAppearance(bool skipBody = false)
+Function ChangeAppearance(bool skipMuscleDef = false)
   If _IsTransformed()
     md.LogInfo("Can't change appearance because player is transformed.")
     return
@@ -508,10 +508,7 @@ Function ChangeAppearance(bool skipBody = false)
 
   md.LogInfo("Player is changing appearance.")
   int appearance = _GetAppearance()
-
-  If (!skipBody)
-    looksHandler.ChangeAppearance(player, appearance, true)
-  EndIf
+  looksHandler.ChangeAppearance(player, appearance, true, skipMuscleDef)
 
   ; Make head size obviously wrong when getting default values to help catch bugs.
   ; FIXME: Set to a reasonable value once I know this to be stable

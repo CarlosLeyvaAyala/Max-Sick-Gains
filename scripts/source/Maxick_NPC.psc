@@ -40,9 +40,13 @@ Function _ForceNPCUpdate(Actor npc)
     md.Log("Yeah... nice try, Einstein. GO EARN YOUR GAINS, YOU LOAFER.")
     return
   EndIf
+
   float t = Utility.GetCurrentRealTime()
+  md.SetLuaLoggingLvl()
+
   ForceChangeAppearance(npc)
-  md.LogVerb("ForceChangeAppearance: " + (Utility.GetCurrentRealTime() - t) + " seconds")
+
+  md.LogOptim("ForceChangeAppearance: " + (Utility.GetCurrentRealTime() - t) + " seconds")
 EndFunction
 
 ; Gets an npc `ActorBase` by using `GetLeveledActorBase()`.
@@ -70,7 +74,6 @@ int Function _InitNpcData(Actor npc)
   JMap.setStr(data, "class", base.GetClass().GetName())
   JMap.setStr(data, "raceEDID", looksHandler.GetRace(npc))
   JMap.setInt(data, "isFem", looksHandler.IsFemale(npc) as int)
-  ; looksHandler.InitCommonData(data, npc, base.GetWeight(), 0)
 
   string mod = "Max Sick Gains"
   int mcmOptions = JMap.object()
@@ -90,9 +93,9 @@ int Function _GetAppearance(Actor npc)
 EndFunction
 
 ; Executes the memoized Lua function that makes all calculations on one NPC.
-int Function _GetAppearanceMem(Actor npc)
-  return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearanceMem(jobject)")
-EndFunction
+; int Function _GetAppearanceMem(Actor npc)
+;   return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearanceMem(jobject)")
+; EndFunction
 
 ; Tests if unique characters should change appearance.
 ;
@@ -117,10 +120,13 @@ EndFunction
 
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
+  float t = Utility.GetCurrentRealTime()
+
   ; Optimization step
   bool processed = NiOverride.GetBodyMorph(npc, "MaxickProcessed", "Maxick")
   If (processed)
     md.LogVerb("OPTIMIZATION. " + DM_Utils.GetActorName(npc) +" still retains an appearance setting. Skipping.")
+    md.LogOptim("ChangeAppearance, optimized by Morph Key: " + (Utility.GetCurrentRealTime() - t) + " seconds")
     return
   EndIf
 
@@ -129,6 +135,7 @@ Function ChangeAppearance(Actor npc)
   If memo
     md.LogVerb("OPTIMIZATION. An appearance for " + DM_Utils.GetActorName(npc) + " was already calculated. Will use it instead of calculating it again.")
     JMap.setStr(memo, "msg", "")    ; Calculated log is not needed anymore. Discard
+    md.LogOptim("ChangeAppearance, optimized by memoization: " + (Utility.GetCurrentRealTime() - t) + " seconds")
   EndIf
 
   ForceChangeAppearance(npc, memo)
@@ -138,8 +145,12 @@ EndFunction
 Function ForceChangeAppearance(Actor npc, int appearance = 0)
   bool saveAppearance = false
   If !appearance
+    float t = Utility.GetCurrentRealTime()
+
     appearance = _GetAppearance(npc)
     saveAppearance = true   ; A new appearance was calculated. Save it.
+
+    md.LogOptim("Lua appearance calculation: " + (Utility.GetCurrentRealTime() - t) + " seconds")
   EndIf
 
   looksHandler.ChangeAppearance(npc, appearance)

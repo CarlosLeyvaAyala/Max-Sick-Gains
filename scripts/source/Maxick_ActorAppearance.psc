@@ -20,12 +20,41 @@ EndFunction
 ;>===                      CORE                      ===<;
 ;>========================================================
 
+; Changes an actor appearance based on the `data` collected from them.
+; `data` is a handle to a `JMap` object.
+Function ChangeAppearance(Actor aAct, int data, bool useNiOverride = false, bool skipMuscleDef = false)
+  NiOverride.SetBodyMorph(aAct, "MaxickProcessed", "Maxick", 1) ; Mark an invalid actor as processed
+
+  md.Log(JMap.getStr(data, "msg"))
+  If !JMap.getInt(data, "shouldProcess")
+    return
+  EndIf
+
+  _ApplyBodyslide(aAct, JMap.getObj(data, "bodySlide"), JMap.getFlt(data, "weight"))
+  If skipMuscleDef
+    return
+  EndIf
+  If useNiOverride
+    _ApplyMuscleDefNiOverride(aAct, data)
+  Else
+    _ApplyMuscleDef(aAct, data)
+  EndIf
+EndFunction
+
+; Changes the head size of an `Actor`.
+Function ChangeHeadSize(Actor aAct, float size)
+  string headNode = "NPC Head [Head]"
+  If NetImmerse.HasNode(aAct, headNode, False)
+    NetImmerse.SetNodeScale(aAct, headNode, size, False)
+    UpdateNiNode(aAct)
+  EndIf
+EndFunction
+
 ; Tries to apply a Bodyslide preset to an actor based on collected `data`.
 Function _ApplyBodyslide(Actor aAct, int bodyslide, float weight)
   If weight >= 0 ; Change shape if not banned from doing so
     float t = Utility.GetCurrentRealTime()
     NiOverride.ClearMorphs(aAct)
-    ; LuaDebugTable(bodyslide, GetActorName(aAct))
 
     string slider = JMap.nextKey(bodyslide)
     While slider != ""
@@ -35,9 +64,14 @@ Function _ApplyBodyslide(Actor aAct, int bodyslide, float weight)
 
     NiOverride.UpdateModelWeight(aAct)
     NiOverride.SetBodyMorph(aAct, "MaxickProcessed", "Maxick", 1) ; Need to mark the actor again due to clearing bodyslides
-    md.LogVerb("Bodyslide applied in " + (Utility.GetCurrentRealTime() - t) + " seconds")
+
+    md.LogOptim("Bodyslide applied in " + (Utility.GetCurrentRealTime() - t) + " seconds")
   EndIf
 EndFunction
+
+;>========================================================
+;>===               MUSCLE DEFINITION                ===<;
+;>========================================================
 
 ; Returns a `TextureSet` that contains a normal map corresponding to some calculated data.
 TextureSet Function _GetNormalTexture(FormList list, int racialGroup, int muscleDefType, int muscleDef)
@@ -58,19 +92,23 @@ Function _ApplyMuscleDef(Actor aAct, int data)
     return
   EndIf
 
-  FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
-  _SetSkin(aAct, defType.GetAt(muscleDef) as Armor)
+  _SetSkin(aAct, _GetSkin(muscleDefType, muscleDef))
 EndFunction
 
-; Returns the file path for the normal texture set that will be applied to an actor
-string Function _NormalTexturePath(Actor aAct, int racialGroup, int muscleDefType, int muscleDef)
+; Returns the normal textureset that will be applied to an actor.
+TextureSet Function _NormalTextureSet(Actor aAct, int racialGroup, int muscleDefType, int muscleDef)
   FormList musclesList
   If IsFemale(aAct)
     musclesList = FemNormal_Textures
   Else
     musclesList = ManNormal_Textures
   EndIf
-  return _GetNormalTexture(musclesList, racialGroup, muscleDefType, muscleDef).GetNthTexturePath(1)
+  return _GetNormalTexture(musclesList, racialGroup, muscleDefType, muscleDef)
+EndFunction
+
+; Returns the file path for the normal texture set that will be applied to an actor.
+string Function _NormalTexturePath(Actor aAct, int racialGroup, int muscleDefType, int muscleDef)
+  return _NormalTextureSet(aAct, racialGroup, muscleDefType, muscleDef).GetNthTexturePath(1)
 EndFunction
 
 ; Tries to apply muscle definition to an actor based on collected `data`.
@@ -80,39 +118,53 @@ Function _ApplyMuscleDefNiOverride(Actor aAct, int data)
   int muscleDefType = JMap.getInt(data, "muscleDefType", -1)
   int muscleDef = JMap.getInt(data, "muscleDef", -1)
   int racialGroup = JMap.getInt(data, "racialGroup", -1)
-  md.LogVerb(DM_Utils.GetActorName(aAct) +": applying muscle definition. " + muscleDefType + " " + muscleDef + " " + racialGroup)
+  ; md.LogVerb(DM_Utils.GetActorName(aAct) +": applying muscle definition. " + muscleDefType + " " + muscleDef + " " + racialGroup)
   If muscleDefType < 0 || muscleDef < 1 || racialGroup < 0
     return ; Banned from changing muscle definition
   EndIf
+  bool isFem = IsFemale(aAct)
 
   string normalMapPath = _NormalTexturePath(aAct, racialGroup, muscleDefType, muscleDef)
+  TextureSet normalMap = _NormalTextureSet(aAct, racialGroup, muscleDefType, muscleDef)
   md.LogVerb("Normal map to apply: " + normalMapPath)
+  ; int equipment = _EquipPizzaHandsFix(aAct, muscleDefType, muscleDefType)
 
-  _EquipPizzaHandsFix(aAct)
-  NiOverride.AddSkinOverrideString(aAct, true, false, 0x4, 9, 1, normalMapPath, true)
-  aAct.RemoveItem(PizzaHandsFix, 1, true)
+  NiOverride.RemoveAllReferenceSkinOverrides(aAct)
+  ; NiOverride.AddSkinOverrideString(aAct, true, false, 0x4, 9, 1, normalMapPath, true)
+  NiOverride.AddSkinOverrideTextureSet(aAct, isFem, false, 0x4, 6, -1, normalMap, true)
+  NiOverride.AddSkinOverrideTextureSet(aAct, isFem, true, 0x4, 6, -1, normalMap, true)
+  ; _UnequipPizzaHandsFix(aAct, equipment)
 EndFunction
 
-; Tries to apply muscle definition to an actor based on collected `data`.
-; Function _ApplyMuscleDef(Actor aAct, int data)
-;   string muscleDef = JMap.getStr(data, "muscleDef")
-;   If muscleDef == ""
-;     return ; Banned from changing muscle definition
-;   EndIf
-
-;   _EquipPizzaHandsFix(aAct)
-;   NiOverride.AddSkinOverrideString(aAct, true, false, 0x4, 9, 1, muscleDef, true)
-;   aAct.RemoveItem(PizzaHandsFix, 1, true)
-; EndFunction
+; Skin overrides appear to work on nodes. If at the time of setting an override the player has
+; an armor with a different node than the naked skin one, at game reloading muscle definition
+; will be lost until unequiping a cuirass.
+; This function applies overrides to all known nodes to prevent this.
+Function _ApplyOverrideOnKnownNodes(Actor aAct, bool isFem, int index, string texturePath)
+  string node
+  NiOverride.AddNodeOverrideString(aAct, isFem, "CBBE", 9, index, texturePath, true)
+  NiOverride.AddNodeOverrideString(aAct, isFem, "3BA", 9, index, texturePath, true)
+  NiOverride.AddNodeOverrideString(aAct, isFem, "3BB", 9, index, texturePath, true)
+  ; NiOverride.AddNodeOverrideString(aAct, isFem, node, 9, index, texturePath, true)
+EndFunction
 
 ; Equips the naked gauntlets to solve the dreaded _"Pizza Hands Syndrome"_ if necessary.
 ; This only equips the gauntlets if the actor had none equiped, since **that bug only happens
 ; when setting skin overrides while being TOTALLY naked**.
-Function _EquipPizzaHandsFix(Actor aAct)
+int Function _EquipPizzaHandsFix(Actor aAct, int muscleDefType, int muscleDef)
+  ; int result = GetEquippedArmor(aAct)
+  ; aAct.EquipItem(_GetSkin(muscleDefType, muscleDefType), false, true)
   If !(aAct.GetWornForm(0x8) as Armor)
     aAct.EquipItem(PizzaHandsFix, false, true)
-    Utility.Wait(0.05)   ; Helps avoiding NiOverride to act before the hand armor is set on the actor.
+    Utility.Wait(0.5)   ; Helps avoiding NiOverride to act before the hand armor is set on the actor.
   EndIf
+  return 0
+  ; return result
+EndFunction
+
+int Function _UnequipPizzaHandsFix(Actor aAct, int equipment)
+  aAct.RemoveItem(PizzaHandsFix, 1, true)
+  ; EquipByArray(aAct, equipment)
 EndFunction
 
 Function _SetSkin(Actor aAct, Armor skin)
@@ -121,31 +173,10 @@ Function _SetSkin(Actor aAct, Armor skin)
   UpdateNiNode(aAct)
 EndFunction
 
-; Changes an actor appearance based on the `data` collected from them.
-; `data` is a handle to a `JMap` object.
-Function ChangeAppearance(Actor aAct, int data, bool useNiOverride = false)
-  NiOverride.SetBodyMorph(aAct, "MaxickProcessed", "Maxick", 1) ; Mark an invalid actor as processed
-
-  md.Log(JMap.getStr(data, "msg"))
-  If !JMap.getInt(data, "shouldProcess")
-    return
-  EndIf
-
-  _ApplyBodyslide(aAct, JMap.getObj(data, "bodySlide"), JMap.getFlt(data, "weight"))
-  If useNiOverride
-    _ApplyMuscleDefNiOverride(aAct, data)
-  Else
-    _ApplyMuscleDef(aAct, data)
-  EndIf
-EndFunction
-
-; Changes the head size of an `Actor`.
-Function ChangeHeadSize(Actor aAct, float size)
-  string headNode = "NPC Head [Head]"
-  If NetImmerse.HasNode(aAct, headNode, False)
-    NetImmerse.SetNodeScale(aAct, headNode, size, False)
-    UpdateNiNode(aAct)
-  EndIf
+; Gets the armor that will be used as a skin.
+Armor Function _GetSkin(int muscleDefType, int muscleDef)
+  FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
+  return defType.GetAt(muscleDef) as Armor
 EndFunction
 
 ;>========================================================

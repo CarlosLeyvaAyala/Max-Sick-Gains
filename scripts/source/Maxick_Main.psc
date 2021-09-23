@@ -26,12 +26,12 @@ Event OnInit()
   Utility.Wait(10)    ; Wait some time because too many scripts may fuck this up
   OnGameReload()
   PcHandler.ChangeAppearance()
-  player.AddSpell(ChangeCellSpell)
+  ; player.AddSpell(ChangeCellSpell)
 EndEvent
 
-Event OnUpdate()
-  _AppearanceByPolling()
-EndEvent
+; Event OnUpdate()
+;   _AppearanceByPolling()
+; EndEvent
 
 ; These functions are called sequentially and not hooked as callbacks because we want to
 ; make sure these settings are initializated in this precise order.
@@ -44,12 +44,12 @@ Function OnGameReload()
   NpcHandler.OnGameReload()
   widget.OnGameReload()
   _TestingModeOperations()
-  _AppearanceByPolling()
+  ; _AppearanceByPolling()
 EndFunction
 
 ; Main NPC processing function.
 Function OnCellLoad()
-  _ChangeNPCsInCell(false)
+  ; _ChangeNPCsInCell(false)
 EndFunction
 
 Function _ChangeNPCsInCell(bool forceAppearance)
@@ -82,40 +82,42 @@ Function _ChangeNPCsInCell(bool forceAppearance)
     EndWhile
   EndIf
 
-  md.LogVerb("Changed NPCs in cell in " + (Utility.GetCurrentRealTime() - t) + " seconds")
+  md.LogOptim("Changed NPCs in cell in " + (Utility.GetCurrentRealTime() - t) + " seconds")
   GoToState("")
 EndFunction
 
 ; Sets an appearance to NPCs really close to player. Used for pesky NPCs that simply refuse to change by normal means.
 ;
 ; See [Skyrim measure units](https://www.creationkit.com/index.php?title=Unit).
-Function _AppearanceByPolling()
-  GoToState("CellLoading")
-  float t = Utility.GetCurrentRealTime()
+; Function _AppearanceByPolling()
+;   UnregisterForUpdate()
+;   return
+;   GoToState("CellLoading")
+;   float t = Utility.GetCurrentRealTime()
 
-  int kNPC = 43 ; https://www.creationkit.com/index.php?title=GetType_-_Form
-  Cell kCell = player.GetParentCell()
-  Int n = kCell.GetNumRefs(kNPC)
-  Actor npc = None
-  md.SetLuaLoggingLvl()
-  While n
-    n -= 1
-    npc = kCell.GetNthRef(n, kNPC) as Actor
-    If !npc.IsDisabled() && (npc != Player) && (npc.GetDistance(player) < 1024)
-      NpcHandler.ChangeAppearance(npc)
-    EndIf
-  EndWhile
+;   int kNPC = 43 ; https://www.creationkit.com/index.php?title=GetType_-_Form
+;   Cell kCell = player.GetParentCell()
+;   Int n = kCell.GetNumRefs(kNPC)
+;   Actor npc = None
+;   md.SetLuaLoggingLvl()
+;   While n
+;     n -= 1
+;     npc = kCell.GetNthRef(n, kNPC) as Actor
+;     If !npc.IsDisabled() && (npc != Player) && (npc.GetDistance(player) < 1024)
+;       NpcHandler.ChangeAppearance(npc)
+;     EndIf
+;   EndWhile
 
-  md.LogVerb("Changed NPCs around player in " + (Utility.GetCurrentRealTime() - t) + " seconds")
-  RegisterForSingleUpdate(10)
-  GoToState("")
-EndFunction
+;   md.LogOptim("Changed NPCs around player in " + (Utility.GetCurrentRealTime() - t) + " seconds")
+;   RegisterForSingleUpdate(10)
+;   GoToState("")
+; EndFunction
 
-State CellLoading
-  Function _AppearanceByPolling()
-    RegisterForSingleUpdate(10)
-  EndFunction
-EndState
+; State CellLoading
+;   Function _AppearanceByPolling()
+;     RegisterForSingleUpdate(10)
+;   EndFunction
+; EndState
 
 ; Forces to set an appearance to surrounding NPCs.
 ; This function bypasses optimizations.
@@ -140,8 +142,9 @@ EndFunction
 
 ; Registers events needed for this mod to work.
 Function _RegisterEvents()
-  RegisterForModEvent(ev.CELL_CHANGE, "OnCellChange")
+  ; RegisterForModEvent(ev.CELL_CHANGE, "OnCellChange")
   ; PO3_Events_Form.RegisterForCellFullyLoaded(self)
+  PO3_Events_Form.UnregisterForCellFullyLoaded(self)
   RegisterForSleep()
   _RegisterForSex()
 EndFunction
@@ -149,14 +152,27 @@ EndFunction
 Cell lastLoadedCell = None
 
 ; Event OnCellFullyLoaded(Cell akCell)
-  ; If lastLoadedCell == akCell
-  ;   return
-  ; EndIf
-  ; lastLoadedCell = akCell
-  ; md.Log("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| " + akCell)
-  ; md.LogVerb("Main script got an OnCellChange event. Cell name: "  + akCell)
-  ; OnCellLoad()
+;   md.LogVerb("Main script got an OnCellFullyLoaded event. Cell name: "  + akCell)
+;   ; _ChangeNPCsInCellParallel(akCell)
 ; endEvent
+
+; Function _ChangeNPCsInCellParallel(Cell aCell)
+;   float t = Utility.GetCurrentRealTime()
+
+;   int kNPC = 43 ; https://www.creationkit.com/index.php?title=GetType_-_Form
+;   Int n = aCell.GetNumRefs(kNPC)
+;   Actor npc = None
+;   md.SetLuaLoggingLvl()
+;   While n
+;     n -= 1
+;     npc = aCell.GetNthRef(n, kNPC) as Actor
+;     If !npc.IsDisabled() && (npc != Player)
+;       NpcHandler.ChangeAppearance(npc)
+;     EndIf
+;   EndWhile
+
+;   md.LogOptim("Changed NPCs in cell in " + (Utility.GetCurrentRealTime() - t) + " seconds")
+; EndFunction
 
 ; Captures when player is having sex.
 Function _RegisterForSex()
@@ -171,6 +187,7 @@ EndFunction
 
 ; Apply settings to NPCs when encountering them
 Event OnCellChange(string _, string __, float ___, form ____)
+  return
   Cell newCell = player.GetParentCell()
   If lastLoadedCell == newCell
     return
@@ -185,11 +202,6 @@ State CellLoading
   Event OnCellChange(string _, string __, float ___, form ____)
     md.LogVerb("Main script got an OnCellChange event, but it's still working on changing NPCs. Ignore.")
   EndEvent
-
-  ; Event OnCellFullyLoaded(Cell akCell)
-  ;   ; md.Log("||||||||||||||||||| " + player.GetParentCell() + "||||||||||||||||||| ")
-  ;   ; md.LogVerb("Main script got an OnCellChange event, but it's still working on changing NPCs. Ignore.")
-  ; endEvent
 EndState
 
 ; OStim integration.

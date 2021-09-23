@@ -49,8 +49,9 @@ As a player, you need these mods and all their requirements to make it work.
 - [iWant Widgets][]
 - [JContainers SE][jcontainers-se]
 - [MCM Helper][]
-- [Papyrus Util][]
 - NiOverride ([Racemenu][])
+- [Papyrus Util][]
+- [SPID][]
 - Some Bodyslide presets
 
 ## Integrations
@@ -141,3 +142,4 @@ https://badge.fury.io/hooks/github
 [vscode-papyrus]: https://marketplace.visualstudio.com/items?itemname=joelday.papyrus-lang-vscode
 [zerobrane-studio]: https://studio.zerobrane.com/
 [iWant Widgets]: https://www.nexusmods.com/skyrimspecialedition/mods/36457
+[SPID]: https://www.nexusmods.com/skyrimspecialedition/mods/36869
