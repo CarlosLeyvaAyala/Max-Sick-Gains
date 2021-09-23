@@ -79,7 +79,7 @@ EndFunction
 Function OnGameReload()
   _MayEnterTestingMode()
   RegisterEvents()
-  ChangeAppearance()
+  ChangeAppearance(true)
 EndFunction
 
 ; Enters testing mode if needed.
@@ -490,7 +490,7 @@ Function OnTransformation()
   If _IsTransformed()
     return
   EndIf
-  ChangeAppearance()
+  ChangeAppearance(true)
 EndFunction
 
 bool Function _IsTransformed()
@@ -500,7 +500,7 @@ bool Function _IsTransformed()
 EndFunction
 
 ; Changes player appearance.
-Function ChangeAppearance()
+Function ChangeAppearance(bool skipBody = false)
   If _IsTransformed()
     md.LogInfo("Can't change appearance because player is transformed.")
     return
@@ -508,9 +508,13 @@ Function ChangeAppearance()
 
   md.LogInfo("Player is changing appearance.")
   int appearance = _GetAppearance()
-  looksHandler.ChangeAppearance(player, appearance)
+
+  If (!skipBody)
+    looksHandler.ChangeAppearance(player, appearance, true)
+  EndIf
+
   ; Make head size obviously wrong when getting default values to help catch bugs.
-  ; FIXME: Set to a normal value once I know this to be stable
+  ; FIXME: Set to a reasonable value once I know this to be stable
   looksHandler.ChangeHeadSize(player, JMap.getFlt(appearance, "headSize", 2.2))
 EndFunction
 

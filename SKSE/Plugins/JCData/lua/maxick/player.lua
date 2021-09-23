@@ -130,12 +130,13 @@ local function _MDefMcmBanned() ml.LogCrit("MCM: muscle definition changing bann
 ---@return integer muscleDef
 ---@return MuscleDefType muscleDefType
 ---@param isFem SkyrimBool
----@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
+---@return string normalMapPath Path for the normal map to be set.
 local function _ValidMuscleDef(playerStage, gains, raceEDID, isFem)
   local stage = _Stage(playerStage)
-  local muscleDef = l.round(sl.WeightBasedAdjust(gains, stage.muscleDefLo, stage.muscleDefHi))
+  local muscleDef = sl.AdjustMuscleDef(gains, stage.muscleDefLo, stage.muscleDefHi)
   local muscleDefType = _Fitstage(playerStage).muscleDefType
-  return ml.GetNormalMapPath(muscleDef, muscleDefType, r.RacialGroup(raceEDID), isFem)
+  return muscleDef, muscleDefType, r.RacialGroup(raceEDID)
+  -- return ml.GetNormalMapPath(muscleDef, muscleDefType, r.RacialGroup(raceEDID), isFem)
 end
 
 ---Returns the muscle definition the player should have.
@@ -148,8 +149,8 @@ end
 ---@return MuscleDefType|nil muscleDefType Muscle definition type.
 ---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
 local function _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem)
-  if not l.SkyrimBool(applyMuscleDef) then return "" -- _MDefMcmBanned()
-  elseif ml.MuscleDefRaceBanned(raceEDID) then return "" -- _MDefBanned()
+  if not l.SkyrimBool(applyMuscleDef) then return _MDefMcmBanned()
+  elseif ml.MuscleDefRaceBanned(raceEDID) then return  _MDefBanned()
   else return _ValidMuscleDef(playerStage, gains, raceEDID, isFem)
   end
 end
@@ -353,17 +354,18 @@ player.CapTraining = function (x) return l.forceRange(0, player.maxTraining)(x) 
 function player.ChangeAppearance(raceEDID, isFem, playerStage, gains, applyMuscleDef)
   ml.EnableSkyrimLogging()
   local bs = _GetBodyslide(isFem, playerStage, gains)
-  -- local md, mdt, rg = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem)
+  local md, mdt, rg = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem)
   return {
     --- Irrelevant, but sent explicitly for clarity.
     weight = 100,
     --- Fully calculated appearance.
     bodySlide = bs,
     --- Formlist index of the racial group for the actor. Used to set muscle definition by texture.
-    -- racialGroup = rg,
+    racialGroup = rg,
     --- Muscle definition level.
-    muscleDef = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem),-- md or -1,
-    -- muscleDefType = mdt or -1,
+    muscleDef = md or -1,--_GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem),
+    muscleDefType = mdt or -1,
+    ---Head size corresponding to Player Stage
     headSize = player.GetHeadSize(playerStage, gains),
     --- Description of all operations that were done.
     msg = ml.GetLog(),
@@ -450,10 +452,5 @@ function player.Polling(now, lastPoll, training, gains, stage, inCatabolism)
 end
 
 --#endregion
-
--- print(serpent.block(player.Polling(1, 0, 10, 0, 2, 1)))
--- print(serpent.block(player.ChangeAppearance(samplePlayer)))
--- print(serpent.block(player.OnSleep(10, 12, 0, 1)))
--- print(serpent.block(player.CatabolicWaste(3, 6)))
 
 return player

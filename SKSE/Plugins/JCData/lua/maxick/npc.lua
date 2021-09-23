@@ -42,12 +42,12 @@ end
 ---@param fitStage integer
 ---@param muscleDef MuscleDef
 ---@param raceEDID string
----@return MuscleDef string
+---@return string normalMapPath Path for the normal map to be set.
 local function _SolveMuscleDef(fitStage, muscleDef, raceEDID, isFem)
   if not muscleDef or muscleDef < 0 then return _WontChangeMuscleDef() end
   if ml.MuscleDefRaceBanned(raceEDID) then return _WontChangeMuscleDef() end
-  -- return muscleDef, db.fitStages[fitStage].muscleDefType
-  return ml.GetNormalMapPath(muscleDef, db.fitStages[fitStage].muscleDefType, r.RacialGroup(raceEDID), isFem)
+  return muscleDef, db.fitStages[fitStage].muscleDefType
+  -- return ml.GetNormalMapPath(muscleDef, db.fitStages[fitStage].muscleDefType, r.RacialGroup(raceEDID), isFem)
 end
 
 --- Sets BodySlide sliders to a known `Actor` and determines which kind of muscle definition
@@ -67,8 +67,8 @@ local function _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, race
   if not l.SkyrimBool(shouldProcess) then return {}, nil, nil, 0 end
 
   local bs = _SolveBodyslide(fitStage, weight, isFem)
-  local md = _SolveMuscleDef(fitStage, muscleDef, raceEDID, isFem)
-  return bs, md, 1
+  local md, mt = _SolveMuscleDef(fitStage, muscleDef, raceEDID, isFem)
+  return bs, md, mt, 1
 end
 
 ---`Actor` identity has bees solved. Process it.
@@ -82,6 +82,7 @@ local function _IsKnown(values, npcWeight)
   local fitStage = values.fitStage
   local weight = l.IfThen(values.weight and values.weight == 101, npcWeight, values.weight)
   local muscleDef = l.IfThen(values.muscleDef and (values.muscleDef >= 0), values.muscleDef, nil)
+  -- muscleDef = l.IfThen(muscleDef == 0, sl.AdjustMuscleDef(weight), muscleDef) -- had to be done now that NiOverride is used to set muscle definition
   local shouldProcess = 1
   return fitStage, weight, muscleDef, shouldProcess
 end
@@ -253,7 +254,7 @@ local function _SetDefaultFitnessStage(isFem, mcm, weight)
   local values = {
     fitStage = 1,
     weight = weight,
-    muscleDef = l.round(sl.WeightBasedAdjust(weight, 1, 6)),
+    muscleDef = sl.AdjustMuscleDef(weight),
     muscleDefType = db.fitStages[1].muscleDefType
   }
   values = _McmBan(_McmGenericBsBySex(isFem, mcm), _McmGenericMusDefBySex(isFem, mcm), values)
@@ -274,7 +275,7 @@ local function _SetClassArchetypeData(archId, isFem, mcm, weight)
   local values = {
     fitStage = arch.fitStage,
     weight = sl.WeightBasedAdjust(weight, arch.bsLo, arch.bsHi),
-    muscleDef = l.round(sl.WeightBasedAdjust(weight, arch.muscleDefLo, arch.muscleDefHi))
+    muscleDef = sl.AdjustMuscleDef(weight, arch.muscleDefLo, arch.muscleDefHi)
   }
   values = _McmBan(_McmGenericBsBySex(isFem, mcm), _McmGenericMusDefBySex(isFem, mcm), values)
   return _IsKnown(values, weight)
@@ -395,7 +396,7 @@ function npc.ChangeAppearance(data)
 
   local fitStage, weight, muscleDef, shouldProcess, racialGroup =
   _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm)
-  local bs, md, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
+  local bs, md, mdt, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
   local currLog = ml.GetLog()
   local fullLog = l.IfThen(currLog ~= "", l.fmt("NPC found: '%s'. ", data.name) .. currLog, currLog)
 
@@ -407,10 +408,10 @@ function npc.ChangeAppearance(data)
     --- Formlist index of the racial group for the actor. Used to set muscle definition by texture.
     racialGroup = racialGroup,
     --- Muscle definition level.
-    muscleDef = md,
-    -- muscleDefType = mdt or -1,
+    muscleDef = md or -1,
+    muscleDefType = mdt or -1,
     --- Description of all operations that were done.
-    msg = fullLog,--ml.GetLog(),
+    msg = fullLog,
     --- Should it be processed by `Maxick_ActorAppearance.ChangeAppearance()`?
     shouldProcess = process or 0,
   }

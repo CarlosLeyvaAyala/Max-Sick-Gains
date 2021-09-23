@@ -28,6 +28,17 @@ function sliderCalc.WeightBasedAdjust(weight, loBound, hiBound)
   return l.linCurve({x=0, y=loBound}, {x=100, y=hiBound})(weight)
 end
 
+---Adjusts the muscle definition to current weight.
+---@param weight number
+---@param muscleDefLo integer
+---@param muscleDefHi integer
+---@return integer
+function sliderCalc.AdjustMuscleDef(weight, muscleDefLo, muscleDefHi)
+  muscleDefLo = muscleDefLo or 1
+  muscleDefHi = muscleDefHi or 6
+  return math.floor( sliderCalc.WeightBasedAdjust(weight, muscleDefLo, muscleDefHi) )
+end
+
 -- ;>========================================================
 -- ;>===           SLIDER CALCULATION METHODS           ===<;
 -- ;>========================================================

@@ -63,6 +63,9 @@ local meh4 = {
 local meh5 = {
   mcm = mcm.all, name = "",formId = 0, weight = 100, class = "OrcWarrior", raceEDID = "OrcRace", isFem = 1
 }
+local hulda = {
+  mcm = mcm.all, name = "hulda", formId = 0x13ba3, weight = 19, class = "pawnbroker", raceEDID = "NordRace", isFem = 1
+}
 
 function test_npc.Run()
   serpent.print(npc.ChangeAppearance(Lydia))
@@ -73,6 +76,7 @@ function test_npc.Run()
   Lydia.isFem = 0
   serpent.print(npc.ChangeAppearance(Lydia))
   serpent.print(npc.ChangeAppearance(meh5))
+  serpent.print(npc.ChangeAppearance(hulda))
 end
 
 return test_npc

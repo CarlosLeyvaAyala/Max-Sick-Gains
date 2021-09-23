@@ -30,8 +30,6 @@ Event OnInit()
 EndEvent
 
 Event OnUpdate()
-  md.LogVerb("//////////////////////////////////////////////////")
-  md.LogVerb("polling")
   _AppearanceByPolling()
 EndEvent
 
@@ -109,13 +107,13 @@ Function _AppearanceByPolling()
   EndWhile
 
   md.LogVerb("Changed NPCs around player in " + (Utility.GetCurrentRealTime() - t) + " seconds")
-  RegisterForSingleUpdate(8)
+  RegisterForSingleUpdate(10)
   GoToState("")
 EndFunction
 
 State CellLoading
   Function _AppearanceByPolling()
-    RegisterForSingleUpdate(8)
+    RegisterForSingleUpdate(10)
   EndFunction
 EndState
 

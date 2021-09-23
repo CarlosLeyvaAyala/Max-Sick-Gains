@@ -39,17 +39,71 @@ Function _ApplyBodyslide(Actor aAct, int bodyslide, float weight)
   EndIf
 EndFunction
 
+; Returns a `TextureSet` that contains a normal map corresponding to some calculated data.
+TextureSet Function _GetNormalTexture(FormList list, int racialGroup, int muscleDefType, int muscleDef)
+  FormList rg = list.GetAt(racialGroup) as FormList
+  FormList mt = rg.GetAt(muscleDefType) as FormList
+  return mt.GetAt(muscleDef - 1) as TextureSet
+EndFunction
+
 ; Tries to apply muscle definition to an actor based on collected `data`.
-Function ApplyMuscleDef(Actor aAct, int data)
-  string muscleDef = JMap.getStr(data, "muscleDef")
-  If muscleDef == ""
+; See this [technical document](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md) to understand this method.
+;
+; This method is reliable, but needs a lot of fixes for players. Used for NPCs
+; because NiOverride is unreliable on them.
+Function _ApplyMuscleDef(Actor aAct, int data)
+  int muscleDefType = JMap.getInt(data, "muscleDefType", -1)
+  int muscleDef = JMap.getInt(data, "muscleDef", -1)
+  If muscleDefType < 0 || muscleDef < 0  ; Not banned from changing muscle definition
+    return
+  EndIf
+
+  FormList defType = NakedBodiesList.GetAt(muscleDefType) as FormList
+  _SetSkin(aAct, defType.GetAt(muscleDef) as Armor)
+EndFunction
+
+; Returns the file path for the normal texture set that will be applied to an actor
+string Function _NormalTexturePath(Actor aAct, int racialGroup, int muscleDefType, int muscleDef)
+  FormList musclesList
+  If IsFemale(aAct)
+    musclesList = FemNormal_Textures
+  Else
+    musclesList = ManNormal_Textures
+  EndIf
+  return _GetNormalTexture(musclesList, racialGroup, muscleDefType, muscleDef).GetNthTexturePath(1)
+EndFunction
+
+; Tries to apply muscle definition to an actor based on collected `data`.
+; This ensures maximum compatibility with werewolf/vampire lord/lich/etc. transformations
+; and custom races, but NPCs tend to "forget" which normal texture they had assigned.
+Function _ApplyMuscleDefNiOverride(Actor aAct, int data)
+  int muscleDefType = JMap.getInt(data, "muscleDefType", -1)
+  int muscleDef = JMap.getInt(data, "muscleDef", -1)
+  int racialGroup = JMap.getInt(data, "racialGroup", -1)
+  md.LogVerb(DM_Utils.GetActorName(aAct) +": applying muscle definition. " + muscleDefType + " " + muscleDef + " " + racialGroup)
+  If muscleDefType < 0 || muscleDef < 1 || racialGroup < 0
     return ; Banned from changing muscle definition
   EndIf
 
+  string normalMapPath = _NormalTexturePath(aAct, racialGroup, muscleDefType, muscleDef)
+  md.LogVerb("Normal map to apply: " + normalMapPath)
+
   _EquipPizzaHandsFix(aAct)
-  NiOverride.AddSkinOverrideString(aAct, true, false, 0x4, 9, 1, muscleDef, true)
+  NiOverride.AddSkinOverrideString(aAct, true, false, 0x4, 9, 1, normalMapPath, true)
   aAct.RemoveItem(PizzaHandsFix, 1, true)
 EndFunction
+
+; Tries to apply muscle definition to an actor based on collected `data`.
+; Function _ApplyMuscleDef(Actor aAct, int data)
+;   string muscleDef = JMap.getStr(data, "muscleDef")
+;   If muscleDef == ""
+;     return ; Banned from changing muscle definition
+;   EndIf
+
+;   _EquipPizzaHandsFix(aAct)
+;   NiOverride.AddSkinOverrideString(aAct, true, false, 0x4, 9, 1, muscleDef, true)
+;   aAct.RemoveItem(PizzaHandsFix, 1, true)
+; EndFunction
 
 ; Equips the naked gauntlets to solve the dreaded _"Pizza Hands Syndrome"_ if necessary.
 ; This only equips the gauntlets if the actor had none equiped, since **that bug only happens
@@ -61,17 +115,28 @@ Function _EquipPizzaHandsFix(Actor aAct)
   EndIf
 EndFunction
 
+Function _SetSkin(Actor aAct, Armor skin)
+  ActorBase b = aAct.GetBaseObject() as ActorBase
+  b.SetSkin(skin)
+  UpdateNiNode(aAct)
+EndFunction
+
 ; Changes an actor appearance based on the `data` collected from them.
 ; `data` is a handle to a `JMap` object.
-Function ChangeAppearance(Actor aAct, int data)
+Function ChangeAppearance(Actor aAct, int data, bool useNiOverride = false)
   NiOverride.SetBodyMorph(aAct, "MaxickProcessed", "Maxick", 1) ; Mark an invalid actor as processed
 
   md.Log(JMap.getStr(data, "msg"))
   If !JMap.getInt(data, "shouldProcess")
     return
   EndIf
+
   _ApplyBodyslide(aAct, JMap.getObj(data, "bodySlide"), JMap.getFlt(data, "weight"))
-  ApplyMuscleDef(aAct, data)
+  If useNiOverride
+    _ApplyMuscleDefNiOverride(aAct, data)
+  Else
+    _ApplyMuscleDef(aAct, data)
+  EndIf
 EndFunction
 
 ; Changes the head size of an `Actor`.

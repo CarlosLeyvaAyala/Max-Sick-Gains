@@ -12,3 +12,7 @@ local serpent = require("__serpent")
 
 require("__test_npc").Run()
 serpent.print(player.ChangeAppearance("Argonian", 0, 1, 50, 1))
+-- for i = 0, 100, 10 do
+--   local d = l.linCurve({x=0, y=1}, {x=100, y=6})(i)
+--   print(i, d, math.floor(d), l.round(d))
+-- end
