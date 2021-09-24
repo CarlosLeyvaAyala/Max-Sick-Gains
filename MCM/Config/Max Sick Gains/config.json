@@ -141,6 +141,24 @@
           }
         },
         {
+          "id": "bClearAllOverrides:Other",
+          "text": "Avoid bloat from all mods",
+          "type": "toggle",
+          "help": "Experimental method that clears ALL NiOverride data (textures, morphs...) on Actors that were unloaded from game.\nMay delay save game bloat a great deal or may break some mods.\nThis functionality never affects the Player Character.",
+          "valueOptions": {
+            "sourceType": "ModSettingBool"
+          },
+          "action": {
+            "type": "CallFunction",
+            "form": "Max Sick Gains.esp|D76",
+            "scriptName": "Maxick_ActorAppearance",
+            "function": "SetClearAllOverrides",
+            "params": [
+              "{value}"
+            ]
+          }
+        },
+        {
           "position": 1,
           "text": "This space is reserved in the",
           "type": "text"

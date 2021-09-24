@@ -77,6 +77,7 @@ Function _InitFromMcm()
 EndFunction
 
 Function OnGameReload()
+  _InitFromMcm()
   _MayEnterTestingMode()
   RegisterEvents()
   ChangeAppearance(true)

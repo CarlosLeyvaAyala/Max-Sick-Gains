@@ -78,12 +78,22 @@ Form Function GetForm(string aKey, Form default = None) Global
   return JDB.solveForm(_Path(aKey), default)
 EndFunction
 
+; Asociates a float with some form.
+Function FormSaveFlt(Form fKey, string aPath, float value) Global
+  JFormDB.solveFltSetter(fKey, _Path(aPath), value, true)
+EndFunction
+
+; Gets a float from a saved form. Returns `default` if form key or path were not found.
+float Function FormGetFlt(Form fKey, string aPath, float default = 0.0) Global
+  return JFormDB.solveFlt(fKey, _Path(aPath), default)
+EndFunction
+
 ; Asociates a JContainers object to some form.
 Function FormSaveObj(Form fKey, string aPath, int aHandle) Global
   JFormDB.solveObjSetter(fKey, _Path(aPath), aHandle, true)
 EndFunction
 
-; Gets a JContainers object handle. Returns `default` if form key or path were not found.
+; Gets a JContainers object handle for a saved form. Returns `default` if form key or path were not found.
 int Function FormGetObj(Form fKey, string aPath, int default = 0) Global
   return JFormDB.solveObj(fKey, _Path(aPath), default)
 EndFunction
@@ -95,10 +105,28 @@ EndFunction
 
 ; Saves an actor's calculated appearance to memory database.
 Function MemoizeAppearance(Actor aAct, int appearance) Global
-  Maxick_DB.FormSaveObj(Maxick_DB.MemoActor(aAct), "memoized", appearance)
+  FormSaveObj(MemoActor(aAct), "memoized", appearance)
 EndFunction
 
 ; Gets an actor's calculated appearance from memory database.
 int Function GetMemoizedAppearance(Actor aAct) Global
-  return Maxick_DB.FormGetObj(Maxick_DB.MemoActor(aAct), "memoized")
+  return FormGetObj(MemoActor(aAct), "memoized")
+EndFunction
+
+; Marks an `ActorBase` was _"just seen"_.
+; `ActorBases` not seen in some time will be cleared from memoization to save resorces.
+Function JustSeen(Actor aAct) Global
+  FormSaveFlt(MemoActor(aAct), "lastSeen", DM_Utils.Now())
+EndFunction
+
+; Removes from in memory database all actors that haven't been seen for some time
+; (5 ingame days in current implementation).
+; This makes faster searching for memoized data and **maybe** avoids SKSE co-save bloat.
+;
+; This is better used when player is unlikely to change cells; when sleeping, for example.
+Function CleanMemoizationData() Global
+  float now = DM_Utils.Now()
+
+  ; For all values in memoized table:
+  ; clear if dayspan is >= 5
 EndFunction

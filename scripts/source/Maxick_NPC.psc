@@ -122,13 +122,13 @@ EndFunction
 Function ChangeAppearance(Actor npc)
   float t = Utility.GetCurrentRealTime()
 
-  ; Optimization step
-  bool processed = NiOverride.GetBodyMorph(npc, "MaxickProcessed", "Maxick")
-  If (processed)
-    md.LogVerb("OPTIMIZATION. " + DM_Utils.GetActorName(npc) +" still retains an appearance setting. Skipping.")
-    md.LogOptim("ChangeAppearance, optimized by Morph Key: " + (Utility.GetCurrentRealTime() - t) + " seconds")
-    return
-  EndIf
+  ; Optimization step. No longer needed when applying morphs with a spell.
+  ; bool processed = NiOverride.GetBodyMorph(npc, "MaxickProcessed", "Maxick")
+  ; If (processed)
+  ;   md.LogVerb("OPTIMIZATION. " + DM_Utils.GetActorName(npc) +" still retains an appearance setting. Skipping.")
+  ;   md.LogOptim("ChangeAppearance, optimized by Morph Key: " + (Utility.GetCurrentRealTime() - t) + " seconds")
+  ;   return
+  ; EndIf
 
   ; Optimization step
   int memo = Maxick_DB.GetMemoizedAppearance(npc)
@@ -158,9 +158,9 @@ Function ForceChangeAppearance(Actor npc, int appearance = 0)
   ; Memoize data for BaseForm only if it was actually calculated instead of gotten
   ; from memoized data.
   If saveAppearance
-    ; Maxick_DB.FormSaveObj(Maxick_DB.MemoActor(npc), "memoized", appearance)
     Maxick_DB.MemoizeAppearance(npc, appearance)
   EndIf
+  Maxick_DB.JustSeen(npc)
 EndFunction
 
 ;@Hint: Deprecated

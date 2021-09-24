@@ -11,10 +11,32 @@ FormList Property NakedBodiesList Auto
 FormList Property ManNormal_Textures Auto
 FormList Property FemNormal_Textures Auto
 
-; Reserved for possible future use.
+bool _clearAllOverrides
+bool Property clearAllOverrides Hidden
+  {
+    Has the user enabled the experimental method to avoid save game bloat?
+    See `Maxick_ActorAppearanceSpell.Clear()` to know what this is used for.
+  }
+    bool Function Get()
+      return _clearAllOverrides
+    EndFunction
+  EndProperty
+
 Function OnGameReload()
-  ; player = Game.GetPlayer()
+  _InitFromMcm()
 EndFunction
+
+; Initializes data from MCM settings. Used so the player doesn't have to configure this
+; mod each new stealthy archer they create.
+Function _InitFromMcm()
+  SetClearAllOverrides(MCM.GetModSettingBool("Max Sick Gains", "bClearAllOverrides:Other"))
+EndFunction
+
+; This function is also called by MCM Helper when changing this `bClearAllOverrides`.
+Function SetClearAllOverrides(bool value)
+  _clearAllOverrides = value
+EndFunction
+
 
 ;>========================================================
 ;>===                      CORE                      ===<;
@@ -50,11 +72,16 @@ Function ChangeHeadSize(Actor aAct, float size)
   EndIf
 EndFunction
 
+; Clears morphs added by this mod.
+Function ClearMorphs(Actor aAct)
+  NiOverride.ClearBodyMorphKeys(aAct, "Maxick")
+EndFunction
+
 ; Tries to apply a Bodyslide preset to an actor based on collected `data`.
 Function _ApplyBodyslide(Actor aAct, int bodyslide, float weight)
   If weight >= 0 ; Change shape if not banned from doing so
     float t = Utility.GetCurrentRealTime()
-    NiOverride.ClearMorphs(aAct)
+    ClearMorphs(aAct)
 
     string slider = JMap.nextKey(bodyslide)
     While slider != ""
