@@ -486,6 +486,10 @@ EndState
 ;>===                   APPEARANCE                   ===<;
 ;>========================================================
 
+Function EquipPizzaHandsFix(bool wait = true)
+  looksHandler.EquipPizzaHandsFix(player, wait)
+EndFunction
+
 ; Sets the correct skin when player changes into werewolf/vampire lord/etc.
 Function OnTransformation()
   If _IsTransformed()

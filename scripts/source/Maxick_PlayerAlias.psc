@@ -20,17 +20,12 @@ Event OnRaceSwitchComplete()
   player.OnTransformation()
 EndEvent
 
-; Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
-;   if akBaseObject as Armor
-;     md.Log("An armor was equiped on the player. Setting muscle definition.")
-;   endIf
-; endEvent
-
 Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
-  Utility.Wait(0.1)
-  if !(akBaseObject as Armor) || (player.player.GetWornForm(0x8) as Armor)
-    return
-  EndIf
-  md.Log("No gauntlets on the player. Solving the Pizza Hands Syndrome")
-  player.player.EquipItem(PizzaHandsFix, false, true)
+  player.EquipPizzaHandsFix()
+  ; Utility.Wait(0.1)
+  ; if !(akBaseObject as Armor) || (player.player.GetWornForm(0x8) as Armor)
+  ;   return
+  ; EndIf
+  ; md.Log("No gauntlets on the player. Solving the Pizza Hands Syndrome")
+  ; player.player.EquipItem(PizzaHandsFix, false, true)
 endEvent

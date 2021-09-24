@@ -37,6 +37,21 @@ Function SetClearAllOverrides(bool value)
   _clearAllOverrides = value
 EndFunction
 
+; Equips the naked gauntlets to solve the dreaded _"Pizza Hands Syndrome"_ if necessary.
+; This only equips the gauntlets if the actor had none equipped, since **that bug only happens
+; when setting skin overrides while being TOTALLY naked**.
+Function EquipPizzaHandsFix(Actor aAct, bool wait = true)
+  If wait
+    ; Used when unequipping armor, because changing armor will trigger an unequip event and
+    ; instantaneosly reacting to it will make this fight for the newly equipped item.
+    Utility.Wait(0.1)
+  EndIf
+  If !(aAct.GetWornForm(0x8) as Armor)
+    md.Log(DM_Utils.GetActorName(aAct) + ": No gauntlets equipped. Solving the Pizza Hands Syndrome.")
+    aAct.EquipItem(PizzaHandsFix, false, true)
+  EndIf
+EndFunction
+
 
 ;>========================================================
 ;>===                      CORE                      ===<;
@@ -156,7 +171,7 @@ Function _ApplyMuscleDefNiOverride(Actor aAct, int data)
   md.LogVerb("Normal map to apply: " + normalMapPath)
   ; int equipment = _EquipPizzaHandsFix(aAct, muscleDefType, muscleDefType)
 
-  NiOverride.RemoveAllReferenceSkinOverrides(aAct)
+  ; NiOverride.RemoveAllReferenceSkinOverrides(aAct)
   ; NiOverride.AddSkinOverrideString(aAct, true, false, 0x4, 9, 1, normalMapPath, true)
   NiOverride.AddSkinOverrideTextureSet(aAct, isFem, false, 0x4, 6, -1, normalMap, true)
   NiOverride.AddSkinOverrideTextureSet(aAct, isFem, true, 0x4, 6, -1, normalMap, true)
@@ -176,7 +191,7 @@ Function _ApplyOverrideOnKnownNodes(Actor aAct, bool isFem, int index, string te
 EndFunction
 
 ; Equips the naked gauntlets to solve the dreaded _"Pizza Hands Syndrome"_ if necessary.
-; This only equips the gauntlets if the actor had none equiped, since **that bug only happens
+; This only equips the gauntlets if the actor had none equipped, since **that bug only happens
 ; when setting skin overrides while being TOTALLY naked**.
 int Function _EquipPizzaHandsFix(Actor aAct, int muscleDefType, int muscleDef)
   ; int result = GetEquippedArmor(aAct)
@@ -230,6 +245,10 @@ string Function GetRace(Actor aAct)
   return MiscUtil.GetActorRaceEditorID(aAct)
 EndFunction
 
+bool Function IsChild(Actor aAct)
+  return StringUtil.Find(GetRace(aAct), "Child") != -1
+EndFunction
+
 ;@Deprecated:
 ; Gets the head node that can be used for applying face overlays using `NiOverride`.
 ;
@@ -260,7 +279,7 @@ string Function _GetHeadNode(Actor aAct)
 EndFunction
 
 ; TODO: Add compatibilty with Growl
-Armor Function _GetWerewolfSkin()
-  ; Vanilla wolf skin
-  return Game.GetFormFromFile(0xCDD87, "Skyrim.esm") as Armor
-EndFunction
+; Armor Function _GetWerewolfSkin()
+;   ; Vanilla wolf skin
+;   return Game.GetFormFromFile(0xCDD87, "Skyrim.esm") as Armor
+; EndFunction

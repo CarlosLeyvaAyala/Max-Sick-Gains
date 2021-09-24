@@ -44,6 +44,7 @@ Function OnGameReload()
   NpcHandler.OnGameReload()
   widget.OnGameReload()
   _TestingModeOperations()
+  SendModEvent(ev.GAME_RELOADED)
   ; _AppearanceByPolling()
 EndFunction
 
@@ -133,7 +134,7 @@ Function _TestingModeOperations()
     return
   EndIf
   md.LogVerb("***TESTING MODE ENABLED***")
-  OnCellLoad()
+  ; OnCellLoad()
 EndFunction
 
 ;>========================================================
