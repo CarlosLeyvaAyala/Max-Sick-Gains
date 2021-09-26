@@ -13,6 +13,18 @@ Function OnGameReload()
 EndFunction
 
 Function Test()
+  ; Maxick_DB.SaveToFile("DB Dump")
+
+  ; Maxick_DB.CleanMemoizationData()
+
+Maxick___Compatibility.SaveFlt("meh", "flt", 1888)
+md.Log("---------------- " + Maxick___Compatibility.GetFlt("meh", "flt", -1))
+Maxick_DB.SaveFlt("meh", 188)
+md.Log("---------------- " + Maxick_DB.GetFlt("meh", -1))
+Maxick_DB.FormSaveFlt(Game.getplayer(), "meh", 3244)
+md.Log("---------------- " + Maxick_DB.FormGetFlt(game.getplayer(),"meh", -1))
+
+
   ; Actor npc = Game.GetCurrentConsoleRef() as Actor
   ; If !npc
   ;   npc = Game.GetCurrentCrosshairRef() as Actor

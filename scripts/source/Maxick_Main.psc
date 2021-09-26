@@ -250,6 +250,7 @@ Event OnSleepStop(bool aInterrupted)
   If hoursSlept < 1
     Return      ; Do nothing if didn't really slept
   EndIf
+  Maxick_DB.CleanMemoizationData()
   ev.SendSleep(hoursSlept)
   _lastSlept = Now()
 EndEvent

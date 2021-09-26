@@ -116,7 +116,7 @@ EndFunction
 
 ; Has the player not gotten a full recovery since last trained with sacks?
 bool Function PlayerIsTired()
-  float notTired = Maxick___Compatibility.GetFlt(addonName, "notTiredAt")
+  float notTired = Maxick___Compatibility.GetFlt(addonName, "notTiredAt", -1)
   float now = DM_Utils.Now()
 
   md.LogVerb("Expected time not to be tired: " + notTired)

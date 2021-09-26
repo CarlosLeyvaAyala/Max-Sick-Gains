@@ -25,17 +25,18 @@ EndFunction
 
 ; Returns the path to a key.
 string Function _Path(string aKey) Global
-  return ".maxick." + aKey
+  string result = ".maxick." + aKey
+  return result
 EndFunction
 
 ; Saves a float.
 Function SaveFlt(string aKey, float aValue) Global
-  JDB.solveFltSetter(_Path(aKey), aValue, true)
+  FormSaveFlt(Game.GetPlayer(), aKey, aValue)
 EndFunction
 
 ; Gets a float. Returns `default` if key was not found.
 float Function GetFlt(string aKey, float default = 0.0) Global
-  return JDB.solveFlt(_Path(aKey), default)
+  return FormGetFlt(Game.GetPlayer(), aKey, default)
 EndFunction
 
 ; Saves an int.
@@ -120,13 +121,33 @@ Function JustSeen(Actor aAct) Global
 EndFunction
 
 ; Removes from in memory database all actors that haven't been seen for some time
-; (5 ingame days in current implementation).
-; This makes faster searching for memoized data and **maybe** avoids SKSE co-save bloat.
+; (2 ingame days in current implementation).
+; This makes faster searching for memoized data and avoids SKSE co-save bloat by this mod.
 ;
 ; This is better used when player is unlikely to change cells; when sleeping, for example.
 Function CleanMemoizationData() Global
   float now = DM_Utils.Now()
+  float limit = now - 2
+  string path = _GetDbObjPath("")
+  int data = JDB.solveObj(path)
 
-  ; For all values in memoized table:
-  ; clear if dayspan is >= 5
+  Form actorB = JFormMap.nextKey(data)
+  int toDelete = JArray.object()
+  While actorB
+    float lastSeen = FormGetFlt(actorB, "lastSeen", now)
+    If lastSeen < limit
+      JArray.addForm(toDelete, actorB)
+    EndIf
+    actorB = JFormMap.nextKey(data, actorB)
+  EndWhile
+
+  int n = JArray.count(toDelete)
+  int i = 0
+  While (i < n)
+    actorB = JArray.getForm(toDelete, i)
+    Maxick___Compatibility.HookToDebugging().Log("last seen " + actorB)
+    JFormDB.setEntry("maxick", actorB, 0)
+    i += 1
+  EndWhile
+  ; SaveToFile("DB Dump memory")
 EndFunction
