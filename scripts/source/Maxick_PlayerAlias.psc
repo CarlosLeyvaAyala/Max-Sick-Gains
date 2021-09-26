@@ -21,11 +21,8 @@ Event OnRaceSwitchComplete()
 EndEvent
 
 Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
-  player.EquipPizzaHandsFix()
-  ; Utility.Wait(0.1)
-  ; if !(akBaseObject as Armor) || (player.player.GetWornForm(0x8) as Armor)
-  ;   return
-  ; EndIf
-  ; md.Log("No gauntlets on the player. Solving the Pizza Hands Syndrome")
-  ; player.player.EquipItem(PizzaHandsFix, false, true)
+  ; TODO: Factorize GetModSettingBool to make it less dependable on names
+  If MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
+    player.EquipPizzaHandsFix()
+  EndIf
 endEvent

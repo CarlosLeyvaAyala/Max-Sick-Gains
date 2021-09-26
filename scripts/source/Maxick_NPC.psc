@@ -153,7 +153,7 @@ Function ForceChangeAppearance(Actor npc, int appearance = 0)
     md.LogOptim("Lua appearance calculation: " + (Utility.GetCurrentRealTime() - t) + " seconds")
   EndIf
 
-  looksHandler.ChangeAppearance(npc, appearance, true)
+  looksHandler.ChangeAppearance(npc, appearance)
 
   ; Memoize data for BaseForm only if it was actually calculated instead of gotten
   ; from memoized data.

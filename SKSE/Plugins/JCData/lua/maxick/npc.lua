@@ -392,6 +392,12 @@ end
 
 ---Makes all the calculations to change an NPC appearance.
 function npc.ChangeAppearance(data)
+  if not data then
+    return {
+      msg = "NPC data somehow got lost while retrieving it. This seems to be mostly harmless, but needs more testing by mod author.",
+      shouldProcess = 0,
+    }
+  end
   ml.EnableSkyrimLogging()
 
   local fitStage, weight, muscleDef, shouldProcess, racialGroup =

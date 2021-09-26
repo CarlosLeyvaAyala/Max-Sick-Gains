@@ -12,15 +12,15 @@ Actor npc
 
 string name
 
-Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
-  looksHandler.EquipPizzaHandsFix(npc)
-EndEvent
+; Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
+;   looksHandler.EquipPizzaHandsFix(npc)
+; EndEvent
 
 ; Make sure NPC appearance is restored after reloading a save.
-Event OnGameReloaded(string _, string __, float ___, form ____)
-  md.LogVerb("///////////////////////// Maxick Spell OnGameReloaded: " + name)
-  ; ChangeAppearance()
-EndEvent
+; Event OnGameReloaded(string _, string __, float ___, form ____)
+;   md.LogVerb("///////////////////////// Maxick Spell OnGameReloaded: " + name)
+;   ; ChangeAppearance()
+; EndEvent
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
   ; RegisterEvents()
@@ -31,7 +31,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
   EndIf
   md.LogVerb("+++++++++++++++++++ Maxick Spell attached to " + name)
 
-  looksHandler.EquipPizzaHandsFix(npc, false)   ; This is the step that makes possible to use NiOverride at all.
+  ; looksHandler.EquipPizzaHandsFix(npc, false)   ; This is the step that makes possible to use NiOverride at all.
   ChangeAppearance()
 EndEvent
 

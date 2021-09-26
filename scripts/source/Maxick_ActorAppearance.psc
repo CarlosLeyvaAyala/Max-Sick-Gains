@@ -47,7 +47,7 @@ Function EquipPizzaHandsFix(Actor aAct, bool wait = true)
     Utility.Wait(0.1)
   EndIf
   If !(aAct.GetWornForm(0x8) as Armor)
-    md.Log(DM_Utils.GetActorName(aAct) + ": No gauntlets equipped. Solving the Pizza Hands Syndrome.")
+    md.LogInfo(DM_Utils.GetActorName(aAct) + ": No gauntlets equipped. Solving the Pizza Hands Syndrome.")
     aAct.EquipItem(PizzaHandsFix, false, true)
   EndIf
 EndFunction
@@ -126,7 +126,7 @@ EndFunction
 ; See this [technical document](https://github.com/CarlosLeyvaAyala/Max-Sick-Gains/blob/master/technical%20docs/muscle-definition.md) to understand this method.
 ;
 ; This method is reliable, but needs a lot of fixes for players. Used for NPCs
-; because NiOverride is unreliable on them.
+; because NiOverride is a mess on them.
 Function _ApplyMuscleDef(Actor aAct, int data)
   int muscleDefType = JMap.getInt(data, "muscleDefType", -1)
   int muscleDef = JMap.getInt(data, "muscleDef", -1)

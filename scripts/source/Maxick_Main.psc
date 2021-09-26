@@ -23,7 +23,7 @@ Maxick_Events Property ev Auto
 Spell Property ChangeCellSpell Auto
 
 Event OnInit()
-  Utility.Wait(10)    ; Wait some time because too many scripts may fuck this up
+  ; Utility.Wait(10)    ; Wait some time because too many scripts may fuck this up
   OnGameReload()
   PcHandler.ChangeAppearance()
   ; player.AddSpell(ChangeCellSpell)

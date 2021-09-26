@@ -75,6 +75,17 @@ Event OnActivate(ObjectReference _)
   ShowNormalMenu()
 EndEvent
 
+Event OnEquipped(Actor _)
+  InitVars()
+  If !ev || !md
+    ShowInitializationError()
+    return
+  EndIf
+
+  md.LogVerb("Training sack activated")
+  ShowNormalMenu()
+EndEvent
+
 Function ShowInitializationError()
   ; There's no guarantee Maxick_Debug exists. Print directly.
   MiscUtil.PrintConsole("[Maxick] Events hook: " + ev)
@@ -170,9 +181,9 @@ EndFunction
 
 ; Pick up training weight to inventory.
 Function Pickup()
-  player.AddItem(spawner, 1, True)
-  DisableNoWait(True)
-  Delete()
+  ; player.AddItem(spawner, 1, True)
+  ; DisableNoWait(True)
+  ; Delete()
 EndFunction
 
 ; How many hours the player spent training.

@@ -514,6 +514,10 @@ Function ChangeAppearance(bool skipMuscleDef = false)
   md.LogInfo("Player is changing appearance.")
   int appearance = _GetAppearance()
   looksHandler.ChangeAppearance(player, appearance, true, skipMuscleDef)
+  ; TODO: Factorize GetModSettingBool to make it less dependable on mod name
+  If !MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
+    ; TODO: Clean overrides
+  EndIf
 
   ; Make head size obviously wrong when getting default values to help catch bugs.
   ; FIXME: Set to a reasonable value once I know this to be stable
