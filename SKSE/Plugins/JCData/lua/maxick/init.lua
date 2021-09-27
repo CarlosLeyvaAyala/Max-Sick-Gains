@@ -81,4 +81,10 @@ end
 maxick.SlideshowStageMsg = player.StageMessage
 maxick.PlayerStageMsg = player.StageMessage
 
+function maxick.ErrorKNpcFormNotFound(name, esp, formId, knownNpcId)
+  local msg = "*** ERROR *** While loading Known NPC '%s' in 0x%.6X~%s. Id = %d."
+  msg = msg .."Most probable issue is an incorrect FormID when exporting data from SEEdit. Contact this mod developer."
+  return l.fmt(msg, name, formId, esp, knownNpcId)
+end
+
 return maxick

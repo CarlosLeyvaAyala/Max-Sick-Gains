@@ -72,6 +72,12 @@ ActorBase Function _GetBase(Actor npc)
   return npc.GetLeveledActorBase()
 EndFunction
 
+; Known actors are stored in the memory database with their `id` from the Lua database.
+; This function gets that `id` or returns `-999` if not found.
+int Function _GetKnownNpcId(ActorBase base)
+  return Maxick_DB.FormGetInt(base, "knownNpcId", -999)
+EndFunction
+
 ; Gets all the info needed to apply visual changes to an NPC.
 ; Returns a handle to a `JMap` (a Lua table, actually) that contains all
 ; needed data.
@@ -86,6 +92,7 @@ int Function _InitNpcData(Actor npc)
   JMap.setStr(data, "class", base.GetClass().GetName())
   JMap.setStr(data, "raceEDID", looksHandler.GetRace(npc))
   JMap.setInt(data, "isFem", looksHandler.IsFemale(npc) as int)
+  JMap.setInt(data, "knownNpcId", _GetKnownNpcId(base))
 
   string mod = "Max Sick Gains"
   int mcmOptions = JMap.object()
@@ -103,32 +110,6 @@ EndFunction
 int Function _GetAppearance(Actor npc)
   return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearance(jobject)")
 EndFunction
-
-; Executes the memoized Lua function that makes all calculations on one NPC.
-; int Function _GetAppearanceMem(Actor npc)
-;   return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearanceMem(jobject)")
-; EndFunction
-
-; Tests if unique characters should change appearance.
-;
-; Unlike non unique NPCs, uniques seem to retain their body morph data when unloaded,
-; so an easy check to see if they have morphs applied works quite well.
-; bool Function _OptimizeUnique(Actor npc)
-;   If _GetBase(npc).IsUnique()
-;     return _OptimizeNPC(npc)
-;   EndIf
-;   return false
-; EndFunction
-
-; Optimizes appearance setting.
-; bool Function _OptimizeNPC(Actor npc)
-;   string[] morphs = NiOverride.GetMorphNames(npc)
-;   bool result = morphs.Length > 0
-;   If result
-;     md.LogVerb("An appearance for " + DM_Utils.GetActorName(npc) + " was already set (either by this or another mod). Skipping.")
-;   EndIf
-;   return result
-; EndFunction
 
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)

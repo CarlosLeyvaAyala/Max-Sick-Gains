@@ -89,6 +89,16 @@ float Function FormGetFlt(Form fKey, string aPath, float default = 0.0) Global
   return JFormDB.solveFlt(fKey, _Path(aPath), default)
 EndFunction
 
+; Asociates an int with some form.
+Function FormSaveInt(Form fKey, string aPath, int value) Global
+  JFormDB.solveIntSetter(fKey, _Path(aPath), value, true)
+EndFunction
+
+; Gets an int from a saved form. Returns `default` if form key or path were not found.
+int Function FormGetInt(Form fKey, string aPath, int default = 0) Global
+  return JFormDB.solveInt(fKey, _Path(aPath), default)
+EndFunction
+
 ; Asociates a JContainers object to some form.
 Function FormSaveObj(Form fKey, string aPath, int aHandle) Global
   JFormDB.solveObjSetter(fKey, _Path(aPath), aHandle, true)
@@ -135,7 +145,8 @@ Function CleanMemoizationData() Global
   int toDelete = JArray.object()
   While actorB
     float lastSeen = FormGetFlt(actorB, "lastSeen", now)
-    If lastSeen < limit
+    ; Delete not recently seen unknown NPCs
+    If lastSeen < limit && FormGetInt(actorB, "knownNpcId", -999) != -999
       JArray.addForm(toDelete, actorB)
     EndIf
     actorB = JFormMap.nextKey(data, actorB)
