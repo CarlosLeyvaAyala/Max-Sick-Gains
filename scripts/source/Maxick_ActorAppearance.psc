@@ -119,8 +119,20 @@ Function ChangeHeadSize(Actor aAct, float size)
   EndIf
 EndFunction
 
+; Clears data added by this mod.
+Function Clear(Actor aAct)
+  _ClearMorphs(aAct)
+EndFunction
+
+; Clears skin overrides added by this mod
+Function _ClearSkinOverrides(Actor aAct)
+  bool isFem = IsFemale(aAct)
+  NiOverride.RemoveSkinOverride(aAct, isFem, false, 0x4, 6, -1)
+  NiOverride.RemoveSkinOverride(aAct, isFem, true, 0x4, 6, -1)
+EndFunction
+
 ; Clears morphs added by this mod.
-Function ClearMorphs(Actor aAct)
+Function _ClearMorphs(Actor aAct)
   NiOverride.ClearBodyMorphKeys(aAct, "Maxick")
 EndFunction
 
@@ -128,7 +140,7 @@ EndFunction
 Function _ApplyBodyslide(Actor aAct, int bodyslide, float weight)
   If weight >= 0 ; Change shape if not banned from doing so
     float t = Utility.GetCurrentRealTime()
-    ClearMorphs(aAct)
+    _ClearMorphs(aAct)
 
     string slider = JMap.nextKey(bodyslide)
     While slider != ""
@@ -185,6 +197,15 @@ string Function _NormalTexturePath(Actor aAct, int racialGroup, int muscleDefTyp
   return _NormalTextureSet(aAct, racialGroup, muscleDefType, muscleDef).GetNthTexturePath(1)
 EndFunction
 
+; Can this actor get NiOverride data applied?
+bool Function CanApplyNiOverride(Actor aAct, int data)
+  int muscleDefType = JMap.getInt(data, "muscleDefType", -1)
+  int muscleDef = JMap.getInt(data, "muscleDef", -1)
+  int racialGroup = JMap.getInt(data, "racialGroup", -1)
+  int shouldProcess = JMap.getInt(data, "shouldProcess")
+  return muscleDefType >= 0 && muscleDef >= 1 && racialGroup >= 0 && shouldProcess
+EndFunction
+
 ; Tries to apply muscle definition to an actor based on collected `data`.
 ; This ensures maximum compatibility with werewolf/vampire lord/lich/etc. transformations
 ; and custom races, but NPCs tend to "forget" which normal texture they had assigned.
@@ -194,20 +215,27 @@ Function _ApplyMuscleDefNiOverride(Actor aAct, int data)
   int racialGroup = JMap.getInt(data, "racialGroup", -1)
   ; md.LogVerb(DM_Utils.GetActorName(aAct) +": applying muscle definition. " + muscleDefType + " " + muscleDef + " " + racialGroup)
   If muscleDefType < 0 || muscleDef < 1 || racialGroup < 0
+    _RemoveNiOverride(aAct)
     return ; Banned from changing muscle definition
   EndIf
   bool isFem = IsFemale(aAct)
 
-  string normalMapPath = _NormalTexturePath(aAct, racialGroup, muscleDefType, muscleDef)
+  ; string normalMapPath = _NormalTexturePath(aAct, racialGroup, muscleDefType, muscleDef)
+  ; md.LogVerb("Normal map to apply: " + normalMapPath)
   TextureSet normalMap = _NormalTextureSet(aAct, racialGroup, muscleDefType, muscleDef)
-  md.LogVerb("Normal map to apply: " + normalMapPath)
-  ; int equipment = _EquipPizzaHandsFix(aAct, muscleDefType, muscleDefType)
+  md.LogVerb("Normal map to apply: " + normalMap.GetNthTexturePath(1))
 
-  ; NiOverride.RemoveAllReferenceSkinOverrides(aAct)
-  ; NiOverride.AddSkinOverrideString(aAct, true, false, 0x4, 9, 1, normalMapPath, true)
+  EquipPizzaHandsFix(aAct, false)
+
   NiOverride.AddSkinOverrideTextureSet(aAct, isFem, false, 0x4, 6, -1, normalMap, true)
   NiOverride.AddSkinOverrideTextureSet(aAct, isFem, true, 0x4, 6, -1, normalMap, true)
   ; _UnequipPizzaHandsFix(aAct, equipment)
+EndFunction
+
+; Removes all NiOverride support on an actor.
+Function _RemoveNiOverride(Actor aAct)
+  _ClearSkinOverrides(aAct)
+  _UnequipPizzaHandsFix(aAct)
 EndFunction
 
 ; Skin overrides appear to work on nodes. If at the time of setting an override the player has
@@ -222,6 +250,7 @@ Function _ApplyOverrideOnKnownNodes(Actor aAct, bool isFem, int index, string te
   ; NiOverride.AddNodeOverrideString(aAct, isFem, node, 9, index, texturePath, true)
 EndFunction
 
+; TODO: Delete
 ; Equips the naked gauntlets to solve the dreaded _"Pizza Hands Syndrome"_ if necessary.
 ; This only equips the gauntlets if the actor had none equipped, since **that bug only happens
 ; when setting skin overrides while being TOTALLY naked**.
@@ -236,7 +265,7 @@ int Function _EquipPizzaHandsFix(Actor aAct, int muscleDefType, int muscleDef)
   ; return result
 EndFunction
 
-int Function _UnequipPizzaHandsFix(Actor aAct, int equipment)
+int Function _UnequipPizzaHandsFix(Actor aAct, int equipment = 0)
   aAct.RemoveItem(PizzaHandsFix, 1, true)
   ; EquipByArray(aAct, equipment)
 EndFunction

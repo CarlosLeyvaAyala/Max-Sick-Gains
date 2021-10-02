@@ -31,6 +31,11 @@ md.Log("---------------- " + Maxick_DB.FormGetFlt(game.getplayer(),"meh", -1))
   ; EndIf
 EndFunction
 
+; Can this NPC get NiOverride data applied?
+bool Function CanApplyNiOverride(Actor npc)
+  looksHandler.CanApplyNiOverride(npc, Maxick_DB.GetMemoizedAppearance(npc))
+EndFunction
+
 ; Force an NPC to get updated.
 Function ForceUpdate()
   md.LogVerb("Forcing change on NPC.")
@@ -146,7 +151,7 @@ Function ForceChangeAppearance(Actor npc, int appearance = 0)
     md.LogOptim("Lua appearance calculation: " + (Utility.GetCurrentRealTime() - t) + " seconds")
   EndIf
 
-  looksHandler.ChangeAppearance(npc, appearance)
+  looksHandler.ChangeAppearance(npc, appearance, true)
 
   ; Memoize data for BaseForm only if it was actually calculated instead of gotten
   ; from memoized data.

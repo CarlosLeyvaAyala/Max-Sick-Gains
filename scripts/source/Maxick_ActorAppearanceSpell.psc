@@ -8,13 +8,16 @@ Maxick_Debug Property md Auto
 Maxick_ActorAppearance Property looksHandler Auto
 Maxick_NPC Property NpcHandler Auto
 Maxick_Events Property ev Auto
+bool Property hasNiOverride Auto
 Actor npc
 
 string name
 
-; Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
-;   looksHandler.EquipPizzaHandsFix(npc)
-; EndEvent
+Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
+  If NpcHandler.CanApplyNiOverride(npc)
+    looksHandler.EquipPizzaHandsFix(npc)
+  EndIf
+EndEvent
 
 ; Make sure NPC appearance is restored after reloading a save.
 ; Event OnGameReloaded(string _, string __, float ___, form ____)
@@ -30,6 +33,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     md.LogVerb("+++++++++++++++++++ Maxick Spell attached to child " + name + ". Skipping.")
   EndIf
   md.LogVerb("+++++++++++++++++++ Maxick Spell attached to " + name)
+
+  ; Wait for avoiding infinite loading screens
+  Utility.Wait(Utility.RandomFloat(0, 0.2))
 
   ; looksHandler.EquipPizzaHandsFix(npc, false)   ; This is the step that makes possible to use NiOverride at all.
   ChangeAppearance()
@@ -82,7 +88,7 @@ Function Clear()
     ClearAllNiOverrideData()
   Else
     md.LogVerb("Only 'NiOverrides' added by this mod will be cleared. " + name)
-    looksHandler.ClearMorphs(npc)
+    looksHandler.Clear(npc)
   EndIf
 EndFunction
 
@@ -91,7 +97,7 @@ EndFunction
 Function ClearAllNiOverrideData()
   NiOverride.ClearMorphs(npc)
   NiOverride.RemoveAllReferenceOverrides(npc)
-  ; NiOverride.RemoveAllReferenceSkinOverrides(npc)
+  NiOverride.RemoveAllReferenceSkinOverrides(npc)
 EndFunction
 
 Function ChangeAppearance()
