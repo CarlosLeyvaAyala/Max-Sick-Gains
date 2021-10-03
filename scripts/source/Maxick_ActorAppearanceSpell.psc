@@ -16,6 +16,13 @@ string name
 Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
   If NpcHandler.CanApplyNiOverride(npc)
     looksHandler.EquipPizzaHandsFix(npc)
+    looksHandler.FixGenitalTextures(npc)
+  EndIf
+EndEvent
+
+Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
+  If NpcHandler.CanApplyNiOverride(npc)
+    looksHandler.FixGenitalTextures(npc)
   EndIf
 EndEvent
 

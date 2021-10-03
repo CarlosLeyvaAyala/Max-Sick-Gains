@@ -229,7 +229,38 @@ Function _ApplyMuscleDefNiOverride(Actor aAct, int data)
 
   NiOverride.AddSkinOverrideTextureSet(aAct, isFem, false, 0x4, 6, -1, normalMap, true)
   NiOverride.AddSkinOverrideTextureSet(aAct, isFem, true, 0x4, 6, -1, normalMap, true)
+  FixGenitalTextures(aAct)
   ; _UnequipPizzaHandsFix(aAct, equipment)
+EndFunction
+
+; Fixes vagina and anus textures on females.
+; Note this function needs to be applied each time the armor is un/equiped, because nodes can disappear depending on the armor.
+Function FixGenitalTextures(Actor aAct)
+  If IsFemale(aAct)
+    _Fix3BAGenitals(aAct)
+  EndIf
+EndFunction
+
+; Fixes textures for 3BA vagina.
+Function _Fix3BAGenitals(Actor aAct)
+  string b = "textures\\actors\\character\\female\\femalebody_etc_v2_1"
+  string d = b + ".dds"
+  string n = b + "_msn.dds"
+  string sk = b + "_sk.dds"
+  string s = b + "_s.dds"
+  _FixGenitalNode(aAct, true, "3BA_Vagina", d, n, sk, s)
+  _FixGenitalNode(aAct, true, "3BA_Anus", d, n, sk, s)
+EndFunction
+
+; Fixes a particular node. This function is meant to be used for fixing genitals and anus textures.
+; Overrides are not persistent because they need to be applied anytime the armor changes, anyway.
+Function _FixGenitalNode(Actor aAct, bool isFem, string node, string diffuse, string normal, string skin, string specular)
+  If NetImmerse.HasNode(aAct, node, false)
+    NiOverride.AddNodeOverrideString(aAct, isFem, node, 9, 0, diffuse, false)
+    NiOverride.AddNodeOverrideString(aAct, isFem, node, 9, 1, normal, false)
+    NiOverride.AddNodeOverrideString(aAct, isFem, node, 9, 2, skin, false)
+    NiOverride.AddNodeOverrideString(aAct, isFem, node, 9, 7, specular, false)
+  EndIf
 EndFunction
 
 ; Removes all NiOverride support on an actor.

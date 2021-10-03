@@ -24,5 +24,12 @@ Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
   ; TODO: Factorize GetModSettingBool to make it less dependable on names
   If MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
     player.EquipPizzaHandsFix()
+    player.FixGenitalTextures()
   EndIf
 endEvent
+
+Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
+  If MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
+    player.FixGenitalTextures()
+  EndIf
+EndEvent
