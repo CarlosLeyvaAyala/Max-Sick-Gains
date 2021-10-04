@@ -130,10 +130,12 @@ Function ChangeAppearance(Actor npc)
 
   ; Optimization step
   int memo = Maxick_DB.GetMemoizedAppearance(npc)
-  If memo
+  If memo && _LeveledActorIsSame(memo, npc)
     md.LogVerb("OPTIMIZATION. An appearance for " + DM_Utils.GetActorName(npc) + " was already calculated. Will use it instead of calculating it again.")
     JMap.setStr(memo, "msg", "")    ; Calculated log is not needed anymore. Discard
     md.LogOptim("ChangeAppearance, optimized by memoization: " + (Utility.GetCurrentRealTime() - t) + " seconds")
+  Else
+    memo = 0
   EndIf
 
   ForceChangeAppearance(npc, memo)
@@ -152,6 +154,7 @@ Function ForceChangeAppearance(Actor npc, int appearance = 0)
   EndIf
 
   looksHandler.ChangeAppearance(npc, appearance, true)
+  _AddDifferentiationData(appearance, npc)
 
   ; Memoize data for BaseForm only if it was actually calculated instead of gotten
   ; from memoized data.
@@ -159,6 +162,21 @@ Function ForceChangeAppearance(Actor npc, int appearance = 0)
     Maxick_DB.MemoizeAppearance(npc, appearance)
   EndIf
   Maxick_DB.JustSeen(npc)
+EndFunction
+
+; Leveled NPCs may change sex and race at spawn. This saves that info so memoization
+; can be properly applied in case the new NPC has other sex/race than what was originally calculated.
+Function _AddDifferentiationData(int appearance, Actor npc)
+  JMap.setStr(appearance, "race", looksHandler.GetRace(npc))
+  JMap.setInt(appearance, "sex", looksHandler.IsFemale(npc) as int)
+EndFunction
+
+; Is the current leveled actor the same race and sex than the memoized one?
+bool Function _LeveledActorIsSame(int appearance, Actor npc)
+  bool sameRace = JMap.getStr(appearance, "race") == looksHandler.GetRace(npc)
+  bool sameSex = JMap.getInt(appearance, "sex") == looksHandler.IsFemale(npc) as int
+  md.LogVerb("Is the memoized data still valid?: " + sameRace && sameSex)
+  return sameRace && sameSex
 EndFunction
 
 ;@Hint: Deprecated

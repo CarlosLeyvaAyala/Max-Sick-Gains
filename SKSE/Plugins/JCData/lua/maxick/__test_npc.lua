@@ -46,6 +46,7 @@ local Lydia = {
   class = "Warrior",
   raceEDID = "NordRace",
   isFem = 1,
+  knownNpcId = 1,
 }
 
 local meh = {

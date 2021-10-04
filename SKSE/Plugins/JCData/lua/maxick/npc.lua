@@ -388,18 +388,12 @@ end
 ---@return SkyrimBool shouldProcess
 ---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
 local function _GetToKnowNPC(formId, name, raceEDID, isFem, class, weight, mcm, knownNpcId)
--- local function _GetToKnowNPC(formId, name, raceEDID, isFem, class, weight, mcm)
-  -- local fitStage, newWeight, muscleDef, shouldProcess, racialGroup =
-  --   _FindKnownNPC(formId, name, raceEDID, isFem, class, weight, mcm, knownNpcId)
-
-  if knownNpcId == -999 then
-    -- if not shouldProcess then
+  if not knownNpcId or knownNpcId == -999 then
     -- It's a generic NPC
     return _FindUnknownNPCData(raceEDID, isFem, class, weight, mcm)
   else
     return _FindKnownNPC(formId, name, raceEDID, isFem, class, weight, mcm, knownNpcId)
   end
-  -- return fitStage, newWeight, muscleDef, shouldProcess, racialGroup
 end
 
 
@@ -418,7 +412,7 @@ function npc.ChangeAppearance(data)
   ml.EnableSkyrimLogging()
 
   local fitStage, weight, muscleDef, shouldProcess, racialGroup =
-  _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm, data.knownNpcId)
+    _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm, data.knownNpcId)
   -- _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm)
   local bs, md, mdt, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
   local currLog = ml.GetLog()
