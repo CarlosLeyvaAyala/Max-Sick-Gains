@@ -289,24 +289,6 @@ end
 
 --#region Known NPC
 
----Filtering function that finds if an actor is a known NPC by searching them at `database.npcs`.
----@return fun(actor: Actor): table
-local function _FilterKNownNPC(formId, Name, raceEDID, isFem, Class)
-  local fId = string.format("%.x", formId)
-  local class, name, raceedid = string.lower(Class), string.lower(Name), string.lower(raceEDID)
-  return l.firstIn(
-    function(values, candidate)
-      local idMatch = string.find(fId, candidate)
-      local classMatch = values.class == class
-      local raceMatch = values.race == raceedid
-      local sexMatch = values.isFemale == l.SkyrimBool(isFem)
-      -- ;WARNING: Delete name matching if NPC can no longer be found
-      local nameMatch = values.fullName == name
-      return idMatch and classMatch and raceMatch and nameMatch and sexMatch
-    end
-  )
-end
-
 ---Tries to find data for an explicitly set NPC.
 ---@param formId number
 ---@param name string
@@ -321,17 +303,8 @@ end
 ---@return SkyrimBool shouldProcess
 ---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
 local function _FindKnownNPC(formId, name, raceEDID, isFem, class, weight, mcm, knownNpcId)
-  -- local function _FindKnownNPC(formId, name, raceEDID, isFem, class, weight, mcm)
-  -- local npcMatch = _FilterKNownNPC(formId, name, raceEDID, isFem, class)(db.npcs)
   local npcMatch = db.npcs[knownNpcId]
 
-  -- if npcMatch then
-  --   ml.LogCrit(l.fmt("*** Explicitly added NPC: '%s' ***", name))
-  --   -- TODO: Weight calculation by skills is possible to do right here
-  --   local racialGroup =  r.RacialGroup(raceEDID)
-  --   local fitStage, newWeight, muscleDef, shouldProcess = _IsKnown(_McmBan(mcm.kNpcBs, mcm.kNpcMuscleDef, npcMatch), weight)
-  --   return fitStage, newWeight, muscleDef, shouldProcess, racialGroup
-  -- end
   if not npcMatch then
     error(l.fmt("Known NPC '%s', FormID %.6X, ID %d was not found. May be an exporting error. Contact this mod developer.", name, formId, knownNpcId))
     return nil
@@ -342,8 +315,6 @@ local function _FindKnownNPC(formId, name, raceEDID, isFem, class, weight, mcm, 
   local racialGroup =  r.RacialGroup(raceEDID)
   local fitStage, newWeight, muscleDef, shouldProcess = _IsKnown(_McmBan(mcm.kNpcBs, mcm.kNpcMuscleDef, npcMatch), weight)
   return fitStage, newWeight, muscleDef, shouldProcess, racialGroup
-
-  -- return nil
 end
 
 --#endregion
@@ -398,30 +369,40 @@ local function _GetToKnowNPC(formId, name, raceEDID, isFem, class, weight, mcm, 
   end
 end
 
+---Gets values for making an NPC known to this module. This function can deal with memoized data coming from Skyrim.
+---@param data table Data table that came directly from Skyrim
+---@return integer fitStage
+---@return number weight
+---@return MuscleDef muscleDef
+---@return SkyrimBool shouldProcess
+---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
+local function _GetKnownNpcData(data)
+  return _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm, data.knownNpcId)
+end
 
 -- ;>========================================================
 -- ;>===                MAIN PROCESSING                 ===<;
 -- ;>========================================================
 
+local lostData = {
+  msg = "NPC data somehow got lost while retrieving it. This seems to be mostly harmless and related to parallel processing, but needs more testing by mod author.",
+  shouldProcess = 0,
+}
+
 ---Makes all the calculations to change an NPC appearance.
 function npc.ChangeAppearance(data)
-  if not data then
-    return {
-      msg = "NPC data somehow got lost while retrieving it. This seems to be mostly harmless, but needs more testing by mod author.",
-      shouldProcess = 0,
-    }
-  end
+  if not data then return lostData end
   ml.EnableSkyrimLogging()
 
-  local fitStage, weight, muscleDef, shouldProcess, racialGroup =
-    _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm, data.knownNpcId)
-  -- _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm)
+  local fitStage, weight, muscleDef, shouldProcess, racialGroup = _GetKnownNpcData(data)
+  -- local fitStage, weight, muscleDef, shouldProcess, racialGroup =
+  --   _GetToKnowNPC(data.formId, data.name, data.raceEDID, data.isFem, data.class, data.weight, data.mcm, data.knownNpcId)
   local bs, md, mdt, process = _ProcessKnownNPC(fitStage, weight, muscleDef, shouldProcess, data.raceEDID, data.isFem)
   local currLog = ml.GetLog()
   local fullLog = l.IfThen(currLog ~= "", l.fmt("NPC found: '%s'. ", data.name) .. currLog, currLog)
 
   return {
-    --- Used to know if will get Bodyslide applied.
+    --- This is the mapped weight. Used to know if will get Bodyslide applied and to what values.
     weight = weight or -1,
     --- Fully calculated appearance.
     bodySlide = bs,
@@ -434,6 +415,16 @@ function npc.ChangeAppearance(data)
     msg = fullLog,
     --- Should it be processed by `Maxick_ActorAppearance.ChangeAppearance()`?
     shouldProcess = process or 0,
+    --- Used for class memoization.
+    rawWeight = data.weight,
+    --- Used for class memoization.
+    fitStage = fitStage,
+    --- Used for class memoization.
+    NpcName = data.name,
+    --- Used for NPC memoization.
+    sex = data.isFem,
+    --- Used for NPC memoization.
+    race = data.raceEDID,
   }
 end
 

@@ -19,8 +19,8 @@ local function Benchmark(f, ...)
 end
 
 local function test()
-  -- require("__test_npc").Run()
-  serpent.print(player.ChangeAppearance("Breton", 1, 4, 50, 1))
+  require("__test_npc").Run()
+  -- serpent.print(player.ChangeAppearance("Breton", 1, 4, 50, 1))
   -- for i = 0, 100, 10 do
   --   local d = l.linCurve({x=0, y=1}, {x=100, y=6})(i)
   --   print(i, d, math.floor(d), l.round(d))

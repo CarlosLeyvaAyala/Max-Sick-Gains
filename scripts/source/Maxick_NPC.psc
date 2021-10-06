@@ -17,12 +17,12 @@ Function Test()
 
   ; Maxick_DB.CleanMemoizationData()
 
-Maxick___Compatibility.SaveFlt("meh", "flt", 1888)
-md.Log("---------------- " + Maxick___Compatibility.GetFlt("meh", "flt", -1))
-Maxick_DB.SaveFlt("meh", 188)
-md.Log("---------------- " + Maxick_DB.GetFlt("meh", -1))
-Maxick_DB.FormSaveFlt(Game.getplayer(), "meh", 3244)
-md.Log("---------------- " + Maxick_DB.FormGetFlt(game.getplayer(),"meh", -1))
+; Maxick___Compatibility.SaveFlt("meh", "flt", 1888)
+; md.Log("---------------- " + Maxick___Compatibility.GetFlt("meh", "flt", -1))
+; Maxick_DB.SaveFlt("meh", 188)
+; md.Log("---------------- " + Maxick_DB.GetFlt("meh", -1))
+; Maxick_DB.FormSaveFlt(Game.getplayer(), "meh", 3244)
+; md.Log("---------------- " + Maxick_DB.FormGetFlt(game.getplayer(),"meh", -1))
 
 
   ; Actor npc = Game.GetCurrentConsoleRef() as Actor
@@ -116,6 +116,24 @@ int Function _GetAppearance(Actor npc)
   return JValue.evalLuaObj(_InitNpcData(npc), "return maxick.ChangeNpcAppearance(jobject)")
 EndFunction
 
+; Gets an NPC's calculated appearance from memory database.
+;
+; These are the memoization types:
+; 1. By actor.
+int Function _MemoizedAppearance(Actor npc)
+  return _MemoizedActor(npc)
+EndFunction
+
+; Gets data from actor memoization.
+; The whole ActorBase is memoized, so it won't be calculated each time it is found. These will be cleared when sleeping.
+int Function _MemoizedActor(Actor npc)
+  int memo = Maxick_DB.GetMemoizedAppearance(npc)
+  If !memo || !_LeveledActorIsSame(memo, npc)
+    return 0
+  EndIf
+  return memo
+EndFunction
+
 ; Changes the appearance of some NPC based on their data.
 Function ChangeAppearance(Actor npc)
   float t = Utility.GetCurrentRealTime()
@@ -129,13 +147,15 @@ Function ChangeAppearance(Actor npc)
   EndIf
 
   ; Optimization step
-  int memo = Maxick_DB.GetMemoizedAppearance(npc)
-  If memo && _LeveledActorIsSame(memo, npc)
+  ; int memo = Maxick_DB.GetMemoizedAppearance(npc)
+  ; If memo && _LeveledActorIsSame(memo, npc)
+  int memo = _MemoizedAppearance(npc)
+  If memo
     md.LogVerb("OPTIMIZATION. An appearance for " + DM_Utils.GetActorName(npc) + " was already calculated. Will use it instead of calculating it again.")
     JMap.setStr(memo, "msg", "")    ; Calculated log is not needed anymore. Discard
     md.LogOptim("ChangeAppearance, optimized by memoization: " + (Utility.GetCurrentRealTime() - t) + " seconds")
-  Else
-    memo = 0
+  ; Else
+    ; memo = 0
   EndIf
 
   ForceChangeAppearance(npc, memo)
@@ -154,7 +174,7 @@ Function ForceChangeAppearance(Actor npc, int appearance = 0)
   EndIf
 
   looksHandler.ChangeAppearance(npc, appearance, true)
-  _AddDifferentiationData(appearance, npc)
+  ; _AddDifferentiationData(appearance, npc)
 
   ; Memoize data for BaseForm only if it was actually calculated instead of gotten
   ; from memoized data.
@@ -164,6 +184,7 @@ Function ForceChangeAppearance(Actor npc, int appearance = 0)
   Maxick_DB.JustSeen(npc)
 EndFunction
 
+; FIXME: Delete. Getting this data directly from Lua. Why didn't I do this before?
 ; Leveled NPCs may change sex and race at spawn. This saves that info so memoization
 ; can be properly applied in case the new NPC has other sex/race than what was originally calculated.
 Function _AddDifferentiationData(int appearance, Actor npc)
@@ -175,7 +196,7 @@ EndFunction
 bool Function _LeveledActorIsSame(int appearance, Actor npc)
   bool sameRace = JMap.getStr(appearance, "race") == looksHandler.GetRace(npc)
   bool sameSex = JMap.getInt(appearance, "sex") == looksHandler.IsFemale(npc) as int
-  md.LogVerb("Is the memoized data still valid?: " + sameRace && sameSex)
+  md.Log("Is the memoized data still valid?: " + (sameRace && sameSex))
   return sameRace && sameSex
 EndFunction
 
