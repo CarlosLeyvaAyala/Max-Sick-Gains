@@ -231,9 +231,11 @@ end
 ---@param Class string
 ---@param raceEDID string
 ---@return nil|number archetypeId Id of the archetype that will be applied.
-local function _GetClassArchetype(Class, raceEDID)
+local function _GetClassArchetype(Class, raceEDID, Name)
+  Name = Name or ''
   local class = string.lower(Class)
-  local classMatch = l.filter(db.classes, function (_, k) return string.find(class, k) end)
+  local name =  string.lower(Name)
+  local classMatch = l.filter(db.classes, function (_, k) return string.find(class, k) or string.find(name, k) end)
   if not l.isEmpty(classMatch) then
     ml.LogCrit(l.fmt("Class found: '%s'", Class))
   else
@@ -354,8 +356,8 @@ end
 ---@return number weight
 ---@return MuscleDef muscleDef
 ---@return SkyrimBool shouldProcess
-local function _GetGenericNPCData(class, raceEDID, isFem, mcm, weight)
-  local arch = _GetClassArchetype(class, raceEDID)
+local function _GetGenericNPCData(class, raceEDID, isFem, mcm, weight, name)
+  local arch = _GetClassArchetype(class, raceEDID, name)
   if arch then
     return _SetClassArchetypeData(arch, isFem, mcm, weight)
   else
@@ -369,11 +371,11 @@ end
 ---@return MuscleDef muscleDef
 ---@return SkyrimBool shouldProcess
 ---@return RacialGroup racialGroup Formlist index of the racial group for the actor. Used to set muscle definition by texture.
-local function _FindUnknownNPCData(raceEDID, isFem, class, weight, mcm)
+local function _FindUnknownNPCData(raceEDID, isFem, class, weight, mcm, name)
   if _McmGenericBanned(isFem, mcm) then return _DisableGeneric(isFem) end
   local racialGroup = r.RacialGroup(raceEDID)
   if racialGroup then
-    local fitStage, newWeight, muscleDef, shouldProcess = _GetGenericNPCData(class, raceEDID, isFem, mcm, weight)
+    local fitStage, newWeight, muscleDef, shouldProcess = _GetGenericNPCData(class, raceEDID, isFem, mcm, weight, name)
     return fitStage, newWeight, muscleDef, shouldProcess, racialGroup
   end
   return nil
@@ -390,7 +392,7 @@ end
 local function _GetToKnowNPC(formId, name, raceEDID, isFem, class, weight, mcm, knownNpcId)
   if not knownNpcId or knownNpcId == -999 then
     -- It's a generic NPC
-    return _FindUnknownNPCData(raceEDID, isFem, class, weight, mcm)
+    return _FindUnknownNPCData(raceEDID, isFem, class, weight, mcm, name)
   else
     return _FindKnownNPC(formId, name, raceEDID, isFem, class, weight, mcm, knownNpcId)
   end

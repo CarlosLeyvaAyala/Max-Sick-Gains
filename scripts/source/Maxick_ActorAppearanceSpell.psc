@@ -15,6 +15,7 @@ string name
 
 Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
   If NpcHandler.CanApplyNiOverride(npc)
+    md.Log(npc + " unequipped armor. Fixing pizza hands and genital textures. *************************************")
     looksHandler.EquipPizzaHandsFix(npc)
     looksHandler.FixGenitalTextures(npc)
   EndIf
@@ -22,6 +23,7 @@ EndEvent
 
 Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
   If NpcHandler.CanApplyNiOverride(npc)
+    md.Log(npc + " equipped an armor. Fixing pizza hands and genital textures. *************************************")
     looksHandler.FixGenitalTextures(npc)
   EndIf
 EndEvent

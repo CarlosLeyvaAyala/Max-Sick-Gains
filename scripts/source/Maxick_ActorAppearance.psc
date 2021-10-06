@@ -79,7 +79,7 @@ Function EquipPizzaHandsFix(Actor aAct, bool wait = true)
     Utility.Wait(0.1)
   EndIf
   If !(aAct.GetWornForm(0x8) as Armor)
-    md.LogInfo(DM_Utils.GetActorName(aAct) + ": No gauntlets equipped. Solving the Pizza Hands Syndrome.")
+    md.LogVerb(DM_Utils.GetActorName(aAct) + ": No gauntlets equipped. Solving the Pizza Hands Syndrome.")
     aAct.EquipItem(PizzaHandsFix, false, true)
   EndIf
 EndFunction
@@ -95,7 +95,7 @@ Function ChangeAppearance(Actor aAct, int data, bool useNiOverride = false, bool
   NiOverride.SetBodyMorph(aAct, "MaxickProcessed", "Maxick", 1) ; Mark an invalid actor as processed
 
   md.Log(JMap.getStr(data, "msg"))
-  If !JMap.getInt(data, "shouldProcess")
+  If !JMap.getInt(data, "shouldProcess") || !aAct.Is3DLoaded()
     return
   EndIf
 
@@ -122,6 +122,7 @@ EndFunction
 ; Clears data added by this mod.
 Function Clear(Actor aAct)
   _ClearMorphs(aAct)
+  _ClearSkinOverrides(aAct)
 EndFunction
 
 ; Clears skin overrides added by this mod
@@ -133,7 +134,9 @@ EndFunction
 
 ; Clears morphs added by this mod.
 Function _ClearMorphs(Actor aAct)
-  NiOverride.ClearBodyMorphKeys(aAct, "Maxick")
+  NiOverride.ClearMorphs(aAct)
+  ; TODO: Investigate why morphs can get stuck
+  ; NiOverride.ClearBodyMorphKeys(aAct, "Maxick")
 EndFunction
 
 ; Tries to apply a Bodyslide preset to an actor based on collected `data`.

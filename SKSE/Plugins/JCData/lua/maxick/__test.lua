@@ -20,7 +20,7 @@ end
 
 local function test()
   -- require("__test_npc").Run()
-  serpent.print(player.ChangeAppearance("Argonian", 0, 1, 50, 1))
+  serpent.print(player.ChangeAppearance("Breton", 1, 4, 50, 1))
   -- for i = 0, 100, 10 do
   --   local d = l.linCurve({x=0, y=1}, {x=100, y=6})(i)
   --   print(i, d, math.floor(d), l.round(d))
@@ -31,7 +31,7 @@ test = l.wrap(test, Benchmark)
 
 local t = {}
 
-for _ = 1, 100, 1 do
+for _ = 1, 1, 1 do
   table.insert(t, test())
 end
 local sum = l.reduce(t, 0, function (a, v) return a + v end)

@@ -134,6 +134,26 @@
       }
     },
     {
+      "id": "hk_MarkItems",
+      "desc": "For another mod. Delete this.",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "EasyContainers",
+        "function": "MarkItems",
+        "params": []
+      }
+    },
+    {
+      "id": "hk_TransferItems",
+      "desc": "For another mod. Delete this.",
+      "action": {
+        "type": "CallGlobalFunction",
+        "script": "EasyContainers",
+        "function": "TransferItems",
+        "params": []
+      }
+    },
+    {
       "id": "hk_TM",
       "desc": "Toggle Menu Display",
       "action": {
