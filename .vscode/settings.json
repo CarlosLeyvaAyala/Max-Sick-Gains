@@ -295,7 +295,7 @@
         "F:\\Skyrim SE\\MO2\\mods\\DM-SkyrimSE-Library\\SKSE\\Plugins\\JCData\\lua\\dmlib"
     ],
     "separators.functions.borderStyle": "solid",
-    "separators.functions.ignoreCallbackInline": true,
+    // "separators.functions.ignoreCallbackInline": true,
     "workbench.colorCustomizations": {
         "separators.classes.borderColor": "#6b17cc",
         "separators.constructors.borderColor": "#a6c942",
