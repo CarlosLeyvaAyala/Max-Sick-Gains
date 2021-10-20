@@ -1,0 +1,17 @@
+{
+  "name": "max-sick-gains",
+  "version": "0.1.0",
+  "description": "Change body shape by training",
+  "scripts": {
+    "dev": "node ./tsc/before-first-compilation.js && tsc-watch --onSuccess \"node ./tsc/on-success.js\""
+  },
+  "keywords": [],
+  "author": "Carlos Leyva",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@types/chai": "^4.2.0",
+    "fs-extra": "^9.0.0",
+    "tsc-watch": "^4.2.3",
+    "typescript": "^3.8.3"
+  }
+}

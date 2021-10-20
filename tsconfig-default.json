@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "module": "System",
+    "target": "ES2015",
+    "lib": [
+      "ES2015"
+    ],
+    "paths": {
+      "chai": [
+        "./node_modules/@types/chai"
+      ]
+    },
+    "outFile": "Platform/Plugins/maxick.js",
+    "baseUrl": "F:/Steam/steamapps/common/Skyrim Special Edition/Data/Platform/Modules",
+    "rootDirs": [
+      "F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src",
+      "F:/Steam/steamapps/common/Skyrim Special Edition/Data/Platform/Modules"
+    ]
+  },
+  "include": [
+    "./*.ts"
+  ]
+}
