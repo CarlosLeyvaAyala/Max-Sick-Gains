@@ -1,3 +1,4 @@
+import { IntToHex } from "DM-Lib/Debug"
 import { AvoidRapidFire, ListenPapyrusEvent } from "DM-Lib/Misc"
 import { Actor, hooks, on, printConsole } from "skyrimPlatform"
 import { LogVT } from "./debug"
@@ -8,22 +9,40 @@ export function main() {
 
   // on("update", () => {})
 
-  const IntToHex = (x: number) =>
-    !x ? "IntToHex: Undefined value" : x.toString(16)
-
   const OnSleepStart = AvoidRapidFire(S.OnSleepStart)
-  const OnSleepEnd = AvoidRapidFire(S.OnSleepEnd)
+  const OnSleepStop = AvoidRapidFire(S.OnSleepEnd)
 
-  const SleepStart = ListenPapyrusEvent("OnSleepStart")
-  const SleepEnd = ListenPapyrusEvent("OnSleepStop")
-  const CellAttach = ListenPapyrusEvent("OnCellAttach")
+  // const SleepStart = ListenPapyrusEvent("OnSleepStart")
+  // const SleepEnd = ListenPapyrusEvent("OnSleepStop")
+  // const CellAttach = ListenPapyrusEvent("OnCellAttach")
 
-  hooks.sendPapyrusEvent.add({
-    enter(ctx) {
-      SleepStart(ctx, OnSleepStart)
-      SleepEnd(ctx, OnSleepEnd)
+  // hooks.sendPapyrusEvent.add({
+  //   enter(c) {
+  //     SleepStart(c, OnSleepStart)
+  //     SleepEnd(c, OnSleepStart)
+  //   },
+  // })
+  hooks.sendPapyrusEvent.add(
+    {
+      enter(_) {
+        OnSleepStop()
+      },
     },
-  })
+    0,
+    0x14,
+    "OnSleepStop"
+  )
+
+  hooks.sendPapyrusEvent.add(
+    {
+      enter(_) {
+        OnSleepStart()
+      },
+    },
+    0,
+    0x14,
+    "OnSleepStart"
+  )
 
   // on("equip", (e) => {
   //   const b = e.actor.getBaseObject()

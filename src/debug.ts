@@ -6,7 +6,8 @@ export const mod_name = "maxick"
 const CLF = (logAt: D.LoggingLevel) =>
   D.CreateLoggingFunction(
     "Maxick",
-    D.ReadLoggingFromSettings(mod_name, "loggingLevel"),
+    // D.ReadLoggingFromSettings(mod_name, "loggingLevel"),
+    D.LoggingLevel.verbose,
     logAt
   )
 

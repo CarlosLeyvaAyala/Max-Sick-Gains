@@ -1,9 +1,9 @@
-import { Utility } from "skyrimPlatform"
-import { LogE, LogVT } from "./debug"
+import { HourSpan, HumanHours, Now } from "DM-Lib/Time"
+import { Game, printConsole } from "skyrimPlatform"
+import { LogE, LogV, LogVT } from "./debug"
 
 let lastSlept = 0
 let goneToSleepAt = 0
-const Now = Utility.getCurrentGameTime
 
 /** Player went to sleep. */
 export function OnSleepStart() {
@@ -12,13 +12,22 @@ export function OnSleepStart() {
 
 /** Player woke up. */
 export function OnSleepEnd() {
-  if (Now() - lastSlept < 2) {
+  printConsole("Sleep end")
+  const Ls = () => LogVT("Awaken at", Now())
+
+  if (HourSpan(lastSlept) < 0.2) {
     LogE("You just slept. Nothing will be done.")
-    lastSlept = LogVT("Awaken at", Now())
+    lastSlept = Ls()
     return
   }
 
-  const hoursSlept = LogVT("Time slept", Now() - goneToSleepAt)
+  const hoursSlept = LogVT("Time slept", HourSpan(goneToSleepAt))
   if (hoursSlept < 1) return // Do nothing. Didn't really slept.
-  lastSlept = LogVT("Awaken at", Now())
+  lastSlept = Ls()
+  SleepEvent(hoursSlept)
+}
+
+function SleepEvent(hoursSlept: HumanHours) {
+  Game.getPlayer()?.sendModEvent("Sleep", "", hoursSlept)
+  LogV("Calculating player appearance")
 }
