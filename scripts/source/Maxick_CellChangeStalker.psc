@@ -12,5 +12,5 @@ Event OnCellDetach()
   md.LogVerb("Player changed cells. Sending event from XMarker.")
   Utility.Wait(0.1) ;maybe not necessary
   MoveTo(player)
-  SendModEvent(ev.CELL_CHANGE)
+  ; SendModEvent(ev.CELL_CHANGE)
 EndEvent
