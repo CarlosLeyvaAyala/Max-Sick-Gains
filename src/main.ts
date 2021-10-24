@@ -1,27 +1,29 @@
-import { IntToHex } from "DM-Lib/Debug"
-import { ForEachFormInCell, FormType } from "DM-Lib/Iteration"
+import { fitStage, MuscleDefinitionType } from "./database"
+import { ClearAppearance } from "./appearance/appearance"
 import { AvoidRapidFire } from "DM-Lib/Misc"
-import {
-  Actor,
-  Game,
-  hooks,
-  Keyword,
-  on,
-  printConsole,
-  settings,
-} from "skyrimPlatform"
-import { LogVT } from "./debug"
-import { fitStage } from "./database"
+import { Actor, Armor, Game, hooks, on, printConsole } from "skyrimPlatform"
 import * as S from "./sleep"
+import { SolveAppearance } from "./appearance/npc"
 
 export function main() {
+  // const c = 5
+  // // printConsole(fitStage(1))
+  // printConsole(fitStage(c).femBs)
+  // BlendFemBs(fitStage(c), 10).forEach((v, k) => {
+  //   printConsole(`${k}: ${v}`)
+  // })
+  // printConsole(fitStage(c).manBs)
+  // BlendManBs(fitStage(c), 10).forEach((v, k) => {
+  //   printConsole(`${k}: ${v}`)
+  // })
+  // printConsole(`Type: ${MuscleDefinitionType[fitStage(c).muscleDefType]}`)
+  // printConsole(fitStage(c).iName)
+
   printConsole("Max Sick Gains successfully initialized.")
 
-  printConsole(fitStage(1))
-  printConsole(fitStage(1).iName)
-  printConsole(fitStage(1).muscleDefType)
-
-  // on("update", () => {})
+  // ;>========================================================
+  // ;>===                 PLAYER EVENTS                  ===<;
+  // ;>========================================================
 
   const OnSleepStart = AvoidRapidFire(S.OnSleepStart)
   const OnSleepStop = AvoidRapidFire(S.OnSleepEnd)
@@ -48,56 +50,56 @@ export function main() {
     "OnSleepStart"
   )
 
-  hooks.sendPapyrusEvent.add(
-    {
-      enter(_) {
-        printConsole("attached")
-      },
-    },
-    undefined,
-    undefined,
-    "OnAttachedToCell"
-  )
+  // ;>========================================================
+  // ;>===             PLAYER AND NPC EVENTS              ===<;
+  // ;>========================================================
 
-  // on("equip", (e) => {
-  //   const b = e.actor.getBaseObject()
-  //   // if (b) printConsole(`EQUIP. actor: ${b.getName()}. object: ${e.baseObj.getName()}`);
-  // });
+  // Pizza hands fix
+  on("equip", (e) => {
+    const b = e.actor.getBaseObject()
+    const armor = Armor.from(e.baseObj)
+    if (!armor || armor.getSlotMask() !== 0x4) return
 
-  // on("objectLoaded", (e) => {
-  //   if (e.isLoaded) {
-  //     const a = Actor.from(e.object)
-  //     if (!a) return
-  //     const b = a.getLeveledActorBase()
-  //     // const formId = LogVT("FormId", e.object?.getFormID(), IntToHex)
-  //     printConsole(`Name: ${b?.getName()}`)
-  //   }
-  // })
-
-  on("cellFullyLoaded", (e) => {
-    return
-    const p = Game.getPlayer()
-    const k = Keyword.getKeyword("ActorTypeNPC")
-
-    ForEachFormInCell(e.cell, FormType.NPC, (f) => {
-      if (!f) return
-      const a = Actor.from(f)
-      if (
-        !a ||
-        a.isDisabled() ||
-        !a.getRace()?.hasKeyword(k) ||
-        a.getFormID() === p?.getFormID()
+    if (b)
+      printConsole(
+        `EQUIP. actor: ${b.getName()}. object: ${e.baseObj.getName()}`
       )
-        return
-      // printConsole(a.getRace()?.getName())
-
-      const b = a.getLeveledActorBase()
-      printConsole(b?.getName())
-    })
   })
 
-  // on("unequip", (e) => {
-  //   const b = e.actor.getBaseObject()
-  //   // if (b) printConsole(`UNEQUIP. actor: ${b.getName()}. object: ${e.baseObj.getName()}`);
-  // });
+  // Pizza hands fix
+  on("unequip", (e) => {
+    const b = e.actor.getBaseObject()
+    const armor = Armor.from(e.baseObj)
+    if (!armor || armor.getSlotMask() !== 0x4) return
+
+    if (b)
+      printConsole(
+        `UNEQUIP. actor: ${b.getName()}. object: ${e.baseObj.getName()}`
+      )
+  })
+
+  // ;>========================================================
+  // ;>===                   NPC EVENTS                   ===<;
+  // ;>========================================================
+
+  // Right now, NPC appearance is set by applying a Spell via SPID, since it's
+  // the most reliable method to apply them settings as soon as they spawn.
+  // That spell is empty and does nothing. All the work is done here.
+  on("effectStart", (e) => {
+    OnMaxickSpell(e.effect.getFormID(), Actor.from(e.target), SolveAppearance)
+  })
+
+  on("effectFinish", (e) => {
+    OnMaxickSpell(e.effect.getFormID(), Actor.from(e.target), ClearAppearance)
+  })
+}
+
+function OnMaxickSpell(
+  spellId: number,
+  target: Actor | null,
+  DoSomething: (target: Actor | null) => void
+) {
+  const fx = Game.getFormFromFile(0x96c, "Max Sick Gains.esp")
+  if (fx?.getFormID() !== spellId) return
+  DoSomething(target)
 }

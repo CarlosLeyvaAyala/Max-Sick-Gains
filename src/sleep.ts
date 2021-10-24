@@ -12,18 +12,19 @@ export function OnSleepStart() {
 
 /** Player woke up. */
 export function OnSleepEnd() {
-  printConsole("Sleep end")
-  const Ls = () => LogVT("Awaken at", Now())
+  const Ls = () => {
+    lastSlept = LogVT("Awaken at", Now())
+  }
 
   if (HourSpan(lastSlept) < 0.2) {
     LogE("You just slept. Nothing will be done.")
-    lastSlept = Ls()
+    Ls()
     return
   }
 
   const hoursSlept = LogVT("Time slept", HourSpan(goneToSleepAt))
   if (hoursSlept < 1) return // Do nothing. Didn't really slept.
-  lastSlept = Ls()
+  Ls()
   SleepEvent(hoursSlept)
 }
 
