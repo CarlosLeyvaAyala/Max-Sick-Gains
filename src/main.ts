@@ -1,9 +1,11 @@
 import { fitStage, MuscleDefinitionType } from "./database"
-import { ClearAppearance } from "./appearance/appearance"
 import { AvoidRapidFire } from "DM-Lib/Misc"
 import { Actor, Armor, Game, hooks, on, printConsole } from "skyrimPlatform"
 import * as S from "./sleep"
-import { SolveAppearance } from "./appearance/npc"
+import {
+  ChangeAppearance as ChangeNpcAppearance,
+  ClearAppearance as ClearNpcAppearance,
+} from "./appearance/npc"
 
 export function main() {
   // const c = 5
@@ -82,15 +84,43 @@ export function main() {
   // ;>===                   NPC EVENTS                   ===<;
   // ;>========================================================
 
+  // on("moveAttachDetach", (e) => {
+  //   const a = Actor.from(e.movedRef)
+  //   if (e.isCellAttached) SolveAppearance(a)
+  //   else ClearAppearance(a)
+  // })
+
+  // on("objectLoaded", (e) => {
+  //   const a = Actor.from(e.object)
+  //   if (e.isLoaded) SolveAppearance(a)
+  //   else ClearAppearance(a)
+  // })
+
   // Right now, NPC appearance is set by applying a Spell via SPID, since it's
   // the most reliable method to apply them settings as soon as they spawn.
   // That spell is empty and does nothing. All the work is done here.
   on("effectStart", (e) => {
-    OnMaxickSpell(e.effect.getFormID(), Actor.from(e.target), SolveAppearance)
+    OnMaxickSpell(
+      e.effect.getFormID(),
+      Actor.from(e.target),
+      ChangeNpcAppearance
+    )
   })
 
+  // on("magicEffectApply", (e) => {
+  //   OnMaxickSpell(
+  //     e.effect.getFormID(),
+  //     Actor.from(e.target),
+  //     SolveNpcAppearance
+  //   )
+  // })
+
   on("effectFinish", (e) => {
-    OnMaxickSpell(e.effect.getFormID(), Actor.from(e.target), ClearAppearance)
+    OnMaxickSpell(
+      e.effect.getFormID(),
+      Actor.from(e.target),
+      ClearNpcAppearance
+    )
   })
 }
 
