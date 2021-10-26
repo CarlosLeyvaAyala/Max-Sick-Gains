@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { settings } from "skyrimPlatform"
 
 /** How many types of muscle definition there are.
@@ -38,6 +39,7 @@ export interface FitStage {
 
 const modName = "maxick"
 const fitStages = settings[modName]["fitStages"]
+const classes = settings[modName]["classes"]
 
 /**
  * Returns from database the Fitness Stage of some id.
@@ -46,6 +48,30 @@ const fitStages = settings[modName]["fitStages"]
  */
 export function fitStage(id: number | string) {
   const i = typeof id === "number" ? id.toString() : id
-  // @ts-ignore
   return fitStages[i] as FitStage
+}
+
+/**
+ * Retuns all Class Archetype ids a Class belongs to.
+ * @remarks
+ * Class solving is done on both the Full Name and Class Name of an NPC.
+ *
+ * @param name NPC name.
+ * @param aClass NPC class.
+ * @returns Array of Class Archetypes.
+ *
+ * @example
+ * const archs1 = ClassMatch("Whiterun Guard", "Guard")
+ * const archs2 = ClassMatch("Legate Rikke", "Warrior")
+ */
+export function ClassMatch(name: string, aClass: string) {
+  const n = name.toLowerCase()
+  const c = aClass.toLowerCase()
+  const r = []
+  for (const key in classes)
+    if (n.indexOf(key) >= 0 || c.indexOf(key) >= 0) r.push(classes[key])
+  // Flatten and sort array
+  const flat = ([] as number[]).concat(...r).sort((a, b) => a - b)
+  // Avoid repeated elements
+  return [...new Set(flat)]
 }

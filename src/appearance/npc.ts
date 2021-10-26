@@ -2,7 +2,7 @@ import { IntToHex } from "DM-Lib/Debug"
 import { GetFormEspAndId } from "DM-Lib/Misc"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import { Actor, ActorBase } from "skyrimPlatform"
-import { fitStage, Sex } from "../database"
+import { ClassMatch, fitStage, Sex } from "../database"
 import { LogE, LogV, LogVT } from "../debug"
 import {
   ApplyBodyslide,
@@ -35,6 +35,7 @@ interface NPCData {
 export function ChangeAppearance(a: Actor | null) {
   const d = LogVT("+++", GetActorData(a), NPCDataToStr)
   if (!d) return
+  LogV(ClassMatch(d.name, d.class).toString())
   const bs = GetBodyslide(fitStage(5), d.sex, d.weight)
   ApplyBodyslide(d.actor, bs)
 }
