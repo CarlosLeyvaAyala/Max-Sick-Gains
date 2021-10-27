@@ -6,9 +6,30 @@ import { settings } from "skyrimPlatform"
  * Which type of normal texture gets applied to an `Actor` depends on this.
  */
 export enum MuscleDefinitionType {
+  /** Not fat nor ripped textures. */
   plain = 0,
+  /** Ripped textures. */
   athletic,
+  /** Fat textures. */
   fat,
+}
+
+export enum RacialGroup {
+  Hum,
+  Arg,
+  Kha,
+}
+
+/** Data needed to change muscle definition to an `Actor`. */
+export interface MuscleDefinition {
+  /** Should muscle definition be applied? */
+  process: boolean
+  /** What type of muscle definition the `Actor` has. */
+  type: MuscleDefinitionType
+  /** What muscle definition level will be applied. */
+  level: number
+  /** To which racial group the `Actor` belongs to. */
+  racialGroup: RacialGroup
 }
 
 export enum Sex {
@@ -37,12 +58,22 @@ export interface FitStage {
   manBs: object
 }
 
+export interface ClassArchetype {
+  iName: string
+  fitStage: number
+  bsLo: number
+  bsHi: number
+  muscleDefLo: number
+  muscleDefHi: number
+  raceExclusive: string[]
+}
+
 const modName = "maxick"
 const fitStages = settings[modName]["fitStages"]
 const classes = settings[modName]["classes"]
+const archetypes = settings[modName]["classArchetypes"]
 
-/**
- * Returns from database the Fitness Stage of some id.
+/** Returns from database the Fitness Stage of some id.
  * @param id
  * @returns @see {@link FitStage}
  */
@@ -51,14 +82,13 @@ export function fitStage(id: number | string) {
   return fitStages[i] as FitStage
 }
 
-/**
- * Retuns all Class Archetype ids a Class belongs to.
+/** Retuns all Class Archetype ids a Class belongs to.
  * @remarks
  * Class solving is done on both the Full Name and Class Name of an NPC.
  *
  * @param name NPC name.
  * @param aClass NPC class.
- * @returns Array of Class Archetypes.
+ * @returns Array of Class Archetype ids.
  *
  * @example
  * const archs1 = ClassMatch("Whiterun Guard", "Guard")
@@ -74,4 +104,9 @@ export function ClassMatch(name: string, aClass: string) {
   const flat = ([] as number[]).concat(...r).sort((a, b) => a - b)
   // Avoid repeated elements
   return [...new Set(flat)]
+}
+
+export function classArchetype(id: number | string) {
+  const i = typeof id === "number" ? id.toString() : id
+  return archetypes[i] as ClassArchetype
 }

@@ -23,5 +23,8 @@ export const LogI = CLF(D.LoggingLevel.info)
 /** Logs detailed info meant only for debugging. */
 export const LogV = CLF(D.LoggingLevel.verbose)
 
+/** Logs a variable while initializing it. Message level: info. */
+export const LogIT = D.TapLog(LogI)
+
 /** Logs a variable while initializing it. Message level: verbose. */
 export const LogVT = D.TapLog(LogV)
