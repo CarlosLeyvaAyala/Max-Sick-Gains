@@ -1,5 +1,5 @@
-import { Alt } from "DM-Lib/Combinators"
-import { IntToHex } from "DM-Lib/Debug"
+import { Alt, K, Tap } from "DM-Lib/Combinators"
+import { IntToHex, LogR } from "DM-Lib/Debug"
 import { LinCurve } from "DM-Lib/Math"
 import { GetFormEspAndId, RandomElement } from "DM-Lib/Misc"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
@@ -12,6 +12,7 @@ import {
   MuscleDefinition,
   MuscleDefinitionType,
   RacialGroup,
+  RacialMatch,
   Sex,
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
@@ -20,6 +21,8 @@ import {
   BodyslidePreset,
   ClearAppearance as ClearActorAppearance,
   GetBodyslide,
+  InterpolateMusDef,
+  InterpolateW,
 } from "./appearance"
 
 /** Data needed to solve an NPC appearance. */
@@ -55,9 +58,12 @@ interface BodyslideData {
  * Known and Generic NPCs, but the ways to obtain it are different.
  */
 interface RawAppearance {
+  /** Body morphs will be gotten from this. */
   fitStageId: number
-  muscleDef: MuscleDefinition
-  weight: number
+  /** No muscle definition will be calculated if undefined. */
+  muscleDef?: MuscleDefinition
+  /** No body morph will be calculated if undefined. */
+  weight?: number
 }
 
 /** Final appearance data for an `Actor`.
@@ -72,6 +78,31 @@ interface Appearance {
   bodyslide?: BodyslidePreset
 }
 
+enum NpcType {
+  known,
+  generic,
+}
+
+interface NpcOptions {
+  applyMorphs: boolean
+  applyMuscleDef: boolean
+}
+
+interface AllNpcOptions {
+  knownFem: NpcOptions
+  knownMan: NpcOptions
+  genericFem: NpcOptions
+  genericMan: NpcOptions
+}
+
+// TODO: Delete
+const mockOptions: AllNpcOptions = {
+  knownFem: { applyMorphs: true, applyMuscleDef: true },
+  knownMan: { applyMorphs: true, applyMuscleDef: true },
+  genericFem: { applyMorphs: true, applyMuscleDef: true },
+  genericMan: { applyMorphs: false, applyMuscleDef: false },
+}
+
 /** Changes an `Actor` appearance according to what they should look like.
  *
  * @param a The `Actor` to change their appearance.
@@ -79,7 +110,7 @@ interface Appearance {
 export function ChangeAppearance(a: Actor | null) {
   const d = LogIT("+++", GetActorData(a), NPCDataToStr)
   if (!d) return
-  const r = SolveAppearance(d)
+  const r = SolveAppearance(d, mockOptions)
   if (r.bodyslide) ApplyBodyslide(d.actor, r.bodyslide)
 }
 
@@ -95,48 +126,82 @@ export function ClearAppearance(a: Actor | null) {
  * @param a `Actor` to get their appearance.
  * @returns Fitness stage, muscle definition and adjusted weight according to their Class Archetype.
  */
-function SolveAppearance(d: NPCData): Appearance {
+function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
   // If it's not a Known NPC, it's a generic one.
-  const raw = Alt(SolveKnownNPC, SolveGenericNPC)(d)
-  const bs = GetBodyslide(
-    fitStage(raw.fitStageId),
-    d.sex,
-    LogIT("Applied weight", raw.weight)
-  )
+  const raw = Alt(SolveKnownNPC, SolveGenericNPC)(d, o)
+
+  const bs =
+    raw.weight !== undefined
+      ? GetBodyslide(
+          fitStage(raw.fitStageId),
+          d.sex,
+          LogIT("Applied weight", raw.weight)
+        )
+      : undefined
   return { bodyslide: bs }
 }
 
-function SolveKnownNPC(d: NPCData): RawAppearance | null {
+function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
   return null
 }
 
 //#region Generic NPC solving
 
+/** Invalid raw appearance */
+const iRawApp = { fitStageId: -1 }
+
+const InvalidRace = (d: NPCData) => {
+  LogE(`NPC ${d.actor.getFormID()} does not belong to any known racial group.`)
+}
+
+const NothingToDo = (s: Sex, t: NpcType) => {
+  LogI(
+    `All options for ${NpcType[t]} ${Sex[s]} NPCs are disabled. Nothing to do.`
+  )
+}
+
+const NoBs = (s: Sex, t: NpcType) => {
+  LogI(
+    `Body morphs for ${NpcType[t]} ${Sex[s]} NPCs are disabled. Body shape won't change.`
+  )
+}
+
+const NoMdef = (s: Sex, t: NpcType) => {
+  LogI(
+    `Muscle definition for ${NpcType[t]} ${Sex[s]} NPCs is disabled; it won't change.`
+  )
+}
+
 /** Gets the {@link RawAppearance} of a Generic NPC.
  *
  * @param d {@link NPCData}
  */
-function SolveGenericNPC(d: NPCData): RawAppearance {
-  // Get RawAppearance from class archetype
+function SolveGenericNPC(d: NPCData, o: AllNpcOptions): RawAppearance {
+  const raceGroup = RacialMatch(d.race)
+  if (!raceGroup) return LogR(InvalidRace(d), iRawApp) // Get out and log
+
+  const s = d.sex
+  const t = NpcType.generic
+
+  const oo = GetNpcOptions(d.sex, NpcType.generic, o)
+  if (!oo.applyMuscleDef && !oo.applyMorphs)
+    return LogR(NothingToDo(s, t), iRawApp) // Get out and log
+
   const arch = Alt(SolveArchetype, DefaultArchetype)(d)
   LogI(`Selected archetype: ${arch.iName}`)
 
+  const fixedW = InterpolateW(arch.bsLo, arch.bsHi, d.weight)
+
   return {
     fitStageId: arch.fitStage,
-    weight: LinCurve(
-      { x: 0, y: arch.bsLo },
-      { x: 100, y: arch.bsHi }
-    )(d.weight),
-    muscleDef: {
-      level: LinCurve(
-        { x: 0, y: arch.muscleDefLo },
-        { x: 100, y: arch.muscleDefHi }
-      )(d.weight),
-      // TODO: Get real values
-      process: false,
-      type: MuscleDefinitionType.plain,
-      racialGroup: RacialGroup.Hum,
-    },
+    weight: oo.applyMorphs ? fixedW : LogR(NoBs(s, t), undefined),
+    muscleDef: oo.applyMuscleDef
+      ? {
+          level: InterpolateMusDef(arch.muscleDefLo, arch.muscleDefHi, fixedW),
+          type: fitStage(arch.fitStage).muscleDefType,
+          racialGroup: raceGroup,
+        }
+      : LogR(NoMdef(s, t), undefined),
   }
 }
 
@@ -218,6 +283,17 @@ function DefaultArchetype(_: NPCData): ClassArchetype {
   }
 }
 //#endregion
+
+/** Returns "MCM" options for an NPC, according to their sex and type.
+ *
+ * @param d
+ * @param o
+ * @param t
+ */
+function GetNpcOptions(s: Sex, t: NpcType, o: AllNpcOptions): NpcOptions {
+  if (s === Sex.female) return t === NpcType.known ? o.knownFem : o.genericFem
+  return t === NpcType.known ? o.knownMan : o.genericMan
+}
 
 /** Outputs a string with all data needed to debug an NPC.
  *

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { settings } from "skyrimPlatform"
+import { printConsole, settings } from "skyrimPlatform"
 
 /** How many types of muscle definition there are.
  * @remarks
@@ -15,18 +15,21 @@ export enum MuscleDefinitionType {
 }
 
 export enum RacialGroup {
+  /** Banned. */
+  Ban = 0,
+  /** Humanoid. */
   Hum,
-  Arg,
+  /** Khajiit. */
   Kha,
+  /** Argonian. */
+  Arg,
 }
 
 /** Data needed to change muscle definition to an `Actor`. */
 export interface MuscleDefinition {
-  /** Should muscle definition be applied? */
-  process: boolean
   /** What type of muscle definition the `Actor` has. */
   type: MuscleDefinitionType
-  /** What muscle definition level will be applied. */
+  /** What muscle definition level will be applied. No definition will be applied if `undefined`. */
   level: number
   /** To which racial group the `Actor` belongs to. */
   racialGroup: RacialGroup
@@ -72,6 +75,7 @@ const modName = "maxick"
 const fitStages = settings[modName]["fitStages"]
 const classes = settings[modName]["classes"]
 const archetypes = settings[modName]["classArchetypes"]
+const races = settings[modName]["races"]
 
 /** Returns from database the Fitness Stage of some id.
  * @param id
@@ -109,4 +113,11 @@ export function ClassMatch(name: string, aClass: string) {
 export function classArchetype(id: number | string) {
   const i = typeof id === "number" ? id.toString() : id
   return archetypes[i] as ClassArchetype
+}
+
+export function RacialMatch(raceEDID: string): RacialGroup | null {
+  const race = raceEDID.toLowerCase()
+  for (const key in races)
+    if (race.indexOf(key) >= 0) return RacialGroup[races[key].group]
+  return null
 }

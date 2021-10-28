@@ -87,3 +87,25 @@ export function ClearAppearance(a: Actor | null) {
   RemoveAllReferenceOverrides(a)
   RemoveAllReferenceSkinOverrides(a)
 }
+
+/** Performs a linear interpolation based on some `weight`.
+ *
+ * @param y1 Starting value.
+ * @param y2 Ending value.
+ * @param weight `Actor` `weight` to get the interpolated value at.
+ * @returns The value associated to `weight`.
+ */
+export function InterpolateW(y1: number, y2: number, weight: number) {
+  return LinCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(weight)
+}
+
+/** Gets which muscle definition level an `Actor` should have.
+ *
+ * @param lo Minimum muscle definition level.
+ * @param hi Maximum muscle definition level.
+ * @param weight `Actor` weight.
+ * @returns The muscle definition level that will be applied to the `Actor`.
+ */
+export function InterpolateMusDef(lo: number, hi: number, weight: number) {
+  return Math.round(InterpolateW(lo, hi, weight))
+}
