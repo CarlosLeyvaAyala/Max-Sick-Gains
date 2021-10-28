@@ -31,8 +31,6 @@ export interface MuscleDefinition {
   type: MuscleDefinitionType
   /** What muscle definition level will be applied. No definition will be applied if `undefined`. */
   level: number
-  /** To which racial group the `Actor` belongs to. */
-  racialGroup: RacialGroup
 }
 
 export enum Sex {

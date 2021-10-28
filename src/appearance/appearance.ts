@@ -1,5 +1,7 @@
 import { LinCurve } from "DM-Lib/Math"
 import {
+  AddNodeOverrideString,
+  AddSkinOverrideString,
   ClearMorphs,
   RemoveAllReferenceOverrides,
   RemoveAllReferenceSkinOverrides,
@@ -7,8 +9,14 @@ import {
   UpdateModelWeight,
 } from "Racemenu/nioverride"
 import { Actor } from "skyrimPlatform"
-import { FitStage, BsSlider, Sex } from "../database"
-import { LogE, LogV } from "../debug"
+import {
+  BsSlider,
+  FitStage,
+  MuscleDefinitionType,
+  RacialGroup,
+  Sex,
+} from "../database"
+import { LogIT } from "../debug"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
@@ -82,10 +90,40 @@ export function ApplyBodyslide(a: Actor, bs: BodyslidePreset) {
   MarkProcessed(a) // Need to mark the actor again due to clearing bodyslides
 }
 
+export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
+  if (!path) return // TODO: Unequip pizza hands fix
+
+  // TODO: EquipPizzaHandsFix(aAct, false)
+  AddSkinOverrideString(a, s === Sex.female, false, 0x4, 9, 1, path, true)
+  AddSkinOverrideString(a, s === Sex.female, true, 0x4, 9, 1, path, true)
+  // TODO: FixGenitalTextures(aAct)
+}
+
 export function ClearAppearance(a: Actor | null) {
   ClearMorphs(a)
   RemoveAllReferenceOverrides(a)
   RemoveAllReferenceSkinOverrides(a)
+}
+
+export function GetMuscleDefTex(
+  s: Sex,
+  r: RacialGroup,
+  type: MuscleDefinitionType,
+  lvl: number
+) {
+  const ss = s === Sex.female ? "Fem" : "Man"
+  const n = lvl.toString().padStart(2, "0")
+  const t =
+    type === MuscleDefinitionType.plain
+      ? "Meh"
+      : type === MuscleDefinitionType.athletic
+      ? "Fit"
+      : "Fat"
+
+  return LogIT(
+    "Applied muscle definition",
+    `actors\\character\\Maxick\\${RacialGroup[r]}\\${ss}${t}_${n}.dds`
+  )
 }
 
 /** Performs a linear interpolation based on some `weight`.

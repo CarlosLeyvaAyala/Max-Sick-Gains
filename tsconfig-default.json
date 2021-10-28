@@ -11,7 +11,7 @@
     "module": "System",
     "target": "ES2015",
     "lib": [
-      "ES2015"
+      "ES2017"
     ],
     "paths": {
       "chai": [

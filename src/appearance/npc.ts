@@ -3,7 +3,7 @@ import { IntToHex, LogR } from "DM-Lib/Debug"
 import { LinCurve } from "DM-Lib/Math"
 import { GetFormEspAndId, RandomElement } from "DM-Lib/Misc"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
-import { Actor, ActorBase } from "skyrimPlatform"
+import { Actor, ActorBase, printConsole } from "skyrimPlatform"
 import {
   ClassArchetype,
   classArchetype,
@@ -18,9 +18,11 @@ import {
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 import {
   ApplyBodyslide,
+  ApplyMuscleDef,
   BodyslidePreset,
   ClearAppearance as ClearActorAppearance,
   GetBodyslide,
+  GetMuscleDefTex,
   InterpolateMusDef,
   InterpolateW,
 } from "./appearance"
@@ -100,7 +102,7 @@ const mockOptions: AllNpcOptions = {
   knownFem: { applyMorphs: true, applyMuscleDef: true },
   knownMan: { applyMorphs: true, applyMuscleDef: true },
   genericFem: { applyMorphs: true, applyMuscleDef: true },
-  genericMan: { applyMorphs: false, applyMuscleDef: false },
+  genericMan: { applyMorphs: true, applyMuscleDef: true },
 }
 
 /** Changes an `Actor` appearance according to what they should look like.
@@ -110,8 +112,10 @@ const mockOptions: AllNpcOptions = {
 export function ChangeAppearance(a: Actor | null) {
   const d = LogIT("+++", GetActorData(a), NPCDataToStr)
   if (!d) return
+
   const r = SolveAppearance(d, mockOptions)
   if (r.bodyslide) ApplyBodyslide(d.actor, r.bodyslide)
+  ApplyMuscleDef(d.actor, d.sex, r.path)
 }
 
 /** Removes body morphs and texture overrides to avoid save game bloating.
@@ -122,36 +126,15 @@ export function ClearAppearance(a: Actor | null) {
   ClearActorAppearance(a)
 }
 
-/** Gets appearance data for an `Actor`.
- * @param a `Actor` to get their appearance.
- * @returns Fitness stage, muscle definition and adjusted weight according to their Class Archetype.
- */
-function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
-  // If it's not a Known NPC, it's a generic one.
-  const raw = Alt(SolveKnownNPC, SolveGenericNPC)(d, o)
-
-  const bs =
-    raw.weight !== undefined
-      ? GetBodyslide(
-          fitStage(raw.fitStageId),
-          d.sex,
-          LogIT("Applied weight", raw.weight)
-        )
-      : undefined
-  return { bodyslide: bs }
-}
-
-function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
-  return null
-}
-
-//#region Generic NPC solving
-
 /** Invalid raw appearance */
 const iRawApp = { fitStageId: -1 }
 
 const InvalidRace = (d: NPCData) => {
-  LogE(`NPC ${d.actor.getFormID()} does not belong to any known racial group.`)
+  LogE(
+    `NPC 0x${d.actor
+      .getFormID()
+      .toString(16)} does not belong to any known racial group.`
+  )
 }
 
 const NothingToDo = (s: Sex, t: NpcType) => {
@@ -172,14 +155,48 @@ const NoMdef = (s: Sex, t: NpcType) => {
   )
 }
 
+/** Gets appearance data for an `Actor`.
+ * @param a `Actor` to get their appearance.
+ * @returns Fitness stage, muscle definition and adjusted weight according to their Class Archetype.
+ */
+function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
+  const raceGroup = RacialMatch(d.race)
+  if (!raceGroup) return LogR(InvalidRace(d), {}) // Get out and log
+
+  // If it's not a Known NPC, it's a generic one.
+  const raw = Alt(SolveKnownNPC, SolveGenericNPC)(d, o)
+
+  return {
+    bodyslide:
+      raw.weight !== undefined
+        ? GetBodyslide(
+            fitStage(raw.fitStageId),
+            d.sex,
+            LogIT("Applied weight", raw.weight)
+          )
+        : undefined,
+    path: raw.muscleDef
+      ? GetMuscleDefTex(
+          d.sex,
+          raceGroup,
+          raw.muscleDef.type,
+          raw.muscleDef.level
+        )
+      : undefined,
+  }
+}
+
+function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
+  return null
+}
+
+//#region Generic NPC solving
+
 /** Gets the {@link RawAppearance} of a Generic NPC.
  *
  * @param d {@link NPCData}
  */
 function SolveGenericNPC(d: NPCData, o: AllNpcOptions): RawAppearance {
-  const raceGroup = RacialMatch(d.race)
-  if (!raceGroup) return LogR(InvalidRace(d), iRawApp) // Get out and log
-
   const s = d.sex
   const t = NpcType.generic
 
@@ -199,7 +216,6 @@ function SolveGenericNPC(d: NPCData, o: AllNpcOptions): RawAppearance {
       ? {
           level: InterpolateMusDef(arch.muscleDefLo, arch.muscleDefHi, fixedW),
           type: fitStage(arch.fitStage).muscleDefType,
-          racialGroup: raceGroup,
         }
       : LogR(NoMdef(s, t), undefined),
   }

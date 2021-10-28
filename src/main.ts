@@ -15,6 +15,7 @@ import {
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
 import * as S from "./sleep"
+import { LogE } from "./debug"
 
 export function main() {
   printConsole("Max Sick Gains successfully initialized.")
@@ -105,7 +106,11 @@ export function main() {
 
   on("update", () => {
     OnDebugNpc(() => {
-      ChangeNpcAppearance(Actor.from(Game.getCurrentConsoleRef()))
+      const r = Game.getCurrentConsoleRef()
+      if (!r) return
+      if (r.getFormID() === Game.getPlayer()?.getFormID())
+        LogE("Yeah... nice try, Einstein. GO EARN YOUR GAINS, YOU LOAFER!")
+      else ChangeNpcAppearance(Actor.from(r))
     })
   })
 }

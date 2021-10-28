@@ -105,8 +105,8 @@ print(blindDate())
 -- print("|---------------|---------------|-----------------------|-----------------------|---------------|")
 
 print("uu\"eiu\" ei")
-i = 0xe000
+-- local i = 0xe000
 for i = 0xdff0, 0xf010 do
-  hex = string.format("%x", i)
+  local hex = string.format("%x", i)
   print("<code>", hex, " - </code>", "<span style=\"font-family: 'Material2';\">&#x".. hex ..";</span>", "<br>")
 end
