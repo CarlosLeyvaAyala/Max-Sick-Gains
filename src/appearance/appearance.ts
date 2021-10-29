@@ -8,7 +8,7 @@ import {
   SetBodyMorph,
   UpdateModelWeight,
 } from "Racemenu/nioverride"
-import { Actor, NetImmerse } from "skyrimPlatform"
+import { Actor, Armor, Game, NetImmerse } from "skyrimPlatform"
 import {
   BsSlider,
   FitStage,
@@ -22,8 +22,7 @@ import { LogI, LogIT, LogV } from "../debug"
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
 
-/**
- * Calculates how a Bodyslide preset should look at some given weight.
+/** Calculates how a Bodyslide preset should look at some given weight.
  *
  * @param bs A raw Bodyslide preset
  * @param w At which weight the preset will be calculated.
@@ -42,8 +41,7 @@ function BlendBs(bs: object, w: number): BodyslidePreset {
   return r
 }
 
-/**
- * Calculates how a woman Bodyslide preset for some Fitness Stage should look at some given weight.
+/** Calculates how a woman Bodyslide preset for some Fitness Stage should look at some given weight.
  *
  * @param fitStage The fitness stage object to get the female preset from.
  * @param weight At which weight the preset will be calculated.
@@ -64,8 +62,7 @@ function BlendManBs(fitStage: FitStage, weight: number): BodyslidePreset {
   return BlendBs(fitStage.manBs, weight)
 }
 
-/**
- * Returns a fully calculated Bodyslide preset for some Fitness Stage, sex and weight.
+/**  Returns a fully calculated Bodyslide preset for some Fitness Stage, sex and weight.
  *
  * @param fs Fitness Stage.
  * @param s Sex.
@@ -95,18 +92,38 @@ export function ApplyBodyslide(a: Actor, bs: BodyslidePreset) {
 export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   if (!path) return // TODO: Unequip pizza hands fix
 
-  // TODO: EquipPizzaHandsFix(aAct, false)
+  EquipPizzaHandsFix(a)
   AddSkinOverrideString(a, s === Sex.female, false, 0x4, 9, 1, path, true)
   AddSkinOverrideString(a, s === Sex.female, true, 0x4, 9, 1, path, true)
   FixGenitalTextures(a)
 }
 
+export function EquipPizzaHandsFix(a: Actor) {
+  if (Armor.from(a.getWornForm(0x8))) return
+  const pizzaFix = Game.getFormFromFile(0x9dc, "Max Sick Gains.esp")
+  LogV("No gauntlets equipped. Solving the Pizza Hands Syndrome.")
+  a.equipItem(pizzaFix, false, true)
+}
+
+/** Clears all NiOverride data on an `Actor`.
+ * @remarks
+ * Used to avoid save game bloat.
+ *
+ * @param a Actor to clear appearance for.
+ */
 export function ClearAppearance(a: Actor | null) {
   ClearMorphs(a)
   RemoveAllReferenceOverrides(a)
   RemoveAllReferenceSkinOverrides(a)
 }
 
+/** Fixes messed up anus and vagina textures.
+ * @remarks
+ * Setting normal maps messes with vagina and anus textures because they are technically part of the skin.
+ * This function sets back the textures that should be there.
+ *
+ * @param a Actor to fix textures for.
+ */
 export function FixGenitalTextures(a: Actor) {
   Fix3BAGenitals(a)
 }
@@ -123,6 +140,16 @@ function Fix3BAGenitals(a: Actor) {
   NodeOverride(a, true, "3BBB_Anus", d, n, sk, s)
 }
 
+/** Temporarily overrides a node with 4 textures.
+ *
+ * @param a Actor.
+ * @param isFem Is female?
+ * @param node Node to override.
+ * @param diffuse Texture path.
+ * @param normal Texture path.
+ * @param skin Texture path.
+ * @param specular Texture path.
+ */
 function NodeOverride(
   a: Actor,
   isFem: boolean,
@@ -134,13 +161,21 @@ function NodeOverride(
 ) {
   if (!NetImmerse.hasNode(a, node, false)) return
 
-  LogV(`Fixing genital node: ${node}`)
+  LogV(`Fixing genital node textures: ${node}`)
   AddNodeOverrideString(a, isFem, node, 9, 0, diffuse, false)
   AddNodeOverrideString(a, isFem, node, 9, 1, normal, false)
   AddNodeOverrideString(a, isFem, node, 9, 2, skin, false)
   AddNodeOverrideString(a, isFem, node, 9, 7, specular, false)
 }
 
+/** Generates a normal texture path given some values.
+ *
+ * @param s Actor sex.
+ * @param r Actor racial group.
+ * @param type Actor muscle definition type. {@link MuscleDefinitionType}.
+ * @param lvl Actor muscle definition level.
+ * @returns A texture path that can be used to override normal maps.
+ */
 export function GetMuscleDefTex(
   s: Sex,
   r: RacialGroup,
@@ -184,6 +219,11 @@ export function InterpolateMusDef(lo: number, hi: number, weight: number) {
   return Math.round(InterpolateW(lo, hi, weight))
 }
 
+/** Returns wether a race belongs to the banned races list.
+ *
+ * @param raceEDID Race Editor Id to check.
+ * @returns `boolean`
+ */
 export function IsMuscleDefBanned(raceEDID: string) {
   const r = raceEDID.toLowerCase()
   const isBanned =
