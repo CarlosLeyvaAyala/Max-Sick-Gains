@@ -69,11 +69,20 @@ export interface ClassArchetype {
   raceExclusive: string[]
 }
 
+export interface KnownNpcData {
+  fullName: string
+  fitStage: number
+  weight: number
+  muscleDef: number
+}
+
 const modName = "maxick"
 const fitStages = settings[modName]["fitStages"]
 const classes = settings[modName]["classes"]
 const archetypes = settings[modName]["classArchetypes"]
 const races = settings[modName]["races"]
+export const knownNPCs: object = settings[modName]["knownNPCs"]
+export const muscleDefBanRace: string[] = settings[modName]["muscleDefBanRace"]
 
 /** Returns from database the Fitness Stage of some id.
  * @param id

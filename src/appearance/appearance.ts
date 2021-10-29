@@ -8,15 +8,16 @@ import {
   SetBodyMorph,
   UpdateModelWeight,
 } from "Racemenu/nioverride"
-import { Actor } from "skyrimPlatform"
+import { Actor, NetImmerse } from "skyrimPlatform"
 import {
   BsSlider,
   FitStage,
+  muscleDefBanRace,
   MuscleDefinitionType,
   RacialGroup,
   Sex,
 } from "../database"
-import { LogIT } from "../debug"
+import { LogI, LogIT, LogV } from "../debug"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
@@ -72,6 +73,7 @@ function BlendManBs(fitStage: FitStage, weight: number): BodyslidePreset {
  * @returns Fully calculated Bodyslide preset. Ready to be applied to an `Actor`.
  */
 export function GetBodyslide(fs: FitStage, s: Sex, w: number): BodyslidePreset {
+  LogV(`Fitness stage applied: ${fs.iName}`)
   return s === Sex.male ? BlendManBs(fs, w) : BlendFemBs(fs, w)
 }
 
@@ -96,13 +98,47 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   // TODO: EquipPizzaHandsFix(aAct, false)
   AddSkinOverrideString(a, s === Sex.female, false, 0x4, 9, 1, path, true)
   AddSkinOverrideString(a, s === Sex.female, true, 0x4, 9, 1, path, true)
-  // TODO: FixGenitalTextures(aAct)
+  FixGenitalTextures(a)
 }
 
 export function ClearAppearance(a: Actor | null) {
   ClearMorphs(a)
   RemoveAllReferenceOverrides(a)
   RemoveAllReferenceSkinOverrides(a)
+}
+
+export function FixGenitalTextures(a: Actor) {
+  Fix3BAGenitals(a)
+}
+
+function Fix3BAGenitals(a: Actor) {
+  const b = "textures\\actors\\character\\female\\femalebody_etc_v2_1"
+  const d = b + ".dds"
+  const n = b + "_msn.dds"
+  const sk = b + "_sk.dds"
+  const s = b + "_s.dds"
+  NodeOverride(a, true, "3BA_Vagina", d, n, sk, s)
+  NodeOverride(a, true, "3BA_Anus", d, n, sk, s)
+  NodeOverride(a, true, "3BBB_Vagina", d, n, sk, s)
+  NodeOverride(a, true, "3BBB_Anus", d, n, sk, s)
+}
+
+function NodeOverride(
+  a: Actor,
+  isFem: boolean,
+  node: string,
+  diffuse: string,
+  normal: string,
+  skin: string,
+  specular: string
+) {
+  if (!NetImmerse.hasNode(a, node, false)) return
+
+  LogV(`Fixing genital node: ${node}`)
+  AddNodeOverrideString(a, isFem, node, 9, 0, diffuse, false)
+  AddNodeOverrideString(a, isFem, node, 9, 1, normal, false)
+  AddNodeOverrideString(a, isFem, node, 9, 2, skin, false)
+  AddNodeOverrideString(a, isFem, node, 9, 7, specular, false)
 }
 
 export function GetMuscleDefTex(
@@ -146,4 +182,12 @@ export function InterpolateW(y1: number, y2: number, weight: number) {
  */
 export function InterpolateMusDef(lo: number, hi: number, weight: number) {
   return Math.round(InterpolateW(lo, hi, weight))
+}
+
+export function IsMuscleDefBanned(raceEDID: string) {
+  const r = raceEDID.toLowerCase()
+  const isBanned =
+    muscleDefBanRace.filter((ban, _, __) => r.indexOf(ban) >= 0).length > 0
+  if (isBanned) LogI("Can't change muscle definition. Race is banned.")
+  return isBanned
 }

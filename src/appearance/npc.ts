@@ -1,13 +1,15 @@
-import { Alt } from "DM-Lib/Combinators"
+import { Alt, K } from "DM-Lib/Combinators"
 import { IntToHex, LogR } from "DM-Lib/Debug"
-import { GetFormEspAndId } from "DM-Lib/Misc"
+import { GetFormEspAndId, ModType } from "DM-Lib/Misc"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
-import { Actor, ActorBase } from "skyrimPlatform"
+import { Actor, ActorBase, printConsole } from "skyrimPlatform"
 import {
   ClassArchetype,
   classArchetype,
   ClassMatch,
   fitStage,
+  KnownNpcData,
+  knownNPCs,
   MuscleDefinition,
   RacialMatch,
   Sex,
@@ -22,6 +24,7 @@ import {
   GetMuscleDefTex,
   InterpolateMusDef,
   InterpolateW,
+  IsMuscleDefBanned,
 } from "./appearance"
 
 /** Data needed to solve an NPC appearance. */
@@ -148,7 +151,7 @@ const NoBs = (s: Sex, t: NpcType) => {
 
 const NoMdef = (s: Sex, t: NpcType) => {
   LogI(
-    `Muscle definition for ${NpcType[t]} ${Sex[s]} NPCs is disabled; it won't change.`
+    `Muscle definition for ${NpcType[t]} ${Sex[s]} NPCs is disabled; it won't be changed.`
   )
 }
 
@@ -163,7 +166,7 @@ function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
   // If it's not a Known NPC, it's a generic one.
   const raw = Alt(SolveKnownNPC, SolveGenericNPC)(d, o)
 
-  const md = raw.muscleDef // TODO: Check banned race
+  const md = IsMuscleDefBanned(d.race) ? undefined : raw.muscleDef
   return {
     bodyslide:
       raw.weight !== undefined
@@ -178,7 +181,41 @@ function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
 }
 
 function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
-  return null
+  //@ts-ignore
+  const esp = knownNPCs[d.esp.toLowerCase()]
+  if (!esp) return null
+  // const kn = knownNPCs[d.esp.toLowerCase()][d.fixedFormId] as KnownNpcData
+  const kn = esp[d.fixedFormId] as KnownNpcData
+  if (!kn) return null
+
+  LogI(`*** Known NPC found ***: ${d.name}`)
+  const s = d.sex
+  const t = NpcType.known
+
+  const oo = GetNpcOptions(s, t, o)
+  if (!oo.applyMuscleDef && !oo.applyMorphs)
+    return LogR(NothingToDo(s, t), iRawApp) // Get out and log
+
+  const mt = fitStage(kn.fitStage).muscleDefType
+  return {
+    fitStageId: kn.fitStage,
+    weight:
+      kn.weight === -1
+        ? LogR(LogV("Body morphs were disabled for this NPC."), undefined)
+        : !oo.applyMorphs
+        ? LogR(NoBs(s, t), undefined)
+        : kn.weight === 101
+        ? d.weight
+        : kn.weight,
+    muscleDef:
+      kn.muscleDef === -1
+        ? LogR(LogV("Muscle definition was disabled for this NPC."), undefined)
+        : !oo.applyMuscleDef
+        ? LogR(NoMdef(s, t), undefined)
+        : kn.muscleDef === 0
+        ? { level: InterpolateMusDef(1, 6, d.weight), type: mt }
+        : { level: kn.muscleDef, type: mt },
+  }
 }
 
 //#region Generic NPC solving
@@ -191,7 +228,7 @@ function SolveGenericNPC(d: NPCData, o: AllNpcOptions): RawAppearance {
   const s = d.sex
   const t = NpcType.generic
 
-  const oo = GetNpcOptions(d.sex, NpcType.generic, o)
+  const oo = GetNpcOptions(s, t, o)
   if (!oo.applyMuscleDef && !oo.applyMorphs)
     return LogR(NothingToDo(s, t), iRawApp) // Get out and log
 
