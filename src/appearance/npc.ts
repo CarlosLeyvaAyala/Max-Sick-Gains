@@ -1,17 +1,14 @@
-import { Alt, K, Tap } from "DM-Lib/Combinators"
+import { Alt } from "DM-Lib/Combinators"
 import { IntToHex, LogR } from "DM-Lib/Debug"
-import { LinCurve } from "DM-Lib/Math"
-import { GetFormEspAndId, RandomElement } from "DM-Lib/Misc"
+import { GetFormEspAndId } from "DM-Lib/Misc"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
-import { Actor, ActorBase, printConsole } from "skyrimPlatform"
+import { Actor, ActorBase } from "skyrimPlatform"
 import {
   ClassArchetype,
   classArchetype,
   ClassMatch,
   fitStage,
   MuscleDefinition,
-  MuscleDefinitionType,
-  RacialGroup,
   RacialMatch,
   Sex,
 } from "../database"
@@ -166,6 +163,7 @@ function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
   // If it's not a Known NPC, it's a generic one.
   const raw = Alt(SolveKnownNPC, SolveGenericNPC)(d, o)
 
+  const md = raw.muscleDef // TODO: Check banned race
   return {
     bodyslide:
       raw.weight !== undefined
@@ -175,14 +173,7 @@ function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
             LogIT("Applied weight", raw.weight)
           )
         : undefined,
-    path: raw.muscleDef
-      ? GetMuscleDefTex(
-          d.sex,
-          raceGroup,
-          raw.muscleDef.type,
-          raw.muscleDef.level
-        )
-      : undefined,
+    path: md ? GetMuscleDefTex(d.sex, raceGroup, md.type, md.level) : undefined,
   }
 }
 

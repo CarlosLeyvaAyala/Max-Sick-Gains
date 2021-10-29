@@ -19,8 +19,6 @@ import { LogE } from "./debug"
 
 export function main() {
   printConsole("Max Sick Gains successfully initialized.")
-  const d = new Date()
-  writeLogs("maxick", `${d.toLocaleString()}: 1`)
 
   // ;>========================================================
   // ;>===                 PLAYER EVENTS                  ===<;
@@ -55,7 +53,7 @@ export function main() {
   // ;>===             PLAYER AND NPC EVENTS              ===<;
   // ;>========================================================
 
-  // Pizza hands fix
+  //  TODO: Pizza hands fix
   on("equip", (e) => {
     const b = e.actor.getBaseObject()
     const armor = Armor.from(e.baseObj)
@@ -66,7 +64,7 @@ export function main() {
     writeLogs("maxick", `${t}: ${b.getName()} equipped ${e.baseObj.getName()}`)
   })
 
-  // Pizza hands fix
+  //  TODO: Pizza hands fix
   on("unequip", (e) => {
     const b = e.actor.getBaseObject()
     const armor = Armor.from(e.baseObj)
