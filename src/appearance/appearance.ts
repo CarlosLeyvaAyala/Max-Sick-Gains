@@ -51,8 +51,7 @@ function BlendFemBs(fitStage: FitStage, weight: number): BodyslidePreset {
   return BlendBs(fitStage.femBs, weight)
 }
 
-/**
- * Calculates how a man Bodyslide preset for some Fitness Stage should look at some given weight.
+/** Calculates how a man Bodyslide preset for some Fitness Stage should look at some given weight.
  *
  * @param fitStage The fitness stage object to get the male preset from.
  * @param weight At which weight the preset will be calculated.

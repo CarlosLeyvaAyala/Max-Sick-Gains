@@ -184,7 +184,6 @@ function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
   //@ts-ignore
   const esp = knownNPCs[d.esp.toLowerCase()]
   if (!esp) return null
-  // const kn = knownNPCs[d.esp.toLowerCase()][d.fixedFormId] as KnownNpcData
   const kn = esp[d.fixedFormId] as KnownNpcData
   if (!kn) return null
 

@@ -2,13 +2,25 @@ import * as D from "DM-Lib/Debug"
 
 export const mod_name = "maxick"
 
+const LogConsole: D.LogFormat = (_, __, n, ___, msg) => `[${n}]: ${msg}`
+
+const LogFile: D.LogFormat = (_, m, __, t, msg) =>
+  `[${D.LoggingLevel[m]}] ${t.toLocaleString()}: ${msg}`
+
+// TODO: Get from settings
+const logToConsole = true
+const logToFile = true
+// D.ReadLoggingFromSettings(mod_name, "loggingLevel"),
+const currLogLvl = D.LoggingLevel.verbose
+
 // Generates a logging function specific to this mod.
 const CLF = (logAt: D.LoggingLevel) =>
-  D.CreateLoggingFunction(
+  D.CreateLoggingFunctionEx(
+    currLogLvl,
+    logAt,
     "Maxick",
-    // D.ReadLoggingFromSettings(mod_name, "loggingLevel"),
-    D.LoggingLevel.verbose,
-    logAt
+    logToConsole ? LogConsole : undefined,
+    logToFile ? LogFile : undefined
   )
 
 /** Logs messages intended to detect bottlenecks. */

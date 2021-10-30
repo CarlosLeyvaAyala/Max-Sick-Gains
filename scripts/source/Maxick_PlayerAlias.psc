@@ -16,20 +16,20 @@ Event OnCellLoad()
 endEvent
 
 Event OnRaceSwitchComplete()
-  md.LogVerb("Player changed race. OnRaceSwitchComplete() was gotten.")
-  player.OnTransformation()
+  ; md.LogVerb("Player changed race. OnRaceSwitchComplete() was gotten.")
+  ; player.OnTransformation()
 EndEvent
 
 Event OnObjectUnequipped(Form akBaseObject, ObjectReference akReference)
   ; TODO: Factorize GetModSettingBool to make it less dependable on names
-  If MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
-    player.EquipPizzaHandsFix()
-    player.FixGenitalTextures()
-  EndIf
+  ; If MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
+  ;   player.EquipPizzaHandsFix()
+  ;   player.FixGenitalTextures()
+  ; EndIf
 endEvent
 
 Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
-  If MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
-    player.FixGenitalTextures()
-  EndIf
+  ; If MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
+  ;   player.FixGenitalTextures()
+  ; EndIf
 EndEvent

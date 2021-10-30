@@ -1,5 +1,5 @@
 import { HourSpan, HumanHours, Now } from "DM-Lib/Time"
-import { Game, printConsole } from "skyrimPlatform"
+import { Game } from "skyrimPlatform"
 import { LogE, LogV, LogVT } from "./debug"
 
 let lastSlept = 0
