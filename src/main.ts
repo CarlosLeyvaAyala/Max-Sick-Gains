@@ -1,5 +1,6 @@
-import { AvoidRapidFire } from "DM-Lib/Misc"
+import { IntToHex } from "DM-Lib/Debug"
 import * as Hotkeys from "DM-Lib/Hotkeys"
+import { AvoidRapidFire } from "DM-Lib/Misc"
 import {
   Actor,
   Armor,
@@ -9,15 +10,14 @@ import {
   on,
   printConsole,
   Utility,
-  writeLogs,
 } from "skyrimPlatform"
+import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
 import {
   ChangeAppearance as ChangeNpcAppearance,
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
-import * as S from "./sleep"
 import { LogE, LogV } from "./debug"
-import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
+import * as S from "./sleep"
 
 export function main() {
   printConsole("Max Sick Gains successfully initialized.")
@@ -58,20 +58,11 @@ export function main() {
   on("equip", (e) => {
     OnUnEquip(e, "EQUIP")
   })
-  // const t = new Date().toLocaleString()
-  // writeLogs("maxick", `${t}: ${b.getName()} equipped ${e.baseObj.getName()}`)
 
   on("unequip", (e) => {
-    OnUnEquip(e, "UNEQUIP", (id, slot) => {
+    OnUnEquip(e, "UNEQUIP", (a, slot) => {
       if (slot !== 0x8) return
-
-      const f = async () => {
-        await Utility.wait(0.1)
-        const a = Actor.from(Game.getFormEx(id))
-        if (!a) return
-        EquipPizzaHandsFix(a)
-      }
-      f()
+      EquipPizzaHandsFix(a)
     })
   })
 
@@ -98,7 +89,7 @@ export function main() {
     )
   })
 
-  // const OnDebugNpc = Hotkeys.ListenTo(199) // home key
+  const T = Hotkeys.ListenTo(209) // pgdown
   const OnDebugNpc = Hotkeys.ListenTo(207) // end key
 
   on("update", () => {
@@ -134,6 +125,9 @@ function OnMaxickSpell(
 
 /** Solves wrong genital textures due to texture overrides.
  *
+ * @remarks
+ * Can be used to solve the Pizza Hands Syndrome as well.
+ *
  * @param e Event variable.
  * @param evMsg Message to log.
  * @param DoSomething As extra function to execute.
@@ -141,20 +135,33 @@ function OnMaxickSpell(
 function OnUnEquip(
   e: EquipEvent,
   evMsg: string,
-  DoSomething?: (actor: number, slot: number) => void
+  DoSomething?: (actor: Actor, slot: number) => void
 ) {
+  // Basic validity checks
   const a = Actor.from(e.actor)
   const b = a?.getLeveledActorBase()
   const armor = Armor.from(e.baseObj)
   if (!a || !b || !armor) return
 
+  // Only cares for cuirasses and gauntlets
   const sl = armor.getSlotMask()
   if (sl !== 0x4 && sl !== 0x8) return
 
   LogV(
-    `${evMsg}. Actor: ${b.getName()}. Object: ${e.baseObj.getName()}. Slot: ${sl}`
+    `${evMsg}. Actor: ${b.getName()}. Id: 0x${IntToHex(
+      a.getFormID()
+    )}. Object: ${e.baseObj.getName()}. Slot: ${sl}`
   )
-  if (sl === 0x4) FixGenitalTextures(a)
 
-  if (DoSomething) DoSomething(a.getFormID(), sl)
+  // Wait before fixing things because Skyrim Platform is TOO fast <3.
+  const id = a.getFormID()
+  const f = async () => {
+    await Utility.wait(0.01)
+    const a = Actor.from(Game.getFormEx(id))
+
+    if (!a) return
+    if (sl === 0x4) FixGenitalTextures(a)
+    if (DoSomething) DoSomething(a, sl)
+  }
+  f()
 }

@@ -128,7 +128,7 @@ export function FixGenitalTextures(a: Actor) {
 }
 
 function Fix3BAGenitals(a: Actor) {
-  const b = "textures\\actors\\character\\female\\femalebody_etc_v2_1"
+  const b = "data\\textures\\actors\\character\\female\\femalebody_etc_v2_1"
   const d = b + ".dds"
   const n = b + "_msn.dds"
   const sk = b + "_sk.dds"
