@@ -3,12 +3,14 @@ import {
   AddNodeOverrideString,
   AddSkinOverrideString,
   ClearMorphs,
+  Key,
   RemoveAllReferenceOverrides,
   RemoveAllReferenceSkinOverrides,
   SetBodyMorph,
+  TextureIndex as Idx,
   UpdateModelWeight,
 } from "Racemenu/nioverride"
-import { Actor, Armor, Game, NetImmerse } from "skyrimPlatform"
+import { Actor, Armor, Game, NetImmerse, SlotMask } from "skyrimPlatform"
 import {
   BsSlider,
   FitStage,
@@ -89,19 +91,27 @@ export function ApplyBodyslide(a: Actor, bs: BodyslidePreset) {
 }
 
 export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
-  if (!path) return // TODO: Unequip pizza hands fix
+  if (!path) {
+    a.unequipItem(PizzaFix(), true, true)
+    return
+  }
 
   EquipPizzaHandsFix(a)
-  AddSkinOverrideString(a, s === Sex.female, false, 0x4, 9, 1, path, true)
-  AddSkinOverrideString(a, s === Sex.female, true, 0x4, 9, 1, path, true)
+  const fem = s === Sex.female
+  const t = Key.Texture
+  const n = Idx.Normal
+  const body = SlotMask.Body
+  AddSkinOverrideString(a, fem, false, body, t, n, path, true)
+  AddSkinOverrideString(a, fem, true, body, t, n, path, true)
   FixGenitalTextures(a)
 }
 
+const PizzaFix = () => Game.getFormFromFile(0x9dc, "Max Sick Gains.esp")
+
 export function EquipPizzaHandsFix(a: Actor) {
-  if (Armor.from(a.getWornForm(0x8))) return
-  const pizzaFix = Game.getFormFromFile(0x9dc, "Max Sick Gains.esp")
+  if (Armor.from(a.getWornForm(SlotMask.Hands))) return
   LogV("No gauntlets equipped. Solving the Pizza Hands Syndrome.")
-  a.equipItem(pizzaFix, false, true)
+  a.equipItem(PizzaFix(), false, true)
 }
 
 /** Clears all NiOverride data on an `Actor`.
@@ -144,27 +154,27 @@ function Fix3BAGenitals(a: Actor) {
  * @param a Actor.
  * @param isFem Is female?
  * @param node Node to override.
- * @param diffuse Texture path.
- * @param normal Texture path.
- * @param skin Texture path.
- * @param specular Texture path.
+ * @param d Texture path.
+ * @param n Texture path.
+ * @param sk Texture path.
+ * @param s Texture path.
  */
 function NodeOverride(
   a: Actor,
   isFem: boolean,
   node: string,
-  diffuse: string,
-  normal: string,
-  skin: string,
-  specular: string
+  d: string,
+  n: string,
+  sk: string,
+  s: string
 ) {
   if (!NetImmerse.hasNode(a, node, false)) return
 
   LogV(`Fixing genital node textures: ${node}`)
-  AddNodeOverrideString(a, isFem, node, 9, 0, diffuse, false)
-  AddNodeOverrideString(a, isFem, node, 9, 1, normal, false)
-  AddNodeOverrideString(a, isFem, node, 9, 2, skin, false)
-  AddNodeOverrideString(a, isFem, node, 9, 7, specular, false)
+  AddNodeOverrideString(a, isFem, node, Key.Texture, Idx.Diffuse, d, false)
+  AddNodeOverrideString(a, isFem, node, Key.Texture, Idx.Normal, n, false)
+  AddNodeOverrideString(a, isFem, node, Key.Texture, Idx.Skin, sk, false)
+  AddNodeOverrideString(a, isFem, node, Key.Texture, Idx.Specular, s, false)
 }
 
 /** Generates a normal texture path given some values.

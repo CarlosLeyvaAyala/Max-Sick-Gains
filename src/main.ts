@@ -4,18 +4,22 @@ import { AvoidRapidFire } from "DM-Lib/Misc"
 import {
   Actor,
   Armor,
+  DxScanCode,
   EquipEvent,
   Game,
   hooks,
   on,
   printConsole,
+  SlotMask,
   Utility,
 } from "skyrimPlatform"
+import { DebugLib, FormLib } from "Dmlib"
 import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
 import {
   ChangeAppearance as ChangeNpcAppearance,
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
+import { Player, TestMode } from "./appearance/player"
 import { LogE, LogV } from "./debug"
 import * as S from "./sleep"
 
@@ -61,9 +65,18 @@ export function main() {
 
   on("unequip", (e) => {
     OnUnEquip(e, "UNEQUIP", (a, slot) => {
-      if (slot !== 0x8) return
+      if (slot !== SlotMask.Hands) return
       EquipPizzaHandsFix(a)
     })
+  })
+
+  on("loadGame", () => {
+    LogV("||| Game loaded |||")
+    Player.Init()
+  })
+
+  on("reset", () => {
+    LogV("||||||||||||||||||||| Game reset |||")
   })
 
   // ;>========================================================
@@ -89,10 +102,15 @@ export function main() {
     )
   })
 
-  const T = Hotkeys.ListenTo(209) // pgdown
-  const OnDebugNpc = Hotkeys.ListenTo(207) // end key
+  const T = Hotkeys.ListenTo(DxScanCode.PgDown) // pgdown
+  const OnDebugNpc = Hotkeys.ListenTo(DxScanCode.End) // end key
 
   on("update", () => {
+    TestMode.Next(TestMode.GoNext)
+    TestMode.Prev(TestMode.GoPrev)
+    TestMode.Add10(TestMode.GoAdd10)
+    TestMode.Sub10(TestMode.GoSub10)
+
     OnDebugNpc(() => {
       const r = Game.getCurrentConsoleRef()
       if (!r) return
@@ -145,7 +163,7 @@ function OnUnEquip(
 
   // Only cares for cuirasses and gauntlets
   const sl = armor.getSlotMask()
-  if (sl !== 0x4 && sl !== 0x8) return
+  if (sl !== SlotMask.Body && sl !== SlotMask.Hands) return
 
   LogV(
     `${evMsg}. Actor: ${b.getName()}. Id: 0x${IntToHex(
@@ -154,13 +172,13 @@ function OnUnEquip(
   )
 
   // Wait before fixing things because Skyrim Platform is TOO fast <3.
-  const id = a.getFormID()
+  const actor = FormLib.PreserveActor(a)
   const f = async () => {
     await Utility.wait(0.01)
-    const a = Actor.from(Game.getFormEx(id))
+    const a = actor()
 
     if (!a) return
-    if (sl === 0x4) FixGenitalTextures(a)
+    if (sl === SlotMask.Body) FixGenitalTextures(a)
     if (DoSomething) DoSomething(a, sl)
   }
   f()

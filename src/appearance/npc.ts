@@ -1,8 +1,8 @@
-import { Alt, K } from "DM-Lib/Combinators"
+import { Alt } from "DM-Lib/Combinators"
 import { IntToHex, LogR } from "DM-Lib/Debug"
-import { GetFormEspAndId, ModType } from "DM-Lib/Misc"
+import { GetFormEspAndId } from "DM-Lib/Misc"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
-import { Actor, ActorBase, printConsole } from "skyrimPlatform"
+import { Actor, ActorBase } from "skyrimPlatform"
 import {
   ClassArchetype,
   classArchetype,
