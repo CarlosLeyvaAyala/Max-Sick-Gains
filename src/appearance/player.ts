@@ -10,7 +10,13 @@ import {
   IsMuscleDefBanned,
   LogBs,
 } from "appearance"
-import { Combinators as C, DebugLib as D, Hotkeys, MathLib } from "DmLib"
+import {
+  Combinators as C,
+  DebugLib as D,
+  Hotkeys,
+  MapLib,
+  MathLib,
+} from "DmLib"
 import * as JDB from "JContainers/JDB"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import {
@@ -33,13 +39,7 @@ import {
 import { LogE, LogI, LogV, LogVT } from "../debug"
 import { SendGains } from "../events"
 
-type VoidFunc = () => void
 // function ModVariable(Change: void, Log: void, SendEvent: void) {
-function ModVariable(Change: VoidFunc, Log: VoidFunc, SendEvent: VoidFunc) {
-  Change()
-  Log()
-  SendEvent()
-}
 
 const StageName = () => `Now you look ${playerStages[pStage].displayName}`
 
@@ -100,11 +100,6 @@ export namespace Player {
   const NoBase = () => {
     LogE("No base object for player (how is that even possible?)")
   }
-  const NoBs = () => {
-    LogE(
-      "No base Bodyslide preset could be calculated. This is a developer error. Please report it."
-    )
-  }
 
   /** Data needed to change the player appearance. */
   interface PlayerData {
@@ -120,18 +115,24 @@ export namespace Player {
     fitnessStage: FitStage
   }
 
+  /** Data needed to calculate a blended Bodyslide. */
   interface BlendData {
     /** Fitness Stage object. */
     fitStage: FitStage
+    /** Player stage object */
+    playerStage: PlayerStage
     /** How much this Fitness Stage contributes to blending. */
     blend: number
     /** On which `gains` this Fitness Stage appearance will be calculated. */
     gains: number
   }
 
+  /** Data needed to calculate the final player Bodyslide. */
   interface BlendPair {
+    /** Current Player Stage data. */
     blend1: BlendData
-    blend2?: BlendData
+    /** Blending Player Stage data. */
+    blend2: BlendData
   }
 
   /** Gets the data needed to change the player appearance. */
@@ -162,6 +163,7 @@ export namespace Player {
     }
   }
 
+  /** Changes the player appearance. */
   export function ChangeAppearance() {
     LogV("Changing player appearance.")
     const p = Game.getPlayer() as Actor
@@ -174,6 +176,7 @@ export namespace Player {
     }
     const tex = GetMuscleDef(d)
     ApplyMuscleDef(p, d.sex, tex)
+    // TODO: Change head size
   }
 
   /** Returns a fully blended Bodyslide preset. Ready to be applied on the player.
@@ -187,90 +190,71 @@ export namespace Player {
     const L = (b: BlendData) =>
       `fitStage: ${b.fitStage.iName}, blend: ${b.blend}, gains: ${b.gains}`
 
-    const sl1 = GetSliders(d, LogVT("Current Stage", blend1, L))
+    const sl1 = GetSliders(
+      d,
+      LogVT("Current Stage", blend1, L)
+    ) as BodyslidePreset
     const sl2 = blend2
       ? GetSliders(d, LogVT("Blend Stage", blend2, L))
       : undefined
 
-    if (!sl1) return D.Log.R(NoBs(), undefined)
     LogBs(sl1, "Current stage BS", LogV)
-    LogBs(sl2, "Blending stage BS", LogV)
-    return JoinMaps(sl1, sl2, (v1, v2) => v1 + v2)
+    LogBs(sl2, "Blend Stage BS", LogV)
+
+    return MapLib.JoinMaps(sl1, sl2, (v1, v2) => v1 + v2)
   }
 
-  function JoinMaps<K, V>(
-    m1: Map<K, V>,
-    m2: Map<K, V> | null | undefined,
-    OnExistingKey: (v1: V, v2: V, k?: K) => V
-  ) {
-    if (!m2) return m1
-    const o = new Map<K, V>(m1)
-    m2.forEach((v2, k) => {
-      if (o.has(k)) o.set(k, OnExistingKey(o.get(k) as V, v2, k))
-      else o.set(k, v2)
-    })
-    return o
-  }
-
-  /** Returns which data will be used for blending appearance between two Player stages.
+  /** Returns which data will be used for blending appearance between two _Player Stages_.
    *
    * @param d Player data.
    * @returns Current and Blending stage data.
    */
-  function GetBlends(d: PlayerData) {
-    function R(
-      msg: string,
-      s2?: number,
-      g2?: number,
-      p1?: MathLib.Point,
-      p2?: MathLib.Point
-    ): BlendPair {
-      LogV(msg)
-      // @ts-ignore
-      const b1 = !s2 ? 1 : MathLib.LinCurve(p1, p2)(d.gains)
-      return {
-        blend1: { fitStage: d.fitnessStage, gains: d.gains, blend: b1 },
-        // @ts-ignore
-        blend2:
-          s2 === undefined
-            ? undefined
-            : {
-                fitStage: fitStage(playerStages[s2].fitStage),
-                gains: g2,
-                blend: 1 - b1,
-              },
-      }
-    }
-
+  function GetBlends(d: PlayerData): BlendPair {
     const lBlendLim = d.playerStage.blend
     const uBlendLim = 100 - lBlendLim
     const currStage = d.playerStageId
+    let b1 = 0
+    let g2 = 0
+    let blendStage = 0
 
-    if (lBlendLim >= d.gains && currStage > 0)
-      return R(
-        "Current stage was blended with previous",
-        currStage - 1,
-        100,
-        { x: 0, y: 0.5 },
-        { x: lBlendLim, y: 1 }
-      )
-    else if (uBlendLim <= d.gains && currStage < playerStages.length - 1)
-      return R(
-        "Current stage was blended with next",
-        currStage + 1,
-        0,
-        { x: uBlendLim, y: 1 },
-        { x: 100, y: 0.5 }
-      )
-    else return R("No blending needed")
+    if (lBlendLim >= d.gains && currStage > 0) {
+      LogV("Current stage was blended with previous")
+      blendStage = currStage - 1
+      g2 = 100
+      b1 = MathLib.LinCurve({ x: 0, y: 0.5 }, { x: lBlendLim, y: 1 })(d.gains)
+    } else if (uBlendLim <= d.gains && currStage < playerStages.length - 1) {
+      LogV("Current stage was blended with next")
+      blendStage = currStage + 1
+      g2 = 0
+      b1 = MathLib.LinCurve({ x: uBlendLim, y: 1 }, { x: 100, y: 0.5 })(d.gains)
+    } else {
+      LogV("No blending needed")
+      b1 = 1
+    }
+
+    const fs1 = d.fitnessStage
+    const ps1 = d.playerStage
+    const ps2 = playerStages[blendStage]
+    const fs2 = fitStage(ps2.fitStage)
+    return {
+      blend1: { fitStage: fs1, playerStage: ps1, gains: d.gains, blend: b1 },
+      blend2: { fitStage: fs2, playerStage: ps2, gains: g2, blend: 1 - b1 },
+    }
   }
 
+  /** Calculates the Bodyslide associated to some blend.
+   *
+   * @param d Player data.
+   * @param b Blending data.
+   * @returns Fully formed Bodyslide preset.
+   */
   function GetSliders(d: PlayerData, b: BlendData) {
     if (b.blend === 0) return undefined
-    const g = InterpolateW(d.playerStage.bsLo, d.playerStage.bsHi, b.gains)
+    const g = InterpolateW(b.playerStage.bsLo, b.playerStage.bsHi, b.gains)
     return GetBodyslide(b.fitStage, d.sex, g, BlendMorph(b.blend))
   }
 
+  /** Returns the muscle definition texture the player should use. */
   function GetMuscleDef(d: PlayerData) {
     // TODO: read from settings
     const canChange = true
