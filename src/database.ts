@@ -136,6 +136,7 @@ export function classArchetype(id: number | string) {
   return archetypes[i] as ClassArchetype
 }
 
+/** Gets which racial group a race belongs to. */
 export function RacialMatch(raceEDID: string): RacialGroup | null {
   const race = raceEDID.toLowerCase()
   for (const key in races)

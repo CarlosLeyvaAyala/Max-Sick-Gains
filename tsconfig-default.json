@@ -18,7 +18,7 @@
         "./node_modules/@types/chai"
       ]
     },
-    "outFile": "Platform/Plugins/maxick.js",
+    "outFile": "F:/Skyrim SE/MO2/overwrite/Platform/Plugins/maxick.js",
     "baseUrl": "F:/Steam/steamapps/common/Skyrim Special Edition/Data/Platform/Modules",
     "rootDirs": [
       "F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src",

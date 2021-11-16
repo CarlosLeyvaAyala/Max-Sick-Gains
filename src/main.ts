@@ -1,6 +1,8 @@
 import { IntToHex } from "DM-Lib/Debug"
 import * as Hotkeys from "DM-Lib/Hotkeys"
 import { AvoidRapidFire } from "DM-Lib/Misc"
+import { FormLib } from "Dmlib"
+import * as MiscUtil from "PapyrusUtil/MiscUtil"
 import {
   Actor,
   Armor,
@@ -13,7 +15,6 @@ import {
   SlotMask,
   Utility,
 } from "skyrimPlatform"
-import { DebugLib, FormLib } from "Dmlib"
 import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
 import {
   ChangeAppearance as ChangeNpcAppearance,
@@ -104,12 +105,23 @@ export function main() {
 
   const T = Hotkeys.ListenTo(DxScanCode.PgDown) // pgdown
   const OnDebugNpc = Hotkeys.ListenTo(DxScanCode.End) // end key
+  const OnPrint = Hotkeys.ListenTo(DxScanCode.MiddleMouseButton)
 
   on("update", () => {
     TestMode.Next(TestMode.GoNext)
     TestMode.Prev(TestMode.GoPrev)
     TestMode.Add10(TestMode.GoAdd10)
     TestMode.Sub10(TestMode.GoSub10)
+
+    OnPrint(() => {
+      Player.ChangeAppearance()
+      // f()
+      // MiscUtil.SetFreeCameraSpeed(80)
+      // MiscUtil.SetFreeCameraState(true, 1)
+      // Debug.toggleMenus()
+      // MiscUtil.SetMenus(true)
+      // tm.execute("")
+    })
 
     OnDebugNpc(() => {
       const r = Game.getCurrentConsoleRef()
