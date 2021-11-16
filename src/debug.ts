@@ -1,42 +1,40 @@
-import * as D from "DM-Lib/Debug"
+import { printConsole } from "skyrimPlatform"
+import { DebugLib as D } from "DmLib"
 
 export const mod_name = "maxick"
-
-const LogConsole: D.LogFormat = (_, __, n, ___, msg) => `[${n}]: ${msg}`
-
-const LogFile: D.LogFormat = (_, m, __, t, msg) =>
-  `[${D.LoggingLevel[m]}] ${t.toLocaleString()}: ${msg}`
 
 // TODO: Get from settings
 const logToConsole = true
 const logToFile = true
-// D.ReadLoggingFromSettings(mod_name, "loggingLevel"),
-const currLogLvl = D.LoggingLevel.verbose
+// D.Log.LevelFromSettings(mod_name, "loggingLevel")
+const currLogLvl = D.Log.Level.info
+
+printConsole(`${mod_name} logging level: ${D.Log.Level[currLogLvl]}`)
 
 // Generates a logging function specific to this mod.
-const CLF = (logAt: D.LoggingLevel) =>
-  D.CreateLoggingFunctionEx(
+const CLF = (logAt: D.Log.Level) =>
+  D.Log.CreateFunction(
     currLogLvl,
     logAt,
     "Maxick",
-    logToConsole ? LogConsole : undefined,
-    logToFile ? LogFile : undefined
+    logToConsole ? D.Log.ConsoleFmt : undefined,
+    logToFile ? D.Log.FileFmt : undefined
   )
 
 /** Logs messages intended to detect bottlenecks. */
-export const LogO = CLF(D.LoggingLevel.optimization)
+export const LogO = CLF(D.Log.Level.optimization)
 
 /** Logs an error message. */
-export const LogE = CLF(D.LoggingLevel.error)
+export const LogE = CLF(D.Log.Level.error)
 
 /** Logs detailed info meant for players to see. */
-export const LogI = CLF(D.LoggingLevel.info)
+export const LogI = CLF(D.Log.Level.info)
 
 /** Logs detailed info meant only for debugging. */
-export const LogV = CLF(D.LoggingLevel.verbose)
+export const LogV = CLF(D.Log.Level.verbose)
 
 /** Logs a variable while initializing it. Message level: info. */
-export const LogIT = D.TapLog(LogI)
+export const LogIT = D.Log.Tap(LogI)
 
 /** Logs a variable while initializing it. Message level: verbose. */
-export const LogVT = D.TapLog(LogV)
+export const LogVT = D.Log.Tap(LogV)

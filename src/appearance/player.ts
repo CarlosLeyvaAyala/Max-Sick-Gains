@@ -204,6 +204,7 @@ export namespace TestMode {
     LogStageChange("next")
     GainsByStageChange(IsLastStage(), 100, 0)
     DisplayStageName()
+    Player.ChangeAppearance()
   }
 
   /** Go to previous Fitness Stage */
@@ -214,6 +215,7 @@ export namespace TestMode {
     LogStageChange("previous")
     GainsByStageChange(IsFirstStage() && pStage == old, 0, 100)
     DisplayStageName()
+    Player.ChangeAppearance()
   }
 
   /** Gains +10 */
@@ -231,8 +233,9 @@ export namespace TestMode {
     ModGains(delta)
     LogGainsDelta(delta)()
     SendGains(gains)
-    if (gains >= 100) GoNext()
+    if (gains > 100) GoNext()
     else if (gains < 0) GoPrev()
+    Player.ChangeAppearance()
     // Mod(
     //   () => {
     //     ModGains(delta)
