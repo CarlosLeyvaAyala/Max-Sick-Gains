@@ -13,6 +13,7 @@ import {
   Debug,
   DxScanCode,
   Game,
+  printConsole,
   storage,
 } from "skyrimPlatform"
 import {
@@ -99,11 +100,28 @@ export namespace Player {
   interface PlayerData {
     race: string
     sex: Sex
+    gains: number
     racialGroup: RacialGroup
+    /** Current player stage id. */
+    playerStageId: number
     /** Current player stage object. */
     playerStage: PlayerStage
     /** Fitness Stage asociated to the current Player Stage. */
     fitnessStage: FitStage
+  }
+
+  interface BlendData {
+    /** Fitness Stage object. */
+    fitStage: FitStage
+    /** How much this Fitness Stage contributes to blending. */
+    blend: number
+    /** On which `gains` this Fitness Stage appearance will be calculated. */
+    gains: number
+  }
+
+  interface BlendPair {
+    blend1: BlendData
+    blend2?: BlendData
   }
 
   /** Gets the data needed to change the player appearance. */
@@ -127,8 +145,10 @@ export namespace Player {
       race: race,
       sex: sex,
       racialGroup: racialGroup,
+      playerStageId: pStage,
       playerStage: s,
       fitnessStage: fs,
+      gains: gains,
     }
   }
 
@@ -137,9 +157,71 @@ export namespace Player {
     const p = Game.getPlayer() as Actor
     const d = GetData(p)
     if (!d) return
+    GetBodyslide(d)
     const tex = GetMuscleDef(d)
     ApplyMuscleDef(p, d.sex, tex)
   }
+
+  function GetBodyslide(d: PlayerData) {
+    const { blend1, blend2 } = GetBlends(d)
+    const L = (b: BlendData) =>
+      `fitStage: ${b.fitStage.iName}, blend: ${b.blend}, gains: ${b.gains}`
+
+    const sl1 = GetSliders(d, LogVT("Current Stage", blend1, L))
+    const sl2 = blend2
+      ? GetSliders(d, LogVT("Blend Stage", blend2, L))
+      : undefined
+  }
+
+  function GetBlends(d: PlayerData) {
+    function R(
+      msg: string,
+      s2?: number,
+      g2?: number,
+      p1?: MathLib.Point,
+      p2?: MathLib.Point
+    ): BlendPair {
+      LogV(msg)
+      // @ts-ignore
+      const b1 = !s2 ? 1 : MathLib.LinCurve(p1, p2)(d.gains)
+      return {
+        blend1: { fitStage: d.fitnessStage, gains: d.gains, blend: b1 },
+        // @ts-ignore
+        blend2:
+          s2 === undefined
+            ? undefined
+            : {
+                fitStage: fitStage(playerStages[s2].fitStage),
+                gains: g2,
+                blend: 1 - b1,
+              },
+      }
+    }
+
+    const lBlendLim = d.playerStage.blend
+    const uBlendLim = 100 - lBlendLim
+    const currStage = d.playerStageId
+
+    if (lBlendLim >= d.gains && currStage > 0)
+      return R(
+        "Current stage was blended with previous",
+        currStage - 1,
+        100,
+        { x: 0, y: 0.5 },
+        { x: lBlendLim, y: 1 }
+      )
+    else if (uBlendLim <= d.gains && currStage < playerStages.length - 1)
+      return R(
+        "Current stage was blended with next",
+        currStage + 1,
+        0,
+        { x: uBlendLim, y: 1 },
+        { x: 100, y: 0.5 }
+      )
+    else return R("No blending needed")
+  }
+
+  function GetSliders(d: PlayerData, b: BlendData) {}
 
   function GetMuscleDef(d: PlayerData) {
     // TODO: read from settings
