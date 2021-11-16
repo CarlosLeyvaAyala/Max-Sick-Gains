@@ -1,8 +1,14 @@
 import {
   ApplyMuscleDef,
+  BlendMorph,
+  BodyslidePreset,
+  LogBs,
+  GetBodyslide,
   GetMuscleDefTex,
   InterpolateMusDef,
   IsMuscleDefBanned,
+  ApplyBodyslide,
+  InterpolateW,
 } from "appearance"
 import { Combinators as C, DebugLib as D, Hotkeys, MathLib } from "DmLib"
 import * as JDB from "JContainers/JDB"
@@ -95,6 +101,11 @@ export namespace Player {
   const NoBase = () => {
     LogE("No base object for player (how is that even possible?)")
   }
+  const NoBs = () => {
+    LogE(
+      "No base Bodyslide preset could be calculated. This is a developer error. Please report it."
+    )
+  }
 
   /** Data needed to change the player appearance. */
   interface PlayerData {
@@ -157,12 +168,22 @@ export namespace Player {
     const p = Game.getPlayer() as Actor
     const d = GetData(p)
     if (!d) return
-    GetBodyslide(d)
+    const bs = GetBs(d)
+    if (bs) {
+      LogBs(bs, "Final preset", LogV)
+      ApplyBodyslide(p, bs)
+    }
     const tex = GetMuscleDef(d)
     ApplyMuscleDef(p, d.sex, tex)
   }
 
-  function GetBodyslide(d: PlayerData) {
+  /** Returns a fully blended Bodyslide preset. Ready to be applied on the player.
+   *
+   * @param d Player data.
+   * @returns A fully blended {@link BodyslidePreset} or `undefined` (that last thing
+   * should actually never happen).
+   */
+  function GetBs(d: PlayerData): BodyslidePreset | undefined {
     const { blend1, blend2 } = GetBlends(d)
     const L = (b: BlendData) =>
       `fitStage: ${b.fitStage.iName}, blend: ${b.blend}, gains: ${b.gains}`
@@ -171,8 +192,32 @@ export namespace Player {
     const sl2 = blend2
       ? GetSliders(d, LogVT("Blend Stage", blend2, L))
       : undefined
+
+    if (!sl1) return D.Log.R(NoBs(), undefined)
+    LogBs(sl1, "Current stage BS", LogV)
+    LogBs(sl2, "Blending stage BS", LogV)
+    return JoinMaps(sl1, sl2, (v1, v2) => v1 + v2)
   }
 
+  function JoinMaps<K, V>(
+    m1: Map<K, V>,
+    m2: Map<K, V> | null | undefined,
+    OnExistingKey: (v1: V, v2: V, k?: K) => V
+  ) {
+    if (!m2) return m1
+    const o = new Map<K, V>(m1)
+    m2.forEach((v2, k) => {
+      if (o.has(k)) o.set(k, OnExistingKey(o.get(k) as V, v2, k))
+      else o.set(k, v2)
+    })
+    return o
+  }
+
+  /** Returns which data will be used for blending appearance between two Player stages.
+   *
+   * @param d Player data.
+   * @returns Current and Blending stage data.
+   */
   function GetBlends(d: PlayerData) {
     function R(
       msg: string,
@@ -221,7 +266,11 @@ export namespace Player {
     else return R("No blending needed")
   }
 
-  function GetSliders(d: PlayerData, b: BlendData) {}
+  function GetSliders(d: PlayerData, b: BlendData) {
+    if (b.blend === 0) return undefined
+    const g = InterpolateW(d.playerStage.bsLo, d.playerStage.bsHi, b.gains)
+    return GetBodyslide(b.fitStage, d.sex, g, BlendMorph(b.blend))
+  }
 
   function GetMuscleDef(d: PlayerData) {
     // TODO: read from settings

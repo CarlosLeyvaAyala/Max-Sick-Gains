@@ -24,20 +24,61 @@ import { LogI, LogIT, LogV } from "../debug"
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
 
+export function LogBs(
+  bs: BodyslidePreset | undefined,
+  name: string,
+  Log: (msg: any) => void
+) {
+  if (!bs) return
+
+  Log("------------------------------")
+  Log(name)
+  Log("------------------------------")
+
+  bs.forEach((v, k) => {
+    Log(`${k}: ${v}`)
+  })
+
+  Log("------------------------------")
+}
+
+/** A function that calculates a slider value.
+ * @param slMin Minimum slider value.
+ * @param slMax Maximum slider value.
+ * @param w Interpolation point.
+ */
+type BsCalc = (slMin: number, slMax: number, w: number) => number
+
+/** Standard morph. Applies a simple linear interpolation between data.
+ *
+ * @param min Minimum slider value.
+ * @param max Maximum slider value.
+ * @param w Interpolation point.
+ * @returns Interpolated value.
+ */
+const StdMorph: BsCalc = (min, max, w) =>
+  LinCurve({ x: 0, y: min }, { x: 100, y: max })(w)
+
+export const BlendMorph =
+  (blend: number) => (min: number, max: number, w: number) =>
+    StdMorph(min, max, w) * blend
+
 /** Calculates how a Bodyslide preset should look at some given weight.
  *
  * @param bs A raw Bodyslide preset
  * @param w At which weight the preset will be calculated.
- * @param warn Message to output when warnings/errors are found.
+ * @param Morph Interpolation function.
  * @returns A {@link BodyslidePreset} with slider values corresponding to the input `weight`.
  */
-function BlendBs(bs: object, w: number): BodyslidePreset {
+function BlendBs(bs: object, w: number, Morph: BsCalc): BodyslidePreset {
   const r = new Map()
   for (const slN in bs) {
     // @ts-ignore
     const sl = bs[slN] as BsSlider
-    const v = LinCurve({ x: 0, y: sl.min }, { x: 100, y: sl.max })(w)
-    r.set(slN, v / 100)
+    const v = Morph(sl.min, sl.max, w) / 100
+    // const v = LinCurve({ x: 0, y: sl.min }, { x: 100, y: sl.max })(w)
+    r.set(slN, v)
+    // r.set(slN, v / 100)
   }
 
   return r
@@ -47,20 +88,30 @@ function BlendBs(bs: object, w: number): BodyslidePreset {
  *
  * @param fitStage The fitness stage object to get the female preset from.
  * @param weight At which weight the preset will be calculated.
+ * @param Morph Interpolation function.
  * @returns A {@link BodyslidePreset} with slider values corresponding to the input `weight`.
  */
-function BlendFemBs(fitStage: FitStage, weight: number): BodyslidePreset {
-  return BlendBs(fitStage.femBs, weight)
+function BlendFemBs(
+  fitStage: FitStage,
+  weight: number,
+  Morph: BsCalc
+): BodyslidePreset {
+  return BlendBs(fitStage.femBs, weight, Morph)
 }
 
 /** Calculates how a man Bodyslide preset for some Fitness Stage should look at some given weight.
  *
  * @param fitStage The fitness stage object to get the male preset from.
  * @param weight At which weight the preset will be calculated.
+ * @param Morph Interpolation function.
  * @returns A {@link BodyslidePreset} with slider values corresponding to the input `weight`.
  */
-function BlendManBs(fitStage: FitStage, weight: number): BodyslidePreset {
-  return BlendBs(fitStage.manBs, weight)
+function BlendManBs(
+  fitStage: FitStage,
+  weight: number,
+  Morph: BsCalc
+): BodyslidePreset {
+  return BlendBs(fitStage.manBs, weight, Morph)
 }
 
 /**  Returns a fully calculated Bodyslide preset for some Fitness Stage, sex and weight.
@@ -68,11 +119,17 @@ function BlendManBs(fitStage: FitStage, weight: number): BodyslidePreset {
  * @param fs Fitness Stage.
  * @param s Sex.
  * @param w Weight. [`0..100`].
+ * @param Morph Interpolation function. This is used to calculate individual sliders.
  * @returns Fully calculated Bodyslide preset. Ready to be applied to an `Actor`.
  */
-export function GetBodyslide(fs: FitStage, s: Sex, w: number): BodyslidePreset {
+export function GetBodyslide(
+  fs: FitStage,
+  s: Sex,
+  w: number,
+  Morph: BsCalc = StdMorph
+): BodyslidePreset {
   LogV(`Fitness stage applied: ${fs.iName}`)
-  return s === Sex.male ? BlendManBs(fs, w) : BlendFemBs(fs, w)
+  return s === Sex.male ? BlendManBs(fs, w, Morph) : BlendFemBs(fs, w, Morph)
 }
 
 function MarkProcessed(a: Actor) {
