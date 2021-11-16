@@ -1,14 +1,14 @@
 import {
+  ApplyBodyslide,
   ApplyMuscleDef,
   BlendMorph,
   BodyslidePreset,
-  LogBs,
   GetBodyslide,
   GetMuscleDefTex,
   InterpolateMusDef,
-  IsMuscleDefBanned,
-  ApplyBodyslide,
   InterpolateW,
+  IsMuscleDefBanned,
+  LogBs,
 } from "appearance"
 import { Combinators as C, DebugLib as D, Hotkeys, MathLib } from "DmLib"
 import * as JDB from "JContainers/JDB"
@@ -19,7 +19,6 @@ import {
   Debug,
   DxScanCode,
   Game,
-  printConsole,
   storage,
 } from "skyrimPlatform"
 import {
@@ -318,34 +317,45 @@ export namespace TestMode {
     LogI(`Going to ${st} stage (${pStage + 1}/${playerStages.length})`)
   }
 
-  const IsFirstStage = () => pStage <= 0
-  const IsLastStage = () => pStage >= playerStages.length - 1
-
-  function GainsByStageChange(capReached: boolean, cap: number, goto: number) {
-    if (capReached) SetGains(cap)
-    else SetGains(goto)
-    SendGains(gains)
-    LogI(`Gains were adjusted to: ${gains}`)
-  }
-
   /** Go to next Fitness Stage */
   export function GoNext() {
-    if (!enabled) return
-    ModStage(1)
-    LogStageChange("next")
-    GainsByStageChange(IsLastStage(), 100, 0)
-    DisplayStageName()
-    Player.ChangeAppearance()
+    GoModStage(1, "end", 100, "next", 0)
   }
 
   /** Go to previous Fitness Stage */
   export function GoPrev() {
+    GoModStage(-1, "start", 0, "previous", 100)
+  }
+
+  function GoModStage(
+    delta: number,
+    cantGo: string,
+    cantGoGains: number,
+    chMsg: string,
+    newGains: number
+  ) {
     if (!enabled) return
+
     const old = pStage
-    ModStage(-1)
-    LogStageChange("previous")
-    GainsByStageChange(IsFirstStage() && pStage == old, 0, 100)
-    DisplayStageName()
+    ModStage(delta)
+    const change = old - pStage
+
+    const G = (g: number) => {
+      SetGains(g)
+      LogI(`Gains were adjusted to ${g}`)
+      SendGains(gains)
+    }
+
+    if (change === 0) {
+      Debug.notification(
+        `You reached the ${cantGo} of your journey. You can't go any further.`
+      )
+      G(cantGoGains)
+    } else {
+      LogStageChange(chMsg)
+      G(newGains)
+      DisplayStageName()
+    }
     Player.ChangeAppearance()
   }
 
@@ -366,33 +376,6 @@ export namespace TestMode {
     SendGains(gains)
     if (gains > 100) GoNext()
     else if (gains < 0) GoPrev()
-    Player.ChangeAppearance()
-    // Mod(
-    //   () => {
-    //     ModGains(delta)
-    //   },
-    //   LogGainsDelta(delta),
-    //   () => {
-    //     SendGains(gains)
-    //   },
-    //   () => {
-    //     if (gains >= 100) GoNext()
-    //     else if (gains < 0) GoPrev()
-    //   }
-    // )
-  }
-
-  /** Modifies a variable if testing mode is enabled. */
-  // function Mod(Change: void, Log: void, SendEvent: void) {
-  function Mod(
-    Change: VoidFunc,
-    Log: VoidFunc,
-    SendEvent: VoidFunc,
-    Navigate: VoidFunc
-  ) {
-    if (!enabled) return
-    ModVariable(Change, Log, SendEvent)
-    Navigate()
-    // TODO: Change player appearance
+    else Player.ChangeAppearance()
   }
 }
