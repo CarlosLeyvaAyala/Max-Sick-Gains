@@ -2,8 +2,11 @@ import {
   ApplyBodyslide,
   ApplyMuscleDef,
   BlendMorph,
+  BodyShape,
   BodyslidePreset,
+  ChangeHeadSize,
   GetBodyslide,
+  GetHeadSize,
   GetMuscleDefTex,
   InterpolateMusDef,
   InterpolateW,
@@ -36,7 +39,7 @@ import {
   RacialMatch,
   Sex,
 } from "../database"
-import { LogE, LogI, LogV, LogVT } from "../debug"
+import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 import { SendGains } from "../events"
 
 // function ModVariable(Change: void, Log: void, SendEvent: void) {
@@ -169,14 +172,35 @@ export namespace Player {
     const p = Game.getPlayer() as Actor
     const d = GetData(p)
     if (!d) return
-    const bs = GetBs(d)
-    if (bs) {
-      LogBs(bs, "Final preset", LogV)
-      ApplyBodyslide(p, bs)
+    const shape = GetBodyShape(d)
+    if (shape) {
+      LogBs(shape.bodySlide, "Final preset", LogV)
+      ApplyBodyslide(p, shape.bodySlide)
+      ChangeHeadSize(p, shape.headSize)
     }
     const tex = GetMuscleDef(d)
     ApplyMuscleDef(p, d.sex, tex)
     // TODO: Change head size
+  }
+
+  function GetBodyShape(d: PlayerData): BodyShape | undefined {
+    const b = GetBlends(d)
+    return {
+      bodySlide: GetBodySlide(d, b),
+      headSize: GetHeadS(d, b),
+    }
+  }
+
+  function GetHeadS(d: PlayerData, b: BlendPair) {
+    const B = (bl: BlendData) => {
+      if (bl.blend === 0) return 0
+      const g = InterpolateW(bl.playerStage.bsLo, bl.playerStage.bsHi, bl.gains)
+      const hs = GetHeadSize(bl.fitStage, d.sex, g)
+      return hs * bl.blend
+    }
+    const s1 = LogVT("Current stage Hs", B(b.blend1))
+    const s2 = LogVT("Blend stage Hs", B(b.blend2))
+    return LogIT("Head size", s1 + s2)
   }
 
   /** Returns a fully blended Bodyslide preset. Ready to be applied on the player.
@@ -185,21 +209,16 @@ export namespace Player {
    * @returns A fully blended {@link BodyslidePreset} or `undefined` (that last thing
    * should actually never happen).
    */
-  function GetBs(d: PlayerData): BodyslidePreset | undefined {
-    const { blend1, blend2 } = GetBlends(d)
+  function GetBodySlide(d: PlayerData, b: BlendPair) {
+    const { blend1: b1, blend2: b2 } = b
     const L = (b: BlendData) =>
       `fitStage: ${b.fitStage.iName}, blend: ${b.blend}, gains: ${b.gains}`
 
-    const sl1 = GetSliders(
-      d,
-      LogVT("Current Stage", blend1, L)
-    ) as BodyslidePreset
-    const sl2 = blend2
-      ? GetSliders(d, LogVT("Blend Stage", blend2, L))
-      : undefined
+    const sl1 = GetSliders(d, LogVT("Current Stage", b1, L)) as BodyslidePreset
+    const sl2 = b2 ? GetSliders(d, LogVT("Blend Stage", b2, L)) : undefined
 
     LogBs(sl1, "Current stage BS", LogV)
-    LogBs(sl2, "Blend Stage BS", LogV)
+    LogBs(sl2, "Blend stage BS", LogV)
 
     return MapLib.JoinMaps(sl1, sl2, (v1, v2) => v1 + v2)
   }

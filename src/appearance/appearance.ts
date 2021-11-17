@@ -19,10 +19,16 @@ import {
   RacialGroup,
   Sex,
 } from "../database"
-import { LogI, LogIT, LogV } from "../debug"
+import { LogE, LogI, LogIT, LogV } from "../debug"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
+
+/** Total ´Actor´ appearance: body morphs and head size */
+export interface BodyShape {
+  bodySlide: BodyslidePreset
+  headSize: number
+}
 
 export function LogBs(
   bs: BodyslidePreset | undefined,
@@ -76,9 +82,7 @@ function BlendBs(bs: object, w: number, Morph: BsCalc): BodyslidePreset {
     // @ts-ignore
     const sl = bs[slN] as BsSlider
     const v = Morph(sl.min, sl.max, w) / 100
-    // const v = LinCurve({ x: 0, y: sl.min }, { x: 100, y: sl.max })(w)
     r.set(slN, v)
-    // r.set(slN, v / 100)
   }
 
   return r
@@ -261,6 +265,28 @@ export function GetMuscleDefTex(
     "Applied muscle definition",
     `actors\\character\\Maxick\\${RacialGroup[r]}\\${ss}${t}_${n}.dds`
   )
+}
+
+export function GetHeadSize(fitStage: FitStage, sex: Sex, w: number) {
+  const lo = sex === Sex.female ? fitStage.femHeadLo : fitStage.manHeadLo
+  const hi = sex === Sex.female ? fitStage.femHeadHi : fitStage.manHeadHi
+  return InterpolateW(lo, hi, w)
+}
+
+export function ChangeHeadSize(a: Actor, size: number) {
+  const headNode = "NPC Head [Head]"
+  if (NetImmerse.hasNode(a, headNode, false)) {
+    NetImmerse.setNodeScale(a, headNode, size, false)
+    UpdateNiNode(a)
+  }
+}
+
+function UpdateNiNode(a: Actor) {
+  if (a.isOnMount()) {
+    LogE("ERROR: Can't update a character while mounting.")
+    return
+  }
+  a.queueNiNodeUpdate()
 }
 
 /** Performs a linear interpolation based on some `weight`.

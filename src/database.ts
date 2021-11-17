@@ -57,6 +57,14 @@ export interface FitStage {
   femBs: object
   /** Raw Bodyslide preset whose keys are Slider names and values are {@link BsSlider} */
   manBs: object
+  /** Lower head size. */
+  femHeadLo: number
+  /** Higher head size. */
+  femHeadHi: number
+  /** Lower head size. */
+  manHeadLo: number
+  /** Higher head size. */
+  manHeadHi: number
 }
 
 export interface ClassArchetype {
