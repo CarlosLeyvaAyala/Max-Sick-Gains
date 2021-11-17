@@ -1,5 +1,5 @@
 import { LinCurve } from "DM-Lib/Math"
-import { FormLib } from "Dmlib"
+import { DebugLib as D, FormLib } from "Dmlib"
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
@@ -138,9 +138,10 @@ export function GetBodyslide(
   fs: FitStage,
   s: Sex,
   w: number,
-  Morph: BsCalc = StdMorph
+  Morph: BsCalc = StdMorph,
+  Log: D.Log.LoggingFunction = LogV
 ): BodyslidePreset {
-  LogV(`Fitness stage applied: ${fs.iName}`)
+  Log(`Fitness stage applied: ${fs.iName}`)
   return s === Sex.male ? BlendManBs(fs, w, Morph) : BlendFemBs(fs, w, Morph)
 }
 
@@ -266,7 +267,8 @@ export function GetMuscleDefTex(
   s: Sex,
   r: RacialGroup,
   type: MuscleDefinitionType,
-  lvl: number
+  lvl: number,
+  Log: D.Log.TappedFunction = LogIT
 ) {
   const ss = s === Sex.female ? "Fem" : "Man"
   const n = lvl.toString().padStart(2, "0")
@@ -277,7 +279,7 @@ export function GetMuscleDefTex(
       ? "Fit"
       : "Fat"
 
-  return LogIT(
+  return Log(
     "Applied muscle definition",
     `actors\\character\\Maxick\\${RacialGroup[r]}\\${ss}${t}_${n}.dds`
   )

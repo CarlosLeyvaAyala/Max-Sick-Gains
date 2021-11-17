@@ -40,12 +40,22 @@ import {
   RacialMatch,
   Sex,
 } from "../database"
-import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
+import {
+  LogE,
+  LogI as LogIo,
+  LogIT as LogITo,
+  LogV as LogVo,
+  LogVT as LogVTo,
+} from "../debug"
 import { SendGains } from "../events"
 
-// function ModVariable(Change: void, Log: void, SendEvent: void) {
-
 const StageName = () => `Now you look ${playerStages[pStage].displayName}`
+
+const logMsg = "Player appearance: "
+const LogI = D.Log.Append(LogIo, logMsg)
+const LogIT = D.Log.AppendT(LogITo, logMsg)
+const LogV = D.Log.Append(LogVo, logMsg)
+const LogVT = D.Log.AppendT(LogVTo, logMsg)
 
 function DisplayStageName() {
   Debug.notification(StageName())
@@ -86,7 +96,7 @@ const CapStage = MathLib.ForceRange(0, playerStages.length - 1)
 export namespace Player {
   /** Initializes player data so this mod can work. */
   export function Init() {
-    LogV("Initializing player")
+    LogV("Initializing")
 
     SetGains(LogVT("Gains", JDB.solveInt(gainsK, 0)))
     SetStage(LogVT("Stage", JDB.solveInt(stageK, 0)))
@@ -94,12 +104,10 @@ export namespace Player {
 
   const CantChangeMDef = "Can't change muscle definition."
   const MDefMcmBan = () => {
-    LogI(`Muscle definition changing is banned for player. ${CantChangeMDef}`)
+    LogI(`Muscle definition changing is banned. ${CantChangeMDef}`)
   }
   const MDefRaceBan = () => {
-    LogI(
-      `Player race is banned from changing muscle defininion. ${CantChangeMDef}`
-    )
+    LogI(`Race is banned from changing muscle defininion. ${CantChangeMDef}`)
   }
   const NoBase = () => {
     LogE("No base object for player (how is that even possible?)")
@@ -154,7 +162,7 @@ export namespace Player {
 
     const s = playerStages[pStage]
     const fs = fitStage(s.fitStage)
-    LogV(`Player stage [${pStage}]: "${fs.iName}" [${s.fitStage}]`)
+    LogV(`Player Stage [${pStage}]: "${fs.iName}" [${s.fitStage}]`)
 
     return {
       race: race,
@@ -169,7 +177,7 @@ export namespace Player {
 
   /** Changes the player appearance. */
   export function ChangeAppearance() {
-    LogV("Changing player appearance.")
+    LogV("Changing appearance.")
     const p = Game.getPlayer() as Actor
     const d = GetData(p)
     if (!d) return
@@ -271,7 +279,7 @@ export namespace Player {
   function GetSliders(d: PlayerData, b: BlendData) {
     if (b.blend === 0) return undefined
     const g = InterpolateW(b.playerStage.bsLo, b.playerStage.bsHi, b.gains)
-    return GetBodyslide(b.fitStage, d.sex, g, BlendMorph(b.blend))
+    return GetBodyslide(b.fitStage, d.sex, g, BlendMorph(b.blend), LogV)
   }
 
   /** Returns the muscle definition texture the player should use. */
@@ -288,7 +296,7 @@ export namespace Player {
       gains
     )
 
-    return GetMuscleDefTex(d.sex, RacialGroup.Hum, mdt, md)
+    return GetMuscleDefTex(d.sex, RacialGroup.Hum, mdt, md, LogIT)
   }
 }
 
