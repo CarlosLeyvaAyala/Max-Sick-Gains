@@ -112,6 +112,7 @@ export function main() {
     TestMode.Prev(TestMode.GoPrev)
     TestMode.Add10(TestMode.GoAdd10)
     TestMode.Sub10(TestMode.GoSub10)
+    TestMode.SlideShow(TestMode.GoSlideShow)
 
     OnPrint(() => {
       Player.ChangeAppearance()

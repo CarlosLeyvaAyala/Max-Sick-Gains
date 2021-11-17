@@ -29,6 +29,7 @@ import {
   DxScanCode,
   Game,
   storage,
+  Utility,
 } from "skyrimPlatform"
 import {
   FitStage,
@@ -316,20 +317,51 @@ export namespace TestMode {
   /** Previous Stage hotkey listener. */
   export const Prev = Hotkeys.ListenTo(DxScanCode.DownArrow)
 
+  /** Slideshow hotkey listener. */
+  export const SlideShow = Hotkeys.ListenTo(DxScanCode.NumEnter)
+
+  let slideshowRunning = false
+
+  export function GoSlideShow() {
+    if (!enabled || slideshowRunning) return
+    SetGains(0)
+    SetStage(0)
+    SendGains(0)
+    Player.ChangeAppearance()
+    slideshowRunning = true
+
+    const run = async () => {
+      Debug.messageBox(
+        "Slideshow mode has started. Now you can see how your character will change with training."
+      )
+      await Utility.wait(2)
+      while (GoModGains(2)) {
+        await Utility.wait(0.1)
+      }
+      await Utility.wait(2)
+      Debug.messageBox("Slideshow has ended")
+      slideshowRunning = false
+    }
+    run()
+  }
+
   function LogStageChange(st: string) {
     LogI(`Going to ${st} stage (${pStage + 1}/${playerStages.length})`)
   }
 
   /** Go to next Fitness Stage */
   export function GoNext() {
-    GoModStage(1, "end", 100, "next", 0)
+    return GoModStage(1, "end", 100, "next", 0)
   }
 
   /** Go to previous Fitness Stage */
   export function GoPrev() {
-    GoModStage(-1, "start", 0, "previous", 100)
+    return GoModStage(-1, "start", 0, "previous", 100)
   }
 
+  /** Changes Player Stage.
+   * @returns Wether it's possible to continue going in the same direction.
+   */
   function GoModStage(
     delta: number,
     cantGo: string,
@@ -337,11 +369,13 @@ export namespace TestMode {
     chMsg: string,
     newGains: number
   ) {
-    if (!enabled) return
+    if (!enabled) return false
 
     const old = pStage
     ModStage(delta)
     const change = old - pStage
+
+    let canContinue = true
 
     const G = (g: number) => {
       SetGains(g)
@@ -354,12 +388,16 @@ export namespace TestMode {
         `You reached the ${cantGo} of your journey. You can't go any further.`
       )
       G(cantGoGains)
+      canContinue = false
     } else {
       LogStageChange(chMsg)
       G(newGains)
       DisplayStageName()
+      canContinue = true
     }
+
     Player.ChangeAppearance()
+    return canContinue
   }
 
   /** Gains +10 */
@@ -377,8 +415,9 @@ export namespace TestMode {
     ModGains(delta)
     LogGainsDelta(delta)()
     SendGains(gains)
-    if (gains > 100) GoNext()
-    else if (gains < 0) GoPrev()
+    if (gains > 100) return GoNext()
+    else if (gains < 0) return GoPrev()
     else Player.ChangeAppearance()
+    return true
   }
 }
