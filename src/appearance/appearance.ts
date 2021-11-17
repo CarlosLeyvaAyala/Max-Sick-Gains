@@ -1,4 +1,5 @@
 import { LinCurve } from "DM-Lib/Math"
+import { FormLib } from "Dmlib"
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
@@ -10,7 +11,14 @@ import {
   TextureIndex as Idx,
   UpdateModelWeight,
 } from "Racemenu/nioverride"
-import { Actor, Armor, Game, NetImmerse, SlotMask } from "skyrimPlatform"
+import {
+  Actor,
+  Armor,
+  Game,
+  NetImmerse,
+  SlotMask,
+  Utility,
+} from "skyrimPlatform"
 import {
   BsSlider,
   FitStage,
@@ -164,7 +172,15 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   const body = SlotMask.Body
   AddSkinOverrideString(a, fem, false, body, t, n, path, true)
   AddSkinOverrideString(a, fem, true, body, t, n, path, true)
-  FixGenitalTextures(a)
+
+  const actor = FormLib.PreserveActor(a)
+  const f = async () => {
+    await Utility.wait(0.01)
+    const aa = actor()
+    if (!aa) return
+    FixGenitalTextures(aa)
+  }
+  f()
 }
 
 const PizzaFix = () => Game.getFormFromFile(0x9dc, "Max Sick Gains.esp")
