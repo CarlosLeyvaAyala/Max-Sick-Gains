@@ -58,7 +58,7 @@ export function main() {
   hooks.sendPapyrusEvent.add(
     {
       enter(_) {
-        printConsole("******************* OnMaxickUpdate")
+        Player.Calc.Update()
       },
     },
     undefined,
@@ -125,7 +125,7 @@ export function main() {
     TestMode.SlideShow(TestMode.GoSlideShow)
 
     OnPrint(() => {
-      Player.ChangeAppearance()
+      Player.Appearance.Change()
       // f()
       // MiscUtil.SetFreeCameraSpeed(80)
       // MiscUtil.SetFreeCameraState(true, 1)
