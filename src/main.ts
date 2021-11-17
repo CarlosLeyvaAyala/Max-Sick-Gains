@@ -55,6 +55,16 @@ export function main() {
     0x14,
     "OnSleepStart"
   )
+  hooks.sendPapyrusEvent.add(
+    {
+      enter(_) {
+        printConsole("******************* OnMaxickUpdate")
+      },
+    },
+    undefined,
+    undefined,
+    "OnMaxickUpdate"
+  )
 
   // ;>========================================================
   // ;>===             PLAYER AND NPC EVENTS              ===<;

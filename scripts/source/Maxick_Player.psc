@@ -77,22 +77,22 @@ Function _InitFromMcm()
 EndFunction
 
 Function OnGameReload()
-  _InitFromMcm()
-  _MayEnterTestingMode()
+  ; _InitFromMcm()
+  ; _MayEnterTestingMode()
   RegisterEvents()
-  ChangeAppearance(true)
+  ; ChangeAppearance(true)
 EndFunction
 
 ; Enters testing mode if needed.
 Function _MayEnterTestingMode()
-  If md.testMode
-    ; Game.SetInChargen(true, true, false)  ; Disable game saving while in Testing mode
-    GotoState("TestingMode")
-  Else
-    GotoState("")
-    ; _RestoreHeadSize()
-    _Poll()
-  EndIf
+  ; If md.testMode
+  ;   ; Game.SetInChargen(true, true, false)  ; Disable game saving while in Testing mode
+  ;   GotoState("TestingMode")
+  ; Else
+  ;   GotoState("")
+  ;   ; _RestoreHeadSize()
+  ;   ; _Poll()
+  ; EndIf
 EndFunction
 
 ; Registers the events needed for this mod to work.
@@ -107,7 +107,13 @@ Function RegisterEvents()
   RegisterForModEvent(ev.JOURNEY_AVERAGE, "OnJourneyAverage")
   RegisterForModEvent(ev.JOURNEY_DAYS, "OnJourneyDays")
   RegisterForModEvent(ev.JOURNEY_STAGE, "OnJourneyStage")
+
+  RegisterForModEvent(ev.JOURNEY_STAGE, "OnJourneyStage")
+
+  RegisterForModEvent(EV_POLLING, "OnMaxickUpdate")
 EndFunction
+
+string EV_POLLING = "Maxick_Update"
 
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
 Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
@@ -116,10 +122,10 @@ EndEvent
 
 ; Called from MCM Helper when the user changed the polling interval.
 Function SetUpdateInterval(int interval)
-  md.LogVerb("Polling interval set to: " + interval)
-  _pollingInterval = interval
-  SendModEvent(ev.UPDATE_INTERVAL, "", _pollingInterval)
-  _Poll()
+  ; md.LogVerb("Polling interval set to: " + interval)
+  ; _pollingInterval = interval
+  ; SendModEvent(ev.UPDATE_INTERVAL, "", _pollingInterval)
+  ; _Poll()
 EndFunction
 
 ;>========================================================
@@ -129,26 +135,32 @@ EndFunction
 ; These are done each `n` seconds defined by the player when setting the
 ; widget refresh rate in the MCM.
 Event OnUpdate()
-  _Poll()
+  SendModEvent(EV_POLLING)
+  RegisterForSingleUpdate(4)
+  ; _Poll()
+EndEvent
+
+; Blank event used to communicate with Skyrim Platform
+Event OnMaxickUpdate(string _, string __, float ___, Form ____)
 EndEvent
 
 ; Does the few calculations that need to be done every `<n>` seconds:
 ; - Training decay.
 ; - Losses by inactivity.
 Function _Poll()
-  md.LogVerb("Polling. Time: " + _pollingInterval)
+  ; md.LogVerb("Polling. Time: " + _pollingInterval)
 
-  _InactivityCalculation()
+  ; _InactivityCalculation()
 
-  ; Decay and losses calculation
-  int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
-  _SetGains( JMap.getFlt(data, "newGains") )
-  _SetTraining( JMap.getFlt(data, "newTraining") )
-  _SetStage( JMap.getInt(data, "newStage") )
-  _SendStageDelta( JMap.getInt(data, "stageDelta") )
+  ; ; Decay and losses calculation
+  ; int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
+  ; _SetGains( JMap.getFlt(data, "newGains") )
+  ; _SetTraining( JMap.getFlt(data, "newTraining") )
+  ; _SetStage( JMap.getInt(data, "newStage") )
+  ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
 
-  _lastPollingTime = Now()
-  RegisterForSingleUpdate(_pollingInterval)
+  ; _lastPollingTime = Now()
+  ; RegisterForSingleUpdate(_pollingInterval)
 EndFunction
 
 ;>========================================================
@@ -223,56 +235,56 @@ EndFunction
 ; - Set training.
 ; - Send gains delta.
 Event OnSleep(string _, string __, float hoursSlept, Form ___)
-  md.LogVerb("=====================================")
-  md.LogVerb("Hours slept: " + hoursSlept)
+  ; md.LogVerb("=====================================")
+  ; md.LogVerb("Hours slept: " + hoursSlept)
 
-  int data = LuaTable("maxick.OnSleep", hoursSlept, _training, _gains, _stage)
-  _SetGains( JMap.getFlt(data, "newGains") )
-  _SetTraining( JMap.getFlt(data, "newTraining") )
-  _SetStage( JMap.getInt(data, "newStage") )
-  _SendStageDelta( JMap.getInt(data, "stageDelta") )
+  ; int data = LuaTable("maxick.OnSleep", hoursSlept, _training, _gains, _stage)
+  ; _SetGains( JMap.getFlt(data, "newGains") )
+  ; _SetTraining( JMap.getFlt(data, "newTraining") )
+  ; _SetStage( JMap.getInt(data, "newStage") )
+  ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
 
-  SendModEvent( ev.GAINS_CHANGE, "", JMap.getFlt(data, "gainsDelta") )
-  SendModEvent( ev.JOURNEY_AVERAGE, "", JMap.getFlt(data, "averagePercent") )
-  SendModEvent( ev.JOURNEY_DAYS, "", JMap.getFlt(data, "daysPercent") )
-  SendModEvent( ev.JOURNEY_STAGE, "", JMap.getFlt(data, "stagePercent") )
+  ; SendModEvent( ev.GAINS_CHANGE, "", JMap.getFlt(data, "gainsDelta") )
+  ; SendModEvent( ev.JOURNEY_AVERAGE, "", JMap.getFlt(data, "averagePercent") )
+  ; SendModEvent( ev.JOURNEY_DAYS, "", JMap.getFlt(data, "daysPercent") )
+  ; SendModEvent( ev.JOURNEY_STAGE, "", JMap.getFlt(data, "stagePercent") )
 
-  ChangeAppearance()
-  md.LogVerb("=====================================")
+  ; ChangeAppearance()
+  ; md.LogVerb("=====================================")
 EndEvent
 
 ; Player got direct `gains` from an addon.
 Event OnGainsDelta(string _, string __, float delta, Form sender)
-  If sender == self
-    md.LogVerb("Maxick_Player script got an OnGainsDelta event that it send itself. Skipping value setting because that was already done.")
-    return
-  EndIf
-  md.LogVerb("Player got gains change: " + delta)
-  _SetGains(_gains + delta)
+  ; If sender == self
+  ;   md.LogVerb("Maxick_Player script got an OnGainsDelta event that it send itself. Skipping value setting because that was already done.")
+  ;   return
+  ; EndIf
+  ; md.LogVerb("Player got gains change: " + delta)
+  ; _SetGains(_gains + delta)
 EndEvent
 
 ; Player got some training.
 Event OnTrain(string _, string skillName, float __, Form ___)
-  md.LogVerb("Skill level up: " + skillName)
-  ; Get data from Lua
-  int data = LuaTable("maxick.Train", Arg(skillName))
-  ev.SendTrainingAndActivity(skillName, JMap.getFlt(data, "trainingDelta"), JMap.getFlt(data, "activity"))
+  ; md.LogVerb("Skill level up: " + skillName)
+  ; ; Get data from Lua
+  ; int data = LuaTable("maxick.Train", Arg(skillName))
+  ; ev.SendTrainingAndActivity(skillName, JMap.getFlt(data, "trainingDelta"), JMap.getFlt(data, "activity"))
 EndEvent
 
 ; Got the value for which the `training` will change.
 Event OnTrainDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Training change: " + delta)
-  If delta == 0
-    return
-  EndIf
-  _SetTraining(_training + delta)
+  ; If delta == 0
+  ;   return
+  ; EndIf
+  ; _SetTraining(_training + delta)
 EndEvent
 
 ; Got the value for which the `inactivity` will change.
 Event OnInactivityDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Inactivity change: " + delta)
-  _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", " + ToGameHours(delta) +")")
-  _InactivityCalculation()
+  ; _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", " + ToGameHours(delta) +")")
+  ; _InactivityCalculation()
 EndEvent
 
 Event OnJourneyAverage(string _, string __, float journey, Form ___)
@@ -287,245 +299,48 @@ Event OnJourneyDays(string _, string __, float journey, Form ___)
   md.LogVerb("Journey by days sucessfully sent: " + journey)
 EndEvent
 
-
-;>========================================================
-;>===                  TESTING MODE                  ===<;
-;>========================================================
-
-; How much time (seconds) between steps in Slideshow view.
-float _slStepTime = 0.3
-
-; Stops the slideshow.
-Function _SlideshowStop(string msg = "Last stage reached")
-  GotoState("TestingMode")
-  UnregisterForUpdate()
-  Debug.Notification(msg)
-EndFunction
-
-; Goes to the next stage of the slideshow. Stops if reached the last Player stage.
-Function _SlideShowNextStage()
-  int old = _stage
-  _stage = JValue.evalLuaInt(0, "return maxick.SlideshowNextStage(" + _stage + ")")
-  If _stage < 1
-    ; Reached last stage
-    _stage = old
-    _SlideshowStop()
-    _SetGains(100.0)
-  Else
-    _SetGains(0.0)
-    Debug.Notification(JValue.evalLuaStr(0, "return maxick.SlideshowStageMsg(" + _stage + ")"))
-  EndIf
-EndFunction
-
-Function _SlideshowPreviousStage()
-  If _stage <= 1
-    Debug.Notification("First stage reached")
-    _stage = 1
-    _SetGains(0.0)
-  Else
-    _SetGains(100.0)
-    _stage -= 1
-    Debug.Notification(JValue.evalLuaStr(0, "return maxick.SlideshowStageMsg(" + _stage + ")"))
-  EndIf
-EndFunction
-
-Function _SlideshowAdvance(float delta)
-  _SetGains(_gains + delta)
-  If ((_gains > 100.0) && (delta > 0))
-    _SlideShowNextStage()
-  ElseIf ((_gains < 0.0) && (delta < 0))
-    _SlideshowPreviousStage()
-  EndIf
-  ChangeAppearance()
-EndFunction
-
-;> Hotkey functions are called by MCM Helper
-
-; Disabled outside testing mode.
-Function HkGains0()
-EndFunction
-
-; Disabled outside testing mode.
-Function HkGains100()
-EndFunction
-
-; Disabled outside testing mode.
-Function HkNextLvl()
-EndFunction
-
-; Disabled outside testing mode.
-Function HkPrevLvl()
-EndFunction
-
-; Disabled outside testing mode.
-Function HkAdvance()
-EndFunction
-
-; Disabled outside testing mode.
-Function HkRegress()
-EndFunction
-
-; Disabled outside testing mode.
-Function HkSlideshow()
-EndFunction
-
-State TestingMode
-  ; What to do when the `hkGains0` hotkey was pressed.
-  Function HkGains0()
-    If _gains <= 0.0
-      _SlideshowPreviousStage()
-    Else
-      _SetGains(0.0)
-    EndIf
-    ChangeAppearance()
-  EndFunction
-
-  ; What to do when the `hkGains100` hotkey was pressed.
-  Function HkGains100()
-    If _gains >= 100.0
-      _SlideShowNextStage()
-    Else
-      _SetGains(100.0)
-    EndIf
-    ChangeAppearance()
-  EndFunction
-
-  ; What to do when the `hkNextLvl` hotkey was pressed.
-  Function HkNextLvl()
-    _SlideShowNextStage()
-    ChangeAppearance()
-  EndFunction
-
-  ; What to do when the `hkPrevLvl` hotkey was pressed.
-  Function HkPrevLvl()
-    _SlideshowPreviousStage()
-    ChangeAppearance()
-  EndFunction
-
-  ; What to do when the `hkAdvance` hotkey was pressed.
-  Function HkAdvance()
-    _SlideshowAdvance(5.0)
-    ChangeAppearance()
-  EndFunction
-
-  ; What to do when the `hkRegress` hotkey was pressed.
-  Function HkRegress()
-    _SlideshowAdvance(-5.0)
-    ChangeAppearance()
-  EndFunction
-
-  ; What to do when the `hkSlideshow` hotkey was pressed.
-  Function HkSlideshow()
-    _SetGains(0.0)
-    _SetStage(1)
-    _SetTraining(0)
-    ChangeAppearance()
-    Debug.Notification("Started slideshow")
-    GotoState("Slideshow")
-    RegisterForSingleUpdate(_slStepTime)
-  EndFunction
-
-  Event OnUpdate()
-    ; Losses and inactivity aren't calculated while in testing mode.
-    UnregisterForUpdate()
-  EndEvent
-
-  Event OnTrain(string _, string ___, float __, Form ____)
-    md.LogVerb("Can't train while testing")
-  EndEvent
-
-  Event OnTrainDelta(string _, string __, float delta, Form ___)
-    md.LogVerb("Can't train while testing")
-  EndEvent
-
-  Event OnInactivityDelta(string _, string __, float delta, Form ___)
-    md.LogVerb("Inactivity disabled while testing")
-  EndEvent
-
-  Event OnSleep(string _, string __, float ____, Form ___)
-    md.LogVerb("Can't gain while testing")
-  EndEvent
-
-  Event OnGainsDelta(string _, string __, float delta, Form sender)
-    md.LogVerb("Can't gain while testing")
-  EndEvent
-EndState
-
-State Slideshow
-  Event OnUpdate()
-    _SlideshowAdvance(10.0)
-    RegisterForSingleUpdate(_slStepTime)
-  EndEvent
-
-  Function HkSlideshow()
-    _SlideshowStop("You stopped Slideshow mode")
-  EndFunction
-
-  Event OnTrain(string _, string ___, float __, Form ____)
-    md.LogVerb("Can't train while testing")
-  EndEvent
-
-  Event OnTrainDelta(string _, string __, float delta, Form ___)
-    md.LogVerb("Can't train while testing")
-  EndEvent
-
-  Event OnInactivityDelta(string _, string __, float delta, Form ___)
-    md.LogVerb("Inactivity disabled while testing")
-  EndEvent
-
-  Event OnSleep(string _, string __, float ____, Form ___)
-    md.LogVerb("Can't gain while testing")
-  EndEvent
-
-  Event OnGainsDelta(string _, string __, float delta, Form sender)
-    md.LogVerb("Can't gain while testing")
-  EndEvent
-EndState
-
 ;>========================================================
 ;>===                   APPEARANCE                   ===<;
 ;>========================================================
 
 Function EquipPizzaHandsFix(bool wait = true)
-  looksHandler.EquipPizzaHandsFix(player, wait)
 EndFunction
 
 Function FixGenitalTextures()
-  looksHandler.FixGenitalTextures(player)
 EndFunction
 
 ; Sets the correct skin when player changes into werewolf/vampire lord/etc.
 Function OnTransformation()
-  If _IsTransformed()
-    return
-  EndIf
-  ChangeAppearance(true)
+  ; If _IsTransformed()
+  ;   return
+  ; EndIf
+  ; ChangeAppearance(true)
 EndFunction
 
 bool Function _IsTransformed()
-  string newRace = looksHandler.GetRace(player)
-  md.LogVerb("Current race: " + newRace)
-  return StringUtil.Find(newRace, "were") != -1
+  ; string newRace = looksHandler.GetRace(player)
+  ; md.LogVerb("Current race: " + newRace)
+  ; return StringUtil.Find(newRace, "were") != -1
 EndFunction
 
 ; Changes player appearance.
 Function ChangeAppearance(bool skipMuscleDef = false)
-  If _IsTransformed()
-    md.LogInfo("Can't change appearance because player is transformed.")
-    return
-  EndIf
+  ; If _IsTransformed()
+  ;   md.LogInfo("Can't change appearance because player is transformed.")
+  ;   return
+  ; EndIf
 
-  md.LogInfo("Player is changing appearance.")
-  int appearance = _GetAppearance()
-  looksHandler.ChangeAppearance(player, appearance, true, skipMuscleDef)
-  ; TODO: Factorize GetModSettingBool to make it less dependable on mod name
-  If !MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
-    ; TODO: Clean overrides
-  EndIf
+  ; md.LogInfo("Player is changing appearance.")
+  ; int appearance = _GetAppearance()
+  ; looksHandler.ChangeAppearance(player, appearance, true, skipMuscleDef)
+  ; ; TODO: Factorize GetModSettingBool to make it less dependable on mod name
+  ; If !MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance")
+  ;   ; TODO: Clean overrides
+  ; EndIf
 
-  ; Make head size obviously wrong when getting default values to help catch bugs.
-  ; FIXME: Set to a reasonable value once I know this to be stable
-  looksHandler.ChangeHeadSize(player, JMap.getFlt(appearance, "headSize", 2.2))
+  ; ; Make head size obviously wrong when getting default values to help catch bugs.
+  ; ; FIXME: Set to a reasonable value once I know this to be stable
+  ; looksHandler.ChangeHeadSize(player, JMap.getFlt(appearance, "headSize", 2.2))
 EndFunction
 
 ; Resets head size when reloading a game.
@@ -537,6 +352,6 @@ EndFunction
 
 ; Gets the player appearance from Lua.
 int Function _GetAppearance()
-  return LuaTable("maxick.ChangePlayerAppearance", Arg(looksHandler.GetRace(player)), \
-    looksHandler.IsFemale(player) as Int, _stage, _gains, MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance") as int)
+  ; return LuaTable("maxick.ChangePlayerAppearance", Arg(looksHandler.GetRace(player)), \
+  ;   looksHandler.IsFemale(player) as Int, _stage, _gains, MCM.GetModSettingBool("Max Sick Gains", "bPlMusDef:Appearance") as int)
 EndFunction
