@@ -2,7 +2,6 @@ import { IntToHex } from "DM-Lib/Debug"
 import * as Hotkeys from "DM-Lib/Hotkeys"
 import { AvoidRapidFire } from "DM-Lib/Misc"
 import { FormLib } from "Dmlib"
-import * as MiscUtil from "PapyrusUtil/MiscUtil"
 import {
   Actor,
   Armor,
@@ -21,7 +20,7 @@ import {
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
 import { Player, TestMode } from "./appearance/player"
-import { LogE, LogV } from "./debug"
+import { LogE, LogIT, LogV, LogVT } from "./debug"
 import * as S from "./sleep"
 
 export function main() {
@@ -84,9 +83,11 @@ export function main() {
   on("loadGame", () => {
     LogV("||| Game loaded |||")
     Player.Init()
+    Player.Appearance.Change()
   })
 
-  on("reset", () => {
+  on("reset", (e) => {
+    LogE(`$$$$$$$$$$$$$$$$$$$$$$$$$$ ${e.object.getName()}`)
     LogV("||||||||||||||||||||| Game reset |||")
   })
 
@@ -125,7 +126,6 @@ export function main() {
     TestMode.SlideShow(TestMode.GoSlideShow)
 
     OnPrint(() => {
-      Player.Appearance.Change()
       // f()
       // MiscUtil.SetFreeCameraSpeed(80)
       // MiscUtil.SetFreeCameraState(true, 1)
@@ -135,10 +135,15 @@ export function main() {
     })
 
     OnDebugNpc(() => {
-      const r = Game.getCurrentConsoleRef()
+      let r = Game.getCurrentCrosshairRef()
+      if (!r)
+        r = LogIT(
+          "No reference found at crosshair. Trying console one",
+          Game.getCurrentConsoleRef()
+        )
       if (!r) return
       if (r.getFormID() === Game.getPlayer()?.getFormID())
-        LogE("Yeah... nice try, Einstein. GO EARN YOUR GAINS, YOU LOAFER!")
+        Player.Appearance.Change()
       else ChangeNpcAppearance(Actor.from(r))
     })
   })

@@ -19,6 +19,8 @@ import {
   Hotkeys,
   MapLib,
   MathLib,
+  Misc as M,
+  TimeLib as Time,
 } from "DmLib"
 import * as JDB from "JContainers/JDB"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
@@ -28,6 +30,7 @@ import {
   Debug,
   DxScanCode,
   Game,
+  printConsole,
   storage,
   Utility,
 } from "skyrimPlatform"
@@ -47,7 +50,7 @@ import {
   LogV as LogVo,
   LogVT as LogVTo,
 } from "../debug"
-import { SendGains } from "../events"
+import { SendGains, SendInactivity } from "../events"
 
 const StageName = () => `Now you look ${playerStages[pStage].displayName}`
 
@@ -56,6 +59,39 @@ const LogI = D.Log.Append(LogIo, logMsg)
 const LogIT = D.Log.AppendT(LogITo, logMsg)
 const LogV = D.Log.Append(LogVo, logMsg)
 const LogVT = D.Log.AppendT(LogVTo, logMsg)
+
+// Keys used for preserving variables
+const modKey = (k: string) => ".maxick." + k
+const gainsK = modKey("gains")
+const stageK = modKey("stage")
+const lastTrainK = modKey("lastTrained")
+
+// Variable preserving functions.
+export const SaveFlt = M.JContainersToPreserving(JDB.solveFltSetter)
+export const SaveInt = M.JContainersToPreserving(JDB.solveIntSetter)
+
+/** Variables that won't be saved when in test mode. */
+function TestModeBanned<T>(f: (k: string, v: T) => void) {
+  return (k: string, v: T) => {
+    if (!TestMode.enabled) f(k, v)
+  }
+}
+
+/** Save `gains`. */
+const SGains = M.PreserveVar(TestModeBanned(SaveFlt), gainsK)
+/** Save `pStage`. */
+const SpStage = M.PreserveVar(TestModeBanned(SaveInt), stageK)
+/** Save last training */
+const SLastTrained = M.PreserveVar(TestModeBanned(SaveFlt), lastTrainK)
+
+// Script variables
+
+/** Current player gains. */
+let gains = storage[gainsK] as number | 0
+/** Current Player Stage. */
+let pStage = storage[stageK] as number | 0
+/** Last time the player trained. */
+let lastTrained = storage[lastTrainK] as number | 0
 
 function DisplayStageName() {
   Debug.notification(StageName())
@@ -72,9 +108,7 @@ function ModGains(delta: number) {
 }
 
 function SetGains(x: number) {
-  gains = x
-  storage["gains"] = gains
-  if (!TestMode.enabled) JDB.solveFltSetter(gainsK, gains, true)
+  gains = SGains(x)
 }
 
 function ModStage(delta: number) {
@@ -82,15 +116,9 @@ function ModStage(delta: number) {
 }
 
 function SetStage(x: number) {
-  pStage = CapStage(x)
-  storage["stage"] = pStage
-  if (!TestMode.enabled) JDB.solveIntSetter(stageK, pStage, true)
+  pStage = SpStage(CapStage(x))
 }
 
-let gains = storage["gains"] as number | 0
-let pStage = storage["stage"] as number | 0
-const gainsK = ".maxick.gains"
-const stageK = ".maxick.stage"
 const CapStage = MathLib.ForceRange(0, playerStages.length - 1)
 
 export namespace Player {
@@ -98,8 +126,19 @@ export namespace Player {
   export function Init() {
     LogV("Initializing")
 
-    SetGains(LogVT("Gains", JDB.solveInt(gainsK, 0)))
-    SetStage(LogVT("Stage", JDB.solveInt(stageK, 0)))
+    gains = SGains(LogVT("Gains", JDB.solveFlt(gainsK, 0)))
+    pStage = SpStage(LogVT("Stage", JDB.solveInt(stageK, 0)))
+    lastTrained = LogVT("Last trained", JDB.solveFlt(lastTrainK, Time.Now()))
+
+    SendAllToWidget()
+  }
+
+  /** Sends all values to widget. */
+  function SendAllToWidget() {
+    SendGains(gains)
+    if (TestMode.enabled) {
+      SendInactivity(0)
+    }
   }
 
   /** All player appearance calculations are here. */
@@ -107,6 +146,7 @@ export namespace Player {
     /** Constantly updates player state. */
     export function Update() {
       if (TestMode.enabled) {
+        SendInactivity(0)
         return
       }
       LogV("****** Update cycle ******")
@@ -352,7 +392,7 @@ export namespace Player {
  */
 export namespace TestMode {
   // TODO: Read from settings
-  export const enabled = true
+  export const enabled = false
 
   /** Gains +10 hotkey listener. */
   export const Add10 = Hotkeys.ListenTo(DxScanCode.RightArrow)

@@ -9,3 +9,7 @@ import { Game } from "skyrimPlatform"
 export function SendGains(gains: number) {
   Game.getPlayer()?.sendModEvent("Maxick_Gains", "", gains)
 }
+
+export function SendInactivity(percent: number) {
+  Game.getPlayer()?.sendModEvent("Maxick_Inactivity", "", percent)
+}

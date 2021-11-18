@@ -136,7 +136,7 @@ EndFunction
 ; widget refresh rate in the MCM.
 Event OnUpdate()
   SendModEvent(EV_POLLING)
-  RegisterForSingleUpdate(4)
+  RegisterForSingleUpdate(3)
   ; _Poll()
 EndEvent
 
