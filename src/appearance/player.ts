@@ -65,6 +65,7 @@ const modKey = (k: string) => ".maxick." + k
 const gainsK = modKey("gains")
 const stageK = modKey("stage")
 const lastTrainK = modKey("lastTrained")
+const lastUpdateK = modKey("lastUpdate")
 
 // Variable preserving functions.
 export const SaveFlt = M.JContainersToPreserving(JDB.solveFltSetter)
@@ -81,8 +82,10 @@ function TestModeBanned<T>(f: (k: string, v: T) => void) {
 const SGains = M.PreserveVar(TestModeBanned(SaveFlt), gainsK)
 /** Save `pStage`. */
 const SpStage = M.PreserveVar(TestModeBanned(SaveInt), stageK)
-/** Save last training */
+/** Save last training. */
 const SLastTrained = M.PreserveVar(TestModeBanned(SaveFlt), lastTrainK)
+/** Save last update. */
+const SLastUpdate = M.PreserveVar(SaveFlt, lastUpdateK)
 
 // Script variables
 
@@ -90,8 +93,13 @@ const SLastTrained = M.PreserveVar(TestModeBanned(SaveFlt), lastTrainK)
 let gains = storage[gainsK] as number | 0
 /** Current Player Stage. */
 let pStage = storage[stageK] as number | 0
-/** Last time the player trained. */
+/** Last time the player trained. Time is in {@link Time.SkyrimHours}. */
 let lastTrained = storage[lastTrainK] as number | 0
+/** Last time real time calculations were made. */
+let lastUpdate = storage[lastUpdateK] as number | 0
+
+const inactiveTimeLim = 48
+const inactiveTimeLimSk = Time.ToSkyrimHours(inactiveTimeLim)
 
 function DisplayStageName() {
   Debug.notification(StageName())
@@ -129,6 +137,7 @@ export namespace Player {
     gains = SGains(LogVT("Gains", JDB.solveFlt(gainsK, 0)))
     pStage = SpStage(LogVT("Stage", JDB.solveInt(stageK, 0)))
     lastTrained = LogVT("Last trained", JDB.solveFlt(lastTrainK, Time.Now()))
+    lastUpdate = LogVT("Last update", JDB.solveFlt(lastUpdateK, Time.Now()))
 
     SendAllToWidget()
   }
@@ -145,29 +154,47 @@ export namespace Player {
   export namespace Calc {
     /** Constantly updates player state. */
     export function Update() {
-      if (TestMode.enabled) {
-        SendInactivity(0)
-        return
-      }
-      LogV("****** Update cycle ******")
-      CalcInactivity()
-      // Calculate decay
+      const timeDelta = Time.Now() - lastUpdate
+      if (timeDelta > 0)
+        if (TestMode.enabled) {
+          SendInactivity(0)
+        } else {
+          LogV("****** Update cycle ******")
+          UpdateInactivity(timeDelta)
+          // Calculate decay
+        }
+
+      lastUpdate = SLastUpdate(Time.Now())
+      LogV(`Last update: ${lastUpdate}`)
     }
 
-    function CalcInactivity() {
-      // ; Never allow inactivity get out of bounds
-      // _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", 0)")
-      // float inactivityPercent = HourSpan(_lastTrained) / InactivityTimeLimit() * 100
-      // SendModEvent(ev.INACTIVITY, "", inactivityPercent)
+    /** Adds inactivity each update cycle.
+     *
+     * @param td Time delta.
+     */
+    function UpdateInactivity(td: number) {
+      HadActivity(-td)
+      const percent = (lastTrained / inactiveTimeLimSk) * 100
+      SendInactivity(LogVT("Sending inactivity percent", percent))
       // _CatabolicTest(inactivityPercent)
     }
-    // function player.HadActivity(now, lastTrained, delta)
-    //   local Cap = function (x) return l.forceRange(now - l.ToGameHours(player.inactivityTimeLimit), now)(x) end
-    //   -- Make sure inactivity is within acceptable values before updating
-    //   local capped = Cap(lastTrained)
-    //   -- Update value
-    //   return Cap(capped + delta)
-    // end
+
+    /** Calculates new inactivity when new activity is added.
+     *
+     * @remarks
+     * This function never allows inactivity to get out of bounds, so player can get
+     * out of catabolism as soon as any kind of training is done.
+     *
+     * @param activity Activity value. Send negative values to simulate inactivity.
+     */
+    function HadActivity(activity: number) {
+      const now = LogVT("Now", Time.Now())
+      const Cap = (x: number) =>
+        MathLib.ForceRange(now - inactiveTimeLimSk, now)(x)
+      // Make sure inactivity is within acceptable values before updating
+      lastTrained = SLastTrained(Cap(lastTrained) - activity)
+      LogV(`Last trained: ${Time.ToHumanHours(lastTrained)}`)
+    }
   }
 
   /** All player appearance changing stuff is here. */
