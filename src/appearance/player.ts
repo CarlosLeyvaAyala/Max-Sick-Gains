@@ -69,6 +69,7 @@ const LogVT = D.Log.AppendT(LogVTo, logMsg)
 const modKey = (k: string) => ".maxick." + k
 const gainsK = modKey("gains")
 const stageK = modKey("stage")
+const trainingK = modKey("training")
 const lastTrainK = modKey("lastTrained")
 const lastUpdateK = modKey("lastUpdate")
 const isInCatabolicK = modKey("isInCatabolic")
@@ -89,6 +90,9 @@ function TestModeBanned<T>(f: (k: string, v: T) => void) {
 const SGains = M.PreserveVar(TestModeBanned(SaveFlt), gainsK)
 /** Save `pStage`. */
 const SpStage = M.PreserveVar(TestModeBanned(SaveInt), stageK)
+/** Save `training`. */
+const STraining = M.PreserveVar(TestModeBanned(SaveFlt), trainingK)
+
 /** Save last training. */
 const SLastTrained = M.PreserveVar(TestModeBanned(SaveFlt), lastTrainK)
 /** Save last update. */
@@ -102,6 +106,9 @@ const SIsInCatabolic = M.PreserveVar(TestModeBanned(SaveBool), isInCatabolicK)
 let gains = storage[gainsK] as number | 0
 /** Current Player Stage. */
 let pStage = storage[stageK] as number | 0
+/** Current training */
+let training = storage[trainingK] as number | 0
+
 /** Last time the player trained. Time is in {@link Time.SkyrimHours}. */
 let lastTrained = storage[lastTrainK] as number | 0
 /** Last time real time calculations were made. */
@@ -139,6 +146,7 @@ function SetStage(x: number) {
 }
 
 const CapStage = MathLib.ForceRange(0, playerStages.length - 1)
+const CapTraining = MathLib.ForceRange(0, 12)
 
 export namespace Player {
   /** Initializes player data so this mod can work. */
@@ -147,11 +155,16 @@ export namespace Player {
 
     gains = SGains(LogVT("Gains", JDB.solveFlt(gainsK, 0)))
     pStage = SpStage(LogVT("Stage", JDB.solveInt(stageK, 0)))
-    lastTrained = LogVT("Last trained", JDB.solveFlt(lastTrainK, Time.Now()))
-    lastUpdate = LogVT("Last update", JDB.solveFlt(lastUpdateK, Time.Now()))
-    isInCatabolic = LogVT(
-      "Is in catabolic state",
-      JDB.solveBool(isInCatabolicK)
+    training = STraining(LogVT("Traning", JDB.solveFlt(trainingK, 0)))
+
+    lastTrained = SLastTrained(
+      LogVT("Last trained init", JDB.solveFlt(lastTrainK, Time.Now()))
+    )
+    lastUpdate = SLastUpdate(
+      LogVT("Last update init", JDB.solveFlt(lastUpdateK, Time.Now()))
+    )
+    isInCatabolic = SIsInCatabolic(
+      LogVT("Is in catabolic state init", JDB.solveBool(isInCatabolicK))
     )
 
     SendAllToWidget()
@@ -160,6 +173,7 @@ export namespace Player {
   /** Sends all values to widget. */
   function SendAllToWidget() {
     SendGains(gains)
+    // TODO: Send training
     if (TestMode.enabled) {
       SendInactivity(0)
     }
@@ -178,7 +192,7 @@ export namespace Player {
         } else {
           LogV("****** Update cycle ******")
           UpdateInactivity()
-          // Calculate decay
+          Decay(timeDelta)
         }
 
       lastUpdate = SLastUpdate(Time.Now())
@@ -230,13 +244,112 @@ export namespace Player {
      *
      * @param activity Activity value. Send negative values to simulate inactivity.
      */
-    function HadActivity(activity: number) {
+    function HadActivity(activity: Time.SkyrimHours) {
       const now = LogVT("Now", Time.Now())
+      LogV(`Last trained before: ${lastTrained}`)
       const Cap = (x: number) =>
         MathLib.ForceRange(now - inactiveTimeLimSk, now)(x)
       // Make sure inactivity is within acceptable values before updating
-      lastTrained = SLastTrained(Cap(lastTrained) - activity)
-      LogV(`Last trained: ${Time.ToHumanHours(lastTrained)}`)
+      lastTrained = SLastTrained(Cap(lastTrained) + activity)
+      LogV(`Last trained after: ${Cap(lastTrained)}`)
+    }
+
+    function Decay(td: number) {
+      // ; Decay and losses calculation
+      // ; int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
+      // ; _SetGains( JMap.getFlt(data, "newGains") )
+      // ; _SetTraining( JMap.getFlt(data, "newTraining") )
+      // ; _SetStage( JMap.getInt(data, "newStage") )
+      // ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
+      //   function player.Polling(now, lastPoll, training, gains, stage, inCatabolism)
+      //   local PollAdjust = function (x) return (now - lastPoll) * x end
+      //   local Catabolism = function (x) return l.alt2(l.SkyrimBool(inCatabolism), PollAdjust, l.K(0))(x) end
+      //   local trainingDecay = PollAdjust(player.trainingDecay)
+      //   -- Catabolism calculations
+      //   local trainingCatabolism = Catabolism(player.trainingCatabolism)
+      //   local gainsCatabolism = Catabolism(_GainsCatabolism(stage))
+      //   local newStage, adjustedGains = _AdjustStage(stage, gains - gainsCatabolism)
+      //   return {
+      //     newGains = adjustedGains,
+      //     newTraining = l.forcePositve(training - trainingCatabolism - trainingDecay),
+      //     newStage = newStage,
+      //     stageDelta = newStage - stage,
+      //   }
+      // end
+    }
+
+    export namespace Train {
+      /** Skills belong to `skillTypes`; each one representing a broad type of skills.
+       *
+       * - `train` represents the relative contribution of the skill to training, and will be multiplied by the skill's own `train` contribution.
+       * - `activity` is also a relative value. It represents how many days of `activity` this type of skill is worth.
+       */
+      const skType = {
+        phys: { train: 0.5, activity: 0.8 },
+        mag: { train: 0.1, activity: 0.3 },
+        sack: { train: 1, activity: 2 },
+        sex: { train: 0.001, activity: 0.2 },
+      }
+
+      /** Represents a skill the player just leveled up.
+       * - `skType` is the `skillTypes` each skill belongs to.
+       * - `train` is the relative contribution of the skill to `training`.
+       * - `activity` is the relative contribution in days of the skill to `activity`.
+       */
+      const skills = {
+        TwoHanded: { skType: skType.phys, train: 1 },
+        OneHanded: { skType: skType.phys, train: 0.7 },
+        Block: { skType: skType.phys, train: 1 },
+        Marksman: { skType: skType.phys, train: 0.2 },
+        HeavyArmor: { skType: skType.phys, train: 1 },
+        LightArmor: { skType: skType.phys, train: 0.3 },
+        Sneak: { skType: skType.phys, train: 0.3 },
+        Pickpocket: { skType: skType.phys, train: 0, activity: 0.1 },
+        Lockpicking: { skType: skType.phys, train: 0, activity: 0.1 },
+        Smithing: { skType: skType.phys, train: 0.2 },
+        Alteration: { skType: skType.mag, train: 1 },
+        Conjuration: { skType: skType.mag, train: 0.1 },
+        Destruction: { skType: skType.mag, train: 0.7 },
+        Illusion: { skType: skType.mag, train: 0.1 },
+        Restoration: { skType: skType.mag, train: 1 },
+        Sex: { skType: skType.sex, train: 1 },
+        SackS: { skType: skType.sack, train: 0.7, activity: 0.5 },
+        SackM: { skType: skType.sack, train: 1, activity: 0.75 },
+        SackL: { skType: skType.sack, train: 1.5 },
+      }
+
+      export function OnTrain(sk: string) {
+        LogI(`Skill level up: ${sk}`)
+        const d = GetTrainingData(sk)
+        const t = CapTraining(training + d.training)
+        training = LogIT("Training", STraining(t))
+        HadActivity(d.activity)
+        UpdateInactivity()
+        // ; ev.SendTrainingAndActivity(skillName, JMap.getFlt(data, "trainingDelta"), JMap.getFlt(data, "activity"))
+      }
+
+      /** Data some skill contributes to training. */
+      interface TrainingData {
+        activity: Time.SkyrimHours
+        training: number
+      }
+
+      /** Given some skill, gets what it contributes to `training` and activity.
+       *
+       * @param sk Skill to find.
+       * @returns {@link TrainingData}
+       */
+      function GetTrainingData(sk: string): TrainingData {
+        const s = Object.keys(skills).filter((v) => v === sk)[0]
+        // @ts-ignore
+        const m = skills[s]
+        const A = (s1: any) => (s1.activity | 1) * s1.skType.activity
+        const T = (s1: any) => s1.train * s1.skType.train
+        return {
+          activity: !m ? 0 : LogIT("Skill activity", A(m)),
+          training: !m ? 0 : LogIT("Skill training", T(m)),
+        }
+      }
     }
   }
 
@@ -462,7 +575,7 @@ export namespace Player {
  */
 export namespace TestMode {
   // TODO: Read from settings
-  export const enabled = true
+  export const enabled = false
 
   /** Gains +10 hotkey listener. */
   export const Add10 = Hotkeys.ListenTo(DxScanCode.RightArrow)

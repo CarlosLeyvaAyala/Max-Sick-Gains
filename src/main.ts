@@ -1,5 +1,6 @@
 import { IntToHex } from "DM-Lib/Debug"
 import * as Hotkeys from "DM-Lib/Hotkeys"
+import * as JDB from "JContainers/JDB"
 import { AvoidRapidFire } from "DM-Lib/Misc"
 import { FormLib } from "Dmlib"
 import {
@@ -14,6 +15,7 @@ import {
   SlotMask,
   Utility,
 } from "skyrimPlatform"
+import { isJSDocPublicTag } from "../node_modules/typescript/lib/typescript"
 import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
 import {
   ChangeAppearance as ChangeNpcAppearance,
@@ -54,15 +56,28 @@ export function main() {
     0x14,
     "OnSleepStart"
   )
+
+  // hooks.sendPapyrusEvent.add(
+  //   {
+  //     enter(_) {
+  //       Player.Calc.Update()
+  //     },
+  //   },
+  //   undefined,
+  //   undefined,
+  //   "OnMaxickUpdate"
+  // )
+
+  // Event comming from Papyrus
   hooks.sendPapyrusEvent.add(
     {
       enter(_) {
-        Player.Calc.Update()
+        Player.Calc.Train.OnTrain(JDB.solveStr(".maxickEv.skillUp"))
       },
     },
     undefined,
     undefined,
-    "OnMaxickUpdate"
+    "OnMaxickSkill"
   )
 
   // ;>========================================================
@@ -80,10 +95,20 @@ export function main() {
     })
   })
 
+  /** Updating cycle that calculates decay and inactivity. */
+  const Update = async () => {
+    while (true) {
+      Player.Calc.Update()
+      await Utility.wait(3)
+    }
+  }
+
   on("loadGame", () => {
     LogV("||| Game loaded |||")
     Player.Init()
     Player.Appearance.Change()
+    // Fixme: Add this event when starting the game
+    Update()
   })
 
   on("reset", (e) => {
@@ -126,6 +151,7 @@ export function main() {
     TestMode.SlideShow(TestMode.GoSlideShow)
 
     OnPrint(() => {
+      Player.Calc.Train.OnTrain("OneHanded")
       // f()
       // MiscUtil.SetFreeCameraSpeed(80)
       // MiscUtil.SetFreeCameraState(true, 1)

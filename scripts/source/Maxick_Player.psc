@@ -98,22 +98,39 @@ Function RegisterEvents()
 
   RegisterForModEvent(ev.JOURNEY_STAGE, "OnJourneyStage")
 
+  ; Skyrim Platform communication
   RegisterForModEvent(EV_POLLING, "OnMaxickUpdate")
+  RegisterForModEvent(EV_SKILL, "OnMaxickSkill")
 EndFunction
 
+string EV_SKILL = "Maxick_Skill"
+
+; Player got some training.
+Event OnTrain(string _, string skillName, float __, Form ___)
+  ; Communicate with Skyrim Platform
+  JDB.solveStrSetter(".maxickEv.skillUp", skillName, true)
+  SendModEvent(EV_SKILL, skillName)
+EndEvent
+
+; WARNING: Do not delete. Blank event used to communicate with Skyrim Platform
+Event OnMaxickSkill(string _, string ____, float __, Form ___)
+EndEvent
+
+
 string EV_POLLING = "Maxick_Update"
+
+; WARNING: Do not delete. Blank event used to communicate with Skyrim Platform
+Event OnMaxickUpdate(string _, string __, float ___, Form ____)
+EndEvent
 
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
 Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
   md.LogVerb("Polling interval was correctly sent: " + interval)
+  ; PO3_SKSEFunctions
 EndEvent
 
 ; Called from MCM Helper when the user changed the polling interval.
 Function SetUpdateInterval(int interval)
-  ; md.LogVerb("Polling interval set to: " + interval)
-  ; _pollingInterval = interval
-  ; SendModEvent(ev.UPDATE_INTERVAL, "", _pollingInterval)
-  ; _Poll()
 EndFunction
 
 ;>========================================================
@@ -126,10 +143,6 @@ Event OnUpdate()
   SendModEvent(EV_POLLING)
   RegisterForSingleUpdate(3)
   ; _Poll()
-EndEvent
-
-; Blank event used to communicate with Skyrim Platform
-Event OnMaxickUpdate(string _, string __, float ___, Form ____)
 EndEvent
 
 ; Does the few calculations that need to be done every `<n>` seconds:
@@ -221,14 +234,6 @@ Event OnGainsDelta(string _, string __, float delta, Form sender)
   ; EndIf
   ; md.LogVerb("Player got gains change: " + delta)
   ; _SetGains(_gains + delta)
-EndEvent
-
-; Player got some training.
-Event OnTrain(string _, string skillName, float __, Form ___)
-  ; md.LogVerb("Skill level up: " + skillName)
-  ; ; Get data from Lua
-  ; int data = LuaTable("maxick.Train", Arg(skillName))
-  ; ev.SendTrainingAndActivity(skillName, JMap.getFlt(data, "trainingDelta"), JMap.getFlt(data, "activity"))
 EndEvent
 
 ; Got the value for which the `training` will change.
