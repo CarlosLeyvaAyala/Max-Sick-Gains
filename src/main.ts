@@ -135,7 +135,10 @@ export function main() {
     })
 
     OnDebugNpc(() => {
-      let r = Game.getCurrentCrosshairRef()
+      let r = LogIT(
+        "Getting reference at crosshair",
+        Game.getCurrentCrosshairRef()
+      )
       if (!r)
         r = LogIT(
           "No reference found at crosshair. Trying console one",

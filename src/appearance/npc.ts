@@ -19,8 +19,10 @@ import {
   ApplyBodyslide,
   ApplyMuscleDef,
   BodyslidePreset,
+  ChangeHeadSize,
   ClearAppearance as ClearActorAppearance,
   GetBodyslide,
+  GetHeadSize,
   GetMuscleDefTex,
   InterpolateMusDef,
   InterpolateW,
@@ -78,6 +80,8 @@ interface Appearance {
   path?: string
   /** Processed Bodyslide preset. */
   bodyslide?: BodyslidePreset
+  /** May be undefined if no morph will be applied. */
+  headSize?: number
 }
 
 enum NpcType {
@@ -115,6 +119,7 @@ export function ChangeAppearance(a: Actor | null) {
 
   const r = SolveAppearance(d, mockOptions)
   if (r.bodyslide) ApplyBodyslide(d.actor, r.bodyslide)
+  if (r.headSize) ChangeHeadSize(d.actor, r.headSize)
   ApplyMuscleDef(d.actor, d.sex, r.path)
 }
 
@@ -167,16 +172,17 @@ function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
   const raw = Alt(SolveKnownNPC, SolveGenericNPC)(d, o)
 
   const md = IsMuscleDefBanned(d.race) ? undefined : raw.muscleDef
+  const fs = fitStage(raw.fitStageId)
   return {
     bodyslide:
       raw.weight !== undefined
-        ? GetBodyslide(
-            fitStage(raw.fitStageId),
-            d.sex,
-            LogIT("Applied weight", raw.weight)
-          )
+        ? GetBodyslide(fs, d.sex, LogIT("Applied weight", raw.weight))
         : undefined,
     path: md ? GetMuscleDefTex(d.sex, raceGroup, md.type, md.level) : undefined,
+    headSize:
+      raw.weight === undefined
+        ? undefined
+        : LogVT("Applied head size", GetHeadSize(fs, d.sex, raw.weight)),
   }
 }
 
