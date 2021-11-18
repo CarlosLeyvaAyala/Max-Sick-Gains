@@ -109,8 +109,8 @@ let lastUpdate = storage[lastUpdateK] as number | 0
 /** Is the player in catabolic state due to inactivity? */
 let isInCatabolic = storage[isInCatabolicK] as boolean | false
 
-const inactiveTimeLim = 48
-const inactiveTimeLimSk = Time.ToSkyrimHours(inactiveTimeLim)
+const inactiveTimeLim: Time.HumanHours = 48
+const inactiveTimeLimSk: Time.SkyrimHours = Time.ToSkyrimHours(inactiveTimeLim)
 
 function DisplayStageName() {
   Debug.notification(StageName())
@@ -188,8 +188,13 @@ export namespace Player {
      * @param td Time delta.
      */
     function UpdateInactivity(td: number) {
-      HadActivity(-td)
-      const percent = (lastTrained / inactiveTimeLimSk) * 100
+      // Avoid values getting out of bounds
+      HadActivity(0)
+
+      const hoursInactive = Time.Now() - lastTrained
+      LogV(`Hours inactive: ${Time.ToHumanHours(hoursInactive)}`)
+      const percent = (hoursInactive / inactiveTimeLimSk) * 100
+
       SendInactivity(LogVT("Sending inactivity percent", percent))
       CatabolicTest(percent)
     }
