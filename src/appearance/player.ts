@@ -50,7 +50,12 @@ import {
   LogV as LogVo,
   LogVT as LogVTo,
 } from "../debug"
-import { SendGains, SendInactivity } from "../events"
+import {
+  SendCatabolismEnd,
+  SendCatabolismStart,
+  SendGains,
+  SendInactivity,
+} from "../events"
 
 const StageName = () => `Now you look ${playerStages[pStage].displayName}`
 
@@ -66,10 +71,12 @@ const gainsK = modKey("gains")
 const stageK = modKey("stage")
 const lastTrainK = modKey("lastTrained")
 const lastUpdateK = modKey("lastUpdate")
+const isInCatabolicK = modKey("isInCatabolic")
 
 // Variable preserving functions.
 export const SaveFlt = M.JContainersToPreserving(JDB.solveFltSetter)
 export const SaveInt = M.JContainersToPreserving(JDB.solveIntSetter)
+export const SaveBool = M.JContainersToPreserving(JDB.solveBoolSetter)
 
 /** Variables that won't be saved when in test mode. */
 function TestModeBanned<T>(f: (k: string, v: T) => void) {
@@ -86,6 +93,8 @@ const SpStage = M.PreserveVar(TestModeBanned(SaveInt), stageK)
 const SLastTrained = M.PreserveVar(TestModeBanned(SaveFlt), lastTrainK)
 /** Save last update. */
 const SLastUpdate = M.PreserveVar(SaveFlt, lastUpdateK)
+/** Save wheter player is in catabolic state. */
+const SIsInCatabolic = M.PreserveVar(TestModeBanned(SaveBool), isInCatabolicK)
 
 // Script variables
 
@@ -97,6 +106,8 @@ let pStage = storage[stageK] as number | 0
 let lastTrained = storage[lastTrainK] as number | 0
 /** Last time real time calculations were made. */
 let lastUpdate = storage[lastUpdateK] as number | 0
+/** Is the player in catabolic state due to inactivity? */
+let isInCatabolic = storage[isInCatabolicK] as boolean | false
 
 const inactiveTimeLim = 48
 const inactiveTimeLimSk = Time.ToSkyrimHours(inactiveTimeLim)
@@ -138,6 +149,10 @@ export namespace Player {
     pStage = SpStage(LogVT("Stage", JDB.solveInt(stageK, 0)))
     lastTrained = LogVT("Last trained", JDB.solveFlt(lastTrainK, Time.Now()))
     lastUpdate = LogVT("Last update", JDB.solveFlt(lastUpdateK, Time.Now()))
+    isInCatabolic = LogVT(
+      "Is in catabolic state",
+      JDB.solveBool(isInCatabolicK)
+    )
 
     SendAllToWidget()
   }
@@ -176,7 +191,28 @@ export namespace Player {
       HadActivity(-td)
       const percent = (lastTrained / inactiveTimeLimSk) * 100
       SendInactivity(LogVT("Sending inactivity percent", percent))
-      // _CatabolicTest(inactivityPercent)
+      CatabolicTest(percent)
+    }
+
+    /** Tests if player is in catabolic state and sends events accordingly.
+     *
+     * @param i Inactivity percent.
+     */
+    function CatabolicTest(i: number) {
+      const old = isInCatabolic
+      // Don't use 100 due to float and time imprecision
+      isInCatabolic = LogVT("isInCatabolic", SIsInCatabolic(i >= 99.8))
+
+      if (isInCatabolic != old) {
+        LogV("There was a change in catabolic state.")
+        if (isInCatabolic) {
+          LogI("Entered catabolic state.")
+          SendCatabolismStart()
+        } else {
+          LogI("Got out from catabolic state.")
+          SendCatabolismEnd()
+        }
+      }
     }
 
     /** Calculates new inactivity when new activity is added.
