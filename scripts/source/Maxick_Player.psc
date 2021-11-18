@@ -83,18 +83,6 @@ Function OnGameReload()
   ; ChangeAppearance(true)
 EndFunction
 
-; Enters testing mode if needed.
-Function _MayEnterTestingMode()
-  ; If md.testMode
-  ;   ; Game.SetInChargen(true, true, false)  ; Disable game saving while in Testing mode
-  ;   GotoState("TestingMode")
-  ; Else
-  ;   GotoState("")
-  ;   ; _RestoreHeadSize()
-  ;   ; _Poll()
-  ; EndIf
-EndFunction
-
 ; Registers the events needed for this mod to work.
 Function RegisterEvents()
   RegisterForModEvent(ev.TRAIN, "OnTrain")
@@ -196,34 +184,6 @@ Function _SendStageDelta(int delta)
     SendModEvent(ev.PLAYER_STAGE_DELTA, \
       JLua.evalLuaStr("return maxick.PlayerStageMsg(" + _stage + ")", 0), \
       delta)
-  EndIf
-EndFunction
-
-; Calculates inactivity as a number in `[0..100]` and then tests if player entered _Catabolic State_.
-Function _InactivityCalculation()
-  ; Never allow inactivity get out of bounds
-  _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", 0)")
-
-  float inactivityPercent = HourSpan(_lastTrained) / InactivityTimeLimit() * 100
-  SendModEvent(ev.INACTIVITY, "", inactivityPercent)
-  _CatabolicTest(inactivityPercent)
-EndFunction
-
-; Tests if player is in catabolic state and sends events accordingly.
-Function _CatabolicTest(float inactivityPercent)
-  md.LogVerb("Inactivity percent: " + inactivityPercent)
-  bool old = _isInCatabolic
-  ; Don't use 100 due to float and time imprecision
-  _isInCatabolic = inactivityPercent >= 99.8
-  If _isInCatabolic != old
-    md.LogVerb("There was a change in catabolic state.")
-    If _isInCatabolic
-      md.LogInfo("Player entered catabolic state.")
-      SendModEvent(ev.CATABOLISM_START, "", 1)
-    Else
-      md.LogInfo("Player got out from catabolic state.")
-      SendModEvent(ev.CATABOLISM_END, "", 0)
-    EndIf
   EndIf
 EndFunction
 

@@ -173,9 +173,11 @@ export namespace Player {
       if (timeDelta > 0)
         if (TestMode.enabled) {
           SendInactivity(0)
+          isInCatabolic = SIsInCatabolic(false)
+          SendCatabolismEnd()
         } else {
           LogV("****** Update cycle ******")
-          UpdateInactivity(timeDelta)
+          UpdateInactivity()
           // Calculate decay
         }
 
@@ -187,7 +189,7 @@ export namespace Player {
      *
      * @param td Time delta.
      */
-    function UpdateInactivity(td: number) {
+    function UpdateInactivity() {
       // Avoid values getting out of bounds
       HadActivity(0)
 
@@ -460,7 +462,7 @@ export namespace Player {
  */
 export namespace TestMode {
   // TODO: Read from settings
-  export const enabled = false
+  export const enabled = true
 
   /** Gains +10 hotkey listener. */
   export const Add10 = Hotkeys.ListenTo(DxScanCode.RightArrow)
