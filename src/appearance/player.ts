@@ -203,8 +203,10 @@ export namespace Player {
 
     export namespace Activity {
       /** Sends events and does checks needed after inactivity change. */
-      function Change() {
-        const hoursInactive = Time.Now() - lastTrained
+      function Send() {
+        LogV("--- Sending activity data")
+        const hoursInactive =
+          LogVT("Now", Time.Now()) - LogVT("Last trained", lastTrained)
         LogV(`Hours inactive: ${Time.ToHumanHours(hoursInactive)}`)
         const percent = (hoursInactive / inactiveTimeLimSk) * 100
 
@@ -248,10 +250,11 @@ export namespace Player {
           MathLib.ForceRange(now - inactiveTimeLimSk, now)(x)
 
         // Make sure inactivity is within acceptable values before updating
-        lastTrained = SLastTrained(Cap(lastTrained) + activity)
+        const l = Cap(lastTrained)
+        lastTrained = SLastTrained(Cap(l + activity))
 
-        LogV(`Last trained after: ${Cap(lastTrained)}`)
-        Change()
+        LogV(`Last trained after: ${lastTrained}`)
+        Send()
       }
 
       export function Decay(td: number) {

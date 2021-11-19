@@ -57,16 +57,16 @@ export function main() {
     "OnSleepStart"
   )
 
-  // hooks.sendPapyrusEvent.add(
-  //   {
-  //     enter(_) {
-  //       Player.Calc.Update()
-  //     },
-  //   },
-  //   undefined,
-  //   undefined,
-  //   "OnMaxickUpdate"
-  // )
+  hooks.sendPapyrusEvent.add(
+    {
+      enter(_) {
+        Player.Calc.Update()
+      },
+    },
+    undefined,
+    undefined,
+    "OnMaxickUpdate"
+  )
 
   // Event comming from Papyrus
   hooks.sendPapyrusEvent.add(
@@ -108,7 +108,7 @@ export function main() {
     Player.Init()
     Player.Appearance.Change()
     // Fixme: Add this event when starting the game
-    Update()
+    // Update()
   })
 
   on("reset", (e) => {
