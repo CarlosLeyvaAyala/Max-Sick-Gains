@@ -22,6 +22,28 @@ export function SendInactivity(percent: number) {
   Game.getPlayer()?.sendModEvent("Maxick_Inactivity", "", percent)
 }
 
+/** Sends an event with current training values.
+ *
+ * @remarks
+ * This event won't make the widget flash.
+ *
+ * @param training Current training [`0..12`].
+ */
+export function SendTrainingSet(training: number) {
+  Game.getPlayer()?.sendModEvent("Maxick_Training", "", training)
+}
+
+/** Sends an event saying there was an increment on training.
+ *
+ * @remarks
+ * This event will make the widget flash.
+ *
+ * @param delta The amount of change in training.
+ */
+export function SendTrainingChange(delta: number) {
+  Game.getPlayer()?.sendModEvent("Maxick_TrainChange", "", delta)
+}
+
 /** Sends an event saying player entered catabolic state.
  *
  * @remarks

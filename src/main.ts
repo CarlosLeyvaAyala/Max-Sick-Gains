@@ -72,7 +72,7 @@ export function main() {
   hooks.sendPapyrusEvent.add(
     {
       enter(_) {
-        Player.Calc.Train.OnTrain(JDB.solveStr(".maxickEv.skillUp"))
+        Player.Calc.Training.OnTrain(JDB.solveStr(".maxickEv.skillUp"))
       },
     },
     undefined,
@@ -151,7 +151,7 @@ export function main() {
     TestMode.SlideShow(TestMode.GoSlideShow)
 
     OnPrint(() => {
-      Player.Calc.Train.OnTrain("OneHanded")
+      Player.Calc.Training.OnTrain("OneHanded")
       // f()
       // MiscUtil.SetFreeCameraSpeed(80)
       // MiscUtil.SetFreeCameraState(true, 1)

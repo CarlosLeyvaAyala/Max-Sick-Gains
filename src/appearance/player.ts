@@ -55,6 +55,8 @@ import {
   SendCatabolismStart,
   SendGains,
   SendInactivity,
+  SendTrainingChange,
+  SendTrainingSet,
 } from "../events"
 
 const StageName = () => `Now you look ${playerStages[pStage].displayName}`
@@ -191,94 +193,93 @@ export namespace Player {
           SendCatabolismEnd()
         } else {
           LogV("****** Update cycle ******")
-          UpdateInactivity()
-          Decay(timeDelta)
+          Activity.HadActivity(0) // Update inactivty and avoid values getting out of bounds
+          Activity.Decay(timeDelta)
         }
 
       lastUpdate = SLastUpdate(Time.Now())
       LogV(`Last update: ${lastUpdate}`)
     }
 
-    /** Adds inactivity each update cycle.
-     *
-     * @param td Time delta.
-     */
-    function UpdateInactivity() {
-      // Avoid values getting out of bounds
-      HadActivity(0)
+    export namespace Activity {
+      /** Sends events and does checks needed after inactivity change. */
+      function Change() {
+        const hoursInactive = Time.Now() - lastTrained
+        LogV(`Hours inactive: ${Time.ToHumanHours(hoursInactive)}`)
+        const percent = (hoursInactive / inactiveTimeLimSk) * 100
 
-      const hoursInactive = Time.Now() - lastTrained
-      LogV(`Hours inactive: ${Time.ToHumanHours(hoursInactive)}`)
-      const percent = (hoursInactive / inactiveTimeLimSk) * 100
+        SendInactivity(LogVT("Sending inactivity percent", percent))
+        CatabolicTest(percent)
+      }
 
-      SendInactivity(LogVT("Sending inactivity percent", percent))
-      CatabolicTest(percent)
-    }
+      /** Tests if player is in catabolic state and sends events accordingly.
+       *
+       * @param i Inactivity percent.
+       */
+      function CatabolicTest(i: number) {
+        const old = isInCatabolic
+        // Don't use 100 due to float and time imprecision
+        isInCatabolic = LogVT("isInCatabolic", SIsInCatabolic(i >= 99.8))
 
-    /** Tests if player is in catabolic state and sends events accordingly.
-     *
-     * @param i Inactivity percent.
-     */
-    function CatabolicTest(i: number) {
-      const old = isInCatabolic
-      // Don't use 100 due to float and time imprecision
-      isInCatabolic = LogVT("isInCatabolic", SIsInCatabolic(i >= 99.8))
-
-      if (isInCatabolic != old) {
-        LogV("There was a change in catabolic state.")
-        if (isInCatabolic) {
-          LogI("Entered catabolic state.")
-          SendCatabolismStart()
-        } else {
-          LogI("Got out from catabolic state.")
-          SendCatabolismEnd()
+        if (isInCatabolic != old) {
+          LogV("There was a change in catabolic state.")
+          if (isInCatabolic) {
+            LogI("Entered catabolic state.")
+            SendCatabolismStart()
+          } else {
+            LogI("Got out from catabolic state.")
+            SendCatabolismEnd()
+          }
         }
+      }
+
+      /** Calculates new inactivity when new activity is added.
+       *
+       * @remarks
+       * This function never allows inactivity to get out of bounds, so player can get
+       * out of catabolism as soon as any kind of training is done.
+       *
+       * @param activity Activity value. Send negative values to simulate inactivity.
+       */
+      export function HadActivity(activity: Time.SkyrimHours) {
+        const now = LogVT("Now", Time.Now())
+        LogV(`Last trained before: ${lastTrained}`)
+        const Cap = (x: number) =>
+          MathLib.ForceRange(now - inactiveTimeLimSk, now)(x)
+
+        // Make sure inactivity is within acceptable values before updating
+        lastTrained = SLastTrained(Cap(lastTrained) + activity)
+
+        LogV(`Last trained after: ${Cap(lastTrained)}`)
+        Change()
+      }
+
+      export function Decay(td: number) {
+        // ; Decay and losses calculation
+        // ; int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
+        // ; _SetGains( JMap.getFlt(data, "newGains") )
+        // ; _SetTraining( JMap.getFlt(data, "newTraining") )
+        // ; _SetStage( JMap.getInt(data, "newStage") )
+        // ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
+        //   function player.Polling(now, lastPoll, training, gains, stage, inCatabolism)
+        //   local PollAdjust = function (x) return (now - lastPoll) * x end
+        //   local Catabolism = function (x) return l.alt2(l.SkyrimBool(inCatabolism), PollAdjust, l.K(0))(x) end
+        //   local trainingDecay = PollAdjust(player.trainingDecay)
+        //   -- Catabolism calculations
+        //   local trainingCatabolism = Catabolism(player.trainingCatabolism)
+        //   local gainsCatabolism = Catabolism(_GainsCatabolism(stage))
+        //   local newStage, adjustedGains = _AdjustStage(stage, gains - gainsCatabolism)
+        //   return {
+        //     newGains = adjustedGains,
+        //     newTraining = l.forcePositve(training - trainingCatabolism - trainingDecay),
+        //     newStage = newStage,
+        //     stageDelta = newStage - stage,
+        //   }
+        // end
       }
     }
 
-    /** Calculates new inactivity when new activity is added.
-     *
-     * @remarks
-     * This function never allows inactivity to get out of bounds, so player can get
-     * out of catabolism as soon as any kind of training is done.
-     *
-     * @param activity Activity value. Send negative values to simulate inactivity.
-     */
-    function HadActivity(activity: Time.SkyrimHours) {
-      const now = LogVT("Now", Time.Now())
-      LogV(`Last trained before: ${lastTrained}`)
-      const Cap = (x: number) =>
-        MathLib.ForceRange(now - inactiveTimeLimSk, now)(x)
-      // Make sure inactivity is within acceptable values before updating
-      lastTrained = SLastTrained(Cap(lastTrained) + activity)
-      LogV(`Last trained after: ${Cap(lastTrained)}`)
-    }
-
-    function Decay(td: number) {
-      // ; Decay and losses calculation
-      // ; int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
-      // ; _SetGains( JMap.getFlt(data, "newGains") )
-      // ; _SetTraining( JMap.getFlt(data, "newTraining") )
-      // ; _SetStage( JMap.getInt(data, "newStage") )
-      // ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
-      //   function player.Polling(now, lastPoll, training, gains, stage, inCatabolism)
-      //   local PollAdjust = function (x) return (now - lastPoll) * x end
-      //   local Catabolism = function (x) return l.alt2(l.SkyrimBool(inCatabolism), PollAdjust, l.K(0))(x) end
-      //   local trainingDecay = PollAdjust(player.trainingDecay)
-      //   -- Catabolism calculations
-      //   local trainingCatabolism = Catabolism(player.trainingCatabolism)
-      //   local gainsCatabolism = Catabolism(_GainsCatabolism(stage))
-      //   local newStage, adjustedGains = _AdjustStage(stage, gains - gainsCatabolism)
-      //   return {
-      //     newGains = adjustedGains,
-      //     newTraining = l.forcePositve(training - trainingCatabolism - trainingDecay),
-      //     newStage = newStage,
-      //     stageDelta = newStage - stage,
-      //   }
-      // end
-    }
-
-    export namespace Train {
+    export namespace Training {
       /** Skills belong to `skillTypes`; each one representing a broad type of skills.
        *
        * - `train` represents the relative contribution of the skill to training, and will be multiplied by the skill's own `train` contribution.
@@ -321,11 +322,17 @@ export namespace Player {
       export function OnTrain(sk: string) {
         LogI(`Skill level up: ${sk}`)
         const d = GetTrainingData(sk)
-        const t = CapTraining(training + d.training)
+        HadTraining(d.training)
+        Activity.HadActivity(d.activity)
+      }
+
+      export function HadTraining(delta: number) {
+        const old = training
+        const t = CapTraining(training + delta)
         training = LogIT("Training", STraining(t))
-        HadActivity(d.activity)
-        UpdateInactivity()
-        // ; ev.SendTrainingAndActivity(skillName, JMap.getFlt(data, "trainingDelta"), JMap.getFlt(data, "activity"))
+
+        SendTrainingSet(training)
+        SendTrainingChange(delta)
       }
 
       /** Data some skill contributes to training. */
