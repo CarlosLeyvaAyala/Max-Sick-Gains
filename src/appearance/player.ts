@@ -129,6 +129,16 @@ const lastPlayerStage = playerStages.length - 1
 const CapStage = MathLib.ForceRange(0, lastPlayerStage)
 
 export namespace Player {
+  /** Use these only for quick debugging. */
+  export namespace QuickDebug {
+    /** Puts the player in catabolic state. */
+    export function EnterCatabolic() {
+      pStage = SpStage(1)
+      gains = SGains(0.01)
+      lastTrained = SLastTrained(0)
+    }
+  }
+
   /** Initializes player data so this mod can work. */
   export function Init() {
     LogV("Initializing")
@@ -176,7 +186,7 @@ export namespace Player {
         }
 
       lastUpdate = SLastUpdate(Time.Now())
-      if (timeDelta > 0) LogV(`Last update: ${lastUpdate}`)
+      if (timeDelta > 0 && !TestMode.enabled) LogV(`Last update: ${lastUpdate}`)
     }
 
     export namespace Activity {
@@ -236,16 +246,13 @@ export namespace Player {
       }
 
       /** How much `training` is lost a day when in _Catabolic State_. Absolute value. */
-      const trainCat = 0.5
+      const trainCat = 0.7
       /** How much `training` is lost a day due to decay. Absolute value. */
       const trainDecay = 0.2
       /** How much `gains` are lost a day when in _Catabolic State_. */
-      const gainsCat = 0.5
+      const gainsCat = 0.8
 
       // ; Decay and losses calculation
-      // ; _SetGains( JMap.getFlt(data, "newGains") )
-      // ; _SetStage( JMap.getInt(data, "newStage") )
-      // ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
       export function Decay(td: number) {
         LogI("--- Decay")
         const PollAdjust = (x: number) => td * x
@@ -256,9 +263,9 @@ export namespace Player {
 
         // Catabolism calculations
         const trainC = LogVT("Training catabolism", Catabolism(trainCat))
-        const gainsC = Catabolism((1 / CurrentStage().minDays) * gainsCat)
+        const gainsC = Catabolism((100 / CurrentStage().minDays) * gainsCat)
         LogV(`Gains catabolism: ${gainsC}`)
-        const adjusted = Stage.Adjust(pStage, gains - gainsC + 10)
+        const adjusted = Stage.Adjust(pStage, gains - gainsC)
 
         // Setup values
 
@@ -273,7 +280,14 @@ export namespace Player {
         SendGainsSet(gains)
       }
 
-      function SetStage(st: number, delta: number) {}
+      function SetStage(st: number, delta: number) {
+        pStage = LogIT("Setting player stage", SpStage(st))
+
+        const N = (m: string) => Debug.messageBox(`${m}\n${StageName()}.`)
+        if (delta > 0) N("Your hard training has paid off!")
+        else if (delta < 0)
+          N("You lost gains, but don't fret; you can always come back.")
+      }
     }
 
     export namespace Stage {
@@ -335,7 +349,7 @@ export namespace Player {
 
       function Regress(d: AdjustedData): AdjustedData {
         // Can't descend any further
-        if (d.stage <= 1) return { stage: 1, gains: 0 }
+        if (d.stage <= 0) return { stage: 1, gains: 0 }
         // Gains will be taken care of by the adjusting function
         return { stage: d.stage - 1, gains: d.gains }
       }

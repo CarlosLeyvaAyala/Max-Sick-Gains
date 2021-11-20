@@ -122,7 +122,7 @@ export function main() {
   //#region Real time events
 
   const T = Hotkeys.ListenTo(DxScanCode.PgDown)
-  const OnPrint = Hotkeys.ListenTo(DxScanCode.MiddleMouseButton)
+  const OnQuickDebug = Hotkeys.ListenTo(DxScanCode.MiddleMouseButton)
 
   /** Start debugging an `Actor` when pressing a key. */
   const OnDebugNpc = Hotkeys.ListenTo(DxScanCode.End)
@@ -138,8 +138,9 @@ export function main() {
 
     RTcalc(Player.Calc.Update)
 
-    OnPrint(() => {
-      Player.Calc.Training.OnTrain("OneHanded")
+    OnQuickDebug(() => {
+      // Player.Calc.Training.OnTrain("OneHanded")
+      Player.QuickDebug.EnterCatabolic()
       // f()
       // MiscUtil.SetFreeCameraSpeed(80)
       // MiscUtil.SetFreeCameraState(true, 1)
