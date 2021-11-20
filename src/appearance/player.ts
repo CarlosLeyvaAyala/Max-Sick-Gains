@@ -59,11 +59,21 @@ import {
   SendTrainingSet,
 } from "../events"
 
+/** All logging funcions here log `"Player appearance: ${msg}"` because
+ * this make them easier to isolate from other functionality in this mod
+ * when using log viewers or searching for strings.
+ */
 const logMsg = "Player appearance: "
 const LogI = D.Log.Append(LogIo, logMsg)
 const LogIT = D.Log.AppendT(LogITo, logMsg)
 const LogV = D.Log.Append(LogVo, logMsg)
 const LogVT = D.Log.AppendT(LogVTo, logMsg)
+
+// ;>========================================================
+// ;>===              PRESERVING VARIABLES              ===<;
+// ;>========================================================
+
+//#region Preserving variables
 
 // Keys used for preserving variables
 const modKey = (k: string) => ".maxickVars." + k
@@ -79,7 +89,7 @@ export const SaveFlt = M.JContainersToPreserving(JDB.solveFltSetter)
 export const SaveInt = M.JContainersToPreserving(JDB.solveIntSetter)
 export const SaveBool = M.JContainersToPreserving(JDB.solveBoolSetter)
 
-/** Variables that won't be saved when in test mode. */
+/** Variables that won't be saved when in _Testing Mode_. */
 function TestModeBanned<T>(f: (k: string, v: T) => void) {
   return (k: string, v: T) => {
     if (!TestMode.enabled) f(k, v)
@@ -99,8 +109,13 @@ const SLastTrained = M.PreserveVar(TestModeBanned(SaveFlt), lastTrainK)
 const SLastUpdate = M.PreserveVar(SaveFlt, lastUpdateK)
 /** Save wheter player is in catabolic state. */
 const SIsInCatabolic = M.PreserveVar(TestModeBanned(SaveBool), isInCatabolicK)
+//#endregion
 
-// Script variables
+// ;>========================================================
+// ;>===                SCRIPT VARIABLES                ===<;
+// ;>========================================================
+
+//#region Script variables
 
 /** Current player gains. */
 let gains = storage[gainsK] as number | 0
@@ -116,18 +131,23 @@ let lastUpdate = storage[lastUpdateK] as number | 0
 /** Is the player in catabolic state due to inactivity? */
 let isInCatabolic = storage[isInCatabolicK] as boolean | false
 
-const inactiveTimeLim: Time.HumanHours = 48
-const inactiveTimeLimSk: Time.SkyrimHours = Time.ToSkyrimHours(inactiveTimeLim)
+const inactiveTimeLim: Time.SkyrimHours = Time.ToSkyrimHours(48)
+const lastPlayerStage = playerStages.length - 1
+//#endregion
 
-// Script functions
+// ;>========================================================
+// ;>===                SCRIPT FUNCTIONS                ===<;
+// ;>========================================================
 
 const CurrentStage = () => playerStages[pStage]
 const StageName = () => `Now you look ${CurrentStage().displayName}`
-
-const lastPlayerStage = playerStages.length - 1
-
 const CapStage = MathLib.ForceRange(0, lastPlayerStage)
 
+// ;>========================================================
+// ;>===               WORK IS DONE HERE                ===<;
+// ;>========================================================
+
+/** All kinds of player calculations and setting appearance. */
 export namespace Player {
   /** Use these only for quick debugging. */
   export namespace QuickDebug {
@@ -196,7 +216,7 @@ export namespace Player {
         const hoursInactive =
           LogVT("Now", Time.Now()) - LogVT("Last trained", lastTrained)
         LogV(`Hours inactive: ${Time.ToHumanHours(hoursInactive)}`)
-        const percent = (hoursInactive / inactiveTimeLimSk) * 100
+        const percent = (hoursInactive / inactiveTimeLim) * 100
 
         SendInactivity(LogVT("Sending inactivity percent", percent))
         CatabolicTest(percent)
@@ -235,7 +255,7 @@ export namespace Player {
         const now = LogVT("Now", Time.Now())
         LogV(`Last trained before: ${lastTrained}`)
         const Cap = (x: number) =>
-          MathLib.ForceRange(now - inactiveTimeLimSk, now)(x)
+          MathLib.ForceRange(now - inactiveTimeLim, now)(x)
 
         // Make sure inactivity is within acceptable values before updating
         const l = Cap(lastTrained)
@@ -269,21 +289,23 @@ export namespace Player {
 
         // Setup values
 
-        // Don't flash because decay shouldn't flash and catabolic flashes are periodically flashed anyway.
+        // Don't flash because decay shouldn't flash and catabolic losses are periodically flashed anyway.
         Training.HadTraining(-trainD - trainC, false)
         SetGains(adjusted.gains)
         SetStage(adjusted.stage, adjusted.stage - pStage)
       }
 
       function SetGains(g: number) {
-        gains = LogIT("Setting gains", SGains(g))
-        SendGainsSet(gains)
+        const old = gains
+        gains = SGains(g)
+        if (gains !== old) SendGainsSet(LogIT("Setting gains", gains))
       }
 
       function SetStage(st: number, delta: number) {
-        pStage = LogIT("Setting player stage", SpStage(st))
+        pStage = SpStage(st)
+        if (delta !== 0) LogI(`Setting Player Stage: ${st}`)
 
-        const N = (m: string) => Debug.messageBox(`${m}\n${StageName()}.`)
+        const N = (m: string) => Debug.messageBox(`${m}\n\n${StageName()}.`)
         if (delta > 0) N("Your hard training has paid off!")
         else if (delta < 0)
           N("You lost gains, but don't fret; you can always come back.")
@@ -539,7 +561,6 @@ export namespace Player {
       }
       const tex = GetMuscleDef(d)
       ApplyMuscleDef(p, d.sex, tex)
-      // TODO: Change head size
     }
 
     function GetBodyShape(d: PlayerData): BodyShape | undefined {
@@ -818,6 +839,7 @@ export namespace TestMode {
   }
 }
 
+/** Sleeping calculations are done inside this file because they only concern to players. */
 export namespace Sleep {
   let lastSlept = 0
   let goneToSleepAt = 0

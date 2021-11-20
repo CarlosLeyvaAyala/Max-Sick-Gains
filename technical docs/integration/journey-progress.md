@@ -32,24 +32,32 @@ I'm just throwing ideas around, but you can make people react to the way you loo
 
 I made myself an integration addon for [Babo Dialogue][], which automatically varies how beautiful people think you are.
 
+For that addon **I used progress by days** because that was what made sense, since I had direct acces to the visual representation of the journey by days:
+
+![journey](img/beauty-curve.png)
+
 # An example
 
-Here's a sample player journey:
+Here's a sample _Player Journey_:
 
 ![journey](img/fitness-journey.png)
 
-We see most of the time is spent in the _"Amazons"_ stage, but what can our values say about it?
+We see most of the time is spent in the _"Amazons"_ stage, but what do our values say about it?
 
-Go back and forth to the table down below to see the values I'm going to talk about.
+You can go back and forth to the table down below to see the values I'm going to talk about, but a visual representation is better.
 
-There are 5 stages, so the progress based on stages (`Progress by stage %`) will tell us the half of the journey is stage 3.5; that is, ant the middle of _Snu Snu Ripped_. \
+![journey](img/fitness-journey-comparison.jpg)
+
+There are 5 stages, so progress based on stages (`Progress by stage %`) will tell us the half of the journey is stage 3.5; that is, at the middle of _Snu Snu Ripped_. \
 ... which is obviously wrong.
 
-On the other side, day based progress (`Progress by days %`) tell us half the journey is at the exact middle point of the chart: somewhere around the 25% of the _Amazons_ stage, at around 25 points in gains in that stage (number 4).\
-That's indeed more visually and matemathicaly more accurate.
+On the other side, day based progress (`Progress by days %`) tell us half the journey is at the exact middle point of the chart[^DaysMiddle]: somewhere around the 25% of the _Amazons_ stage, at around 25 points in gains in that stage (number 4).\
+That's indeed more visually and matemathicaly accurate.
+
+[^DaysMiddle]: This is true for any player journey, in fact.
 
 What does the average tells us? \
-It says the middle of te journey is roughly starting the _Amazons_ stage. \
+It says the middle of the journey is roughly starting the _Amazons_ stage. \
 That may not be nor mathemathically nor stage-wise accurate, but seems to be more "conceptually accurate). I mean, it's both at the middle of the progression by stage AND the progression by days, so it will never be too accurate but it will also never be too far off.
 
 ## So what value should I use?

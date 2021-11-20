@@ -116,13 +116,6 @@ EndEvent
 Event OnMaxickSkill(string _, string ____, float __, Form ___)
 EndEvent
 
-
-; string EV_POLLING = "Maxick_Update"
-
-; ; WARNING: Do not delete. Blank event used to communicate with Skyrim Platform
-; Event OnMaxickUpdate(string _, string __, float ___, Form ____)
-; EndEvent
-
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
 Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
   md.LogVerb("Polling interval was correctly sent: " + interval)
