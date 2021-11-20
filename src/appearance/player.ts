@@ -66,7 +66,7 @@ const LogV = D.Log.Append(LogVo, logMsg)
 const LogVT = D.Log.AppendT(LogVTo, logMsg)
 
 // Keys used for preserving variables
-const modKey = (k: string) => ".maxick." + k
+const modKey = (k: string) => ".maxickVars." + k
 const gainsK = modKey("gains")
 const stageK = modKey("stage")
 const trainingK = modKey("training")
@@ -176,7 +176,7 @@ export namespace Player {
         }
 
       lastUpdate = SLastUpdate(Time.Now())
-      LogV(`Last update: ${lastUpdate}`)
+      if (timeDelta > 0) LogV(`Last update: ${lastUpdate}`)
     }
 
     export namespace Activity {

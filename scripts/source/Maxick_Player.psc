@@ -99,7 +99,7 @@ Function RegisterEvents()
   RegisterForModEvent(ev.JOURNEY_STAGE, "OnJourneyStage")
 
   ; Skyrim Platform communication
-  RegisterForModEvent(EV_POLLING, "OnMaxickUpdate")
+  ; RegisterForModEvent(EV_POLLING, "OnMaxickUpdate")
   RegisterForModEvent(EV_SKILL, "OnMaxickSkill")
 EndFunction
 
@@ -117,11 +117,11 @@ Event OnMaxickSkill(string _, string ____, float __, Form ___)
 EndEvent
 
 
-string EV_POLLING = "Maxick_Update"
+; string EV_POLLING = "Maxick_Update"
 
-; WARNING: Do not delete. Blank event used to communicate with Skyrim Platform
-Event OnMaxickUpdate(string _, string __, float ___, Form ____)
-EndEvent
+; ; WARNING: Do not delete. Blank event used to communicate with Skyrim Platform
+; Event OnMaxickUpdate(string _, string __, float ___, Form ____)
+; EndEvent
 
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
 Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
@@ -141,7 +141,8 @@ EndFunction
 ; widget refresh rate in the MCM.
 Event OnUpdate()
   ; SendModEvent(EV_POLLING)
-  _Poll()
+  ; RegisterForSingleUpdate(3)
+  ; _Poll()
 EndEvent
 
 ; Does the few calculations that need to be done every `<n>` seconds:
@@ -149,18 +150,17 @@ EndEvent
 ; - Losses by inactivity.
 Function _Poll()
   ; md.LogVerb("Polling. Time: " + _pollingInterval)
+  _InactivityCalculation()
 
-  ; _InactivityCalculation()
+  ; Decay and losses calculation
+  int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
+  _SetGains( JMap.getFlt(data, "newGains") )
+  _SetTraining( JMap.getFlt(data, "newTraining") )
+  _SetStage( JMap.getInt(data, "newStage") )
+  _SendStageDelta( JMap.getInt(data, "stageDelta") )
 
-  ; ; Decay and losses calculation
-  ; int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
-  ; _SetGains( JMap.getFlt(data, "newGains") )
-  ; _SetTraining( JMap.getFlt(data, "newTraining") )
-  ; _SetStage( JMap.getInt(data, "newStage") )
-  ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
-
-  ; _lastPollingTime = Now()
-  ; RegisterForSingleUpdate(3)
+  _lastPollingTime = Now()
+  RegisterForSingleUpdate(3)
 EndFunction
 
 ;>========================================================
@@ -199,6 +199,30 @@ Function _SendStageDelta(int delta)
   EndIf
 EndFunction
 
+; Calculates inactivity as a number in `[0..100]` and then tests if player entered _Catabolic State_.
+Function _InactivityCalculation()
+  ; Never allow inactivity get out of bounds
+  _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", 0)")
+
+  float inactivityPercent = HourSpan(_lastTrained) / InactivityTimeLimit() * 100
+  SendModEvent(ev.INACTIVITY, "", inactivityPercent)
+  _CatabolicTest(inactivityPercent)
+EndFunction
+
+; Tests if player is in catabolic state and sends events accordingly.
+Function _CatabolicTest(float inactivityPercent)
+  bool old = _isInCatabolic
+  ; Don't use 100 due to float and time imprecision
+  _isInCatabolic = inactivityPercent >= 99.8
+  If _isInCatabolic != old
+    If _isInCatabolic
+      SendModEvent(ev.CATABOLISM_START, "", 1)
+    Else
+      SendModEvent(ev.CATABOLISM_END, "", 0)
+    EndIf
+  EndIf
+EndFunction
+
 ;>========================================================
 ;>===               EVENTS FROM ADDONS               ===<;
 ;>========================================================
@@ -227,28 +251,28 @@ EndEvent
 
 ; Player got direct `gains` from an addon.
 Event OnGainsDelta(string _, string __, float delta, Form sender)
-  ; If sender == self
-  ;   md.LogVerb("Maxick_Player script got an OnGainsDelta event that it send itself. Skipping value setting because that was already done.")
-  ;   return
-  ; EndIf
-  ; md.LogVerb("Player got gains change: " + delta)
-  ; _SetGains(_gains + delta)
+  If sender == self
+    md.LogVerb("Maxick_Player script got an OnGainsDelta event that it send itself. Skipping value setting because that was already done.")
+    return
+  EndIf
+  md.LogVerb("Player got gains change: " + delta)
+  _SetGains(_gains + delta)
 EndEvent
 
 ; Got the value for which the `training` will change.
 Event OnTrainDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Training change: " + delta)
-  ; If delta == 0
-  ;   return
-  ; EndIf
-  ; _SetTraining(_training + delta)
+  If delta == 0
+    return
+  EndIf
+  _SetTraining(_training + delta)
 EndEvent
 
 ; Got the value for which the `inactivity` will change.
 Event OnInactivityDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Inactivity change: " + delta)
-  ; _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", " + ToGameHours(delta) +")")
-  ; _InactivityCalculation()
+  _lastTrained = JValue.evalLuaFlt(0, "return maxick.HadActivity(" + Now() + ", " + _lastTrained +", " + ToGameHours(delta) +")")
+  _InactivityCalculation()
 EndEvent
 
 Event OnJourneyAverage(string _, string __, float journey, Form ___)

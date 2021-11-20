@@ -46,13 +46,13 @@ local function _Fitstage(playerStage) return db.fitStages[_Stage(playerStage).fi
 ---@param gains number
 ---@return number
 function player.GetHeadSize(playerStage, gains)
-  local st = _Stage(playerStage)
-  --Head size is a percent value.
-  local headSize = l.linCurve({x=0, y=st.headLo}, {x=100, y=st.headHi})(gains) / 100
-  if ml.LogVerbose then
-    ml.LogVerbose(l.fmt("Head size: %.1f%%", headSize * 100))
-  end
-  return headSize
+  -- local st = _Stage(playerStage)
+  -- --Head size is a percent value.
+  -- local headSize = l.linCurve({x=0, y=st.headLo}, {x=100, y=st.headHi})(gains) / 100
+  -- if ml.LogVerbose then
+  --   ml.LogVerbose(l.fmt("Head size: %.1f%%", headSize * 100))
+  -- end
+  -- return headSize
 end
 
 ---Sets a display message only if a possible message exists in the database.
@@ -68,7 +68,6 @@ end
 ---@param stage integer Current stage.
 ---@return string
 function player.StageMessage(stage) return _StageChangeMsg(stage, "Now you look %s.") end
-
 
 ---Calculates percentage of the total journey only taking into account fitness stage progression.
 ---@param playerStage integer
@@ -111,7 +110,7 @@ end
 -- ;>===               MUSCLE DEFINITION                ===<;
 -- ;>========================================================
 
---#region
+--#region TODO: Delete
 
 ---Logs that the muscle definition won't be changed.
 local function _LogNotChangingMuscleDef() ml.LogVerbose("Won't change muscle definition") end
@@ -161,7 +160,7 @@ end
 -- ;>===                   BODYSLIDE                    ===<;
 -- ;>========================================================
 
---#region
+--#region TODO: DELETE
 
 ---Gets the values used for blending stages.
 ---@param currentStage integer
@@ -227,7 +226,7 @@ end
 -- ;>===                     GAINS                      ===<;
 -- ;>========================================================
 
---#region
+--#region Gains
 
 ---Calculates gains based on training and hours slept.
 ---@param hoursSlept number
@@ -297,8 +296,8 @@ end
 ---@return number
 local function _AdjustGainsOnRegress(gains, oldStage, currentStage)
   if gains >= 0 then return gains end
-  local r = _Stage(oldStage).minDays / _Stage(currentStage).minDays
-  return 100 + (gains * r)
+  local rr = _Stage(oldStage).minDays / _Stage(currentStage).minDays
+  return 100 + (gains * rr)
 end
 
 ---Changes stage while some predicate is true. Returns adjusted gains for the new stage.
@@ -345,6 +344,7 @@ player.CapTraining = function (x) return l.forceRange(0, player.maxTraining)(x) 
 -- ;>===                MAIN PROCESSING                 ===<;
 -- ;>========================================================
 
+-- TODO: delete
 ---Makes the calculations needed to change the player's appearance.
 ---@param raceEDID string
 ---@param isFem Sex
@@ -352,26 +352,26 @@ player.CapTraining = function (x) return l.forceRange(0, player.maxTraining)(x) 
 ---@param gains number
 ---@param applyMuscleDef SkyrimBool
 function player.ChangeAppearance(raceEDID, isFem, playerStage, gains, applyMuscleDef)
-  ml.EnableSkyrimLogging()
-  local bs = _GetBodyslide(isFem, playerStage, gains)
-  local md, mdt, rg = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem)
-  return {
-    --- Irrelevant, but sent explicitly for clarity.
-    weight = 100,
-    --- Fully calculated appearance.
-    bodySlide = bs,
-    --- Formlist index of the racial group for the actor. Used to set muscle definition by texture.
-    racialGroup = rg,
-    --- Muscle definition level.
-    muscleDef = md or -1,--_GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem),
-    muscleDefType = mdt or -1,
-    ---Head size corresponding to Player Stage
-    headSize = player.GetHeadSize(playerStage, gains),
-    --- Description of all operations that were done.
-    msg = ml.GetLog(),
-    --- Player should be always processed by `Maxick_ActorAppearance.ChangeAppearance()`.
-    shouldProcess = 1,
-  }
+  -- ml.EnableSkyrimLogging()
+  -- local bs = _GetBodyslide(isFem, playerStage, gains)
+  -- local md, mdt, rg = _GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem)
+  -- return {
+  --   --- Irrelevant, but sent explicitly for clarity.
+  --   weight = 100,
+  --   --- Fully calculated appearance.
+  --   bodySlide = bs,
+  --   --- Formlist index of the racial group for the actor. Used to set muscle definition by texture.
+  --   racialGroup = rg,
+  --   --- Muscle definition level.
+  --   muscleDef = md or -1,--_GetMuscleDef(playerStage, gains, applyMuscleDef, raceEDID, isFem),
+  --   muscleDefType = mdt or -1,
+  --   ---Head size corresponding to Player Stage
+  --   headSize = player.GetHeadSize(playerStage, gains),
+  --   --- Description of all operations that were done.
+  --   msg = ml.GetLog(),
+  --   --- Player should be always processed by `Maxick_ActorAppearance.ChangeAppearance()`.
+  --   shouldProcess = 1,
+  -- }
 end
 
 ---Attempts to make gains when sleeping.
@@ -418,7 +418,7 @@ end
 -- ;>===                    POLLING                     ===<;
 -- ;>========================================================
 
---#region
+--#region Polling
 
 ---Calculates losses on `gains` when in _Catabolic State_.
 ---@param stage integer

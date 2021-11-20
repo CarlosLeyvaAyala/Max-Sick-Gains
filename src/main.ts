@@ -1,8 +1,5 @@
-import { IntToHex } from "DM-Lib/Debug"
-import * as Hotkeys from "DM-Lib/Hotkeys"
+import { DebugLib, FormLib, Hotkeys, Misc } from "Dmlib"
 import * as JDB from "JContainers/JDB"
-import { AvoidRapidFire } from "DM-Lib/Misc"
-import { FormLib } from "Dmlib"
 import {
   Actor,
   Armor,
@@ -15,25 +12,23 @@ import {
   SlotMask,
   Utility,
 } from "skyrimPlatform"
-import { isJSDocPublicTag } from "../node_modules/typescript/lib/typescript"
 import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
 import {
   ChangeAppearance as ChangeNpcAppearance,
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
 import { Player, TestMode } from "./appearance/player"
-import { LogE, LogIT, LogV, LogVT } from "./debug"
+import { LogIT, LogV } from "./debug"
 import * as S from "./sleep"
 
 export function main() {
-  printConsole("Max Sick Gains successfully initialized.")
-
   // ;>========================================================
   // ;>===                 PLAYER EVENTS                  ===<;
   // ;>========================================================
 
-  const OnSleepStart = AvoidRapidFire(S.OnSleepStart)
-  const OnSleepStop = AvoidRapidFire(S.OnSleepEnd)
+  //#region Player events
+  const OnSleepStart = Misc.AvoidRapidFire(S.OnSleepStart)
+  const OnSleepStop = Misc.AvoidRapidFire(S.OnSleepEnd)
 
   hooks.sendPapyrusEvent.add(
     {
@@ -57,18 +52,7 @@ export function main() {
     "OnSleepStart"
   )
 
-  hooks.sendPapyrusEvent.add(
-    {
-      enter(_) {
-        Player.Calc.Update()
-      },
-    },
-    undefined,
-    undefined,
-    "OnMaxickUpdate"
-  )
-
-  // Event comming from Papyrus
+  // Event coming from Papyrus
   hooks.sendPapyrusEvent.add(
     {
       enter(_) {
@@ -80,10 +64,19 @@ export function main() {
     "OnMaxickSkill"
   )
 
+  on("loadGame", () => {
+    LogV("||| Game loaded |||")
+    Player.Init()
+    Player.Appearance.Change()
+    // Fixme: Add this event when starting the game
+  })
+  //#endregion
+
   // ;>========================================================
   // ;>===             PLAYER AND NPC EVENTS              ===<;
   // ;>========================================================
 
+  //#region Player and NPC events
   on("equip", (e) => {
     OnUnEquip(e, "EQUIP")
   })
@@ -95,30 +88,13 @@ export function main() {
     })
   })
 
-  /** Updating cycle that calculates decay and inactivity. */
-  const Update = async () => {
-    while (true) {
-      Player.Calc.Update()
-      await Utility.wait(3)
-    }
-  }
-
-  on("loadGame", () => {
-    LogV("||| Game loaded |||")
-    Player.Init()
-    Player.Appearance.Change()
-    // Fixme: Add this event when starting the game
-    // Update()
-  })
-
-  on("reset", (e) => {
-    LogE(`$$$$$$$$$$$$$$$$$$$$$$$$$$ ${e.object.getName()}`)
-    LogV("||||||||||||||||||||| Game reset |||")
-  })
+  //#endregion
 
   // ;>========================================================
   // ;>===                   NPC EVENTS                   ===<;
   // ;>========================================================
+
+  //#region NPC events
 
   // Right now, NPC appearance is set by applying a Spell via SPID, since it's
   // the most reliable method to apply them settings as soon as they spawn.
@@ -138,10 +114,21 @@ export function main() {
       ClearNpcAppearance
     )
   })
+  //#endregion
 
-  const T = Hotkeys.ListenTo(DxScanCode.PgDown) // pgdown
-  const OnDebugNpc = Hotkeys.ListenTo(DxScanCode.End) // end key
+  // ;>========================================================
+  // ;>===                REAL TIME EVENTS                ===<;
+  // ;>========================================================
+
+  //#region Real time events
+
+  const T = Hotkeys.ListenTo(DxScanCode.PgDown)
   const OnPrint = Hotkeys.ListenTo(DxScanCode.MiddleMouseButton)
+
+  /** Start debugging an `Actor` when pressing a key. */
+  const OnDebugNpc = Hotkeys.ListenTo(DxScanCode.End)
+  /** Real time decay and catabolism calculations */
+  const RTcalc = Misc.UpdateEach(3)
 
   on("update", () => {
     TestMode.Next(TestMode.GoNext)
@@ -149,6 +136,8 @@ export function main() {
     TestMode.Add10(TestMode.GoAdd10)
     TestMode.Sub10(TestMode.GoSub10)
     TestMode.SlideShow(TestMode.GoSlideShow)
+
+    RTcalc(Player.Calc.Update)
 
     OnPrint(() => {
       Player.Calc.Training.OnTrain("OneHanded")
@@ -176,6 +165,9 @@ export function main() {
       else ChangeNpcAppearance(Actor.from(r))
     })
   })
+  //#endregion
+
+  printConsole("Max Sick Gains successfully initialized.")
 }
 
 /** Do something when the Maxick spell effect starts/end.
@@ -223,7 +215,7 @@ function OnUnEquip(
   if (sl !== SlotMask.Body && sl !== SlotMask.Hands) return
 
   LogV(
-    `${evMsg}. Actor: ${b.getName()}. Id: 0x${IntToHex(
+    `${evMsg}. Actor: ${b.getName()}. Id: 0x${DebugLib.Log.IntToHex(
       a.getFormID()
     )}. Object: ${e.baseObj.getName()}. Slot: ${sl}`
   )
