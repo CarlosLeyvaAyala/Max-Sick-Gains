@@ -803,3 +803,36 @@ export namespace TestMode {
     return true
   }
 }
+
+export namespace Sleep {
+  let lastSlept = 0
+  let goneToSleepAt = 0
+
+  /** Player went to sleep. */
+  export function OnStart() {
+    goneToSleepAt = LogVT("OnSleepStart", Time.Now())
+  }
+
+  /** Player woke up. */
+  export function OnEnd() {
+    const Ls = () => {
+      lastSlept = LogVT("Awaken at", Time.Now())
+    }
+
+    if (Time.HourSpan(lastSlept) < 0.2) {
+      LogE("You just slept. Nothing will be done.")
+      Ls()
+      return
+    }
+
+    const hoursSlept = LogVT("Time slept", Time.HourSpan(goneToSleepAt))
+    if (hoursSlept < 1) return // Do nothing. Didn't really slept.
+    Ls()
+    SleepEvent(hoursSlept)
+  }
+
+  function SleepEvent(hoursSlept: Time.HumanHours) {
+    Game.getPlayer()?.sendModEvent("Sleep", "", hoursSlept)
+    LogV("Calculating player appearance")
+  }
+}

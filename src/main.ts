@@ -17,9 +17,8 @@ import {
   ChangeAppearance as ChangeNpcAppearance,
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
-import { Player, TestMode } from "./appearance/player"
+import { Player, TestMode, Sleep } from "./appearance/player"
 import { LogIT, LogV } from "./debug"
-import * as S from "./sleep"
 
 export function main() {
   // ;>========================================================
@@ -27,8 +26,8 @@ export function main() {
   // ;>========================================================
 
   //#region Player events
-  const OnSleepStart = Misc.AvoidRapidFire(S.OnSleepStart)
-  const OnSleepStop = Misc.AvoidRapidFire(S.OnSleepEnd)
+  const OnSleepStart = Misc.AvoidRapidFire(Sleep.OnStart)
+  const OnSleepStop = Misc.AvoidRapidFire(Sleep.OnEnd)
 
   hooks.sendPapyrusEvent.add(
     {

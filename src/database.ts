@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { printConsole, settings } from "skyrimPlatform"
+import { settings } from "skyrimPlatform"
 
 /** How many types of muscle definition there are.
  * @remarks

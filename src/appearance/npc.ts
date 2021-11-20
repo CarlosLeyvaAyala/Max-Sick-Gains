@@ -1,6 +1,4 @@
-import { Alt } from "DM-Lib/Combinators"
-import { IntToHex, LogR } from "DM-Lib/Debug"
-import { GetFormEspAndId } from "DM-Lib/Misc"
+import { Combinators, DebugLib, FormLib } from "Dmlib"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import { Actor, ActorBase } from "skyrimPlatform"
 import {
@@ -28,6 +26,10 @@ import {
   InterpolateW,
   IsMuscleDefBanned,
 } from "./appearance"
+
+const Alt = Combinators.O
+const LogR = DebugLib.Log.R
+const IntToHex = DebugLib.Log.IntToHex
 
 /** Data needed to solve an NPC appearance. */
 interface NPCData {
@@ -376,7 +378,7 @@ function GetActorData(a: Actor | null): NPCData | null {
     return null
   }
 
-  const ff = GetFormEspAndId(l)
+  const ff = FormLib.GetFormEspAndId(l)
 
   return {
     actor: a,

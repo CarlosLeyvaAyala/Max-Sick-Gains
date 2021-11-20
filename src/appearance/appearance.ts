@@ -1,5 +1,4 @@
-import { LinCurve } from "DM-Lib/Math"
-import { DebugLib as D, FormLib } from "Dmlib"
+import { DebugLib as D, FormLib, MathLib } from "Dmlib"
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
@@ -71,7 +70,7 @@ type BsCalc = (slMin: number, slMax: number, w: number) => number
  * @returns Interpolated value.
  */
 const StdMorph: BsCalc = (min, max, w) =>
-  LinCurve({ x: 0, y: min }, { x: 100, y: max })(w)
+  MathLib.LinCurve({ x: 0, y: min }, { x: 100, y: max })(w)
 
 export const BlendMorph =
   (blend: number) => (min: number, max: number, w: number) =>
@@ -315,7 +314,7 @@ function UpdateNiNode(a: Actor) {
  * @returns The value associated to `weight`.
  */
 export function InterpolateW(y1: number, y2: number, weight: number) {
-  return LinCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(weight)
+  return MathLib.LinCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(weight)
 }
 
 /** Gets which muscle definition level an `Actor` should have.
