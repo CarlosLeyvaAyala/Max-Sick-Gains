@@ -140,9 +140,8 @@ EndFunction
 ; These are done each `n` seconds defined by the player when setting the
 ; widget refresh rate in the MCM.
 Event OnUpdate()
-  SendModEvent(EV_POLLING)
-  RegisterForSingleUpdate(3)
-  ; _Poll()
+  ; SendModEvent(EV_POLLING)
+  _Poll()
 EndEvent
 
 ; Does the few calculations that need to be done every `<n>` seconds:
@@ -161,7 +160,7 @@ Function _Poll()
   ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
 
   ; _lastPollingTime = Now()
-  ; RegisterForSingleUpdate(_pollingInterval)
+  ; RegisterForSingleUpdate(3)
 EndFunction
 
 ;>========================================================

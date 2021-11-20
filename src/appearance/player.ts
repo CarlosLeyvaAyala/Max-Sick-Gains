@@ -53,13 +53,11 @@ import {
 import {
   SendCatabolismEnd,
   SendCatabolismStart,
-  SendGains,
+  SendGainsSet,
   SendInactivity,
   SendTrainingChange,
   SendTrainingSet,
 } from "../events"
-
-const StageName = () => `Now you look ${playerStages[pStage].displayName}`
 
 const logMsg = "Player appearance: "
 const LogI = D.Log.Append(LogIo, logMsg)
@@ -121,34 +119,14 @@ let isInCatabolic = storage[isInCatabolicK] as boolean | false
 const inactiveTimeLim: Time.HumanHours = 48
 const inactiveTimeLimSk: Time.SkyrimHours = Time.ToSkyrimHours(inactiveTimeLim)
 
-function DisplayStageName() {
-  Debug.notification(StageName())
-}
+// Script functions
 
-function LogGainsDelta(delta: number) {
-  return () => {
-    LogI(`Gains ${delta < 0 ? "" : "+"}${delta}: ${gains}`)
-  }
-}
+const CurrentStage = () => playerStages[pStage]
+const StageName = () => `Now you look ${CurrentStage().displayName}`
 
-function ModGains(delta: number) {
-  SetGains(gains + delta)
-}
+const lastPlayerStage = playerStages.length - 1
 
-function SetGains(x: number) {
-  gains = SGains(x)
-}
-
-function ModStage(delta: number) {
-  SetStage(pStage + delta)
-}
-
-function SetStage(x: number) {
-  pStage = SpStage(CapStage(x))
-}
-
-const CapStage = MathLib.ForceRange(0, playerStages.length - 1)
-const CapTraining = MathLib.ForceRange(0, 12)
+const CapStage = MathLib.ForceRange(0, lastPlayerStage)
 
 export namespace Player {
   /** Initializes player data so this mod can work. */
@@ -174,8 +152,8 @@ export namespace Player {
 
   /** Sends all values to widget. */
   function SendAllToWidget() {
-    SendGains(gains)
-    // TODO: Send training
+    SendGainsSet(gains)
+    SendTrainingSet(training)
     if (TestMode.enabled) {
       SendInactivity(0)
     }
@@ -257,31 +235,119 @@ export namespace Player {
         Send()
       }
 
+      /** How much `training` is lost a day when in _Catabolic State_. Absolute value. */
+      const trainCat = 0.5
+      /** How much `training` is lost a day due to decay. Absolute value. */
+      const trainDecay = 0.2
+      /** How much `gains` are lost a day when in _Catabolic State_. */
+      const gainsCat = 0.5
+
+      // ; Decay and losses calculation
+      // ; _SetGains( JMap.getFlt(data, "newGains") )
+      // ; _SetStage( JMap.getInt(data, "newStage") )
+      // ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
       export function Decay(td: number) {
-        // ; Decay and losses calculation
-        // ; int data = LuaTable("maxick.Poll", Now(), _lastPollingTime, _training, _gains, _stage, _isInCatabolic as int)
-        // ; _SetGains( JMap.getFlt(data, "newGains") )
-        // ; _SetTraining( JMap.getFlt(data, "newTraining") )
-        // ; _SetStage( JMap.getInt(data, "newStage") )
-        // ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
-        //   function player.Polling(now, lastPoll, training, gains, stage, inCatabolism)
-        //   local PollAdjust = function (x) return (now - lastPoll) * x end
-        //   local Catabolism = function (x) return l.alt2(l.SkyrimBool(inCatabolism), PollAdjust, l.K(0))(x) end
-        //   local trainingDecay = PollAdjust(player.trainingDecay)
-        //   -- Catabolism calculations
-        //   local trainingCatabolism = Catabolism(player.trainingCatabolism)
-        //   local gainsCatabolism = Catabolism(_GainsCatabolism(stage))
-        //   local newStage, adjustedGains = _AdjustStage(stage, gains - gainsCatabolism)
-        //   return {
-        //     newGains = adjustedGains,
-        //     newTraining = l.forcePositve(training - trainingCatabolism - trainingDecay),
-        //     newStage = newStage,
-        //     stageDelta = newStage - stage,
-        //   }
-        // end
+        LogI("--- Decay")
+        const PollAdjust = (x: number) => td * x
+        const Catabolism = (x: number) => (isInCatabolic ? PollAdjust(x) : 0)
+
+        /** Training decays all the time. No matter what. */
+        const trainD = LogVT("Training decay", PollAdjust(trainDecay))
+
+        // Catabolism calculations
+        const trainC = LogVT("Training catabolism", Catabolism(trainCat))
+        const gainsC = Catabolism((1 / CurrentStage().minDays) * gainsCat)
+        LogV(`Gains catabolism: ${gainsC}`)
+        const adjusted = Stage.Adjust(pStage, gains - gainsC + 10)
+
+        // Setup values
+
+        // Don't flash because decay shouldn't flash and catabolic flashes are periodically flashed anyway.
+        Training.HadTraining(-trainD - trainC, false)
+        SetGains(adjusted.gains)
+        SetStage(adjusted.stage, adjusted.stage - pStage)
+      }
+
+      function SetGains(g: number) {
+        gains = LogIT("Setting gains", SGains(g))
+        SendGainsSet(gains)
+      }
+
+      function SetStage(st: number, delta: number) {}
+    }
+
+    export namespace Stage {
+      export interface AdjustedData {
+        stage: number
+        gains: number
+      }
+
+      type ChangePredicate = (gains: number, stage: number) => boolean
+      type GainsTransform = (d: AdjustedData) => AdjustedData
+      type GainsAdjust = (d: AdjustedData, oldStage: number) => AdjustedData
+
+      /**
+       *
+       * @param s Current _Player Stage_ id.
+       * @param g Current `gains` that need to be adjusted.
+       */
+      export function Adjust(s: number, g: number): AdjustedData {
+        LogV(`Adjusting Player Stage: s = ${s}, g = ${g}`)
+        const ProgPred: ChangePredicate = (x, st) =>
+          x >= 100 && st < lastPlayerStage
+
+        if (g >= 100) return Change(s, g, ProgPred, Progress, OnProgress)
+        else if (g < 0) return Change(s, g, (x) => x < 0, Regress, OnRegress)
+        return { stage: s, gains: g }
+      }
+
+      function Change(
+        stage: number,
+        gains: number,
+        Predicate: ChangePredicate,
+        f: GainsTransform,
+        AdjustGains: GainsAdjust
+      ): AdjustedData {
+        let r: AdjustedData = { stage: stage, gains: gains }
+        while (Predicate(r.gains, r.stage)) {
+          const old = r.stage
+          r = f(r)
+          r = AdjustGains(r, old)
+        }
+        return r
+      }
+
+      function Progress(d: AdjustedData): AdjustedData {
+        // Can't go any further
+        if (d.stage === lastPlayerStage)
+          return { stage: lastPlayerStage, gains: 100 }
+        // Go to next level as usual
+        return { stage: d.stage + 1, gains: d.gains - 100 }
+      }
+
+      function OnProgress(d: AdjustedData, old: number): AdjustedData {
+        const st = playerStages
+        return {
+          gains: d.gains * (st[old].minDays / st[d.stage].minDays),
+          stage: d.stage,
+        }
+      }
+
+      function Regress(d: AdjustedData): AdjustedData {
+        // Can't descend any further
+        if (d.stage <= 1) return { stage: 1, gains: 0 }
+        // Gains will be taken care of by the adjusting function
+        return { stage: d.stage - 1, gains: d.gains }
+      }
+
+      function OnRegress(d: AdjustedData, old: number): AdjustedData {
+        if (d.gains >= 0) return d
+        const r = playerStages[old].minDays / playerStages[d.stage].minDays
+        return { gains: 100 + d.gains * r, stage: d.stage }
       }
     }
 
+    /** Training related operations and data. */
     export namespace Training {
       /** Skills belong to `skillTypes`; each one representing a broad type of skills.
        *
@@ -329,13 +395,20 @@ export namespace Player {
         Activity.HadActivity(d.activity)
       }
 
-      export function HadTraining(delta: number) {
+      const CapTraining = MathLib.ForceRange(0, 12)
+
+      /** Sets training according to some `delta` and sends events telling training changed.
+       *
+       * @param delta How much the training will change.
+       * @param flash Wheter the widget will flash when calculating this.
+       */
+      export function HadTraining(delta: number, flash: boolean = true) {
         const old = training
         const t = CapTraining(training + delta)
         training = LogIT("Training", STraining(t))
 
         SendTrainingSet(training)
-        SendTrainingChange(delta)
+        if (flash) SendTrainingChange(delta)
       }
 
       /** Data some skill contributes to training. */
@@ -423,7 +496,7 @@ export namespace Player {
       const racialGroup = C.O(RacialMatch, C.K(RacialGroup.Ban))(race)
       LogV(`Racial group: ${RacialGroup[racialGroup]}`)
 
-      const s = playerStages[pStage]
+      const s = CurrentStage()
       const fs = fitStage(s.fitStage)
       LogV(`Player Stage [${pStage}]: "${fs.iName}" [${s.fitStage}]`)
 
@@ -520,7 +593,7 @@ export namespace Player {
         blendStage = currStage - 1
         g2 = 100
         b1 = MathLib.LinCurve({ x: 0, y: 0.5 }, { x: lBlendLim, y: 1 })(d.gains)
-      } else if (uBlendLim <= d.gains && currStage < playerStages.length - 1) {
+      } else if (uBlendLim <= d.gains && currStage < lastPlayerStage) {
         LogV("Current stage was blended with next")
         blendStage = currStage + 1
         g2 = 0
@@ -604,12 +677,38 @@ export namespace TestMode {
 
   let slideshowRunning = false
 
+  function DisplayStageName() {
+    Debug.notification(StageName())
+  }
+
+  function LogGainsDelta(delta: number) {
+    return () => {
+      LogI(`Gains ${delta < 0 ? "" : "+"}${delta}: ${gains}`)
+    }
+  }
+
+  function ModGains(delta: number) {
+    SetGains(gains + delta)
+  }
+
+  function SetGains(x: number) {
+    gains = SGains(x)
+  }
+
+  function ModStage(delta: number) {
+    SetStage(pStage + delta)
+  }
+
+  function SetStage(x: number) {
+    pStage = SpStage(CapStage(x))
+  }
+
   export function GoSlideShow() {
     if (!enabled || slideshowRunning) return
     LogI("Running Slideshow Mode")
     SetGains(0)
     SetStage(0)
-    SendGains(0)
+    SendGainsSet(0)
     Player.Appearance.Change()
     slideshowRunning = true
 
@@ -663,7 +762,7 @@ export namespace TestMode {
     const G = (g: number) => {
       SetGains(g)
       LogI(`Gains were adjusted to ${g}`)
-      SendGains(gains)
+      SendGainsSet(gains)
     }
 
     if (change === 0) {
@@ -697,7 +796,7 @@ export namespace TestMode {
     if (!enabled) return
     ModGains(delta)
     LogGainsDelta(delta)()
-    SendGains(gains)
+    SendGainsSet(gains)
     if (gains > 100) return GoNext()
     else if (gains < 0) return GoPrev()
     else Player.Appearance.Change()

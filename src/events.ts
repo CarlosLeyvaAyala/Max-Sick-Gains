@@ -7,7 +7,7 @@ import { Game } from "skyrimPlatform"
  *
  * @param gains New gains.
  */
-export function SendGains(gains: number) {
+export function SendGainsSet(gains: number) {
   Game.getPlayer()?.sendModEvent("Maxick_Gains", "", gains)
 }
 
