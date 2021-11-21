@@ -10,14 +10,4 @@ MiscObject Property spawner Auto
 {Misc item that spawned the activator}
 
 Event OnEquipped(Actor _)
-  ; ObjectReference droppedActivator
-  ; Actor player = Game.GetPlayer()
-  ; droppedActivator = player.PlaceAtMe(trainingWeight)
-  ; float theta = player.GetAngleZ()
-  ; float r = 30
-  ; If (droppedActivator)
-  ;   droppedActivator.MoveTo(player, r * Sin(theta), r * Cos(theta), 7.0)
-  ;   droppedActivator.SetAngle(0.0, 0.0, theta)
-  ;   player.RemoveItem(spawner, 1, True)
-  ; EndIf
 EndEvent

@@ -4,15 +4,6 @@ Scriptname Maxick_MCM extends MCM_ConfigBase
 Maxick_Widget Property widget Auto
 Maxick_Events Property ev Auto
 
-; Event OnGameReload()
-;   parent.OnGameReload()
-;   _RegisterEvents()
-; EndEvent
-
-; Function _RegisterEvents()
-;   RegisterForModEvent()
-; EndFunction
-
 ; Gets widget data from saved user settings and asks the widget to update itself
 ; using that data.
 Function UpdateWidget()
