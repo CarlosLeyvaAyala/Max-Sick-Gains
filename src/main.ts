@@ -140,7 +140,8 @@ export function main() {
 
     OnQuickDebug(() => {
       // Player.Calc.Training.OnTrain("OneHanded")
-      Player.QuickDebug.EnterCatabolic()
+      // Player.QuickDebug.EnterCatabolic()
+      Player.QuickDebug.DoSleep()
       // f()
       // MiscUtil.SetFreeCameraSpeed(80)
       // MiscUtil.SetFreeCameraState(true, 1)

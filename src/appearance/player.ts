@@ -53,6 +53,7 @@ import {
 import {
   SendCatabolismEnd,
   SendCatabolismStart,
+  SendGainsChange,
   SendGainsSet,
   SendInactivity,
   SendTrainingChange,
@@ -83,6 +84,7 @@ const trainingK = modKey("training")
 const lastTrainK = modKey("lastTrained")
 const lastUpdateK = modKey("lastUpdate")
 const isInCatabolicK = modKey("isInCatabolic")
+const lastSleptK = modKey("lastSlept")
 
 // Variable preserving functions.
 export const SaveFlt = M.JContainersToPreserving(JDB.solveFltSetter)
@@ -109,6 +111,9 @@ const SLastTrained = M.PreserveVar(TestModeBanned(SaveFlt), lastTrainK)
 const SLastUpdate = M.PreserveVar(SaveFlt, lastUpdateK)
 /** Save wheter player is in catabolic state. */
 const SIsInCatabolic = M.PreserveVar(TestModeBanned(SaveBool), isInCatabolicK)
+
+/** Save the last time the player slept. */
+const SLastSlept = M.PreserveVar(SaveFlt, lastSleptK)
 //#endregion
 
 // ;>========================================================
@@ -131,6 +136,9 @@ let lastUpdate = storage[lastUpdateK] as number | 0
 /** Is the player in catabolic state due to inactivity? */
 let isInCatabolic = storage[isInCatabolicK] as boolean | false
 
+/** What was the last time the player woke up? */
+let lastSlept = storage[lastSleptK] as number | 0
+
 const inactiveTimeLim: Time.SkyrimHours = Time.ToSkyrimHours(48)
 const lastPlayerStage = playerStages.length - 1
 //#endregion
@@ -142,6 +150,8 @@ const lastPlayerStage = playerStages.length - 1
 const CurrentStage = () => playerStages[pStage]
 const StageName = () => `Now you look ${CurrentStage().displayName}`
 const CapStage = MathLib.ForceRange(0, lastPlayerStage)
+const CapGains = MathLib.ForceRange(0, 100)
+const MaxGainsPerDay = () => 100 / CurrentStage().minDays
 
 // ;>========================================================
 // ;>===               WORK IS DONE HERE                ===<;
@@ -157,25 +167,58 @@ export namespace Player {
       gains = SGains(0.01)
       lastTrained = SLastTrained(0)
     }
+
+    export function DoSleep() {
+      Player.Calc.SetStage(lastPlayerStage, 0)
+      Player.Calc.SetGains(99.999)
+      Player.Calc.SetTraining(5, 0, false)
+      Sleep.SleepEvent(10)
+    }
   }
+
+  /** Initializes variables. Makes variable initialization easier to read.
+   *
+   * @param m Message to log when initializing.
+   * @param key `string` key
+   * @param defaultVal Default value to retrieve in case `key` doesn't exist.
+   * @param Save Function used to save a particular value.
+   * @param Get
+   */
+  function Ini<T>(
+    m: string,
+    key: string,
+    defaultVal: T,
+    Save: (x: T) => T,
+    Get: (k: string, defaultVal: T) => T
+  ) {
+    return Save(LogVT(`${m} initialized to`, Get(key, defaultVal)))
+  }
+
+  /** Initializes a float variable. */
+  const Flt = (m: string, k: string, d: number, S: (x: number) => number) =>
+    Ini(m, k, d, S, JDB.solveFlt)
+  /** Initializes an int variable. */
+  const Int = (m: string, k: string, d: number, S: (x: number) => number) =>
+    Ini(m, k, d, S, JDB.solveInt)
+  /** Initializes a bool variable. */
+  const Bool = (m: string, k: string, d: boolean, S: (x: boolean) => boolean) =>
+    Ini(m, k, d, S, JDB.solveBool)
 
   /** Initializes player data so this mod can work. */
   export function Init() {
     LogV("Initializing")
 
-    gains = SGains(LogVT("Gains", JDB.solveFlt(gainsK, 0)))
-    pStage = SpStage(LogVT("Stage", JDB.solveInt(stageK, 0)))
-    training = STraining(LogVT("Traning", JDB.solveFlt(trainingK, 0)))
+    const now = Time.Now()
 
-    lastTrained = SLastTrained(
-      LogVT("Last trained init", JDB.solveFlt(lastTrainK, Time.Now()))
-    )
-    lastUpdate = SLastUpdate(
-      LogVT("Last update init", JDB.solveFlt(lastUpdateK, Time.Now()))
-    )
-    isInCatabolic = SIsInCatabolic(
-      LogVT("Is in catabolic state init", JDB.solveBool(isInCatabolicK))
-    )
+    gains = Flt("Gains", gainsK, 0, SGains)
+    pStage = Int("Stage", stageK, 0, SpStage)
+    training = Flt("Traning", trainingK, 0, STraining)
+
+    lastSlept = Flt("Last slept", lastSleptK, 0, SLastSlept)
+
+    lastTrained = Flt("Last trained", lastTrainK, now, SLastTrained)
+    lastUpdate = Flt("Last update", lastUpdateK, now, SLastUpdate)
+    isInCatabolic = Bool("Catabolism?", isInCatabolicK, false, SIsInCatabolic)
 
     SendAllToWidget()
   }
@@ -207,6 +250,35 @@ export namespace Player {
 
       lastUpdate = SLastUpdate(Time.Now())
       if (timeDelta > 0 && !TestMode.enabled) LogV(`Last update: ${lastUpdate}`)
+    }
+
+    export function SetGains(g: number, delta?: number) {
+      // const old = gains
+      gains = SGains(g)
+      // if (gains !== old)
+      SendGainsSet(LogIT("Setting gains", gains))
+      if (delta !== undefined) SendGainsChange(LogIT("Gains changed by", delta))
+    }
+
+    export function SetStage(st: number, delta: number) {
+      pStage = SpStage(st)
+      if (delta !== 0) LogI(`Setting Player Stage: ${st}`)
+
+      const N = (m: string) => Debug.messageBox(`${m}\n\n${StageName()}.`)
+      if (delta > 0) N("Your hard training has paid off!")
+      else if (delta < 0)
+        N("You lost gains, but don't fret; you can always come back.")
+    }
+
+    export function SetTraining(
+      newTraining: number,
+      delta: number,
+      flash: boolean = true
+    ) {
+      training = LogIT("Training", STraining(newTraining))
+
+      SendTrainingSet(training)
+      if (flash) SendTrainingChange(delta)
     }
 
     export namespace Activity {
@@ -283,7 +355,7 @@ export namespace Player {
 
         // Catabolism calculations
         const trainC = LogVT("Training catabolism", Catabolism(trainCat))
-        const gainsC = Catabolism((100 / CurrentStage().minDays) * gainsCat)
+        const gainsC = Catabolism(MaxGainsPerDay() * gainsCat)
         LogV(`Gains catabolism: ${gainsC}`)
         const adjusted = Stage.Adjust(pStage, gains - gainsC)
 
@@ -293,22 +365,6 @@ export namespace Player {
         Training.HadTraining(-trainD - trainC, false)
         SetGains(adjusted.gains)
         SetStage(adjusted.stage, adjusted.stage - pStage)
-      }
-
-      function SetGains(g: number) {
-        const old = gains
-        gains = SGains(g)
-        if (gains !== old) SendGainsSet(LogIT("Setting gains", gains))
-      }
-
-      function SetStage(st: number, delta: number) {
-        pStage = SpStage(st)
-        if (delta !== 0) LogI(`Setting Player Stage: ${st}`)
-
-        const N = (m: string) => Debug.messageBox(`${m}\n\n${StageName()}.`)
-        if (delta > 0) N("Your hard training has paid off!")
-        else if (delta < 0)
-          N("You lost gains, but don't fret; you can always come back.")
       }
     }
 
@@ -334,7 +390,10 @@ export namespace Player {
 
         if (g >= 100) return Change(s, g, ProgPred, Progress, OnProgress)
         else if (g < 0) return Change(s, g, (x) => x < 0, Regress, OnRegress)
-        return { stage: s, gains: g }
+        return {
+          stage: LogVT("Adjusted stage", s),
+          gains: LogVT("Adjusted gains", g),
+        }
       }
 
       function Change(
@@ -439,12 +498,12 @@ export namespace Player {
        * @param flash Wheter the widget will flash when calculating this.
        */
       export function HadTraining(delta: number, flash: boolean = true) {
-        const old = training
-        const t = CapTraining(training + delta)
-        training = LogIT("Training", STraining(t))
+        SetTraining(CapTraining(training + delta), delta, flash)
+        // const t = CapTraining(training + delta)
+        // training = LogIT("Training", STraining(t))
 
-        SendTrainingSet(training)
-        if (flash) SendTrainingChange(delta)
+        // SendTrainingSet(training)
+        // if (flash) SendTrainingChange(delta)
       }
 
       /** Data some skill contributes to training. */
@@ -841,7 +900,6 @@ export namespace TestMode {
 
 /** Sleeping calculations are done inside this file because they only concern to players. */
 export namespace Sleep {
-  let lastSlept = 0
   let goneToSleepAt = 0
 
   /** Player went to sleep. */
@@ -851,24 +909,59 @@ export namespace Sleep {
 
   /** Player woke up. */
   export function OnEnd() {
+    LogI("--- Finished sleeping")
     const Ls = () => {
-      lastSlept = LogVT("Awaken at", Time.Now())
+      lastSlept = SLastSlept(LogVT("Awaken at", Time.Now()))
     }
 
-    if (Time.HourSpan(lastSlept) < 0.2) {
-      LogE("You just slept. Nothing will be done.")
+    if (Time.HourSpan(lastSlept) < 3) {
+      LogI("You just slept. Nothing will be done.")
       Ls()
       return
     }
 
-    const hoursSlept = LogVT("Time slept", Time.HourSpan(goneToSleepAt))
-    if (hoursSlept < 1) return // Do nothing. Didn't really slept.
+    const hoursSlept = LogVT("Hours slept", Time.HourSpan(goneToSleepAt))
+    if (hoursSlept < 0.8) return // Do nothing. Didn't really slept.
     Ls()
     SleepEvent(hoursSlept)
   }
 
-  function SleepEvent(hoursSlept: Time.HumanHours) {
+  /** Do gains calculations after sleeping.
+   *
+   * @remarks
+   * This function was exported so it can be used for quick debugging.
+   *
+   * @param hoursSlept How many {@link Time.HumanHours} the player slept.
+   */
+  export function SleepEvent(hoursSlept: Time.HumanHours) {
+    LogV("--- Calculating appearance after sleeping")
+    const t = LogVT("Training", training)
+    const s = LogVT("Current player stage", pStage)
+    const g = LogVT("Gains", gains)
+
+    const n = MakeGains(hoursSlept, t, g)
+    const a = Player.Calc.Stage.Adjust(s, n.newGains)
+    const newGains = CapGains(a.gains)
+    const sd = a.stage - s
+
+    Player.Calc.SetGains(newGains, a.gains)
+    Player.Calc.SetStage(a.stage, sd)
+    Player.Calc.SetTraining(n.newTraining, n.newTraining - t, false)
+
+    // TODO: Calc journey %
+
+    Player.Appearance.Change()
     Game.getPlayer()?.sendModEvent("Sleep", "", hoursSlept)
-    LogV("Calculating player appearance")
+  }
+
+  function MakeGains(h: number, t: number, g: number) {
+    const sleepGains = Math.min(MathLib.ForcePercent(h / 10), t)
+    const gainsDelta = MaxGainsPerDay() * sleepGains
+    const newTraining = t - sleepGains
+    return {
+      gainsDelta: LogVT("Gains delta", gainsDelta),
+      newTraining: LogVT("Training after gains", newTraining),
+      newGains: LogVT("New raw gains", g + gainsDelta),
+    }
   }
 }
