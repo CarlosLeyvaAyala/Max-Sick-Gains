@@ -56,6 +56,9 @@ import {
   SendGainsChange,
   SendGainsSet,
   SendInactivity,
+  SendJourneyAverage,
+  SendJourneyByDays,
+  SendJourneyByStage,
   SendTrainingChange,
   SendTrainingSet,
 } from "../events"
@@ -169,8 +172,8 @@ export namespace Player {
     }
 
     export function DoSleep() {
-      Player.Calc.SetStage(lastPlayerStage, 0)
-      Player.Calc.SetGains(99.999)
+      Player.Calc.SetStage(3, 0)
+      Player.Calc.SetGains(97.5)
       Player.Calc.SetTraining(5, 0, false)
       Sleep.SleepEvent(10)
     }
@@ -948,12 +951,52 @@ export namespace Sleep {
     Player.Calc.SetStage(a.stage, sd)
     Player.Calc.SetTraining(n.newTraining, n.newTraining - t, false)
 
-    // TODO: Calc journey %
-
     Player.Appearance.Change()
+
+    SendJourney()
     Game.getPlayer()?.sendModEvent("Sleep", "", hoursSlept)
   }
 
+  function SendJourney() {
+    const st = JourneyByStage()
+    const days = JourneyByDays()
+    const avg = LogVT("Journey average", (st + days) / 2)
+
+    SendJourneyAverage(avg)
+    SendJourneyByDays(days)
+    SendJourneyByStage(st)
+  }
+
+  const FP = MathLib.ForcePercent
+
+  function JourneyByStage() {
+    const f = MathLib.LinCurve({ x: 0, y: 0 }, { x: playerStages.length, y: 1 })
+    return LogVT("Journey by stage", FP(f(pStage + gains / 100)))
+  }
+
+  function JourneyByDays() {
+    LogV("Calculating journey by days")
+
+    const SumDays = (a: number, c: PlayerStage) => a + c.minDays
+    const totalDays = playerStages.reduce(SumDays, 0)
+    printConsole(gains)
+    const c = CurrentStage().minDays * (gains / 100)
+    const pastDays =
+      (pStage === 0 ? 0 : playerStages.slice(0, pStage).reduce(SumDays, 0)) +
+      LogVT("Current stage days passed", c)
+
+    const r = LogVT("Past days", pastDays) / LogVT("Total days", totalDays)
+
+    return LogVT("Journey by days", FP(r))
+  }
+
+  /** Calculates gains when sleeping.
+   *
+   * @param h Hours slept.
+   * @param t Training.
+   * @param g Gains.
+   * @returns New gains and training.
+   */
   function MakeGains(h: number, t: number, g: number) {
     const sleepGains = Math.min(MathLib.ForcePercent(h / 10), t)
     const gainsDelta = MaxGainsPerDay() * sleepGains

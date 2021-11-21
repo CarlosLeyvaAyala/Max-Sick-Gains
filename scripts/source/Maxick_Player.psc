@@ -89,16 +89,22 @@ Function RegisterEvents()
   RegisterForModEvent(ev.UPDATE_INTERVAL, "OnGetUpdateInterval")
   RegisterForModEvent(ev.SLEEP, "OnSleep")
 
-  RegisterForModEvent(ev.JOURNEY_AVERAGE, "OnJourneyAverage")
-  RegisterForModEvent(ev.JOURNEY_DAYS, "OnJourneyDays")
-  RegisterForModEvent(ev.JOURNEY_STAGE, "OnJourneyStage")
+  RegisterForModEvent(ev.JOURNEY_AVERAGE, "OnMaxickJourneyAverage")
+  RegisterForModEvent(ev.JOURNEY_DAYS, "OnMaxickJourneyDays")
+  RegisterForModEvent(ev.JOURNEY_STAGE, "OnMaxickJourneyStage")
 
   RegisterForModEvent(ev.JOURNEY_STAGE, "OnJourneyStage")
 
   ; Skyrim Platform communication
-  ; RegisterForModEvent(EV_POLLING, "OnMaxickUpdate")
   RegisterForModEvent(EV_SKILL, "OnMaxickSkill")
 EndFunction
+
+;>========================================================
+;>===            SKYRIM PLATFORM BRIDGES             ===<;
+;>========================================================
+
+; WARNING: Do not delete any of these.
+; Blank events used to communicate with Skyrim Platform
 
 string EV_SKILL = "Maxick_Skill"
 
@@ -109,30 +115,35 @@ Event OnTrain(string _, string skillName, float __, Form ___)
   SendModEvent(EV_SKILL, skillName)
 EndEvent
 
-; WARNING: Do not delete. Blank event used to communicate with Skyrim Platform
 Event OnMaxickSkill(string _, string ____, float __, Form ___)
 EndEvent
 
+; Events below are sent from Skyrim Platform, not from Papyrus.
+
+Event OnMaxickJourneyAverage(string _, string __, float journey, Form ___)
+EndEvent
+
+Event OnMaxickJourneyStage(string _, string __, float journey, Form ___)
+EndEvent
+
+Event OnMaxickJourneyDays(string _, string __, float journey, Form ___)
+EndEvent
+
+;>========================================================
+;>===              POLLING CALCULATIONS              ===<;
+;>========================================================
+
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
 Event OnGetUpdateInterval(string _, string __, float interval, Form ___)
-  md.LogVerb("Polling interval was correctly sent: " + interval)
-  ; PO3_SKSEFunctions
 EndEvent
 
 ; Called from MCM Helper when the user changed the polling interval.
 Function SetUpdateInterval(int interval)
 EndFunction
 
-;>========================================================
-;>===              POLLING CALCULATIONS              ===<;
-;>========================================================
-
 ; These are done each `n` seconds defined by the player when setting the
 ; widget refresh rate in the MCM.
 Event OnUpdate()
-  ; SendModEvent(EV_POLLING)
-  ; RegisterForSingleUpdate(3)
-  ; _Poll()
 EndEvent
 
 ;>========================================================
@@ -143,22 +154,6 @@ EndEvent
 ; - Set training.
 ; - Send gains delta.
 Event OnSleep(string _, string __, float hoursSlept, Form ___)
-  ; md.LogVerb("=====================================")
-  ; md.LogVerb("Hours slept: " + hoursSlept)
-
-  ; int data = LuaTable("maxick.OnSleep", hoursSlept, _training, _gains, _stage)
-  ; _SetGains( JMap.getFlt(data, "newGains") )
-  ; _SetTraining( JMap.getFlt(data, "newTraining") )
-  ; _SetStage( JMap.getInt(data, "newStage") )
-  ; _SendStageDelta( JMap.getInt(data, "stageDelta") )
-
-  ; SendModEvent( ev.GAINS_CHANGE, "", JMap.getFlt(data, "gainsDelta") )
-  ; SendModEvent( ev.JOURNEY_AVERAGE, "", JMap.getFlt(data, "averagePercent") )
-  ; SendModEvent( ev.JOURNEY_DAYS, "", JMap.getFlt(data, "daysPercent") )
-  ; SendModEvent( ev.JOURNEY_STAGE, "", JMap.getFlt(data, "stagePercent") )
-
-  ; ChangeAppearance()
-  ; md.LogVerb("=====================================")
 EndEvent
 
 ; Player got direct `gains` from an addon.
@@ -171,18 +166,6 @@ EndEvent
 
 ; Got the value for which the `inactivity` will change.
 Event OnInactivityDelta(string _, string __, float delta, Form ___)
-EndEvent
-
-Event OnJourneyAverage(string _, string __, float journey, Form ___)
-  md.LogInfo("Journey average sucessfully sent: " + journey)
-EndEvent
-
-Event OnJourneyStage(string _, string __, float journey, Form ___)
-  md.LogVerb("Journey by stage sucessfully sent: " + journey)
-EndEvent
-
-Event OnJourneyDays(string _, string __, float journey, Form ___)
-  md.LogVerb("Journey by days sucessfully sent: " + journey)
 EndEvent
 
 ;>========================================================
@@ -202,6 +185,5 @@ EndFunction
 bool Function _IsTransformed()
 EndFunction
 
-; Changes player appearance.
 Function ChangeAppearance(bool skipMuscleDef = false)
 EndFunction
