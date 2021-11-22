@@ -1,4 +1,4 @@
-import { DebugLib, FormLib, Hotkeys, Misc } from "Dmlib"
+import { DebugLib, FormLib, Hotkeys, MathLib, Misc } from "Dmlib"
 import * as JDB from "JContainers/JDB"
 import {
   Actor,
@@ -8,6 +8,7 @@ import {
   Game,
   hooks,
   on,
+  once,
   printConsole,
   SlotMask,
   Utility,
@@ -19,6 +20,10 @@ import {
 } from "./appearance/npc"
 import { Player, TestMode, Sleep } from "./appearance/player"
 import { LogIT, LogV } from "./debug"
+
+const initK = ".DmPlugins.Maxick.init"
+const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
+const WasInitialized = () => JDB.solveBool(initK, false)
 
 export function main() {
   // ;>========================================================
@@ -63,12 +68,22 @@ export function main() {
     "OnMaxickSkill"
   )
 
+  let allowInit = false
+
   on("loadGame", () => {
     LogV("||| Game loaded |||")
+    Initialze()
+    allowInit = true
+  })
+
+  once("update", () => {
+    if (allowInit || !WasInitialized()) Initialze()
+  })
+
+  const Initialze = () => {
     Player.Init()
     Player.Appearance.Change()
-    // Fixme: Add this event when starting the game
-  })
+  }
   //#endregion
 
   // ;>========================================================
@@ -129,6 +144,13 @@ export function main() {
   /** Real time decay and catabolism calculations */
   const RTcalc = Misc.UpdateEach(3)
 
+  const Spline = MathLib.CubicSpline([
+    { x: 0.1, y: 0 },
+    { x: 0.3, y: 0.7 },
+    // { x: 0.5, y: 0.2 },
+    { x: 0.8, y: 0.9 },
+  ])
+
   on("update", () => {
     TestMode.Next(TestMode.GoNext)
     TestMode.Prev(TestMode.GoPrev)
@@ -139,9 +161,13 @@ export function main() {
     RTcalc(Player.Calc.Update)
 
     OnQuickDebug(() => {
-      // Player.Calc.Training.OnTrain("OneHanded")
+      Player.Calc.Training.OnTrain("OneHanded")
       // Player.QuickDebug.EnterCatabolic()
       Player.QuickDebug.DoSleep()
+      printConsole(`------`)
+      for (let i = 0; i < 1; i += 0.1) {
+        printConsole(`------`, i, " -- ", Spline(i))
+      }
       // f()
       // MiscUtil.SetFreeCameraSpeed(80)
       // MiscUtil.SetFreeCameraState(true, 1)

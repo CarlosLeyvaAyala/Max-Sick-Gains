@@ -13,6 +13,7 @@ import {
   IsMuscleDefBanned,
   LogBs,
 } from "appearance"
+import { assert } from "chai"
 import {
   Combinators as C,
   DebugLib as D,
@@ -172,8 +173,8 @@ export namespace Player {
     }
 
     export function DoSleep() {
-      Player.Calc.SetStage(3, 0)
-      Player.Calc.SetGains(97.5)
+      Player.Calc.SetStage(lastPlayerStage, 0)
+      Player.Calc.SetGains(99.9)
       Player.Calc.SetTraining(5, 0, false)
       Sleep.SleepEvent(10)
     }
@@ -758,19 +759,19 @@ export namespace TestMode {
   export const enabled = false
 
   /** Gains +10 hotkey listener. */
-  export const Add10 = Hotkeys.ListenTo(DxScanCode.RightArrow)
+  export const Add10 = Hotkeys.ListenTo(DxScanCode.RightArrow, enabled)
 
   /** Gains +10 hotkey listener. */
-  export const Sub10 = Hotkeys.ListenTo(DxScanCode.LeftArrow)
+  export const Sub10 = Hotkeys.ListenTo(DxScanCode.LeftArrow, enabled)
 
   /** Next Stage hotkey listener. */
-  export const Next = Hotkeys.ListenTo(DxScanCode.UpArrow)
+  export const Next = Hotkeys.ListenTo(DxScanCode.UpArrow, enabled)
 
   /** Previous Stage hotkey listener. */
-  export const Prev = Hotkeys.ListenTo(DxScanCode.DownArrow)
+  export const Prev = Hotkeys.ListenTo(DxScanCode.DownArrow, enabled)
 
   /** Slideshow hotkey listener. */
-  export const SlideShow = Hotkeys.ListenTo(DxScanCode.NumEnter)
+  export const SlideShow = Hotkeys.ListenTo(DxScanCode.NumEnter, enabled)
 
   let slideshowRunning = false
 
@@ -960,7 +961,7 @@ export namespace Sleep {
   function SendJourney() {
     const st = JourneyByStage()
     const days = JourneyByDays()
-    const avg = LogVT("Journey average", (st + days) / 2)
+    const avg = LogIT("Journey average", (st + days) / 2)
 
     SendJourneyAverage(avg)
     SendJourneyByDays(days)
@@ -971,7 +972,7 @@ export namespace Sleep {
 
   function JourneyByStage() {
     const f = MathLib.LinCurve({ x: 0, y: 0 }, { x: playerStages.length, y: 1 })
-    return LogVT("Journey by stage", FP(f(pStage + gains / 100)))
+    return LogIT("Journey by stage", FP(f(pStage + gains / 100)))
   }
 
   function JourneyByDays() {
@@ -979,7 +980,6 @@ export namespace Sleep {
 
     const SumDays = (a: number, c: PlayerStage) => a + c.minDays
     const totalDays = playerStages.reduce(SumDays, 0)
-    printConsole(gains)
     const c = CurrentStage().minDays * (gains / 100)
     const pastDays =
       (pStage === 0 ? 0 : playerStages.slice(0, pStage).reduce(SumDays, 0)) +
@@ -987,7 +987,7 @@ export namespace Sleep {
 
     const r = LogVT("Past days", pastDays) / LogVT("Total days", totalDays)
 
-    return LogVT("Journey by days", FP(r))
+    return LogIT("Journey by days", FP(r))
   }
 
   /** Calculates gains when sleeping.
