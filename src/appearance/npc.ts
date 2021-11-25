@@ -1,6 +1,6 @@
 import { Combinators, DebugLib, FormLib } from "Dmlib"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
-import { Actor, ActorBase } from "skyrimPlatform"
+import { Actor, ActorBase, printConsole } from "skyrimPlatform"
 import {
   ClassArchetype,
   classArchetype,

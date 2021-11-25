@@ -7,7 +7,7 @@ export const mod_name = "maxick"
 const logToConsole = true
 const logToFile = true
 // D.Log.LevelFromSettings(mod_name, "loggingLevel")
-const currLogLvl = D.Log.Level.info
+const currLogLvl = D.Log.Level.error
 
 printConsole(`${mod_name} logging level: ${D.Log.Level[currLogLvl]}`)
 

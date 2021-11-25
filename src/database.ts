@@ -105,6 +105,13 @@ const races = settings[modName]["races"]
 export const knownNPCs: object = settings[modName]["knownNPCs"]
 export const muscleDefBanRace: string[] = settings[modName]["muscleDefBanRace"]
 export const playerStages: PlayerStage[] = settings[modName]["playerStages"]
+// const fitStages: object
+// const classes: object
+// const archetypes: object
+// const races: object
+// export const knownNPCs: object
+// export const muscleDefBanRace: string[]
+// export const playerStages: PlayerStage[]
 
 /** Returns from database the Fitness Stage of some id.
  * @param id
@@ -127,7 +134,7 @@ export function fitStage(id: number | string) {
  * const archs1 = ClassMatch("Whiterun Guard", "Guard")
  * const archs2 = ClassMatch("Legate Rikke", "Warrior")
  */
-export function ClassMatch(name: string, aClass: string) {
+export function ClassMatch(name: string, aClass: string): number[] {
   const n = name.toLowerCase()
   const c = aClass.toLowerCase()
   const r = []

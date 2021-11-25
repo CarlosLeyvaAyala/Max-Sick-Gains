@@ -83,6 +83,7 @@ export function main() {
   const Initialze = () => {
     Player.Init()
     Player.Appearance.Change()
+    MarkInitialized()
   }
   //#endregion
 
