@@ -80,6 +80,10 @@ export function main() {
     if (allowInit || !WasInitialized()) Initialze()
   })
 
+  on("switchRaceComplete", (e) => {
+    if (e.subject.getFormID() === 0x14) Player.Appearance.Change()
+  })
+
   const Initialze = () => {
     Player.Init()
     Player.Appearance.Change()
