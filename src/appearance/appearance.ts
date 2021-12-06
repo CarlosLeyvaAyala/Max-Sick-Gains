@@ -3,12 +3,12 @@ import {
   AddNodeOverrideString,
   AddSkinOverrideString,
   ClearMorphs,
-  HasSkinOverride,
+  GetSkinOverrideString,
   Key,
+  Key as NiOKey,
   RemoveAllReferenceOverrides,
   RemoveAllReferenceSkinOverrides,
   SetBodyMorph,
-  Key as NiOKey,
   TextureIndex as Idx,
   UpdateModelWeight,
 } from "Racemenu/nioverride"
@@ -19,7 +19,6 @@ import {
   Game,
   NetImmerse,
   SlotMask,
-  Utility,
 } from "skyrimPlatform"
 import {
   BsSlider,
@@ -29,7 +28,7 @@ import {
   RacialGroup,
   Sex,
 } from "../database"
-import { LogE, LogI, LogIT, LogV } from "../debug"
+import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
@@ -169,7 +168,6 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
     return
   }
 
-  EquipPizzaHandsFix(a)
   const fem = s === Sex.female
   const t = Key.Texture
   const n = Idx.Normal
@@ -177,31 +175,29 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   AddSkinOverrideString(a, fem, false, body, t, n, path, true)
   AddSkinOverrideString(a, fem, true, body, t, n, path, true)
 
-  const actor = FormLib.PreserveActor(a)
-  const f = async () => {
-    await Utility.wait(0.01)
-    const aa = actor()
-    if (!aa) return
+  EquipPizzaHandsFix(a)
+  FormLib.WaitActor(a, 0.01, (aa) => {
     FixGenitalTextures(aa)
-  }
-  f()
+  })
 }
 
 const PizzaFix = () => Game.getFormFromFile(0x9dc, "Max Sick Gains.esp")
 
 export function EquipPizzaHandsFix(a: Actor) {
-  if (
-    Armor.from(a.getWornForm(SlotMask.Hands)) ||
-    !HasSkinOverride(
+  const skO = LogVT(
+    "Skin override",
+    GetSkinOverrideString(
       a,
       IsFem(a),
       false,
       SlotMask.Body,
       NiOKey.Texture,
       Idx.Normal
-    )
+    ).trim()
   )
-    return
+  const g = LogVT("Has gauntlets", Armor.from(a.getWornForm(SlotMask.Hands)))
+  if (g || skO === "") return
+
   LogV("No gauntlets equipped. Solving the Pizza Hands Syndrome.")
   a.equipItem(PizzaFix(), false, true)
 }
