@@ -166,13 +166,14 @@ export function main() {
     RTcalc(Player.Calc.Update)
 
     OnQuickDebug(() => {
-      Player.Calc.Training.OnTrain("OneHanded")
+      // Player.Calc.Training.OnTrain("OneHanded")
       // Player.QuickDebug.EnterCatabolic()
-      Player.QuickDebug.DoSleep()
-      printConsole(`------`)
-      for (let i = 0; i < 1; i += 0.1) {
-        printConsole(`------`, i, " -- ", Spline(i))
-      }
+      Player.Calc.Training.OnTrain("SEX")
+      // Player.QuickDebug.DoSleep()
+      // printConsole(`------`)
+      // for (let i = 0; i < 1; i += 0.1) {
+      //   printConsole(`------`, i, " -- ", Spline(i))
+      // }
       // f()
       // MiscUtil.SetFreeCameraSpeed(80)
       // MiscUtil.SetFreeCameraState(true, 1)

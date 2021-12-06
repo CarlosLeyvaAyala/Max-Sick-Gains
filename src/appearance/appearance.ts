@@ -3,15 +3,18 @@ import {
   AddNodeOverrideString,
   AddSkinOverrideString,
   ClearMorphs,
+  HasSkinOverride,
   Key,
   RemoveAllReferenceOverrides,
   RemoveAllReferenceSkinOverrides,
   SetBodyMorph,
+  Key as NiOKey,
   TextureIndex as Idx,
   UpdateModelWeight,
 } from "Racemenu/nioverride"
 import {
   Actor,
+  ActorBase,
   Armor,
   Game,
   NetImmerse,
@@ -162,6 +165,7 @@ export function ApplyBodyslide(a: Actor, bs: BodyslidePreset) {
 export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   if (!path) {
     a.unequipItem(PizzaFix(), true, true)
+    LogV("Removing muscle definition and pizza hands fix")
     return
   }
 
@@ -186,7 +190,18 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
 const PizzaFix = () => Game.getFormFromFile(0x9dc, "Max Sick Gains.esp")
 
 export function EquipPizzaHandsFix(a: Actor) {
-  if (Armor.from(a.getWornForm(SlotMask.Hands))) return
+  if (
+    Armor.from(a.getWornForm(SlotMask.Hands)) ||
+    !HasSkinOverride(
+      a,
+      IsFem(a),
+      false,
+      SlotMask.Body,
+      NiOKey.Texture,
+      Idx.Normal
+    )
+  )
+    return
   LogV("No gauntlets equipped. Solving the Pizza Hands Syndrome.")
   a.equipItem(PizzaFix(), false, true)
 }
@@ -339,4 +354,10 @@ export function IsMuscleDefBanned(raceEDID: string) {
     muscleDefBanRace.filter((ban, _, __) => r.indexOf(ban) >= 0).length > 0
   if (isBanned) LogI("Can't change muscle definition. Race is banned.")
   return isBanned
+}
+
+export function IsFem(a: Actor) {
+  const b = ActorBase.from(a)
+  if (!b) return false
+  return b.getSex() === Sex.female
 }

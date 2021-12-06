@@ -503,11 +503,6 @@ export namespace Player {
        */
       export function HadTraining(delta: number, flash: boolean = true) {
         SetTraining(CapTraining(training + delta), delta, flash)
-        // const t = CapTraining(training + delta)
-        // training = LogIT("Training", STraining(t))
-
-        // SendTrainingSet(training)
-        // if (flash) SendTrainingChange(delta)
       }
 
       /** Data some skill contributes to training. */
@@ -522,7 +517,8 @@ export namespace Player {
        * @returns {@link TrainingData}
        */
       function GetTrainingData(sk: string): TrainingData {
-        const s = Object.keys(skills).filter((v) => v === sk)[0]
+        sk = sk.toLowerCase()
+        const s = Object.keys(skills).filter((v) => v.toLowerCase() === sk)[0]
         // @ts-ignore
         const m = skills[s]
         const A = (s1: any) => (s1.activity | 1) * s1.skType.activity
