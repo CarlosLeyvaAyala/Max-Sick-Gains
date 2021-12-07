@@ -18,6 +18,7 @@ import {
   Armor,
   Game,
   NetImmerse,
+  printConsole,
   SlotMask,
 } from "skyrimPlatform"
 import {
@@ -175,8 +176,8 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   AddSkinOverrideString(a, fem, false, body, t, n, path, true)
   AddSkinOverrideString(a, fem, true, body, t, n, path, true)
 
-  EquipPizzaHandsFix(a)
-  FormLib.WaitActor(a, 0.01, (aa) => {
+  FormLib.WaitActor(a, 0.05, (aa) => {
+    EquipPizzaHandsFix(aa)
     FixGenitalTextures(aa)
   })
 }
@@ -188,7 +189,7 @@ export function EquipPizzaHandsFix(a: Actor) {
     "Skin override",
     GetSkinOverrideString(
       a,
-      IsFem(a),
+      LogVT("Is fem", IsFem(a)),
       false,
       SlotMask.Body,
       NiOKey.Texture,
@@ -196,7 +197,8 @@ export function EquipPizzaHandsFix(a: Actor) {
     ).trim()
   )
   const g = LogVT("Has gauntlets", Armor.from(a.getWornForm(SlotMask.Hands)))
-  if (g || skO === "") return
+  const exit = LogVT("Don't fix pizza hands?", g || skO === "")
+  if (exit) return
 
   LogV("No gauntlets equipped. Solving the Pizza Hands Syndrome.")
   a.equipItem(PizzaFix(), false, true)
@@ -353,7 +355,7 @@ export function IsMuscleDefBanned(raceEDID: string) {
 }
 
 export function IsFem(a: Actor) {
-  const b = ActorBase.from(a)
+  const b = ActorBase.from(a.getLeveledActorBase())
   if (!b) return false
   return b.getSex() === Sex.female
 }
