@@ -97,6 +97,16 @@ export interface PlayerStage {
   blend: number
 }
 
+export interface TestingMode {
+  enabled: boolean
+  next?: number
+}
+
+// "MCM": {"testingMode": {"enabled": true}},
+export interface McmOptions {
+  testingMode: TestingMode
+}
+
 const modName = "maxick"
 const fitStages = settings[modName]["fitStages"]
 const classes = settings[modName]["classes"]
@@ -105,6 +115,8 @@ const races = settings[modName]["races"]
 export const knownNPCs: object = settings[modName]["knownNPCs"]
 export const muscleDefBanRace: string[] = settings[modName]["muscleDefBanRace"]
 export const playerStages: PlayerStage[] = settings[modName]["playerStages"]
+export const MCM: McmOptions = settings[modName]["MCM"]
+
 // const fitStages: object
 // const classes: object
 // const archetypes: object

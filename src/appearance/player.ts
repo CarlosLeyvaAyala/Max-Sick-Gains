@@ -38,6 +38,7 @@ import {
 import {
   FitStage,
   fitStage,
+  MCM,
   PlayerStage,
   playerStages,
   RacialGroup,
@@ -260,13 +261,13 @@ export namespace Player {
       // const old = gains
       gains = SGains(g)
       // if (gains !== old)
-      SendGainsSet(LogIT("Setting gains", gains))
-      if (delta !== undefined) SendGainsChange(LogIT("Gains changed by", delta))
+      SendGainsSet(LogVT("Setting gains", gains))
+      if (delta !== undefined) SendGainsChange(LogVT("Gains changed by", delta))
     }
 
     export function SetStage(st: number, delta: number) {
       pStage = SpStage(st)
-      if (delta !== 0) LogI(`Setting Player Stage: ${st}`)
+      if (delta !== 0) LogV(`Setting Player Stage: ${st}`)
 
       const N = (m: string) => Debug.messageBox(`${m}\n\n${StageName()}.`)
       if (delta > 0) N("Your hard training has paid off!")
@@ -279,7 +280,7 @@ export namespace Player {
       delta: number,
       flash: boolean = true
     ) {
-      training = LogIT("Training", STraining(newTraining))
+      training = LogVT("Training", STraining(newTraining))
 
       SendTrainingSet(training)
       if (flash) SendTrainingChange(delta)
@@ -350,7 +351,7 @@ export namespace Player {
 
       // ; Decay and losses calculation
       export function Decay(td: number) {
-        LogI("--- Decay")
+        LogV("--- Decay")
         const PollAdjust = (x: number) => td * x
         const Catabolism = (x: number) => (isInCatabolic ? PollAdjust(x) : 0)
 
@@ -751,8 +752,8 @@ export namespace Player {
  * inactivity calculations are stopped while in this mode.
  */
 export namespace TestMode {
-  // TODO: Read from settings
-  export const enabled = false
+  export const enabled = MCM.testingMode.enabled
+  if (enabled) printConsole(`+++ Max Sick Gains: TESTING MODE ENABLED`)
 
   /** Gains +10 hotkey listener. */
   export const Add10 = Hotkeys.ListenTo(DxScanCode.RightArrow, enabled)

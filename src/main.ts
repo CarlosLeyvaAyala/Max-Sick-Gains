@@ -11,6 +11,7 @@ import {
   once,
   printConsole,
   SlotMask,
+  Spell,
   Utility,
 } from "skyrimPlatform"
 import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
@@ -19,7 +20,7 @@ import {
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
 import { Player, TestMode, Sleep } from "./appearance/player"
-import { LogIT, LogV } from "./debug"
+import { LogI, LogIT, LogV } from "./debug"
 
 const initK = ".DmPlugins.Maxick.init"
 const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
@@ -97,6 +98,11 @@ export function main() {
 
   //#region Player and NPC events
   on("equip", (e) => {
+    Actor.from(e.actor)?.addSpell(
+      Spell.from(Game.getFormFromFile(0x96d, "Max Sick Gains.esp")),
+      false
+    )
+
     OnUnEquip(e, "EQUIP")
   })
 
@@ -106,7 +112,6 @@ export function main() {
       EquipPizzaHandsFix(a)
     })
   })
-
   //#endregion
 
   // ;>========================================================
@@ -168,7 +173,7 @@ export function main() {
     OnQuickDebug(() => {
       // Player.Calc.Training.OnTrain("OneHanded")
       // Player.QuickDebug.EnterCatabolic()
-      Player.Calc.Training.OnTrain("SEX")
+      // Player.Calc.Training.OnTrain("SEX")
       // Player.QuickDebug.DoSleep()
       // printConsole(`------`)
       // for (let i = 0; i < 1; i += 0.1) {
@@ -242,6 +247,12 @@ function OnUnEquip(
   const b = a?.getLeveledActorBase()
   const armor = Armor.from(e.baseObj)
   if (!a || !b || !armor) return
+
+  // LogI(
+  //   `++++ ${evMsg}. ${DebugLib.Log.IntToHex(
+  //     a.getFormID()
+  //   )} ${b.getName()}. ${armor.getName()}`
+  // )
 
   // Only cares for cuirasses and gauntlets
   const sl = armor.getSlotMask()
