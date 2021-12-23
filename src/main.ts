@@ -124,6 +124,7 @@ export function main() {
   // the most reliable method to apply them settings as soon as they spawn.
   // That spell is empty and does nothing. All the work is done here.
   on("effectStart", (e) => {
+    if (!e.effect) return
     OnMaxickSpell(
       e.effect.getFormID(),
       Actor.from(e.target),
@@ -132,6 +133,7 @@ export function main() {
   })
 
   on("effectFinish", (e) => {
+    if (!e.effect) return
     OnMaxickSpell(
       e.effect.getFormID(),
       Actor.from(e.target),
@@ -146,11 +148,11 @@ export function main() {
 
   //#region Real time events
 
-  const T = Hotkeys.ListenTo(DxScanCode.PgDown)
-  const OnQuickDebug = Hotkeys.ListenTo(DxScanCode.MiddleMouseButton)
+  const T = Hotkeys.ListenToS(DxScanCode.PgDown)
+  const OnQuickDebug = Hotkeys.ListenToS(DxScanCode.MiddleMouseButton)
 
   /** Start debugging an `Actor` when pressing a key. */
-  const OnDebugNpc = Hotkeys.ListenTo(DxScanCode.End)
+  const OnDebugNpc = Hotkeys.ListenToS(DxScanCode.End)
   /** Real time decay and catabolism calculations */
   const RTcalc = Misc.UpdateEach(3)
 

@@ -755,20 +755,21 @@ export namespace TestMode {
   export const enabled = MCM.testingMode.enabled
   if (enabled) printConsole(`+++ Max Sick Gains: TESTING MODE ENABLED`)
 
+  // TODO: Update to full function
   /** Gains +10 hotkey listener. */
-  export const Add10 = Hotkeys.ListenTo(DxScanCode.RightArrow, enabled)
+  export const Add10 = Hotkeys.ListenToS(DxScanCode.RightArrow, enabled)
 
   /** Gains +10 hotkey listener. */
-  export const Sub10 = Hotkeys.ListenTo(DxScanCode.LeftArrow, enabled)
+  export const Sub10 = Hotkeys.ListenToS(DxScanCode.LeftArrow, enabled)
 
   /** Next Stage hotkey listener. */
-  export const Next = Hotkeys.ListenTo(DxScanCode.UpArrow, enabled)
+  export const Next = Hotkeys.ListenToS(DxScanCode.UpArrow, enabled)
 
   /** Previous Stage hotkey listener. */
-  export const Prev = Hotkeys.ListenTo(DxScanCode.DownArrow, enabled)
+  export const Prev = Hotkeys.ListenToS(DxScanCode.DownArrow, enabled)
 
   /** Slideshow hotkey listener. */
-  export const SlideShow = Hotkeys.ListenTo(DxScanCode.NumEnter, enabled)
+  export const SlideShow = Hotkeys.ListenToS(DxScanCode.NumEnter, enabled)
 
   let slideshowRunning = false
 
