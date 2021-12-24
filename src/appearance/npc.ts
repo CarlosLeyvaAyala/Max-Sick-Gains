@@ -137,7 +137,7 @@ export function ClearAppearance(a: Actor | null) {
 const iRawApp = { fitStageId: -1 }
 
 const InvalidRace = (d: NPCData) => {
-  LogE(
+  LogI(
     `NPC 0x${d.actor
       .getFormID()
       .toString(16)} does not belong to any known racial group.`

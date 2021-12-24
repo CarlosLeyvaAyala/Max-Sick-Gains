@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { DebugLib } from "Dmlib"
 import { settings } from "skyrimPlatform"
 
 /** How many types of muscle definition there are.
@@ -101,10 +102,19 @@ export interface TestingMode {
   enabled: boolean
   next?: number
 }
+export interface Logging {
+  /** As read directly from settings. */
+  level: string | number
+  /** Loging level actually used inside this mod. */
+  lvl: DebugLib.Log.Level
+  toConsole: boolean
+  toFile: boolean
+}
 
-// "MCM": {"testingMode": {"enabled": true}},
+// "MCM": {"testingMode": {"enabled": false}, "logging":{"level": "error", "toConsole": true, "toFile": true}},
 export interface McmOptions {
   testingMode: TestingMode
+  logging: Logging
 }
 
 const modName = "maxick"
@@ -116,6 +126,7 @@ export const knownNPCs: object = settings[modName]["knownNPCs"]
 export const muscleDefBanRace: string[] = settings[modName]["muscleDefBanRace"]
 export const playerStages: PlayerStage[] = settings[modName]["playerStages"]
 export const MCM: McmOptions = settings[modName]["MCM"]
+MCM.logging.lvl = DebugLib.Log.LevelFromValue(MCM.logging.level)
 
 // const fitStages: object
 // const classes: object
