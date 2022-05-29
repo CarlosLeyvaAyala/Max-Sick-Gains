@@ -19,10 +19,10 @@
       ]
     },
     "outFile": "F:/Skyrim SE/MO2/overwrite/Platform/Plugins/maxick.js",
-    "baseUrl": "F:/Steam/steamapps/common/Skyrim Special Edition/Data/Platform/Modules",
+    "baseUrl": "F:/SteamLibrary/steamapps/common/Skyrim Special Edition/Data/Platform/Modules",
     "rootDirs": [
       "F:/Skyrim SE/MO2/mods/Max-Sick-Gains-src",
-      "F:/Steam/steamapps/common/Skyrim Special Edition/Data/Platform/Modules"
+      "F:/SteamLibrary/steamapps/common/Skyrim Special Edition/Data/Platform/Modules"
     ]
   },
   "include": [

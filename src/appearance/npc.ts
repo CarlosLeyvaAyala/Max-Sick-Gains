@@ -210,18 +210,18 @@ function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
       kn.weight === -1
         ? LogR(LogV("Body morphs were disabled for this NPC."), undefined)
         : !oo.applyMorphs
-        ? LogR(NoBs(s, t), undefined)
-        : kn.weight === 101
-        ? d.weight
-        : kn.weight,
+          ? LogR(NoBs(s, t), undefined)
+          : kn.weight === 101
+            ? d.weight
+            : kn.weight,
     muscleDef:
       kn.muscleDef === -1
         ? LogR(LogV("Muscle definition was disabled for this NPC."), undefined)
         : !oo.applyMuscleDef
-        ? LogR(NoMdef(s, t), undefined)
-        : kn.muscleDef === 0
-        ? { level: InterpolateMusDef(1, 6, d.weight), type: mt }
-        : { level: kn.muscleDef, type: mt },
+          ? LogR(NoMdef(s, t), undefined)
+          : kn.muscleDef === 0
+            ? { level: InterpolateMusDef(1, 6, d.weight), type: mt }
+            : { level: kn.muscleDef, type: mt },
   }
 }
 
@@ -249,9 +249,9 @@ function SolveGenericNPC(d: NPCData, o: AllNpcOptions): RawAppearance {
     weight: oo.applyMorphs ? fixedW : LogR(NoBs(s, t), undefined),
     muscleDef: oo.applyMuscleDef
       ? {
-          level: InterpolateMusDef(arch.muscleDefLo, arch.muscleDefHi, fixedW),
-          type: fitStage(arch.fitStage).muscleDefType,
-        }
+        level: InterpolateMusDef(arch.muscleDefLo, arch.muscleDefHi, fixedW),
+        type: fitStage(arch.fitStage).muscleDefType,
+      }
       : LogR(NoMdef(s, t), undefined),
   }
 }
@@ -360,9 +360,8 @@ function NPCDataToStr(d: NPCData | null): string {
 
   return `BaseID: ${IntToHex(d.base.getFormID())} RefId: ${IntToHex(
     d.actor.getFormID()
-  )} FixId: ${d.fixedFormId} ${d.esp}|0x${d.fixedFormId.toString(16)}. ${
-    d.class
-  }, ${d.race}, ${Sex[d.sex]}, weight: ${d.weight}, ${d.name}`
+  )} FixId: ${d.fixedFormId} ${d.esp}|0x${d.fixedFormId.toString(16)}. ${d.class
+    }, ${d.race}, ${Sex[d.sex]}, weight: ${d.weight}, ${d.name}`
 }
 
 /** Gets all `Actor` needed data to process them.

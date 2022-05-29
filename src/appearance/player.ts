@@ -632,6 +632,7 @@ export namespace Player {
     }
 
     function GetHeadS(d: PlayerData, b: BlendPair) {
+      // TODO: Interpolate from fitness stage
       const B = (bl: BlendData) => {
         if (bl.blend === 0) return 0
         const g = InterpolateW(
