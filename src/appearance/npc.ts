@@ -1,10 +1,11 @@
 import { Combinators, DebugLib, FormLib } from "Dmlib"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
-import { Actor, ActorBase, printConsole } from "skyrimPlatform"
+import { Actor, ActorBase } from "skyrimPlatform"
 import {
   ClassArchetype,
   classArchetype,
   ClassMatch,
+  defaultArchetype,
   fitStage,
   KnownNpcData,
   knownNPCs,
@@ -137,11 +138,8 @@ export function ClearAppearance(a: Actor | null) {
 const iRawApp = { fitStageId: -1 }
 
 const InvalidRace = (d: NPCData) => {
-  LogI(
-    `NPC 0x${d.actor
-      .getFormID()
-      .toString(16)} does not belong to any known racial group.`
-  )
+  const id = IntToHex(d.actor.getFormID())
+  LogI(`NPC 0x${id} does not belong to any known racial group.`)
 }
 
 const NothingToDo = (s: Sex, t: NpcType) => {
@@ -189,10 +187,9 @@ function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
 }
 
 function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
-  //@ts-ignore
   const esp = knownNPCs[d.esp.toLowerCase()]
   if (!esp) return null
-  const kn = esp[d.fixedFormId] as KnownNpcData
+  const kn = esp[d.fixedFormId]
   if (!kn) return null
 
   LogI(`*** Known NPC found ***: ${d.name}`)
@@ -210,18 +207,18 @@ function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
       kn.weight === -1
         ? LogR(LogV("Body morphs were disabled for this NPC."), undefined)
         : !oo.applyMorphs
-          ? LogR(NoBs(s, t), undefined)
-          : kn.weight === 101
-            ? d.weight
-            : kn.weight,
+        ? LogR(NoBs(s, t), undefined)
+        : kn.weight === 101
+        ? d.weight
+        : kn.weight,
     muscleDef:
       kn.muscleDef === -1
         ? LogR(LogV("Muscle definition was disabled for this NPC."), undefined)
         : !oo.applyMuscleDef
-          ? LogR(NoMdef(s, t), undefined)
-          : kn.muscleDef === 0
-            ? { level: InterpolateMusDef(1, 6, d.weight), type: mt }
-            : { level: kn.muscleDef, type: mt },
+        ? LogR(NoMdef(s, t), undefined)
+        : kn.muscleDef === 0
+        ? { level: InterpolateMusDef(1, 6, d.weight), type: mt }
+        : { level: kn.muscleDef, type: mt },
   }
 }
 
@@ -249,9 +246,9 @@ function SolveGenericNPC(d: NPCData, o: AllNpcOptions): RawAppearance {
     weight: oo.applyMorphs ? fixedW : LogR(NoBs(s, t), undefined),
     muscleDef: oo.applyMuscleDef
       ? {
-        level: InterpolateMusDef(arch.muscleDefLo, arch.muscleDefHi, fixedW),
-        type: fitStage(arch.fitStage).muscleDefType,
-      }
+          level: InterpolateMusDef(arch.muscleDefLo, arch.muscleDefHi, fixedW),
+          type: fitStage(arch.fitStage).muscleDefType,
+        }
       : LogR(NoMdef(s, t), undefined),
   }
 }
@@ -259,7 +256,7 @@ function SolveGenericNPC(d: NPCData, o: AllNpcOptions): RawAppearance {
 /** Gets the best Class Archetype for an NPC.
  *
  * @param d {@link NPCData}
- * @returns A {@link ClassArchetype}. `null` if none was found.
+ * @returns A {ClassArchetype}. `null` if none was found.
  */
 function SolveArchetype(d: NPCData): ClassArchetype | null {
   const archs = LogVT(
@@ -269,12 +266,7 @@ function SolveArchetype(d: NPCData): ClassArchetype | null {
   let exclusive: ClassArchetype[] = []
   let nonExclusive: ClassArchetype[] = []
   archs.forEach((v, _, __) => {
-    FilterViableArchetypes(
-      classArchetype(v),
-      d.race.toLowerCase(),
-      exclusive,
-      nonExclusive
-    )
+    FilterViableArchetypes(classArchetype(v), d, exclusive, nonExclusive)
   })
 
   if (exclusive.length > 0) return SelectArchetype(exclusive)
@@ -304,42 +296,37 @@ function SelectArchetype(arr: ClassArchetype[]) {
  * It sends the resulting archetypes to two different arrays: one containing all
  * class archetypes where the NPC race matches. The other contains the rest of them.
  *
- * @param ar Archetype to test.
- * @param race Lowercase race EDID of the NPC.
- * @param exclusive Array containing all archetypes where the NPC has race exclusiveness.
- * @param nonExclusive Array with all non exclusive archetype the NPC matched.
+ * @param {ClassArchetype} ar Archetype to test.
+ * @param {NPCData} d NPC data.
+ * @param {ClassArchetype[]} exclusive Array containing all archetypes where the NPC has race exclusiveness.
+ * @param {ClassArchetype[]} nonExclusive Array with all non exclusive archetype the NPC matched.
  */
 function FilterViableArchetypes(
   ar: ClassArchetype,
-  race: string,
+  d: NPCData,
   exclusive: ClassArchetype[],
   nonExclusive: ClassArchetype[]
 ) {
-  // TODO: Discard archetypes with out of bounds weights
-  if (ar.raceExclusive.length > 0) {
-    if (ar.raceExclusive.some((r, _) => race.indexOf(r) >= 0))
-      exclusive.push(ar)
-  } else nonExclusive.push(ar)
+  const WeightOutOfBounds = (w: number) => w < ar.weightLo || w > ar.weightHi
+  if (WeightOutOfBounds(d.weight)) return
+
+  if (ar.raceExclusive.length === 0) {
+    nonExclusive.push(ar)
+    return
+  }
+  const race = d.race.toLowerCase()
+  if (ar.raceExclusive.some((r, _) => race.indexOf(r) >= 0)) exclusive.push(ar)
 }
 
-function DefaultArchetype(_: NPCData): ClassArchetype {
-  return {
-    iName: "Default",
-    fitStage: 1,
-    bsLo: 0,
-    bsHi: 100,
-    muscleDefLo: 1,
-    muscleDefHi: 6,
-    raceExclusive: [],
-  }
-}
+const DefaultArchetype = (_: NPCData) => defaultArchetype
+
 //#endregion
 
 /** Returns "MCM" options for an NPC, according to their sex and type.
- *
- * @param d
- * @param o
- * @param t
+ * @param  {Sex} s
+ * @param  {NpcType} t
+ * @param  {AllNpcOptions} o
+ * @returns NpcOptions
  */
 function GetNpcOptions(s: Sex, t: NpcType, o: AllNpcOptions): NpcOptions {
   if (s === Sex.female) return t === NpcType.known ? o.knownFem : o.genericFem
@@ -358,10 +345,17 @@ function GetNpcOptions(s: Sex, t: NpcType, o: AllNpcOptions): NpcOptions {
 function NPCDataToStr(d: NPCData | null): string {
   if (!d) return "Invalid NPC found. This should be harmless."
 
-  return `BaseID: ${IntToHex(d.base.getFormID())} RefId: ${IntToHex(
-    d.actor.getFormID()
-  )} FixId: ${d.fixedFormId} ${d.esp}|0x${d.fixedFormId.toString(16)}. ${d.class
-    }, ${d.race}, ${Sex[d.sex]}, weight: ${d.weight}, ${d.name}`
+  return (
+    `BaseID: ${IntToHex(d.base.getFormID())} ` +
+    `RefId: ${IntToHex(d.actor.getFormID())} ` +
+    `FixId: ${d.fixedFormId} ` +
+    `${d.esp}|0x${d.fixedFormId.toString(16)}. ` +
+    `${d.class}, ` +
+    `${d.race}, ` +
+    `${Sex[d.sex]}, ` +
+    `weight: ${d.weight}, ` +
+    `${d.name}`
+  )
 }
 
 /** Gets all `Actor` needed data to process them.
@@ -377,7 +371,7 @@ function GetActorData(a: Actor | null): NPCData | null {
     return null
   }
 
-  const ff = FormLib.GetFormEspAndId(l)
+  const { modName, fixedFormId } = FormLib.GetFormEspAndId(l)
 
   return {
     actor: a,
@@ -386,8 +380,8 @@ function GetActorData(a: Actor | null): NPCData | null {
     class: l.getClass()?.getName() || "",
     name: l.getName() || "",
     race: GetRaceEDID(a),
-    esp: ff.modName,
-    fixedFormId: ff.fixedFormId,
+    esp: modName,
+    fixedFormId: fixedFormId,
     weight: l.getWeight(),
   }
 }

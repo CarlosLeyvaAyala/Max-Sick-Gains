@@ -1,6 +1,18 @@
-// @ts-nocheck
+// @ts-nocheck1
 import { DebugLib } from "Dmlib"
-import { settings } from "skyrimPlatform"
+import { printConsole, settings } from "skyrimPlatform"
+
+/** Json object that contains all data read from settings.txt. */
+export interface MaxickSettings {
+  MCM: McmOptions
+  races: { [key: string]: RaceData }
+  fitStages: { [key: string]: FitStage }
+  playerStages: PlayerStage[]
+  classArchetypes: { [key: string]: ClassArchetype }
+  classes: { [key: string]: number[] }
+  knownNPCs: { [key: string]: { [key: string]: KnownNpcData } }
+  muscleDefBanRace: string[]
+}
 
 /** How many types of muscle definition there are.
  * @remarks
@@ -15,17 +27,6 @@ export enum MuscleDefinitionType {
   fat,
 }
 
-export enum RacialGroup {
-  /** Banned. */
-  Ban = 0,
-  /** Humanoid. */
-  Hum,
-  /** Khajiit. */
-  Kha,
-  /** Argonian. */
-  Arg,
-}
-
 /** Data needed to change muscle definition to an `Actor`. */
 export interface MuscleDefinition {
   /** What type of muscle definition the `Actor` has. */
@@ -34,38 +35,44 @@ export interface MuscleDefinition {
   level: number
 }
 
+/** `Actor` sex. */
 export enum Sex {
   male = 0,
   female,
   undefined,
 }
 
-/** Raw slider data as read from the settings file. */
-export interface BsSlider {
-  /** Min slider value. */
-  min: number
-  /** Max slider value. */
-  max: number
+export interface McmOptions {
+  testingMode: TestingMode
+  logging: Logging
+  actors: ActorsCfg
 }
 
-/** Fitness stage data. */
-export interface FitStage {
-  /** Internal name for this fitness stage. Mostly used for debugging. */
-  iName: string
-  /** @see {@link MuscleDefinitionType} */
-  muscleDefType: MuscleDefinitionType
-  /** Raw Bodyslide preset whose keys are Slider names and values are {@link BsSlider} */
-  femBs: object
-  /** Raw Bodyslide preset whose keys are Slider names and values are {@link BsSlider} */
-  manBs: object
-  /** Lower head size. */
-  femHeadLo: number
-  /** Higher head size. */
-  femHeadHi: number
-  /** Lower head size. */
-  manHeadLo: number
-  /** Higher head size. */
-  manHeadHi: number
+export interface ActorsCfg {
+  player: ActorOptions
+  knownFem: ActorOptions
+  knownMan: ActorOptions
+  genericFem: ActorOptions
+  genericMan: ActorOptions
+}
+
+export interface ActorOptions {
+  applyMorphs: boolean
+  applyMuscleDef: boolean
+}
+
+export interface Logging {
+  /** As read directly from settings. */
+  level: number
+  /** Loging level actually used inside this mod. */
+  lvl: DebugLib.Log.Level
+  toConsole: boolean
+  toFile: boolean
+}
+
+export interface TestingMode {
+  enabled: boolean
+  next?: number
 }
 
 export interface ClassArchetype {
@@ -75,7 +82,37 @@ export interface ClassArchetype {
   bsHi: number
   muscleDefLo: number
   muscleDefHi: number
+  weightLo: number
+  weightHi: number
   raceExclusive: string[]
+}
+
+/** Fitness stage data. */
+export interface FitStage {
+  /** Internal name for this fitness stage. Mostly used for debugging. */
+  iName: string
+  /** @see {@link MuscleDefinitionType} */
+  muscleDefType: MuscleDefinitionType
+  /** Lower head size. */
+  femHeadLo: number
+  /** Higher head size. */
+  femHeadHi: number
+  /** Lower head size. */
+  manHeadLo: number
+  /** Higher head size. */
+  manHeadHi: number
+  /** Raw Bodyslide preset whose keys are Slider names and values are {@link BsSlider} */
+  femBs: { [key: string]: BsSlider }
+  /** Raw Bodyslide preset whose keys are Slider names and values are {@link BsSlider} */
+  manBs: { [key: string]: BsSlider }
+}
+
+/** Raw slider data as read from the settings file. */
+export interface BsSlider {
+  /** Min slider value. */
+  min: number
+  /** Max slider value. */
+  max: number
 }
 
 export interface KnownNpcData {
@@ -93,48 +130,54 @@ export interface PlayerStage {
   bsHi: number
   muscleDefLo: number
   muscleDefHi: number
-  headLo: number
-  headHi: number
   blend: number
 }
 
-export interface TestingMode {
-  enabled: boolean
-  next?: number
-}
-export interface Logging {
-  /** As read directly from settings. */
-  level: string | number
-  /** Loging level actually used inside this mod. */
-  lvl: DebugLib.Log.Level
-  toConsole: boolean
-  toFile: boolean
+export interface RaceData {
+  group: RacialGroup
+  display: string
 }
 
-// "MCM": {"testingMode": {"enabled": false}, "logging":{"level": "error", "toConsole": true, "toFile": true}},
-export interface McmOptions {
-  testingMode: TestingMode
-  logging: Logging
+export enum RacialGroup {
+  /** Banned. */
+  Ban = 0,
+  /** Humanoid. */
+  Hum,
+  /** Khajiit. */
+  Kha,
+  /** Argonian. */
+  Arg,
 }
 
 const modName = "maxick"
-const fitStages = settings[modName]["fitStages"]
-const classes = settings[modName]["classes"]
-const archetypes = settings[modName]["classArchetypes"]
-const races = settings[modName]["races"]
-export const knownNPCs: object = settings[modName]["knownNPCs"]
-export const muscleDefBanRace: string[] = settings[modName]["muscleDefBanRace"]
-export const playerStages: PlayerStage[] = settings[modName]["playerStages"]
-export const MCM: McmOptions = settings[modName]["MCM"]
-MCM.logging.lvl = DebugLib.Log.LevelFromValue(MCM.logging.level)
+//@ts-ignore
+export const maxickSettings: MaxickSettings = settings[modName]
+const ms = maxickSettings
+// const fitStages = settings[modName]["fitStages"]
+// const classes = settings[modName]["classes"]
+// const archetypes = settings[modName]["classArchetypes"]
+// const races = settings[modName]["races"]
+export const knownNPCs = ms.knownNPCs //object = settings[modName]["knownNPCs"]
+export const muscleDefBanRace = ms.muscleDefBanRace //: string[] = settings[modName]["muscleDefBanRace"]
+export const playerStages = ms.playerStages //: PlayerStage[] = settings[modName]["playerStages"]
+export const mcm = ms.MCM
+mcm.logging.lvl = DebugLib.Log.LevelFromValue(mcm.logging.level)
 
-// const fitStages: object
-// const classes: object
-// const archetypes: object
-// const races: object
-// export const knownNPCs: object
-// export const muscleDefBanRace: string[]
-// export const playerStages: PlayerStage[]
+export const defaultArchetype: ClassArchetype = {
+  iName: "Default",
+  fitStage: 1,
+  bsLo: 0,
+  bsHi: 100,
+  muscleDefLo: 1,
+  muscleDefHi: 6,
+  raceExclusive: [],
+  weightLo: 0,
+  weightHi: 100,
+}
+
+printConsole("*********************")
+printConsole(ms)
+printConsole("*********************")
 
 /** Returns from database the Fitness Stage of some id.
  * @param id
@@ -142,7 +185,7 @@ MCM.logging.lvl = DebugLib.Log.LevelFromValue(MCM.logging.level)
  */
 export function fitStage(id: number | string) {
   const i = typeof id === "number" ? id.toString() : id
-  return fitStages[i] as FitStage
+  return ms.fitStages[i] as FitStage
 }
 
 /** Retuns all Class Archetype ids a Class belongs to.
@@ -158,6 +201,7 @@ export function fitStage(id: number | string) {
  * const archs2 = ClassMatch("Legate Rikke", "Warrior")
  */
 export function ClassMatch(name: string, aClass: string): number[] {
+  const classes = ms.classes
   const n = name.toLowerCase()
   const c = aClass.toLowerCase()
   const r = []
@@ -169,15 +213,22 @@ export function ClassMatch(name: string, aClass: string): number[] {
   return [...new Set(flat)]
 }
 
-export function classArchetype(id: number | string) {
+/** Returns the {@link ClassArchetype} at index `id`.
+ * @param  {number|string} id
+ * @returns ClassArchetype
+ */
+export function classArchetype(id: number | string): ClassArchetype {
   const i = typeof id === "number" ? id.toString() : id
-  return archetypes[i] as ClassArchetype
+  return ms.classArchetypes[i]
 }
 
-/** Gets which racial group a race belongs to. */
+/** Gets which {@link RacialGroup} a race belongs to.
+ * @param  {string} raceEDID Editor id of some race.
+ * @returns RacialGroup
+ */
 export function RacialMatch(raceEDID: string): RacialGroup | null {
   const race = raceEDID.toLowerCase()
-  for (const key in races)
-    if (race.indexOf(key) >= 0) return RacialGroup[races[key].group]
+  for (const key in ms.races)
+    if (race.indexOf(key) >= 0) return ms.races[key].group
   return null
 }

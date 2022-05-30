@@ -1,12 +1,12 @@
 import { printConsole } from "skyrimPlatform"
 import { DebugLib as D, DebugLib } from "DmLib"
-import { MCM } from "./database"
+import { mcm } from "./database"
 
 export const mod_name = "maxick"
 
-const logToConsole = MCM.logging.toConsole
-const logToFile = MCM.logging.toFile
-const currLogLvl = MCM.logging.lvl
+const logToConsole = mcm.logging.toConsole
+const logToFile = mcm.logging.toFile
+const currLogLvl = mcm.logging.lvl
 
 const d = D.Log.CreateAll(
   "Maxick",

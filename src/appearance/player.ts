@@ -38,7 +38,7 @@ import {
 import {
   FitStage,
   fitStage,
-  MCM,
+  mcm,
   PlayerStage,
   playerStages,
   RacialGroup,
@@ -753,7 +753,7 @@ export namespace Player {
  * inactivity calculations are stopped while in this mode.
  */
 export namespace TestMode {
-  export const enabled = MCM.testingMode.enabled
+  export const enabled = mcm.testingMode.enabled
   if (enabled) printConsole(`+++ Max Sick Gains: TESTING MODE ENABLED`)
 
   // TODO: Update to full function
