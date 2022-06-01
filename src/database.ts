@@ -153,31 +153,11 @@ const modName = "maxick"
 //@ts-ignore
 export const maxickSettings: MaxickSettings = settings[modName]
 const ms = maxickSettings
-// const fitStages = settings[modName]["fitStages"]
-// const classes = settings[modName]["classes"]
-// const archetypes = settings[modName]["classArchetypes"]
-// const races = settings[modName]["races"]
-export const knownNPCs = ms.knownNPCs //object = settings[modName]["knownNPCs"]
-export const muscleDefBanRace = ms.muscleDefBanRace //: string[] = settings[modName]["muscleDefBanRace"]
-export const playerStages = ms.playerStages //: PlayerStage[] = settings[modName]["playerStages"]
+export const knownNPCs = ms.knownNPCs
+export const muscleDefBanRace = ms.muscleDefBanRace
+export const playerStages = ms.playerStages
 export const mcm = ms.MCM
 mcm.logging.lvl = DebugLib.Log.LevelFromValue(mcm.logging.level)
-
-export const defaultArchetype: ClassArchetype = {
-  iName: "Default",
-  fitStage: 1,
-  bsLo: 0,
-  bsHi: 100,
-  muscleDefLo: 1,
-  muscleDefHi: 6,
-  raceExclusive: [],
-  weightLo: 0,
-  weightHi: 100,
-}
-
-printConsole("*********************")
-printConsole(ms)
-printConsole("*********************")
 
 /** Returns from database the Fitness Stage of some id.
  * @param id

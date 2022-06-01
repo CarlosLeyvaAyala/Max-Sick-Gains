@@ -1,3 +1,4 @@
+import { ActorValueToStr, playerId } from "constants"
 import { DebugLib, FormLib, Hotkeys, MathLib, Misc } from "Dmlib"
 import * as JDB from "JContainers/JDB"
 import {
@@ -6,7 +7,6 @@ import {
   DxScanCode,
   EquipEvent,
   Game,
-  hooks,
   on,
   once,
   printConsole,
@@ -19,7 +19,7 @@ import {
   ChangeAppearance as ChangeNpcAppearance,
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
-import { Player, TestMode, Sleep } from "./appearance/player"
+import { Player, Sleep, TestMode } from "./appearance/player"
 import { LogI, LogIT, LogV } from "./debug"
 
 const initK = ".DmPlugins.Maxick.init"
@@ -32,42 +32,17 @@ export function main() {
   // ;>========================================================
 
   //#region Player events
-  const OnSleepStart = Misc.AvoidRapidFire(Sleep.OnStart)
-  const OnSleepStop = Misc.AvoidRapidFire(Sleep.OnEnd)
+  on("sleepStop", (_) => {
+    Sleep.OnEnd()
+  })
 
-  hooks.sendPapyrusEvent.add(
-    {
-      enter(_) {
-        OnSleepStop()
-      },
-    },
-    0x0,
-    0x14,
-    "OnSleepStop"
-  )
+  on("sleepStart", (_) => {
+    Sleep.OnStart()
+  })
 
-  hooks.sendPapyrusEvent.add(
-    {
-      enter(_) {
-        OnSleepStart()
-      },
-    },
-    0,
-    0x14,
-    "OnSleepStart"
-  )
-
-  // Event coming from Papyrus
-  hooks.sendPapyrusEvent.add(
-    {
-      enter(_) {
-        Player.Calc.Training.OnTrain(JDB.solveStr(".maxickEv.skillUp"))
-      },
-    },
-    undefined,
-    undefined,
-    "OnMaxickSkill"
-  )
+  on("skillIncrease", (e) => {
+    Player.Calc.Training.OnTrain(ActorValueToStr(e.actorValue))
+  })
 
   let allowInit = false
 
@@ -82,7 +57,17 @@ export function main() {
   })
 
   on("switchRaceComplete", (e) => {
-    if (e.subject.getFormID() === 0x14) Player.Appearance.Change()
+    if (e.subject.getFormID() === playerId) Player.Appearance.Change()
+  })
+
+  on("modEvent", (e) => {
+    const Exe = (f: () => void) => {
+      LogI(`Mod event recieved. ${e.eventName}.`)
+      f()
+    }
+
+    if (e.eventName === "Maxick_Train")
+      Exe(() => Player.Calc.Training.OnTrain(e.strArg))
   })
 
   const Initialze = () => {
@@ -159,7 +144,6 @@ export function main() {
   const Spline = MathLib.CubicSpline([
     { x: 0.1, y: 0 },
     { x: 0.3, y: 0.7 },
-    // { x: 0.5, y: 0.2 },
     { x: 0.8, y: 0.9 },
   ])
 
@@ -249,12 +233,6 @@ function OnUnEquip(
   const b = a?.getLeveledActorBase()
   const armor = Armor.from(e.baseObj)
   if (!a || !b || !armor) return
-
-  // LogI(
-  //   `++++ ${evMsg}. ${DebugLib.Log.IntToHex(
-  //     a.getFormID()
-  //   )} ${b.getName()}. ${armor.getName()}`
-  // )
 
   // Only cares for cuirasses and gauntlets
   const sl = armor.getSlotMask()

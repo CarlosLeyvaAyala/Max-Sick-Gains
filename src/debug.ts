@@ -1,5 +1,4 @@
-import { printConsole } from "skyrimPlatform"
-import { DebugLib as D, DebugLib } from "DmLib"
+import { DebugLib as D } from "DmLib"
 import { mcm } from "./database"
 
 export const mod_name = "maxick"

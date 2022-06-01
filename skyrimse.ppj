@@ -13,7 +13,7 @@
         <Variable Name="version" Value="0.0"/>
         <Variable Name="MO" Value="F:\Skyrim SE\MO2\mods"/>
         <Variable Name="lib" Value="@MO\DM-SkyrimSE-Library\scripts"/>
-        <Variable Name="Skyrim" Value="F:\Steam\steamapps\common\Skyrim Special Edition"/>
+        <Variable Name="Skyrim" Value="F:\SteamLibrary\steamapps\common\Skyrim Special Edition"/>
     </Variables>
 
     <Imports>

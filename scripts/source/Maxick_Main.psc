@@ -87,39 +87,3 @@ Event SexLabEvent(string _, string __, float ___, form sender)
     SendModEvent(ev.TRAIN, "Sex")
   EndIf
 EndEvent
-
-;> Sleeping
-
-; Being in animation (from Posers or something) while sleeping seems to freeze the game. Avoid it.
-Function PreparePlayerToSleep()
-  ; If Player.IsWeaponDrawn()
-  ;   Player.SheatheWeapon()
-  ; EndIf
-EndFunction
-
-; Prepare player to sleep.
-Event OnSleepStart(float aStartTime, float aEndTime)
-  ; PreparePlayerToSleep()
-  ; _goneToSleepAt = Now()                        ; Just went to sleep
-EndEvent
-
-; What happens when the player wakes up.
-Event OnSleepStop(bool aInterrupted)
-  ; If HourSpan(_lastSlept) < 6
-  ;   md.LogCrit("You should wait at least 6 hours in-between sleeping sessions to make gains.")
-  ;   _lastSlept = Now()
-  ;   return
-  ; EndIf
-
-  ; ; Hours actually slept, since player can cancel or Astrid can kidnap.
-  ; float hoursSlept = HourSpan(_goneToSleepAt)
-  ; If hoursSlept < 1
-  ;   Return      ; Do nothing if didn't really slept
-  ; EndIf
-  ; Maxick_DB.CleanMemoizationData()
-  ; ev.SendSleep(hoursSlept)
-  ; _lastSlept = Now()
-EndEvent
-
-float _goneToSleepAt
-float _lastSlept
