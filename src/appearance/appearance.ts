@@ -18,7 +18,6 @@ import {
   Armor,
   Game,
   NetImmerse,
-  printConsole,
   SlotMask,
 } from "skyrimPlatform"
 import {
@@ -147,10 +146,6 @@ export function GetBodyslide(
   return s === Sex.male ? BlendManBs(fs, w, Morph) : BlendFemBs(fs, w, Morph)
 }
 
-function MarkProcessed(a: Actor) {
-  SetBodyMorph(a, "MaxickProcessed", "Maxick", 1)
-}
-
 export function ApplyBodyslide(a: Actor, bs: BodyslidePreset) {
   ClearMorphs(a)
 
@@ -159,7 +154,6 @@ export function ApplyBodyslide(a: Actor, bs: BodyslidePreset) {
   })
 
   UpdateModelWeight(a)
-  MarkProcessed(a) // Need to mark the actor again due to clearing bodyslides
 }
 
 export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
@@ -291,7 +285,6 @@ export function GetMuscleDefTex(
       ? "Fit"
       : "Fat"
   const rg = typeof r === "number" ? RacialGroup[r] : r
-  Log(`**************************************`, rg)
 
   return Log(
     "Applied muscle definition",

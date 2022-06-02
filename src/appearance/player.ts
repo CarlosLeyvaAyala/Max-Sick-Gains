@@ -725,9 +725,8 @@ export namespace Player {
 
     /** Returns the muscle definition texture the player should use. */
     function GetMuscleDef(d: PlayerData) {
-      // TODO: read from settings
-      const canChange = true
-      if (!canChange) return D.Log.R(MDefMcmBan(), undefined)
+      if (!mcm.actors.player.applyMuscleDef)
+        return D.Log.R(MDefMcmBan(), undefined)
       if (IsMuscleDefBanned(d.race)) return D.Log.R(MDefRaceBan(), undefined)
 
       const mdt = d.fitnessStage.muscleDefType
@@ -736,8 +735,7 @@ export namespace Player {
         d.playerStage.muscleDefHi,
         gains
       )
-
-      return GetMuscleDefTex(d.sex, RacialGroup.Hum, mdt, md, LogIT)
+      return GetMuscleDefTex(d.sex, d.racialGroup, mdt, md, LogIT)
     }
   }
 }
@@ -755,21 +753,24 @@ export namespace TestMode {
   export const enabled = mcm.testingMode.enabled
   if (enabled) printConsole(`+++ Max Sick Gains: TESTING MODE ENABLED`)
 
-  // TODO: Update to full function
-  /** Gains +10 hotkey listener. */
-  export const Add10 = Hotkeys.ListenToS(DxScanCode.RightArrow, enabled)
+  // TODO: Read from settings
+  const FO = (k: string) => Hotkeys.FromValue(k)
+  const HK = (k: string) => Hotkeys.ListenTo(FO(k), enabled)
 
   /** Gains +10 hotkey listener. */
-  export const Sub10 = Hotkeys.ListenToS(DxScanCode.LeftArrow, enabled)
+  export const Add10 = HK("Ctrl Shift RightArrow")
+
+  /** Gains +10 hotkey listener. */
+  export const Sub10 = HK("Ctrl Shift LeftArrow")
 
   /** Next Stage hotkey listener. */
-  export const Next = Hotkeys.ListenToS(DxScanCode.UpArrow, enabled)
+  export const Next = HK("Ctrl Shift UpArrow")
 
   /** Previous Stage hotkey listener. */
-  export const Prev = Hotkeys.ListenToS(DxScanCode.DownArrow, enabled)
+  export const Prev = HK("Ctrl Shift DownArrow")
 
   /** Slideshow hotkey listener. */
-  export const SlideShow = Hotkeys.ListenToS(DxScanCode.NumEnter, enabled)
+  export const SlideShow = HK("Ctrl Shift NumEnter")
 
   let slideshowRunning = false
 

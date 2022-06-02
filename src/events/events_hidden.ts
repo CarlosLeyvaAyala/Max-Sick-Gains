@@ -18,7 +18,7 @@ export function SendGainsSet(gains: number) {
   Game.getPlayer()?.sendModEvent("Maxick_Gains", "", gains)
 }
 
-/** Sends an event saying gains have been change.
+/** Sends an event saying gains have been changed.
  *
  * @remarks
  * This event will make the widget flash.

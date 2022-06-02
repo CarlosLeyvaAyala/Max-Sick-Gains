@@ -308,7 +308,7 @@ string Property CATABOLISM_END = "Maxick_CatabolismEnd" AutoReadOnly
 ; !  ███████║███████╗██║ ╚████║██████╔╝    ██║  ██║██║ ╚████║██████╔╝    ██║  ██║███████╗╚██████╗███████╗██║ ╚████╔╝ ███████╗
 ; !  ╚══════╝╚══════╝╚═╝  ╚═══╝╚═════╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝     ╚═╝  ╚═╝╚══════╝ ╚═════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝
 
-; You are better using the functions provided by this file if you want to send these events,
+; You are better off using the functions provided by this file if you want to send these events,
 ; but here's the whole reference, so you know what they do.
 
 string Property TRAIN = "Maxick_Train" AutoReadOnly
