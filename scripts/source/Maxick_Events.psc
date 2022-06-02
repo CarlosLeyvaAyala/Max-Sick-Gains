@@ -299,46 +299,6 @@ string Property CATABOLISM_END = "Maxick_CatabolismEnd" AutoReadOnly
 `numArg = 0`. Use this to manage this event and `CATABOLISM_START` with only one event.
 }
 
-;------------------------------------------------------------------------------------
-
-; string Property CELL_CHANGE = "Maxick_CellChange" AutoReadOnly
-; {
-; **Activation**: When player enters a new cell.
-
-; - I use this event to apply appearance settings to NPCs.
-; - It may be useful to you for other reasons, though.
-; }
-
-;------------------------------------------------------------------------------------
-
-string Property LOGGING_LVL = "Maxick_LoggingLvl" AutoReadOnly
-{**Activation**: When the logging level is set.
-
-`int numArg`: These are the possible values:
-1. None
-2. Critical - Errors and important things.
-3. Info - Meant to be detailed info for players.
-4. Verbose - Extremely detailed info for debugging purposes. Not really meant for players.
-
-You are unlikely to need this event, but I do.}
-
-;------------------------------------------------------------------------------------
-
-string Property UPDATE_INTERVAL = "Maxick_UpdateInterval" AutoReadOnly
-{**Activation**: When the update interval for calculating losses is set.
-`int numArg`: The value for the update interval.
-
-You are unlikely to need this event, but I do.}
-
-;------------------------------------------------------------------------------------
-
-string Property GAME_RELOADED = "Maxick_OnGameReloaded" AutoReadOnly
-{
-  **Activation**: After Max Sick Gains has fully reloaded all data it needs to work
-  when reloading a saved game.
-}
-
-;------------------------------------------------------------------------------------
 
 
 ; !  ███████╗███████╗███╗   ██╗██████╗      █████╗ ███╗   ██╗██████╗     ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗

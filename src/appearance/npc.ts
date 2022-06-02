@@ -1,6 +1,6 @@
 import { Combinators, DebugLib, FormLib } from "Dmlib"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
-import { Actor, ActorBase } from "skyrimPlatform"
+import { Actor, ActorBase, printConsole } from "skyrimPlatform"
 import { defaultArchetype } from "../constants"
 import {
   ActorsCfg,
@@ -118,7 +118,11 @@ export function ChangeAppearance(a: Actor | null) {
  * @param a `Actor` to clear their appearance.
  */
 export function ClearAppearance(a: Actor | null) {
-  LogV(`--- ${NPCDataToStr(GetActorData(a))}`)
+  try {
+    LogV(`--- ${NPCDataToStr(GetActorData(a))}`)
+  } catch (error) {
+    // TODO: Check SPID settings
+  }
   ClearActorAppearance(a)
 }
 

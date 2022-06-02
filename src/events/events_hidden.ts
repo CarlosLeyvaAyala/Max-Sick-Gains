@@ -1,5 +1,12 @@
 import { Game } from "skyrimPlatform"
 import * as JDB from "JContainers/JDB"
+import {
+  CATABOLISM_END,
+  CATABOLISM_START,
+  JOURNEY_AVERAGE,
+  JOURNEY_DAYS,
+  JOURNEY_STAGE,
+} from "./maxick_events"
 
 /** Sends an event saying gains have been set.
  *
@@ -63,7 +70,7 @@ export function SendTrainingChange(delta: number) {
  * react to both this and {@link SendCatabolismEnd}.
  */
 export function SendCatabolismStart() {
-  Game.getPlayer()?.sendModEvent("Maxick_CatabolismStart", "", 1)
+  Game.getPlayer()?.sendModEvent(CATABOLISM_START, "", 1)
 }
 
 /** Sends an event saying player exited catabolic state.
@@ -73,16 +80,16 @@ export function SendCatabolismStart() {
  * react to both this and {@link SendCatabolismStart}.
  */
 export function SendCatabolismEnd() {
-  Game.getPlayer()?.sendModEvent("Maxick_CatabolismEnd", "", 0)
+  Game.getPlayer()?.sendModEvent(CATABOLISM_END, "", 0)
 }
 
 /** Sends an event saying the player has completed some percent of
  * their _Fitness Journey_.
  *
- * @param x Average journey percent. [`0`..`1`].
+ * @param percent Average journey percent. [`0`..`1`].
  */
-export function SendJourneyAverage(x: number) {
-  SendFlt("JourneyByAverage", "journeyAvg", x)
+export function SendJourneyAverage(percent: number) {
+  Game.getPlayer()?.sendModEvent(JOURNEY_AVERAGE, "", percent)
 }
 
 /** Sends an event saying the player has completed some percent of
@@ -97,51 +104,17 @@ export function SendJourneyAverage(x: number) {
  * journey is important. For example BaboDialogue appearance
  * integration uses this value.
  *
- * @param x Journey by days percent. [`0`..`1`].
+ * @param percent Journey by days percent. [`0`..`1`].
  */
-export function SendJourneyByDays(x: number) {
-  SendFlt("JourneyByDays", "journeyDays", x)
+export function SendJourneyByDays(percent: number) {
+  Game.getPlayer()?.sendModEvent(JOURNEY_DAYS, "", percent)
 }
 
 /** Sends an event saying the player has completed some percent of
  * their _Fitness Journey_.
  *
- * @param x Journey by stage percent. [`0`..`1`].
+ * @param percent Journey by stage percent. [`0`..`1`].
  */
-export function SendJourneyByStage(x: number) {
-  SendFlt("JourneyByStage", "journeyStage", x)
-}
-
-/** Sends a float value to other mods using {@link SendValue}.
- *
- * @param evt Event name.
- * @param key Key used for passing values to other SP plugins via JContainers.
- * @param val Value to pass.
- */
-function SendFlt(evt: string, key: string, val: number) {
-  SendValue(evt, key, val, JDB.solveFltSetter)
-}
-
-/** Sends a value through an event and saves it to JDB.
- *
- * @remarks
- * A Papyrus script can react just by subscribing to the `evt`,
- * but Skyrim Platform plugins need to retrieve event parameters
- * using JDB.
- *
- * @param evt Event name.
- * @param key Key used for passing values to other SP plugins via JContainers.
- * @param val Value to pass.
- * @param Setter JContainers DB function.
- */
-function SendValue<T extends string | number>(
-  evt: string,
-  key: string,
-  val: T,
-  Setter: (path: string, value: T, create: boolean) => void
-) {
-  Setter(`.maxickEv.${key}`, val, true)
-  const str = typeof val === "string" ? val : ""
-  const num = typeof val === "number" ? val : 0
-  Game.getPlayer()?.sendModEvent(`Maxick_${evt}`, str, num)
+export function SendJourneyByStage(percent: number) {
+  Game.getPlayer()?.sendModEvent(JOURNEY_STAGE, "", percent)
 }
