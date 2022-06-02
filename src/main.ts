@@ -20,11 +20,12 @@ import {
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
 import { Player, Sleep, TestMode } from "./appearance/player"
+import { mcm } from "./database"
 import { LogI, LogIT, LogV } from "./debug"
 
 const initK = ".DmPlugins.Maxick.init"
-const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
-const WasInitialized = () => JDB.solveBool(initK, false)
+// const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
+// const WasInitialized = () => JDB.solveBool(initK, false)
 
 export function main() {
   // ;>========================================================
@@ -41,21 +42,27 @@ export function main() {
   })
 
   on("skillIncrease", (e) => {
+    if (mcm.testingMode.enabled) return
     Player.Calc.Training.OnTrain(ActorValueToStr(e.actorValue))
   })
 
   let allowInit = false
 
+  /** Needs to be handled apart from hot reloading because New/Load Game menu
+   * option triggers both, but reolading a save while playing won't trigger
+   * hot reload capabilities.
+   */
   on("loadGame", () => {
     LogV("||| Game loaded |||")
-    Initialze()
-    allowInit = true
+    Initialize()
   })
 
+  /** Hot reload management.*/
   once("update", () => {
-    if (allowInit || !WasInitialized()) Initialze()
+    if (allowInit) Initialize()
   })
 
+  /** Changed to were-something. */
   on("switchRaceComplete", (e) => {
     if (e.subject.getFormID() === playerId) Player.Appearance.Change()
   })
@@ -67,13 +74,20 @@ export function main() {
     }
 
     if (e.eventName === "Maxick_Train")
-      Exe(() => Player.Calc.Training.OnTrain(e.strArg))
+      return Exe(() => Player.Calc.Training.OnTrain(e.strArg))
+
+    if (e.eventName === "Maxick_OnGameInit") return Exe(Initialize)
+    if (e.eventName === "aaaaaaaaaaaa")
+      Exe(() => {
+        printConsole("Pepe pecas")
+      })
   })
 
-  const Initialze = () => {
+  const Initialize = () => {
     Player.Init()
     Player.Appearance.Change()
-    MarkInitialized()
+    allowInit = false
+    // MarkInitialized()
   }
   //#endregion
 
@@ -157,6 +171,7 @@ export function main() {
     RTcalc(Player.Calc.Update)
 
     OnQuickDebug(() => {
+      // Game.getPlayer()?.sendModEvent("Maxick_OnGameInit", "", 0)
       // Player.Calc.Training.OnTrain("OneHanded")
       // Player.QuickDebug.EnterCatabolic()
       // Player.Calc.Training.OnTrain("SEX")

@@ -82,7 +82,7 @@ EndFunction
 
 ; Registers the events needed for this mod to work.
 Function RegisterEvents()
-  RegisterForModEvent(ev.TRAIN, "OnTrain")
+  ; RegisterForModEvent(ev.TRAIN, "OnTrain")
   RegisterForModEvent(ev.GAINS_CHANGE, "OnGainsDelta")
   RegisterForModEvent(ev.TRAINING_CHANGE, "OnTrainDelta")
   RegisterForModEvent(ev.ACTIVITY_CHANGE, "OnInactivityDelta")
@@ -96,7 +96,7 @@ Function RegisterEvents()
   RegisterForModEvent(ev.JOURNEY_STAGE, "OnJourneyStage")
 
   ; Skyrim Platform communication
-  RegisterForModEvent(EV_SKILL, "OnMaxickSkill")
+  ; RegisterForModEvent(EV_SKILL, "OnMaxickSkill")
 EndFunction
 
 ;>========================================================
@@ -106,13 +106,13 @@ EndFunction
 ; WARNING: Do not delete any of these.
 ; Blank events used to communicate with Skyrim Platform
 
-string EV_SKILL = "Maxick_Skill"
+; string EV_SKILL = "Maxick_Skill"
 
 ; Player got some training.
 Event OnTrain(string _, string skillName, float __, Form ___)
   ; Communicate with Skyrim Platform
-  JDB.solveStrSetter(".maxickEv.skillUp", skillName, true)
-  SendModEvent(EV_SKILL, skillName)
+  ; JDB.solveStrSetter(".maxickEv.skillUp", skillName, true)
+  ; SendModEvent(EV_SKILL, skillName)
 EndEvent
 
 Event OnMaxickSkill(string _, string ____, float __, Form ___)

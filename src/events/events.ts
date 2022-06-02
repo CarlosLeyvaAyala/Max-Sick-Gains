@@ -88,6 +88,15 @@ export function SendJourneyAverage(x: number) {
 /** Sends an event saying the player has completed some percent of
  * their _Fitness Journey_.
  *
+ * @remarks
+ * This Journey completition percent is based on how the Journey
+ * chart looks on _Max Sick Gains.exe_. This means the middle of
+ * the journey is the middle of the chart.
+ *
+ * Use this kind of value when the visual representation of the
+ * journey is important. For example BaboDialogue appearance
+ * integration uses this value.
+ *
  * @param x Journey by days percent. [`0`..`1`].
  */
 export function SendJourneyByDays(x: number) {

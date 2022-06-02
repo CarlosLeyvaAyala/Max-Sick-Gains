@@ -290,10 +290,12 @@ export function GetMuscleDefTex(
       : type === MuscleDefinitionType.athletic
       ? "Fit"
       : "Fat"
+  const rg = typeof r === "number" ? RacialGroup[r] : r
+  Log(`**************************************`, rg)
 
   return Log(
     "Applied muscle definition",
-    `actors\\character\\Maxick\\${RacialGroup[r]}\\${ss}${t}_${n}.dds`
+    `actors\\character\\Maxick\\${rg}\\${ss}${t}_${n}.dds`
   )
 }
 

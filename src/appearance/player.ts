@@ -63,7 +63,7 @@ import {
   SendJourneyByStage,
   SendTrainingChange,
   SendTrainingSet,
-} from "../events"
+} from "../events/events"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod

@@ -6,12 +6,8 @@ Import DM_Utils
 Import Maxick_Utils
 
 Actor Property player Auto
-; FormList Property NakedBodiesList Auto
-; {A list that contains lists of textures used to change people's muscle definition levels}
 Maxick_Player Property PcHandler Auto
 {Handles everything Player related.}
-Maxick_NPC Property NpcHandler Auto
-{Handles everything NPC related.}
 Maxick_ActorAppearance Property looksHandler Auto
 {Handles everything appearance related.}
 Maxick_Debug Property md Auto
@@ -20,34 +16,22 @@ Maxick_Widget Property widget Auto
 {Widget.}
 Maxick_Events Property ev Auto
 
+Maxick_Events_Hidden Property evh Auto
+
 Spell Property ChangeCellSpell Auto
 
 Event OnInit()
   OnGameReload()
+  SendModEvent(evh.GAME_INIT)
 EndEvent
 
 ; These functions are called sequentially and not hooked as callbacks because we want to
 ; make sure these settings are initializated in this precise order.
 Function OnGameReload()
-  ; JDB.writeToFile(JContainers.userDirectory() + "dump.json")
-  md.OnGameReload()
   _RegisterEvents()
-  looksHandler.OnGameReload()
   PcHandler.OnGameReload()
-  NpcHandler.OnGameReload()
   widget.OnGameReload()
-  _TestingModeOperations()
-  SendModEvent(ev.GAME_RELOADED)
-EndFunction
-
-; Things to do when loading a game in testing mode.
-Function _TestingModeOperations()
-  If !md.testMode
-    md.LogVerb("***TESTING MODE DISABLED***")
-    return
-  EndIf
-  md.LogVerb("***TESTING MODE ENABLED***")
-  ; OnCellLoad()
+  SendModEvent(evh.GAME_RELOADED)
 EndFunction
 
 ;>========================================================
@@ -56,7 +40,6 @@ EndFunction
 
 ; Registers events needed for this mod to work.
 Function _RegisterEvents()
-  RegisterForSleep()
   _RegisterForSex()
 EndFunction
 
@@ -71,13 +54,14 @@ Function _RegisterForSex()
   RegisterForModEvent("ostim_end", "OStimEvent")
 EndFunction
 
+; TODO: Activate again when I've figured out OStim dependencies
 ; OStim integration.
-Event OStimEvent(string _, string __, float ___, form ____)
-  If OUtils.GetOStim().IsActorActive(player)
-    md.LogInfo("OStim event detected")
-    SendModEvent(ev.TRAIN, "Sex")
-  EndIf
-EndEvent
+; Event OStimEvent(string _, string __, float ___, form ____)
+;   If OUtils.GetOStim().IsActorActive(player)
+;     md.LogInfo("OStim event detected")
+;     SendModEvent(ev.TRAIN, "Sex")
+;   EndIf
+; EndEvent
 
 ; Sexlab integration.
 Event SexLabEvent(string _, string __, float ___, form sender)

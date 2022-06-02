@@ -4,14 +4,6 @@ Scriptname Maxick_ActorAppearanceSpell extends ActiveMagicEffect
   It's applied by a spell distributed via SPID.
 }
 
-Maxick_Debug Property md Auto
-Maxick_ActorAppearance Property looksHandler Auto
-Maxick_NPC Property NpcHandler Auto
-Maxick_Events Property ev Auto
-bool Property hasNiOverride Auto
-Actor npc
-
-string name
-
 Event OnEffectStart(Actor akTarget, Actor akCaster)
+  ; Empty. All work is done by Skyrim Platform
 EndEvent

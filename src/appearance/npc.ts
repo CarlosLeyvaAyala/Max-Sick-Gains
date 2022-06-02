@@ -3,12 +3,13 @@ import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import { Actor, ActorBase } from "skyrimPlatform"
 import { defaultArchetype } from "../constants"
 import {
+  ActorsCfg,
   ClassArchetype,
   classArchetype,
   ClassMatch,
   fitStage,
-  KnownNpcData,
   knownNPCs,
+  mcm,
   MuscleDefinition,
   RacialMatch,
   Sex,
@@ -97,20 +98,7 @@ interface NpcOptions {
   applyMuscleDef: boolean
 }
 
-interface AllNpcOptions {
-  knownFem: NpcOptions
-  knownMan: NpcOptions
-  genericFem: NpcOptions
-  genericMan: NpcOptions
-}
-
 // TODO: Delete
-const mockOptions: AllNpcOptions = {
-  knownFem: { applyMorphs: true, applyMuscleDef: true },
-  knownMan: { applyMorphs: true, applyMuscleDef: true },
-  genericFem: { applyMorphs: true, applyMuscleDef: true },
-  genericMan: { applyMorphs: true, applyMuscleDef: true },
-}
 
 /** Changes an `Actor` appearance according to what they should look like.
  *
@@ -120,7 +108,7 @@ export function ChangeAppearance(a: Actor | null) {
   const d = LogIT("+++", GetActorData(a), NPCDataToStr)
   if (!d) return
 
-  const r = SolveAppearance(d, mockOptions)
+  const r = SolveAppearance(d, mcm.actors)
   if (r.bodyslide) ApplyBodyslide(d.actor, r.bodyslide)
   if (r.headSize) ChangeHeadSize(d.actor, r.headSize)
   ApplyMuscleDef(d.actor, d.sex, r.path)
@@ -164,7 +152,7 @@ const NoMdef = (s: Sex, t: NpcType) => {
  * @param a `Actor` to get their appearance.
  * @returns Fitness stage, muscle definition and adjusted weight according to their Class Archetype.
  */
-function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
+function SolveAppearance(d: NPCData, o: ActorsCfg): Appearance {
   const raceGroup = RacialMatch(d.race)
   if (!raceGroup) return LogR(InvalidRace(d), {}) // Get out and log
 
@@ -186,7 +174,7 @@ function SolveAppearance(d: NPCData, o: AllNpcOptions): Appearance {
   }
 }
 
-function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
+function SolveKnownNPC(d: NPCData, o: ActorsCfg): RawAppearance | null {
   const esp = knownNPCs[d.esp.toLowerCase()]
   if (!esp) return null
   const kn = esp[d.fixedFormId]
@@ -228,7 +216,7 @@ function SolveKnownNPC(d: NPCData, o: AllNpcOptions): RawAppearance | null {
  *
  * @param d {@link NPCData}
  */
-function SolveGenericNPC(d: NPCData, o: AllNpcOptions): RawAppearance {
+function SolveGenericNPC(d: NPCData, o: ActorsCfg): RawAppearance {
   const s = d.sex
   const t = NpcType.generic
 
@@ -325,10 +313,10 @@ const DefaultArchetype = (_: NPCData) => defaultArchetype
 /** Returns "MCM" options for an NPC, according to their sex and type.
  * @param  {Sex} s
  * @param  {NpcType} t
- * @param  {AllNpcOptions} o
+ * @param  {ActorsCfg} o
  * @returns NpcOptions
  */
-function GetNpcOptions(s: Sex, t: NpcType, o: AllNpcOptions): NpcOptions {
+function GetNpcOptions(s: Sex, t: NpcType, o: ActorsCfg): NpcOptions {
   if (s === Sex.female) return t === NpcType.known ? o.knownFem : o.genericFem
   return t === NpcType.known ? o.knownMan : o.genericMan
 }
