@@ -1,12 +1,11 @@
 import { Game } from "skyrimPlatform"
-import * as JDB from "JContainers/JDB"
 import {
   CATABOLISM_END,
   CATABOLISM_START,
   JOURNEY_AVERAGE,
   JOURNEY_DAYS,
   JOURNEY_STAGE,
-} from "./maxick_events"
+} from "./maxick_compatibility"
 
 /** Sends an event saying gains have been set.
  *

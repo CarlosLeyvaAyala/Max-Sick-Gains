@@ -13,7 +13,6 @@ import {
   IsMuscleDefBanned,
   LogBs,
 } from "appearance"
-import { assert } from "chai"
 import {
   Combinators as C,
   DebugLib as D,
@@ -64,7 +63,7 @@ import {
   SendTrainingChange,
   SendTrainingSet,
 } from "../events/events_hidden"
-import { SendSleep } from "../events/maxick_events"
+import { SendSleep } from "../events/maxick_compatibility"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod
@@ -633,7 +632,6 @@ export namespace Player {
     }
 
     function GetHeadS(d: PlayerData, b: BlendPair) {
-      // TODO: Interpolate from fitness stage
       const B = (bl: BlendData) => {
         if (bl.blend === 0) return 0
         const g = InterpolateW(
