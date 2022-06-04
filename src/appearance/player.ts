@@ -790,6 +790,7 @@ export namespace TestMode {
 
   function SetGains(x: number) {
     gains = SGains(x)
+    Sleep.SendJourney()
   }
 
   function ModStage(delta: number) {
@@ -957,7 +958,7 @@ export namespace Sleep {
     SendSleep(hoursSlept)
   }
 
-  function SendJourney() {
+  export function SendJourney() {
     const st = JourneyByStage()
     const days = JourneyByDays()
     const avg = LogIT("Journey average", (st + days) / 2)

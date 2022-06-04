@@ -1,4 +1,3 @@
-// @ts-nocheck1
 import { DebugLib } from "Dmlib"
 import { printConsole, settings } from "skyrimPlatform"
 
