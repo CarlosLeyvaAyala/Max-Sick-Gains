@@ -435,7 +435,7 @@ export namespace Player {
 
       function Regress(d: AdjustedData): AdjustedData {
         // Can't descend any further
-        if (d.stage <= 0) return { stage: 1, gains: 0 }
+        if (d.stage <= 0) return { stage: 0, gains: 0 }
         // Gains will be taken care of by the adjusting function
         return { stage: d.stage - 1, gains: d.gains }
       }
@@ -471,6 +471,7 @@ export namespace Player {
         OneHanded: { skType: skType.phys, train: 0.7 },
         Block: { skType: skType.phys, train: 1 },
         Marksman: { skType: skType.phys, train: 0.2 },
+        Archery: { skType: skType.phys, train: 0.2 },
         HeavyArmor: { skType: skType.phys, train: 1 },
         LightArmor: { skType: skType.phys, train: 0.3 },
         Sneak: { skType: skType.phys, train: 0.3 },
