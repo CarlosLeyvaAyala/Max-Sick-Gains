@@ -261,6 +261,21 @@ function NodeOverride(
   AddNodeOverrideString(a, isFem, node, Key.Texture, Idx.Specular, s, false)
 }
 
+function MuscleDefTypeToTexStr(type: MuscleDefinitionType) {
+  const mt = MuscleDefinitionType
+  return type === mt.athletic
+    ? "Fit"
+    : type === mt.fat
+    ? "Fat"
+    : type === mt.custom1
+    ? "Cs1"
+    : type === mt.custom2
+    ? "Cs2"
+    : type === mt.custom3
+    ? "Cs3"
+    : "Meh"
+}
+
 /** Generates a normal texture path given some values.
  *
  * @param s Actor sex.
@@ -278,12 +293,8 @@ export function GetMuscleDefTex(
 ) {
   const ss = s === Sex.female ? "Fem" : "Man"
   const n = lvl.toString().padStart(2, "0")
-  const t =
-    type === MuscleDefinitionType.plain
-      ? "Meh"
-      : type === MuscleDefinitionType.athletic
-      ? "Fit"
-      : "Fat"
+  const mt = MuscleDefinitionType
+  const t = MuscleDefTypeToTexStr(type)
   const rg = typeof r === "number" ? RacialGroup[r] : r
 
   return Log(

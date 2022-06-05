@@ -24,6 +24,12 @@ export enum MuscleDefinitionType {
   athletic,
   /** Fat textures. */
   fat,
+  /** User defined */
+  custom1,
+  /** User defined */
+  custom2,
+  /** User defined */
+  custom3,
 }
 
 /** Data needed to change muscle definition to an `Actor`. */
