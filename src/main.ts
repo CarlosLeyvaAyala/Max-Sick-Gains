@@ -1,6 +1,6 @@
 import { ActorValueToStr, playerId } from "constants"
+import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
 import { DebugLib, FormLib, Hotkeys, MathLib, Misc } from "Dmlib"
-import * as JDB from "JContainers/JDB"
 import {
   Actor,
   Armor,
@@ -21,7 +21,9 @@ import {
 } from "./appearance/npc"
 import { Player, Sleep, TestMode } from "./appearance/player"
 import { mcm } from "./database"
-import { LogI, LogIT, LogV } from "./debug"
+import { LogI, LogIT, LogN, LogV } from "./debug"
+import { GAME_INIT } from "./events/events_hidden"
+import { TRAIN } from "./events/maxick_compatibility"
 
 const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
@@ -49,12 +51,13 @@ export function main() {
   let allowInit = false
 
   /** Needs to be handled apart from hot reloading because New/Load Game menu
-   * option triggers both, but reolading a save while playing won't trigger
+   * option triggers both, but reloading a save while playing won't trigger
    * hot reload capabilities.
    */
   on("loadGame", () => {
     LogV("||| Game loaded |||")
     Initialize()
+    InitializeSurroundingNPCs()
   })
 
   /** Hot reload management.*/
@@ -73,10 +76,10 @@ export function main() {
       f()
     }
 
-    if (e.eventName === "Maxick_Train")
+    if (e.eventName === TRAIN)
       return Exe(() => Player.Calc.Training.OnTrain(e.strArg))
 
-    if (e.eventName === "Maxick_OnGameInit") return Exe(Initialize)
+    if (e.eventName === GAME_INIT) return Exe(Initialize)
     if (e.eventName === "aaaaaaaaaaaa")
       Exe(() => {
         printConsole("Pepe pecas")
@@ -151,15 +154,10 @@ export function main() {
   const OnQuickDebug = Hotkeys.ListenToS(DxScanCode.MiddleMouseButton)
 
   /** Start debugging an `Actor` when pressing a key. */
-  const OnDebugNpc = Hotkeys.ListenToS(DxScanCode.End)
+  const OnDebugNpc = Hotkeys.ListenTo(Hotkeys.FromValue("End"))
+  const OnDebugNearby = Hotkeys.ListenTo(Hotkeys.FromValue("Shift End"))
   /** Real time decay and catabolism calculations */
   const RTcalc = Misc.UpdateEach(3)
-
-  const Spline = MathLib.CubicSpline([
-    { x: 0.1, y: 0 },
-    { x: 0.3, y: 0.7 },
-    { x: 0.8, y: 0.9 },
-  ])
 
   on("update", () => {
     TestMode.Next(TestMode.GoNext)
@@ -203,10 +201,21 @@ export function main() {
         Player.Appearance.Change()
       else ChangeNpcAppearance(Actor.from(r))
     })
+
+    OnDebugNearby(InitializeSurroundingNPCs)
   })
   //#endregion
 
-  printConsole("Max Sick Gains successfully initialized.")
+  LogN("Max Sick Gains successfully initialized.")
+}
+
+function InitializeSurroundingNPCs() {
+  const actors = ScanCellNPCs(Game.getPlayer(), 2048, null, false)
+  actors.forEach((a) => {
+    if (a.getFormID() === playerId) return
+    LogI("Setting appearance for nearby actor.")
+    ChangeNpcAppearance(a)
+  })
 }
 
 /** Do something when the Maxick spell effect starts/end.

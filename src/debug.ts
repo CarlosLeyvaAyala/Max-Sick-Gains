@@ -14,16 +14,6 @@ const d = D.Log.CreateAll(
   logToFile ? D.Log.FileFmt : undefined
 )
 
-// Generates a logging function specific to this mod.
-const CLF = (logAt: D.Log.Level) =>
-  D.Log.CreateFunction(
-    currLogLvl,
-    logAt,
-    "Maxick",
-    logToConsole ? D.Log.ConsoleFmt : undefined,
-    logToFile ? D.Log.FileFmt : undefined
-  )
-
 /** Logs messages intended to detect bottlenecks. */
 export const LogO = d.Optimization
 

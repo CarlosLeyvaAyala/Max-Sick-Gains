@@ -7,6 +7,15 @@ import {
   JOURNEY_STAGE,
 } from "./maxick_compatibility"
 
+/** **Activation**: After Max Sick Gains has fully reloaded all data it needs to work
+ *   when reloading a saved game.
+ */
+export const GAME_RELOADED = "Maxick_OnGameReloaded"
+
+/** **Activation**: After Max Sick Gains has been installed or a new game has been started.
+ */
+export const GAME_INIT = "Maxick_OnGameInit"
+
 /** Sends an event saying gains have been set.
  *
  * @remarks
