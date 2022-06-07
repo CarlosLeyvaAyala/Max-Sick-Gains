@@ -357,6 +357,7 @@ function NPCDataToStr(d: NPCData | null): string {
  */
 function GetActorData(a: Actor | null): NPCData | null {
   if (!a) return null
+  // TODO: Throws an exception
   const l = a.getLeveledActorBase()
   if (!l) {
     LogE("GetActorData: Couldn't find an ActorBase. Is that even possible?")

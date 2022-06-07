@@ -85,10 +85,7 @@ Event OnInit()
 EndEvent
 
 Function OnGameReload()
-  _InitFromMcm()
-  Log("Current logging level: " + _loggingLvl)
-  RegisterForModEvent(ev.LOGGING_LVL, "OnGetLoggingLvl")
-  _LoadData()
+
 EndFunction
 
 ; Initializes data from MCM settings. Used so the player doesn't have to configure this
@@ -97,11 +94,7 @@ EndFunction
 ; Logging at optimization level is done at compile time because this doesn't concern
 ; users at all.
 Function _InitFromMcm(bool setOptimizationLvl = false)
-  If setOptimizationLvl
-    SetLoggingLvl(_lvlOptim - 1)
-  Else
-    SetLoggingLvl(MCM.GetModSettingInt("Max Sick Gains", "iLogLvl:Other"))
-  EndIf
+
 EndFunction
 
 ; Dummy event. Used to make sure the logging level was correctly sent to addons.
@@ -111,11 +104,7 @@ EndEvent
 
 ; Called from MCM Helper when the user changed the logging level.
 Function SetLoggingLvl(int lvl)
-  lvl += 1
-  _loggingLvl = lvl as int
-  Log("Logging level was set to " + _loggingLvl)
-  SetLuaLoggingLvl()
-  SendModEvent(ev.LOGGING_LVL, "", _loggingLvl)
+
 EndFunction
 
 ; Tells Lua which is the logging level.

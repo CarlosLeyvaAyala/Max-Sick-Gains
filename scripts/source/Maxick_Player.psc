@@ -86,7 +86,6 @@ Function RegisterEvents()
   RegisterForModEvent(ev.GAINS_CHANGE, "OnGainsDelta")
   RegisterForModEvent(ev.TRAINING_CHANGE, "OnTrainDelta")
   RegisterForModEvent(ev.ACTIVITY_CHANGE, "OnInactivityDelta")
-  RegisterForModEvent(ev.UPDATE_INTERVAL, "OnGetUpdateInterval")
   RegisterForModEvent(ev.SLEEP, "OnSleep")
 
   RegisterForModEvent(ev.JOURNEY_AVERAGE, "OnMaxickJourneyAverage")

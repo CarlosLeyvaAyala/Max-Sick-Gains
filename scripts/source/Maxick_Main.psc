@@ -28,6 +28,7 @@ EndEvent
 ; These functions are called sequentially and not hooked as callbacks because we want to
 ; make sure these settings are initializated in this precise order.
 Function OnGameReload()
+  MiscUtil.PrintConsole("************************ Game reloaded")
   _RegisterEvents()
   PcHandler.OnGameReload()
   widget.OnGameReload()
@@ -41,6 +42,7 @@ EndFunction
 ; Registers events needed for this mod to work.
 Function _RegisterEvents()
   _RegisterForSex()
+  RegisterForModEvent("MaxickAppearanceFaction", "OnMaxickAppearanceSetFaction")
 EndFunction
 
 ; Captures when player is having sex.
@@ -70,4 +72,11 @@ Event SexLabEvent(string _, string __, float ___, form sender)
     md.LogInfo("SexLab event detected")
     SendModEvent(ev.TRAIN, "Sex")
   EndIf
+EndEvent
+
+
+Event OnMaxickAppearanceSetFaction(string _, string ____, float factionId, Form ___)
+  int fId = factionId as int
+  Faction newFaction = Game.GetFormFromFile(fId, "SexlabAroused.esm") as Faction
+  Game.GetPlayer().AddToFaction(newFaction)
 EndEvent

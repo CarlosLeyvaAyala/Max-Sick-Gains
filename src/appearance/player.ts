@@ -585,13 +585,13 @@ export namespace Player {
       const b = ActorBase.from(p.getBaseObject())
       if (!b) return D.Log.R(NoBase(), undefined)
 
-      const race = LogVT("Race", GetRaceEDID(p))
+      const race = LogIT("Race", GetRaceEDID(p))
 
       const sex = b.getSex()
-      LogV(`Sex: ${Sex[sex]}`)
+      LogI(`Sex: ${Sex[sex]}`)
 
       const racialGroup = C.O(RacialMatch, C.K(RacialGroup.Ban))(race)
-      LogV(`Racial group: ${RacialGroup[racialGroup]}`)
+      LogI(`Racial group: ${RacialGroup[racialGroup]}`)
 
       const s = CurrentStage()
       const fs = fitStage(s.fitStage)
@@ -759,16 +759,16 @@ export namespace TestMode {
   const HK = (k: string) => Hotkeys.ListenTo(FO(k), enabled)
 
   /** Gains +10 hotkey listener. */
-  export const Add10 = HK("Ctrl Shift RightArrow")
+  export const Add10 = HK("Ctrl RightArrow")
 
   /** Gains +10 hotkey listener. */
-  export const Sub10 = HK("Ctrl Shift LeftArrow")
+  export const Sub10 = HK("Ctrl LeftArrow")
 
   /** Next Stage hotkey listener. */
-  export const Next = HK("Ctrl Shift UpArrow")
+  export const Next = HK("Ctrl UpArrow")
 
   /** Previous Stage hotkey listener. */
-  export const Prev = HK("Ctrl Shift DownArrow")
+  export const Prev = HK("Ctrl DownArrow")
 
   /** Slideshow hotkey listener. */
   export const SlideShow = HK("Ctrl Shift NumEnter")
