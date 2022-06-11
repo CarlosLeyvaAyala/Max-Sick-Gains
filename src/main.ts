@@ -57,7 +57,12 @@ export function main() {
   on("loadGame", () => {
     LogV("||| Game loaded |||")
     Initialize()
-    InitializeSurroundingNPCs()
+
+    const f = async () => {
+      await Utility.wait(0.05)
+      InitializeSurroundingNPCs()
+    }
+    f()
   })
 
   /** Hot reload management.*/
@@ -210,7 +215,7 @@ export function main() {
 }
 
 function InitializeSurroundingNPCs() {
-  const actors = ScanCellNPCs(Game.getPlayer(), 2048, null, false)
+  const actors = ScanCellNPCs(Game.getPlayer(), 4096, null, false)
   actors.forEach((a) => {
     if (a.getFormID() === playerId) return
     LogI("Setting appearance for nearby actor.")

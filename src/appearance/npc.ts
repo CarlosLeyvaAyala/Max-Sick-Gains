@@ -119,11 +119,13 @@ export function ChangeAppearance(a: Actor | null) {
  */
 export function ClearAppearance(a: Actor | null) {
   try {
+    ClearActorAppearance(a)
     LogV(`--- ${NPCDataToStr(GetActorData(a))}`)
   } catch (error) {
-    // TODO: Check SPID settings
+    LogE(
+      "There was an error trying to clear an NPC. This should be benign and no harm should be done."
+    )
   }
-  ClearActorAppearance(a)
 }
 
 /** Invalid raw appearance */
