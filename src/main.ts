@@ -1,6 +1,6 @@
 import { ActorValueToStr, playerId } from "constants"
+import { DebugLib, FormLib, Hotkeys, Misc, TimeLib } from "Dmlib"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
-import { DebugLib, FormLib, Hotkeys, MathLib, Misc } from "Dmlib"
 import {
   Actor,
   Armor,
@@ -24,6 +24,7 @@ import { mcm } from "./database"
 import { LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
+import { HookAnim } from "./animations"
 
 const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
@@ -46,6 +47,27 @@ export function main() {
   on("skillIncrease", (e) => {
     if (mcm.testingMode.enabled) return
     Player.Calc.Training.OnTrain(ActorValueToStr(e.actorValue))
+  })
+
+  const AnimActivity = (x: number) => (TimeLib.Now() - x) * 4
+
+  let sprintTime = 0
+  HookAnim("SprintStart", () => {
+    sprintTime = TimeLib.Now()
+  })
+
+  HookAnim("SprintStop", () => {
+    if (sprintTime > 0)
+      Player.Calc.Activity.HadActivity(AnimActivity(sprintTime))
+  })
+
+  let swimTime = 0
+  HookAnim("SwimStart", () => {
+    swimTime = TimeLib.Now()
+  })
+
+  HookAnim("swimStop", () => {
+    if (swimTime > 0) Player.Calc.Activity.HadActivity(AnimActivity(swimTime))
   })
 
   let allowInit = false
