@@ -1,5 +1,5 @@
 import { ActorValueToStr, playerId } from "constants"
-import { DebugLib, FormLib, Hotkeys, Misc, TimeLib } from "Dmlib"
+import { DebugLib, FormLib, Hotkeys, Misc } from "Dmlib"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
 import {
   Actor,
@@ -24,7 +24,7 @@ import { mcm } from "./database"
 import { LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
-import { HookAnim } from "./animations"
+import { HookAnims } from "./animations"
 
 const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
@@ -36,6 +36,8 @@ export function main() {
   // ;>========================================================
 
   //#region Player events
+  if (!mcm.testingMode.enabled) HookAnims()
+
   on("sleepStop", (_) => {
     Sleep.OnEnd()
   })
@@ -44,33 +46,7 @@ export function main() {
     Sleep.OnStart()
   })
 
-  on("skillIncrease", (e) => {
-    if (mcm.testingMode.enabled) return
-    Player.Calc.Training.OnTrain(ActorValueToStr(e.actorValue))
-  })
-
-  const AnimActivity = (x: number) => (TimeLib.Now() - x) * 4
-
-  let sprintTime = 0
-  HookAnim("SprintStart", () => {
-    sprintTime = TimeLib.Now()
-  })
-
-  HookAnim("SprintStop", () => {
-    if (sprintTime > 0)
-      Player.Calc.Activity.HadActivity(AnimActivity(sprintTime))
-  })
-
-  let swimTime = 0
-  HookAnim("SwimStart", () => {
-    swimTime = TimeLib.Now()
-  })
-
-  HookAnim("swimStop", () => {
-    if (swimTime > 0) Player.Calc.Activity.HadActivity(AnimActivity(swimTime))
-  })
-
-  let allowInit = false
+  let allowInit = true
 
   /** Needs to be handled apart from hot reloading because New/Load Game menu
    * option triggers both, but reloading a save while playing won't trigger
@@ -104,20 +80,17 @@ export function main() {
     }
 
     if (e.eventName === TRAIN)
-      return Exe(() => Player.Calc.Training.OnTrain(e.strArg))
+      return Exe(() => {
+        if (!mcm.testingMode.enabled) Player.Calc.Training.OnTrain(e.strArg)
+      })
 
     if (e.eventName === GAME_INIT) return Exe(Initialize)
-    if (e.eventName === "aaaaaaaaaaaa")
-      Exe(() => {
-        printConsole("Pepe pecas")
-      })
   })
 
   const Initialize = () => {
     Player.Init()
     Player.Appearance.Change()
     allowInit = false
-    // MarkInitialized()
   }
   //#endregion
 

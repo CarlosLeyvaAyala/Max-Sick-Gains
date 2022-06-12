@@ -508,7 +508,7 @@ export namespace Player {
       }
 
       /** Data some skill contributes to training. */
-      interface TrainingData {
+      export interface TrainingData {
         activity: Time.SkyrimHours
         training: number
       }

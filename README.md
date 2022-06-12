@@ -25,6 +25,9 @@ Warriors should be muscular and ripped, mages should be thin... or even fat and 
 - Custom race support is possible with almost no hassle.
 - Optional use of normal maps to make characters ripped/fat/plain according to their body type (this means: no fat bodies with ripped abs).
 - Total control on how each NPC should look like. No randomness for the sake of randomness.
+- **Training is gained based on what you do**, not what skills you level up.\
+  Casting magic won't have impact on your appearance per se, but adventuring will.\
+  Swimming, sprinting, jumping and fighting using your body all contribute to your overall appearance.
 
 It's as simple to use as it can be.
 
@@ -70,7 +73,7 @@ If you don't follow these steps **this mod won't work on NPCs**.
 
 ### Annoying Edition
 
-This mod seems to be stable, but now we get some weird errors that never happened on SE, like Slideshow on Testing Mode not working because sometimes the game refuses to update morphs unless you equip an armor and things like that.
+This mod seems to be stable, but now we get some weird errors that never happened on SE, like Slideshow on Testing Mode not working because sometimes the game refuses to update morphs unless you equip an armor, and things like those.
 
 Not much can be done by me about these kind of things, honestly.
 
@@ -79,7 +82,7 @@ Not much can be done by me about these kind of things, honestly.
 Not required, but this mod will detect them and act accordingly.
 
 - [Sexlab framework][sexlab-framework]
-- [OStim][]
+<!-- - [OStim][] -->
 
 # Build dependencies
 
