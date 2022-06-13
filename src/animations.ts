@@ -23,12 +23,16 @@ function TrainSingleAnim(skill: TrainingData) {
 
 /** How much `training` is multiplied if player attacks with a two handed weapon. */
 const twoHandedTrainMult = 1.7
+
 const pwrMult = 2.5
 const bashMult = 2
 const bowMult = 1.3
 const xBowMult = 0.7
 
-const baseAtk = 0.0007
+/** Number of attacks needed to gain 1 training point */
+const numAttacksToTrain = 120
+
+const baseAtk = 1 / numAttacksToTrain
 const pwrAtk = baseAtk * pwrMult
 const bashAtk = baseAtk * bashMult
 const bowAtk = baseAtk * bowMult
@@ -40,11 +44,14 @@ const bashAct = baseAct * bashMult
 const bowAct = baseAct * bowMult
 const xBowAct = baseAct * xBowMult
 
-const sprintMult = 1.5 // Values are high because there are usually short sprinting bursts, unlike swimming.
-const sneakMult = 2.3 // Sneaking requires great physical effort
+const sprintMult = 1.2 // Values are high because there are usually short sprinting bursts, unlike swimming.
+const sneakMult = 1.5 // Sneaking requires great physical effort
 
-const baseExploreT = 2.4
-const baseExploreA = 5
+/** Training to gain for 1 hour of non stop exploring actions. */
+const exploreWorth = 0.3
+/** How much training is gained per hour of exploring actions. */
+const baseExploreT = exploreWorth / TimeLib.ToSkyrimHours(1)
+const baseExploreA = 15
 const sprintT = baseExploreT * sprintMult
 const sprintA = baseExploreA * sprintMult
 const sneakT = baseExploreT * sneakMult
