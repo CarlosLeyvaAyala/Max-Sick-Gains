@@ -10,8 +10,10 @@ type TrainingData = Player.Calc.Training.TrainingData
 /** Trains a skill as is. */
 function Train(skill: TrainingData) {
   const flashOnGain = false // TODO: Make this a configurable option
-  HadTraining(skill.training, flashOnGain)
-  HadActivity(skill.activity)
+  const trainingMultiplier = 1 // TODO: Make this a configurable option
+  const activityMultiplier = 1 // TODO: Make this a configurable option
+  HadTraining(skill.training * trainingMultiplier, flashOnGain)
+  HadActivity(skill.activity * activityMultiplier)
 }
 
 /** Trains a skill that expects activity as how many minutes it's worth. */

@@ -8,6 +8,7 @@ import {
   Key as NiOKey,
   RemoveAllReferenceOverrides,
   RemoveAllReferenceSkinOverrides,
+  RemoveSkinOverride,
   SetBodyMorph,
   TextureIndex as Idx,
   UpdateModelWeight,
@@ -156,17 +157,34 @@ export function ApplyBodyslide(a: Actor, bs: BodyslidePreset) {
   UpdateModelWeight(a)
 }
 
+function RemoveMuscleDef(a: Actor, s: Sex) {
+  LogV("Removing muscle definition and pizza hands fix")
+  const pf = PizzaFix()
+  a.unequipItem(pf, true, true)
+  a.removeItem(pf, a.getItemCount(pf), true, null)
+
+  const { fem, t, n, body } = MDefAlias(s)
+  RemoveSkinOverride(a, fem, false, body, t, n)
+  RemoveSkinOverride(a, fem, true, body, t, n)
+}
+
+/** Shortcut name to change muscle definition */
+const MDefAlias = (s: Sex) => {
+  return {
+    fem: s === Sex.female,
+    t: Key.Texture,
+    n: Idx.Normal,
+    body: SlotMask.Body,
+  }
+}
+
 export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   if (!path) {
-    a.unequipItem(PizzaFix(), true, true)
-    LogV("Removing muscle definition and pizza hands fix")
+    RemoveMuscleDef(a, s)
     return
   }
 
-  const fem = s === Sex.female
-  const t = Key.Texture
-  const n = Idx.Normal
-  const body = SlotMask.Body
+  const { fem, t, n, body } = MDefAlias(s)
   AddSkinOverrideString(a, fem, false, body, t, n, path, true)
   AddSkinOverrideString(a, fem, true, body, t, n, path, true)
 
@@ -212,7 +230,8 @@ export function ClearAppearance(a: Actor | null) {
 
 /** Fixes messed up anus and vagina textures.
  * @remarks
- * Setting normal maps messes with vagina and anus textures because they are technically part of the skin.
+ * Setting normal maps messes with vagina and anus textures because they are
+ * technically part of the skin.
  * This function sets back the textures that should be there.
  *
  * @param a Actor to fix textures for.

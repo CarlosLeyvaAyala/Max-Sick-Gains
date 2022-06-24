@@ -98,20 +98,36 @@ interface NpcOptions {
   applyMuscleDef: boolean
 }
 
-// TODO: Delete
-
-/** Changes an `Actor` appearance according to what they should look like.
+/** Changes an NPC appearance according to what they should look like.
  *
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeAppearance(a: Actor | null) {
+  ApplyAppearance(a, true, true)
+}
+
+/** Changes an NPC muscle definition according to what they should look like.
+ *
+ * @param a The `Actor` to change their appearance.
+ */
+export function ChangeMuscleDef(a: Actor | null) {
+  ApplyAppearance(a, false, true)
+}
+
+function ApplyAppearance(
+  a: Actor | null,
+  applyBs: boolean,
+  applyMuscleDef: boolean
+) {
   const d = LogIT("+++", GetActorData(a), NPCDataToStr)
   if (!d) return
 
   const r = SolveAppearance(d, mcm.actors)
-  if (r.bodyslide) ApplyBodyslide(d.actor, r.bodyslide)
-  if (r.headSize) ChangeHeadSize(d.actor, r.headSize)
-  ApplyMuscleDef(d.actor, d.sex, r.path)
+  if (applyBs) {
+    if (r.bodyslide) ApplyBodyslide(d.actor, r.bodyslide)
+    if (r.headSize) ChangeHeadSize(d.actor, r.headSize)
+  }
+  if (applyMuscleDef) ApplyMuscleDef(d.actor, d.sex, r.path)
 }
 
 /** Removes body morphs and texture overrides to avoid save game bloating.

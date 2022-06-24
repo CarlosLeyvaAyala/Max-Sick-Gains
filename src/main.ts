@@ -1,30 +1,32 @@
-import { ActorValueToStr, playerId } from "constants"
+import { playerId } from "constants"
 import { DebugLib, FormLib, Hotkeys, Misc } from "Dmlib"
+import { isActorTypeNPC } from "Dmlib/Actor/isActorTypeNPC"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
 import {
   Actor,
   Armor,
   DxScanCode,
   EquipEvent,
+  Form,
   Game,
   on,
   once,
-  printConsole,
   SlotMask,
   Spell,
   Utility,
 } from "skyrimPlatform"
+import { HookAnims } from "./animations"
 import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
 import {
   ChangeAppearance as ChangeNpcAppearance,
+  ChangeMuscleDef,
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
 import { Player, Sleep, TestMode } from "./appearance/player"
 import { mcm } from "./database"
-import { LogI, LogIT, LogN, LogV } from "./debug"
+import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
-import { HookAnims } from "./animations"
 
 const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
@@ -55,12 +57,7 @@ export function main() {
   on("loadGame", () => {
     LogV("||| Game loaded |||")
     Initialize()
-
-    const f = async () => {
-      await Utility.wait(0.05)
-      InitializeSurroundingNPCs()
-    }
-    f()
+    InitializeSurroundingNPCs()
   })
 
   /** Hot reload management.*/
@@ -85,6 +82,18 @@ export function main() {
       })
 
     if (e.eventName === GAME_INIT) return Exe(Initialize)
+  })
+
+  on("niNodeUpdate", (e) => {
+    if (!e.reference) return
+    const a = Actor.from(e.reference)
+    if (!isActorTypeNPC(a)) return
+
+    if (a?.getFormID() == playerId) {
+      Player.Appearance.ChangeMuscleDef()
+      return
+    }
+    ChangeMuscleDef(a)
   })
 
   const Initialize = () => {
@@ -210,12 +219,21 @@ export function main() {
 }
 
 function InitializeSurroundingNPCs() {
-  const actors = ScanCellNPCs(Game.getPlayer(), 4096, null, false)
-  actors.forEach((a) => {
-    if (a.getFormID() === playerId) return
-    LogI("Setting appearance for nearby actor.")
-    ChangeNpcAppearance(a)
-  })
+  const f = async () => {
+    await Utility.wait(0.04)
+    const actors = ScanCellNPCs(Game.getPlayer(), 4096, null, false).map((a) =>
+      a?.getFormID()
+    )
+
+    for (const a of actors) {
+      await Utility.wait(0.005)
+      if (!a) return
+      if (a === playerId) return
+      LogI("Setting appearance for nearby actor.")
+      ChangeNpcAppearance(Actor.from(Game.getFormEx(a)))
+    }
+  }
+  f()
 }
 
 /** Do something when the Maxick spell effect starts/end.
@@ -233,9 +251,18 @@ function OnMaxickSpell(
   target: Actor | null,
   DoSomething: (target: Actor | null) => void
 ) {
-  const fx = Game.getFormFromFile(0x96c, "Max Sick Gains.esp") // Maxick Magic Effect
-  if (fx?.getFormID() !== spellId) return
-  DoSomething(target)
+  if (!target) return
+  try {
+    const t = Math.random() * 0.04 + 0.01
+    FormLib.WaitActor(target, t, (a) => {
+      if (!isActorTypeNPC(a)) return // Should have been done by SPID
+      const fx = Game.getFormFromFile(0x96c, "Max Sick Gains.esp") // Maxick Magic Effect
+      if (fx?.getFormID() !== spellId) return
+      DoSomething(a)
+    })
+  } catch (error) {
+    LogE(error instanceof Error ? error.message : String(error))
+  }
 }
 
 /** Solves wrong genital textures due to texture overrides.
@@ -256,7 +283,7 @@ function OnUnEquip(
   const a = Actor.from(e.actor)
   const b = a?.getLeveledActorBase()
   const armor = Armor.from(e.baseObj)
-  if (!a || !b || !armor) return
+  if (!a || !isActorTypeNPC(a) || !b || !armor) return
 
   // Only cares for cuirasses and gauntlets
   const sl = armor.getSlotMask()

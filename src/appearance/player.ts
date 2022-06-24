@@ -345,7 +345,8 @@ export namespace Player {
       /** How much `training` is lost a day when in _Catabolic State_. Absolute value. */
       const trainCat = 0.7
       /** How much `training` is lost a day due to decay. Absolute value. */
-      const trainDecay = 0.2
+
+      const trainDecay = 0.5 // Default = 0.2 // TODO: Make this a configurable option
       /** How much `gains` are lost a day when in _Catabolic State_. */
       const gainsCat = 0.8
 
@@ -611,17 +612,28 @@ export namespace Player {
     /** Changes the player appearance. */
     export function Change() {
       LogV("Changing appearance.")
+      ChangeAppearance(true, true)
+    }
+
+    export function ChangeMuscleDef() {
+      LogV("Changing muscle definition.")
+      ChangeAppearance(false, true)
+    }
+
+    function ChangeAppearance(applyBs: boolean, applyMuscleDef: boolean) {
       const p = Game.getPlayer() as Actor
       const d = GetData(p)
       if (!d) return
       const shape = GetBodyShape(d)
-      if (shape) {
+      if (shape && applyBs) {
         LogBs(shape.bodySlide, "Final preset", LogV)
         ApplyBodyslide(p, shape.bodySlide)
         ChangeHeadSize(p, shape.headSize)
       }
-      const tex = GetMuscleDef(d)
-      ApplyMuscleDef(p, d.sex, tex)
+      if (applyMuscleDef) {
+        const tex = GetMuscleDef(d)
+        ApplyMuscleDef(p, d.sex, tex)
+      }
     }
 
     function GetBodyShape(d: PlayerData): BodyShape | undefined {
@@ -759,16 +771,16 @@ export namespace TestMode {
   const HK = (k: string) => Hotkeys.ListenTo(FO(k), enabled)
 
   /** Gains +10 hotkey listener. */
-  export const Add10 = HK("Ctrl RightArrow")
+  export const Add10 = HK("RightArrow")
 
   /** Gains +10 hotkey listener. */
-  export const Sub10 = HK("Ctrl LeftArrow")
+  export const Sub10 = HK("LeftArrow")
 
   /** Next Stage hotkey listener. */
-  export const Next = HK("Ctrl UpArrow")
+  export const Next = HK("UpArrow")
 
   /** Previous Stage hotkey listener. */
-  export const Prev = HK("Ctrl DownArrow")
+  export const Prev = HK("DownArrow")
 
   /** Slideshow hotkey listener. */
   export const SlideShow = HK("Ctrl Shift NumEnter")
