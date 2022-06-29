@@ -47,7 +47,7 @@ const bowAct = baseAct * bowMult
 const xBowAct = baseAct * xBowMult
 
 const sprintMult = 1.2 // Values are high because there are usually short sprinting bursts, unlike swimming.
-const sneakMult = 1.5 // Sneaking requires great physical effort
+const sneakMult = 1.3 // Sneaking requires great physical effort
 
 /** Training to gain for 1 hour of non stop exploring actions. */
 const exploreWorth = 0.3

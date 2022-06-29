@@ -2,15 +2,17 @@ import { playerId } from "constants"
 import { DebugLib, FormLib, Hotkeys, Misc } from "Dmlib"
 import { isActorTypeNPC } from "Dmlib/Actor/isActorTypeNPC"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
+import { GetScriptVersion } from "Racemenu/nioverride"
 import {
   Actor,
   Armor,
+  Debug,
   DxScanCode,
   EquipEvent,
-  Form,
   Game,
   on,
   once,
+  printConsole,
   SlotMask,
   Spell,
   Utility,
@@ -62,6 +64,9 @@ export function main() {
 
   /** Hot reload management.*/
   once("update", () => {
+    const rm = Game.getModByName("RaceMenu.esp")
+    if (!rm)
+      Debug.messageBox("This mod needs Race Menu installed for it to work")
     if (allowInit) Initialize()
   })
 

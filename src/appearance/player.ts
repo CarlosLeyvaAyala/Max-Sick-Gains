@@ -343,17 +343,16 @@ export namespace Player {
       }
 
       /** How much `training` is lost a day when in _Catabolic State_. Absolute value. */
-      const trainCat = 0.7
+      const trainCat = 1.8
       /** How much `training` is lost a day due to decay. Absolute value. */
-
-      const trainDecay = 0.5 // Default = 0.2 // TODO: Make this a configurable option
+      const trainDecay = 0.2 // Default = 0.2 // TODO: Make this a configurable option
       /** How much `gains` are lost a day when in _Catabolic State_. */
       const gainsCat = 0.8
 
       // ; Decay and losses calculation
       export function Decay(td: number) {
         LogV("--- Decay")
-        const PollAdjust = (x: number) => td * x
+        const PollAdjust = (x: number) => td * x * training
         const Catabolism = (x: number) => (isInCatabolic ? PollAdjust(x) : 0)
 
         /** Training decays all the time. No matter what. */
