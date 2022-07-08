@@ -28,7 +28,6 @@ import {
   Actor,
   ActorBase,
   Debug,
-  DxScanCode,
   Game,
   printConsole,
   storage,
@@ -146,6 +145,7 @@ let lastSlept = storage[lastSleptK] as number | 0
 
 const inactiveTimeLim: Time.SkyrimHours = Time.ToSkyrimHours(48)
 const lastPlayerStage = playerStages.length - 1
+const maxAllowedTraining = 12
 //#endregion
 
 // ;>========================================================
@@ -349,14 +349,32 @@ export namespace Player {
       /** How much `gains` are lost a day when in _Catabolic State_. */
       const gainsCat = 0.8
 
+      /** How much training is lost a day (percent).
+       * @remarks
+       * Training decay is dynamically calculated to allow a smoother playstyle.
+       *
+       * When `training >= 10`, returns `20%`. When `training == 0` returns `5%`.
+       * Interpolates between those values. */
+      function DynDecay() {
+        const minDecay = 0.05
+        const maxDecay = 0.2
+        const trainUpperLim = 10
+        const cappedTrain = MathLib.ForceRange(0, trainUpperLim)(training)
+        return MathLib.LinCurve(
+          { x: 0, y: minDecay },
+          { x: trainUpperLim, y: maxDecay }
+        )(cappedTrain)
+      }
+
       // ; Decay and losses calculation
       export function Decay(td: number) {
         LogV("--- Decay")
+        const decayRate = DynDecay()
         const PollAdjust = (x: number) => td * x * training
         const Catabolism = (x: number) => (isInCatabolic ? PollAdjust(x) : 0)
 
         /** Training decays all the time. No matter what. */
-        const trainD = LogVT("Training decay", PollAdjust(trainDecay))
+        const trainD = LogVT("Training decay", PollAdjust(decayRate))
 
         // Catabolism calculations
         const trainC = LogVT("Training catabolism", Catabolism(trainCat))
@@ -496,7 +514,7 @@ export namespace Player {
         Activity.HadActivity(d.activity)
       }
 
-      const CapTraining = MathLib.ForceRange(0, 12)
+      const CapTraining = MathLib.ForceRange(0, maxAllowedTraining)
 
       /** Sets training according to some `delta` and sends events telling training changed.
        *
