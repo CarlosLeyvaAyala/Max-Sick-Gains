@@ -1,18 +1,23 @@
 import { playerId } from "constants"
-import { DebugLib, FormLib, Hotkeys, Misc } from "Dmlib"
+import { DebugLib, Hotkeys, Misc } from "Dmlib"
+import { getBaseName } from "Dmlib/Actor/getBaseName"
 import { isActorTypeNPC } from "Dmlib/Actor/isActorTypeNPC"
+import { isPlayer } from "Dmlib/Actor/player"
+import { waitActor } from "Dmlib/Actor/waitActor"
+import { randomRange } from "Dmlib/Math/randomRange"
+import { tryE } from "DmLib/Misc/tryE"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
-import { GetScriptVersion } from "Racemenu/nioverride"
 import {
+  ActiveEffectApplyRemoveEvent,
   Actor,
+  ActorBase,
   Armor,
+  CellAttachDetachEvent,
   Debug,
-  DxScanCode,
   EquipEvent,
   Game,
   on,
   once,
-  printConsole,
   SlotMask,
   Spell,
   Utility,
@@ -30,7 +35,7 @@ import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 
-const initK = ".DmPlugins.Maxick.init"
+// const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
 // const WasInitialized = () => JDB.solveBool(initK, false)
 
@@ -59,6 +64,8 @@ export function main() {
   on("loadGame", () => {
     LogV("||| Game loaded |||")
     Initialize()
+    // This needs to be called because reloading in situ (like after being killed)
+    // requires to initialize NPCs again.
     InitializeSurroundingNPCs()
   })
 
@@ -72,7 +79,7 @@ export function main() {
 
   /** Changed to were-something. */
   on("switchRaceComplete", (e) => {
-    if (e.subject.getFormID() === playerId) Player.Appearance.Change()
+    if (isPlayer(e.subject)) Player.Appearance.Change()
   })
 
   on("modEvent", (e) => {
@@ -94,7 +101,7 @@ export function main() {
     const a = Actor.from(e.reference)
     if (!isActorTypeNPC(a)) return
 
-    if (a?.getFormID() == playerId) {
+    if (isPlayer(a)) {
       Player.Appearance.ChangeMuscleDef()
       return
     }
@@ -136,26 +143,22 @@ export function main() {
 
   //#region NPC events
 
+  const useSPID = true // TODO: Make this a configurable option
+
+  // Not as reliable as SPID, but can be used for a backup method in
+  // case SPID doesn't work, like v5.2.0 on SE.
+  if (!useSPID) {
+    on("cellAttach", (e) => DeTach("Attached", e, ChangeNpcAppearance))
+    on("cellDetach", (e) => DeTach("Detached", e, ClearNpcAppearance))
+  }
+
   // Right now, NPC appearance is set by applying a Spell via SPID, since it's
   // the most reliable method to apply them settings as soon as they spawn.
   // That spell is empty and does nothing. All the work is done here.
-  on("effectStart", (e) => {
-    if (!e.effect) return
-    OnMaxickSpell(
-      e.effect.getFormID(),
-      Actor.from(e.target),
-      ChangeNpcAppearance
-    )
-  })
-
-  on("effectFinish", (e) => {
-    if (!e.effect) return
-    OnMaxickSpell(
-      e.effect.getFormID(),
-      Actor.from(e.target),
-      ClearNpcAppearance
-    )
-  })
+  if (useSPID) {
+    on("effectStart", (e) => ExecuteSPIDSpell(e, ChangeNpcAppearance))
+    on("effectFinish", (e) => ExecuteSPIDSpell(e, ClearNpcAppearance))
+  }
   //#endregion
 
   // ;>========================================================
@@ -164,12 +167,9 @@ export function main() {
 
   //#region Real time events
 
-  const T = Hotkeys.ListenToS(DxScanCode.PgDown)
-  const OnQuickDebug = Hotkeys.ListenToS(DxScanCode.MiddleMouseButton)
-
-  /** Start debugging an `Actor` when pressing a key. */
-  const OnDebugNpc = Hotkeys.ListenTo(Hotkeys.FromValue("End"))
-  const OnDebugNearby = Hotkeys.ListenTo(Hotkeys.FromValue("Shift End"))
+  /** Resets an `Actor` when pressing a key. */
+  const OnResetNpc = Hotkeys.ListenTo(Hotkeys.FromValue("End")) // TODO: Read from settings
+  const OnResetNearby = Hotkeys.ListenTo(Hotkeys.FromValue("Shift End")) // TODO: Read from settings
   /** Real time decay and catabolism calculations */
   const RTcalc = Misc.UpdateEach(3)
 
@@ -182,63 +182,13 @@ export function main() {
 
     RTcalc(Player.Calc.Update)
 
-    OnQuickDebug(() => {
-      // Game.getPlayer()?.sendModEvent("Maxick_OnGameInit", "", 0)
-      // Player.Calc.Training.OnTrain("OneHanded")
-      // Player.QuickDebug.EnterCatabolic()
-      // Player.Calc.Training.OnTrain("SEX")
-      // Player.QuickDebug.DoSleep()
-      // printConsole(`------`)
-      // for (let i = 0; i < 1; i += 0.1) {
-      //   printConsole(`------`, i, " -- ", Spline(i))
-      // }
-      // f()
-      // MiscUtil.SetFreeCameraSpeed(80)
-      // MiscUtil.SetFreeCameraState(true, 1)
-      // Debug.toggleMenus()
-      // MiscUtil.SetMenus(true)
-      // tm.execute("")
-    })
+    OnResetNpc(ResetNPC)
 
-    OnDebugNpc(() => {
-      let r = LogIT(
-        "Getting reference at crosshair",
-        Game.getCurrentCrosshairRef()
-      )
-      if (!r)
-        r = LogIT(
-          "No reference found at crosshair. Trying console one",
-          Game.getCurrentConsoleRef()
-        )
-      if (!r) return
-      if (r.getFormID() === Game.getPlayer()?.getFormID())
-        Player.Appearance.Change()
-      else ChangeNpcAppearance(Actor.from(r))
-    })
-
-    OnDebugNearby(InitializeSurroundingNPCs)
+    OnResetNearby(InitializeSurroundingNPCs)
   })
   //#endregion
 
   LogN("Max Sick Gains successfully initialized.")
-}
-
-function InitializeSurroundingNPCs() {
-  const f = async () => {
-    await Utility.wait(0.04)
-    const actors = ScanCellNPCs(Game.getPlayer(), 4096, null, false).map((a) =>
-      a?.getFormID()
-    )
-
-    for (const a of actors) {
-      await Utility.wait(0.005)
-      if (!a) return
-      if (a === playerId) return
-      LogI("Setting appearance for nearby actor.")
-      ChangeNpcAppearance(Actor.from(Game.getFormEx(a)))
-    }
-  }
-  f()
 }
 
 /** Do something when the Maxick spell effect starts/end.
@@ -256,18 +206,22 @@ function OnMaxickSpell(
   target: Actor | null,
   DoSomething: (target: Actor | null) => void
 ) {
-  if (!target) return
+  if (!target || !IsMaxickSpell(spellId)) return
+
   try {
     const t = Math.random() * 0.04 + 0.01
-    FormLib.WaitActor(target, t, (a) => {
+    waitActor(target, t, (a) => {
       if (!isActorTypeNPC(a)) return // Should have been done by SPID
-      const fx = Game.getFormFromFile(0x96c, "Max Sick Gains.esp") // Maxick Magic Effect
-      if (fx?.getFormID() !== spellId) return
       DoSomething(a)
     })
   } catch (error) {
     LogE(error instanceof Error ? error.message : String(error))
   }
+}
+
+function IsMaxickSpell(spellId: number) {
+  const fx = Game.getFormFromFile(0x96c, "Max Sick Gains.esp") // Maxick Magic Effect
+  return fx?.getFormID() === spellId
 }
 
 /** Solves wrong genital textures due to texture overrides.
@@ -294,21 +248,84 @@ function OnUnEquip(
   const sl = armor.getSlotMask()
   if (sl !== SlotMask.Body && sl !== SlotMask.Hands) return
 
+  LogUnEquip(a, b, sl, evMsg, e)
+
+  // Wait before fixing things because Skyrim Platform is TOO fast <3.
+  waitActor(a, 0.001, (act) => {
+    if (sl === SlotMask.Body) FixGenitalTextures(act)
+    if (DoSomething) DoSomething(act, sl)
+  })
+}
+
+function LogUnEquip(
+  a: Actor,
+  b: ActorBase,
+  sl: number,
+  evMsg: string,
+  e: EquipEvent
+) {
   LogV(
     `${evMsg}. Actor: ${b.getName()}. Id: 0x${DebugLib.Log.IntToHex(
       a.getFormID()
     )}. Object: ${e.baseObj.getName()}. Slot: ${sl}`
   )
+}
 
-  // Wait before fixing things because Skyrim Platform is TOO fast <3.
-  const actor = FormLib.PreserveActor(a)
+const npcWaitTime = () => randomRange(0.005, 0.05)
+
+function DeTach(
+  evt: string,
+  e: CellAttachDetachEvent,
+  DoSomething: (target: Actor | null) => void
+) {
+  tryE(() => {
+    const a = Actor.from(e.refr)
+    if (!a || !isActorTypeNPC(a) || a.isDisabled()) return
+
+    waitActor(a, npcWaitTime(), (actor) => {
+      LogV(`${evt} actor: ${getBaseName(actor)}`)
+      DoSomething(actor)
+    })
+  }, LogE)
+}
+
+function ResetNPC() {
+  let r = LogIT("Getting reference at crosshair", Game.getCurrentCrosshairRef())
+  if (!r)
+    r = LogIT(
+      "No reference found at crosshair. Trying console one",
+      Game.getCurrentConsoleRef()
+    )
+  const a = Actor.from(r)
+  if (!a || !isActorTypeNPC(a)) return
+
+  if (isPlayer(a)) Player.Appearance.Change()
+  else ChangeNpcAppearance(a)
+}
+
+function InitializeSurroundingNPCs() {
   const f = async () => {
-    await Utility.wait(0.01)
-    const a = actor()
+    await Utility.wait(0.04)
+    const actors = ScanCellNPCs(Game.getPlayer(), 4096, null, false).map((a) =>
+      a?.getFormID()
+    )
 
-    if (!a) return
-    if (sl === SlotMask.Body) FixGenitalTextures(a)
-    if (DoSomething) DoSomething(a, sl)
+    for (const a of actors) {
+      await Utility.wait(0.005)
+      if (!a) return
+      if (a === playerId) return
+      LogI("Setting appearance for nearby actor.")
+      ChangeNpcAppearance(Actor.from(Game.getFormEx(a)))
+    }
   }
   f()
+}
+
+function ExecuteSPIDSpell(
+  e: ActiveEffectApplyRemoveEvent,
+  DoSomething: (target: Actor | null) => void
+) {
+  const a = Actor.from(e.target)
+  if (!e.effect || !a) return
+  OnMaxickSpell(e.effect.getFormID(), a, DoSomething)
 }

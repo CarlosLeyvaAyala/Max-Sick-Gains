@@ -344,8 +344,6 @@ export namespace Player {
 
       /** How much `training` is lost a day when in _Catabolic State_. Absolute value. */
       const trainCat = 1.8
-      /** How much `training` is lost a day due to decay. Absolute value. */
-      const trainDecay = 0.2 // Default = 0.2 // TODO: Make this a configurable option
       /** How much `gains` are lost a day when in _Catabolic State_. */
       const gainsCat = 0.8
 
@@ -356,8 +354,8 @@ export namespace Player {
        * When `training >= 10`, returns `20%`. When `training == 0` returns `5%`.
        * Interpolates between those values. */
       function DynDecay() {
-        const minDecay = 0.05
-        const maxDecay = 0.2
+        const minDecay = 0.05 // TODO: Make this a configurable option
+        const maxDecay = 0.2 // TODO: Make this a configurable option
         const trainUpperLim = 10
         const cappedTrain = MathLib.ForceRange(0, trainUpperLim)(training)
         return MathLib.LinCurve(
@@ -790,7 +788,7 @@ export namespace TestMode {
   /** Gains +10 hotkey listener. */
   export const Add10 = HK("RightArrow")
 
-  /** Gains +10 hotkey listener. */
+  /** Gains -10 hotkey listener. */
   export const Sub10 = HK("LeftArrow")
 
   /** Next Stage hotkey listener. */

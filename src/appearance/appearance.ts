@@ -1,4 +1,6 @@
-import { DebugLib as D, FormLib, MathLib } from "Dmlib"
+import { DebugLib as D, MathLib } from "Dmlib"
+import { waitActor } from "Dmlib/Actor/waitActor"
+
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
@@ -188,7 +190,7 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   AddSkinOverrideString(a, fem, false, body, t, n, path, true)
   AddSkinOverrideString(a, fem, true, body, t, n, path, true)
 
-  FormLib.WaitActor(a, 0.05, (aa) => {
+  waitActor(a, 0.05, (aa) => {
     EquipPizzaHandsFix(aa)
     FixGenitalTextures(aa)
   })

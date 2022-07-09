@@ -32,7 +32,7 @@ const bowMult = 1.3
 const xBowMult = 0.7
 
 /** Number of attacks needed to gain 1 training point */
-const numAttacksToTrain = 120
+const numAttacksToTrain = 80
 
 const baseAtk = 1 / numAttacksToTrain
 const pwrAtk = baseAtk * pwrMult

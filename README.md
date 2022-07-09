@@ -33,13 +33,13 @@ It's as simple to use as it can be.
 
 - Powerful and flexible.
 - No patches.
-- No need to delve into arcane configuration files. This mod does that for you.
+- No need to delve into arcane configuration files which have almost no public documentation. The companion app does that for you.
 
 # Features for modders
 
 Want your mod to take into account how your PC looks like? It's a breeze to integrate it with mine.
 
-- An easy to use API for quickly integration.
+- An easy to use API for quick integration.
 - Communication with external mods via mod events.
 - Functions to save data related to this mod.
 
@@ -47,35 +47,24 @@ Want your mod to take into account how your PC looks like? It's a breeze to inte
 
 As a player, you need these mods and all their requirements to make it work.
 
-- Skyrim SE
-- [Skyrim Platform][sp]
+- Skyrim SE/AE
+- [Skyrim Platform][sp] v2.6+
 - [Bodyslide][]
-- [iWant Widgets][]
 - [JContainers SE][jcontainers-se]
-- [MCM Helper][]
 - NiOverride ([Racemenu][])
 - [Papyrus Util][]
-- [powerofthree's Tweaks][po3tweaks] (enable _"Cast No Death Dispel Spells on Load"_)
-- [SPID][] 5.0.3 on SE (5.2.0 doesn't seem to work). 5.2+ seems to work alright on AE.
 - Some Bodyslide presets
+<!-- - [MCM Helper][] -->
+<!-- - [iWant Widgets][] -->
 
-## The AE aftermath
+## Optional 
 
-### Special Edition
+- [SPID][] ([read this][Using SPID] for more details)
+- [powerofthree's Tweaks][po3tweaks], if using SPID (enable _"Cast No Death Dispel Spells on Load"_)
 
-Even if you use the [downgrade patch][downgrade], you need to completely restore SE by following [this guide][hugo].\
-For some reason, that AE prompt overlay on the main menu seems to mess with some mods.
+## Known issues
 
-Note to MO users: you don't need to replace/delete new files; it's just a matter of adding the old SE files to a new folder, then activate it.\
-CC files won't trigger the AE overlay, by the way.
-
-If you don't follow these steps **this mod won't work on NPCs**.
-
-### Annoying Edition
-
-This mod seems to be stable, but now we get some weird errors that never happened on SE, like Slideshow on Testing Mode not working because sometimes the game refuses to update morphs unless you equip an armor, and things like those.
-
-Not much can be done by me about these kind of things, honestly.
+[Read this][Known_Issues].
 
 ## Integrations
 
@@ -140,13 +129,12 @@ https://badge.fury.io/hooks/github
 [clipboard-manager]: https://marketplace.visualstudio.com/items?itemname=edgardmessias.clipboard-manager
 [clipboard]: http://luaforge.net/projects/jaslatrix/
 [dmlib]: https://github.com/carlosleyvaayala/dm-skyrimse-library.git
-[downgrade]: https://www.nexusmods.com/skyrimspecialedition/mods/57618
 [fira-code]: https://github.com/tonsky/firacode
 [fold-plus]: https://marketplace.visualstudio.com/items?itemname=dakara.dakara-foldplus
 [hightlight]: https://marketplace.visualstudio.com/items?itemname=fabiospampinato.vscode-highlight
-[hugo]: https://www.nexusmods.com/skyrimspecialedition/images/131378
 [iwant widgets]: https://www.nexusmods.com/skyrimspecialedition/mods/36457
 [jcontainers-se]: https://www.nexusmods.com/skyrimspecialedition/mods/16495
+[Known_Issues]: Known_Issues.md
 [lazarus docs]: _Tools/TexRename
 [lua-language-server]: https://marketplace.visualstudio.com/items?itemname=sumneko.lua
 [markdown-preview]: https://marketplace.visualstudio.com/items?itemname=shd101wyy.markdown-preview-enhanced
@@ -164,6 +152,7 @@ https://badge.fury.io/hooks/github
 [sp]: https://www.nexusmods.com/skyrimspecialedition/mods/54909
 [spid]: https://www.nexusmods.com/skyrimspecialedition/mods/36869
 [tokyo-night]: https://marketplace.visualstudio.com/items?itemname=enkia.tokyo-night
+[Using SPID]: Using_SPID.md
 [visual-studio-code]: https://code.visualstudio.com/
 [vscode-papyrus]: https://marketplace.visualstudio.com/items?itemname=joelday.papyrus-lang-vscode
 [zerobrane-studio]: https://studio.zerobrane.com/

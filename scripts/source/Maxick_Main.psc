@@ -28,7 +28,7 @@ EndEvent
 ; These functions are called sequentially and not hooked as callbacks because we want to
 ; make sure these settings are initializated in this precise order.
 Function OnGameReload()
-  MiscUtil.PrintConsole("************************ Game reloaded")
+  ; MiscUtil.PrintConsole("************************ Game reloaded")
   _RegisterEvents()
   PcHandler.OnGameReload()
   widget.OnGameReload()
