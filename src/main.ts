@@ -1,4 +1,10 @@
-import { playerId } from "constants"
+import {
+  maxickEsp,
+  MaxickSpell,
+  MaxickSpellFx,
+  maxickSpellFx,
+  playerId,
+} from "constants"
 import { DebugLib, Hotkeys, Misc } from "Dmlib"
 import { getBaseName } from "Dmlib/Actor/getBaseName"
 import { isActorTypeNPC } from "Dmlib/Actor/isActorTypeNPC"
@@ -121,11 +127,7 @@ export function main() {
 
   //#region Player and NPC events
   on("equip", (e) => {
-    Actor.from(e.actor)?.addSpell(
-      Spell.from(Game.getFormFromFile(0x96d, "Max Sick Gains.esp")),
-      false
-    )
-
+    Actor.from(e.actor)?.addSpell(MaxickSpell(), false)
     OnUnEquip(e, "EQUIP")
   })
 
@@ -206,7 +208,7 @@ function OnMaxickSpell(
   target: Actor | null,
   DoSomething: (target: Actor | null) => void
 ) {
-  if (!target || !IsMaxickSpell(spellId)) return
+  if (!target || !IsMaxickSpellFx(spellId)) return
 
   try {
     const t = Math.random() * 0.04 + 0.01
@@ -219,9 +221,8 @@ function OnMaxickSpell(
   }
 }
 
-function IsMaxickSpell(spellId: number) {
-  const fx = Game.getFormFromFile(0x96c, "Max Sick Gains.esp") // Maxick Magic Effect
-  return fx?.getFormID() === spellId
+function IsMaxickSpellFx(spellId: number) {
+  return MaxickSpellFx()?.getFormID() === spellId
 }
 
 /** Solves wrong genital textures due to texture overrides.
@@ -231,7 +232,7 @@ function IsMaxickSpell(spellId: number) {
  *
  * @param e Event variable.
  * @param evMsg Message to log.
- * @param DoSomething As extra function to execute.
+ * @param DoSomething An extra function to execute.
  */
 function OnUnEquip(
   e: EquipEvent,

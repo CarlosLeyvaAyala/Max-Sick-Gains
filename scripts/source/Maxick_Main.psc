@@ -74,7 +74,8 @@ Event SexLabEvent(string _, string __, float ___, form sender)
   EndIf
 EndEvent
 
-
+; This comes from Babo Dialogue integration.
+; Needed to be done here because SP doesn't have the `addToFaction` function.
 Event OnMaxickAppearanceSetFaction(string _, string ____, float factionId, Form ___)
   int fId = factionId as int
   Faction newFaction = Game.GetFormFromFile(fId, "SexlabAroused.esm") as Faction

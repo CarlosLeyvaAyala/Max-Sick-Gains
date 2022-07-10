@@ -368,7 +368,7 @@ export function InterpolateMusDef(lo: number, hi: number, weight: number) {
   return Math.round(InterpolateW(lo, hi, weight))
 }
 
-/** Returns wether a race belongs to the banned races list.
+/** Returns whether a race belongs to the banned races list.
  *
  * @param raceEDID Race Editor Id to check.
  * @returns `boolean`
@@ -376,7 +376,7 @@ export function InterpolateMusDef(lo: number, hi: number, weight: number) {
 export function IsMuscleDefBanned(raceEDID: string) {
   const r = raceEDID.toLowerCase()
   const isBanned =
-    muscleDefBanRace.filter((ban, _, __) => r.indexOf(ban) >= 0).length > 0
+    muscleDefBanRace.filter((ban) => r.indexOf(ban) >= 0).length > 0
   if (isBanned) LogI("Can't change muscle definition. Race is banned.")
   return isBanned
 }
