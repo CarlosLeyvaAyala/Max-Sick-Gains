@@ -1,5 +1,5 @@
 import { DebugLib } from "Dmlib"
-import { printConsole, settings } from "skyrimPlatform"
+import { Game, printConsole, settings } from "skyrimPlatform"
 
 /** Json object that contains all data read from settings.txt. */
 export interface MaxickSettings {
@@ -69,8 +69,6 @@ export interface ActorOptions {
 export interface Logging {
   /** As read directly from settings. */
   level: number
-  /** Loging level actually used inside this mod. */
-  lvl: DebugLib.Log.Level
   toConsole: boolean
   toFile: boolean
 }
@@ -162,7 +160,7 @@ export const knownNPCs = ms.knownNPCs
 export const muscleDefBanRace = ms.muscleDefBanRace
 export const playerStages = ms.playerStages
 export const mcm = ms.MCM
-mcm.logging.lvl = DebugLib.Log.LevelFromValue(mcm.logging.level)
+// export const loggingLvl = DebugLib.Log.LevelFromValue(mcm.logging.level)
 
 /** Returns from database the Fitness Stage of some id.
  * @param id

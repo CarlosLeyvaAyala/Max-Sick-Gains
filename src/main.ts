@@ -1,10 +1,4 @@
-import {
-  maxickEsp,
-  MaxickSpell,
-  MaxickSpellFx,
-  maxickSpellFx,
-  playerId,
-} from "constants"
+import { MaxickSpell, MaxickSpellFx, playerId } from "constants"
 import { DebugLib, Hotkeys, Misc } from "Dmlib"
 import { getBaseName } from "Dmlib/Actor/getBaseName"
 import { isActorTypeNPC } from "Dmlib/Actor/isActorTypeNPC"
@@ -25,7 +19,6 @@ import {
   on,
   once,
   SlotMask,
-  Spell,
   Utility,
 } from "skyrimPlatform"
 import { HookAnims } from "./animations"
@@ -36,7 +29,7 @@ import {
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
 import { Player, Sleep, TestMode } from "./appearance/player"
-import { mcm } from "./database"
+import { KnownNpcData, knownNPCs, mcm } from "./database"
 import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
@@ -77,6 +70,7 @@ export function main() {
 
   /** Hot reload management.*/
   once("update", () => {
+    CheckExpectedEsps()
     const rm = Game.getModByName("RaceMenu.esp")
     if (!rm)
       Debug.messageBox("This mod needs Race Menu installed for it to work")
@@ -329,4 +323,17 @@ function ExecuteSPIDSpell(
   const a = Actor.from(e.target)
   if (!e.effect || !a) return
   OnMaxickSpell(e.effect.getFormID(), a, DoSomething)
+}
+
+export function CheckExpectedEsps() {
+  const PrintNames = (a: { [key: string]: KnownNpcData }) => {
+    for (const id in a) LogE(a[id].fullName)
+  }
+
+  for (const esp in knownNPCs)
+    if (!Game.isPluginInstalled(esp)) {
+      const msg = `"${esp}" is not installed. These Known NPCs will not look as expected:`
+      LogE(msg)
+      PrintNames(knownNPCs[esp])
+    }
 }

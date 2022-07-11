@@ -5,7 +5,7 @@ export const mod_name = "maxick"
 
 const logToConsole = mcm.logging.toConsole
 const logToFile = mcm.logging.toFile
-const currLogLvl = mcm.logging.lvl
+const currLogLvl = D.Log.LevelFromValue(mcm.logging.level)
 
 const d = D.Log.CreateAll(
   "Maxick",
