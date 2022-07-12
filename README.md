@@ -109,6 +109,9 @@ You'll need requirements for players (including integrations) plus:
 
 - [Markdown styleguide][markdown-styleguide]
 
+<!-- https://www.coolgenerator.com/ascii-text-generator
+ANSI shadow -->
+
 <!-- <details>
   <summary>Winter</summary>
   <p>Sparkling and frozen!</p>

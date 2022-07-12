@@ -62,7 +62,7 @@ import {
   SendTrainingChange,
   SendTrainingSet,
 } from "../events/events_hidden"
-import { SendSleep } from "../events/maxick_compatibility"
+import { sendSleep } from "../events/maxick_compatibility"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod
@@ -983,7 +983,7 @@ export namespace Sleep {
     Player.Appearance.Change()
 
     SendJourney()
-    SendSleep(hoursSlept)
+    sendSleep(hoursSlept)
   }
 
   export function SendJourney() {

@@ -7,8 +7,33 @@ import { Game } from "skyrimPlatform"
 // ; !  ██║  ██║███████╗███████╗██║     ███████╗██║  ██║███████║
 // ; !  ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝
 
-export function SendSleep(humanHoursSlept: number) {
+/**
+ * Tells Max Sick Gains the player has slept some hours and it's time to make gains.
+ *
+ * @param humanHoursSlept How many hours of sleep will be simulated.
+ *
+ * @remarks
+ * Use this to simulate the Player Character has slept, even though the player hasn't
+ * used a bed to do so.
+ *
+ * @example
+ * ```
+ * // Let's fix the fact that no time passes between going to sleep
+ * // and being waked up by Astrid...
+ * function whenKidnapped(){
+ *   const hoursPassed = 4
+ *   advanceTime(hoursPassed)
+ *   sendSleep(hoursPassed)
+ * }
+ * ```
+ */
+export function sendSleep(humanHoursSlept: number) {
   Game.getPlayer()?.sendModEvent(SLEEP, "", humanHoursSlept)
+}
+
+/** Returns whether `Testing Mode` is activated or not. */
+export function isInTestingMode(): boolean {
+  return cfg.MCM.testingMode.enabled
 }
 
 // ; !  ███████╗███████╗███╗   ██╗██████╗      █████╗ ███╗   ██╗██████╗     ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗
@@ -175,3 +200,15 @@ export const CATABOLISM_START = "Maxick_CatabolismStart"
  * `numArg = 0`. Use this to manage this event and `CATABOLISM_START` with only one event.
  */
 export const CATABOLISM_END = "Maxick_CatabolismEnd"
+
+//;! ██╗ ██████╗ ███╗   ██╗ ██████╗ ██████╗ ███████╗
+//;! ██║██╔════╝ ████╗  ██║██╔═══██╗██╔══██╗██╔════╝
+//;! ██║██║  ███╗██╔██╗ ██║██║   ██║██████╔╝█████╗
+//;! ██║██║   ██║██║╚██╗██║██║   ██║██╔══██╗██╔══╝
+//;! ██║╚██████╔╝██║ ╚████║╚██████╔╝██║  ██║███████╗
+//;! ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
+
+// Everything below here isn't meant to be directly used by you!
+const modName = "maxick"
+//@ts-ignore
+const cfg = settings[modName]
