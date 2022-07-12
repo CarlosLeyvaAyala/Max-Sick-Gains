@@ -49,8 +49,17 @@ export enum Sex {
 
 export interface McmOptions {
   testingMode: TestingMode
-  logging: Logging
+  training: TrainingCfg
+  logging: LoggingCfg
   actors: ActorsCfg
+}
+
+export interface TrainingCfg {
+  trainingMult: number
+  activityMult: number
+  decayMin: number
+  decayMax: number
+  flashOnGain: boolean
 }
 
 export interface ActorsCfg {
@@ -59,6 +68,8 @@ export interface ActorsCfg {
   knownMan: ActorOptions
   genericFem: ActorOptions
   genericMan: ActorOptions
+  hkReset: string
+  hkResetNearby: string
 }
 
 export interface ActorOptions {
@@ -66,7 +77,7 @@ export interface ActorOptions {
   applyMuscleDef: boolean
 }
 
-export interface Logging {
+export interface LoggingCfg {
   /** As read directly from settings. */
   level: number
   toConsole: boolean
@@ -75,7 +86,11 @@ export interface Logging {
 
 export interface TestingMode {
   enabled: boolean
-  next?: number
+  hkGainsAdd10: string
+  hkGainsSub10: string
+  hkNext: string
+  hkPrev: string
+  hkSlideshow: string
 }
 
 export interface ClassArchetype {

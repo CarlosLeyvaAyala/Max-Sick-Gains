@@ -2,6 +2,7 @@ import { AnimLib as A, TimeLib } from "Dmlib"
 import { Actor, EquippedItemType, Game } from "skyrimPlatform"
 import { Player } from "./appearance/player"
 import { playerId } from "./constants"
+import { mcm } from "./database"
 
 const HadTraining = Player.Calc.Training.HadTraining
 const HadActivity = Player.Calc.Activity.HadActivity
@@ -9,11 +10,11 @@ type TrainingData = Player.Calc.Training.TrainingData
 
 /** Trains a skill as is. */
 function Train(skill: TrainingData) {
-  const flashOnGain = false // TODO: Make this a configurable option
-  const trainingMultiplier = 1 // TODO: Make this a configurable option
-  const activityMultiplier = 1 // TODO: Make this a configurable option
-  HadTraining(skill.training * trainingMultiplier, flashOnGain)
-  HadActivity(skill.activity * activityMultiplier)
+  const f = mcm.training.flashOnGain
+  const tm = mcm.training.trainingMult
+  const am = mcm.training.activityMult
+  HadTraining(skill.training * tm, f)
+  HadActivity(skill.activity * am)
 }
 
 /** Trains a skill that expects activity as how many minutes it's worth. */

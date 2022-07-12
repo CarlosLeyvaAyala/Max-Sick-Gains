@@ -164,8 +164,9 @@ export function main() {
   //#region Real time events
 
   /** Resets an `Actor` when pressing a key. */
-  const OnResetNpc = Hotkeys.ListenTo(Hotkeys.FromValue("End")) // TODO: Read from settings
-  const OnResetNearby = Hotkeys.ListenTo(Hotkeys.FromValue("Shift End")) // TODO: Read from settings
+  const h = mcm.actors
+  const OnResetNpc = Hotkeys.ListenTo(Hotkeys.FromValue(h.hkReset))
+  const OnResetNearby = Hotkeys.ListenTo(Hotkeys.FromValue(h.hkResetNearby))
   /** Real time decay and catabolism calculations */
   const RTcalc = Misc.UpdateEach(3)
 

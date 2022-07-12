@@ -354,13 +354,13 @@ export namespace Player {
        * When `training >= 10`, returns `20%`. When `training == 0` returns `5%`.
        * Interpolates between those values. */
       function DynDecay() {
-        const minDecay = 0.05 // TODO: Make this a configurable option
-        const maxDecay = 0.2 // TODO: Make this a configurable option
+        const lD = mcm.training.decayMin
+        const hD = mcm.training.decayMax
         const trainUpperLim = 10
         const cappedTrain = MathLib.ForceRange(0, trainUpperLim)(training)
         return MathLib.LinCurve(
-          { x: 0, y: minDecay },
-          { x: trainUpperLim, y: maxDecay }
+          { x: 0, y: lD },
+          { x: trainUpperLim, y: hD }
         )(cappedTrain)
       }
 
@@ -778,27 +778,27 @@ export namespace Player {
  * inactivity calculations are stopped while in this mode.
  */
 export namespace TestMode {
-  export const enabled = mcm.testingMode.enabled
+  const cfg = mcm.testingMode
+  export const enabled = cfg.enabled
   if (enabled) printConsole(`+++ Max Sick Gains: TESTING MODE ENABLED`)
 
-  // TODO: Read from settings
   const FO = (k: string) => Hotkeys.FromValue(k)
   const HK = (k: string) => Hotkeys.ListenTo(FO(k), enabled)
 
   /** Gains +10 hotkey listener. */
-  export const Add10 = HK("RightArrow")
+  export const Add10 = HK(cfg.hkGainsAdd10)
 
   /** Gains -10 hotkey listener. */
-  export const Sub10 = HK("LeftArrow")
+  export const Sub10 = HK(cfg.hkGainsSub10)
 
   /** Next Stage hotkey listener. */
-  export const Next = HK("UpArrow")
+  export const Next = HK(cfg.hkNext)
 
   /** Previous Stage hotkey listener. */
-  export const Prev = HK("DownArrow")
+  export const Prev = HK(cfg.hkPrev)
 
   /** Slideshow hotkey listener. */
-  export const SlideShow = HK("Ctrl Shift NumEnter")
+  export const SlideShow = HK(cfg.hkSlideshow)
 
   let slideshowRunning = false
 
