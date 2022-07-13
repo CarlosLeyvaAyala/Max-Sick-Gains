@@ -1,14 +1,13 @@
 import { DebugLib as D } from "DmLib"
+import { modName } from "./constants"
 import { mcm } from "./database"
-
-export const mod_name = "maxick"
 
 const logToConsole = mcm.logging.toConsole
 const logToFile = mcm.logging.toFile
 const currLogLvl = D.Log.LevelFromValue(mcm.logging.level)
 
 const d = D.Log.CreateAll(
-  "Maxick",
+  modName,
   currLogLvl,
   logToConsole ? D.Log.ConsoleFmt : undefined,
   logToFile ? D.Log.FileFmt : undefined

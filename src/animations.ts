@@ -1,7 +1,14 @@
 import { AnimLib as A, TimeLib } from "Dmlib"
-import { Actor, EquippedItemType, Game } from "skyrimPlatform"
+import {
+  Actor,
+  EquippedItemType,
+  Game,
+  hooks,
+  SendAnimationEventHook,
+  writeLogs,
+} from "skyrimPlatform"
 import { Player } from "./appearance/player"
-import { playerId } from "./constants"
+import { animLog, playerId } from "./constants"
 import { mcm } from "./database"
 
 const HadTraining = Player.Calc.Training.HadTraining
@@ -211,4 +218,21 @@ function TrainOnAttack(anim: A.Animations, skillData: TrainingData) {
 
 function IsTwoHanded(t: EquippedItemType) {
   return t === EquippedItemType.Greatsword || t === EquippedItemType.Battleaxe
+}
+
+export function LogAnims() {
+  const L = (c: SendAnimationEventHook.Context) =>
+    writeLogs(animLog, `Animation name: ${c.animEventName}`)
+
+  hooks.sendAnimationEvent.add(
+    {
+      enter(c) {
+        L(c)
+      },
+      leave(c) {},
+    },
+    playerId,
+    playerId,
+    "*"
+  )
 }

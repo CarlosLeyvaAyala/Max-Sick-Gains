@@ -32,9 +32,9 @@ export function sendSleep(humanHoursSlept: number) {
 }
 
 /** Returns whether `Testing Mode` is activated or not. */
-export function isInTestingMode(): boolean {
-  return cfg.MCM.testingMode.enabled
-}
+// export function isInTestingMode(): boolean {
+//   return cfg.MCM.testingMode.enabled
+// }
 
 // ; !  ███████╗███████╗███╗   ██╗██████╗      █████╗ ███╗   ██╗██████╗     ██████╗ ███████╗ ██████╗███████╗██╗██╗   ██╗███████╗
 // ; !  ██╔════╝██╔════╝████╗  ██║██╔══██╗    ██╔══██╗████╗  ██║██╔══██╗    ██╔══██╗██╔════╝██╔════╝██╔════╝██║██║   ██║██╔════╝
@@ -209,6 +209,6 @@ export const CATABOLISM_END = "Maxick_CatabolismEnd"
 //;! ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
 // Everything below here isn't meant to be directly used by you!
-const modName = "maxick"
-//@ts-ignore
-const cfg = settings[modName]
+// const modName = "maxick"
+// //@ts-ignore
+// const cfg = settings[modName]

@@ -3,6 +3,9 @@ import { ClassArchetype } from "./database"
 
 export const playerId = 0x14
 
+export const modName = "Maxick"
+export const animLog = `${modName}-Animations`
+
 export const maxickEsp = "Max Sick Gains.esp"
 export const maxickSpell = 0x96d
 export const maxickSpellFx = 0x96c

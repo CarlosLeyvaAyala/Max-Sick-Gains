@@ -1,5 +1,4 @@
-import { DebugLib } from "Dmlib"
-import { Game, printConsole, settings } from "skyrimPlatform"
+import { settings } from "skyrimPlatform"
 
 /** Json object that contains all data read from settings.txt. */
 export interface MaxickSettings {
@@ -82,6 +81,7 @@ export interface LoggingCfg {
   level: number
   toConsole: boolean
   toFile: boolean
+  anims: boolean
 }
 
 export interface TestingMode {

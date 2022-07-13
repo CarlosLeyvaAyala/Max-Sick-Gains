@@ -21,7 +21,7 @@ import {
   SlotMask,
   Utility,
 } from "skyrimPlatform"
-import { HookAnims } from "./animations"
+import { HookAnims, LogAnims } from "./animations"
 import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
 import {
   ChangeAppearance as ChangeNpcAppearance,
@@ -45,6 +45,7 @@ export function main() {
 
   //#region Player events
   if (!mcm.testingMode.enabled) HookAnims()
+  if (!mcm.logging.anims) LogAnims()
 
   on("sleepStop", (_) => {
     Sleep.OnEnd()
