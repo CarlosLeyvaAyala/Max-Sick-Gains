@@ -45,7 +45,7 @@ export function main() {
 
   //#region Player events
   if (!mcm.testingMode.enabled) HookAnims()
-  if (!mcm.logging.anims) LogAnims()
+  if (mcm.logging.anims) LogAnims()
 
   on("sleepStop", (_) => {
     Sleep.OnEnd()
@@ -141,6 +141,10 @@ export function main() {
   //#region NPC events
 
   const useSPID = true // TODO: Make this a configurable option
+
+  // Execute inmediately after (re)loading a game to try to avoid having
+  // unset NPCs when reloading a game
+  once("cellAttach", (e) => DeTach("Attached", e, ChangeNpcAppearance))
 
   // Not as reliable as SPID, but can be used for a backup method in
   // case SPID doesn't work, like v5.2.0 on SE.
