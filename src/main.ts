@@ -3,7 +3,9 @@ import { DebugLib, Hotkeys, Misc } from "Dmlib"
 import { getBaseName } from "Dmlib/Actor/getBaseName"
 import { isActorTypeNPC } from "Dmlib/Actor/isActorTypeNPC"
 import { isPlayer } from "Dmlib/Actor/player"
+import { Player as P } from "DmLib/Actor/player"
 import { waitActor } from "Dmlib/Actor/waitActor"
+import { wait } from "Dmlib/Misc/wait"
 import { randomRange } from "Dmlib/Math/randomRange"
 import { tryE } from "DmLib/Misc/tryE"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
@@ -22,7 +24,11 @@ import {
   Utility,
 } from "skyrimPlatform"
 import { HookAnims, LogAnims } from "./animations"
-import { EquipPizzaHandsFix, FixGenitalTextures } from "./appearance/appearance"
+import {
+  ClearAppearance,
+  EquipPizzaHandsFix,
+  FixGenitalTextures,
+} from "./appearance/appearance"
 import {
   ChangeAppearance as ChangeNpcAppearance,
   ChangeMuscleDef,
@@ -63,7 +69,7 @@ export function main() {
    */
   on("loadGame", () => {
     LogV("||| Game loaded |||")
-    Initialize()
+    if (!allowInit) Initialize()
     // This needs to be called because reloading in situ (like after being killed)
     // requires to initialize NPCs again.
     InitializeSurroundingNPCs()
@@ -110,9 +116,13 @@ export function main() {
   })
 
   const Initialize = () => {
-    Player.Init()
-    Player.Appearance.Change()
-    allowInit = false
+    wait(0.2, () => {
+      if (!P().is3DLoaded()) return
+      Player.Init()
+      ClearAppearance(P()) // Avoid CTD
+      Player.Appearance.Change()
+      allowInit = false
+    })
   }
   //#endregion
 
