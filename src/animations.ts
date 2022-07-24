@@ -81,6 +81,9 @@ const sk = {
   Swim: { training: baseExploreT, activity: baseExploreA },
   Sprint: { training: sprintT, activity: sprintA },
   Sneak: { training: sneakT, activity: sneakA },
+  Build: { training: baseExploreT, activity: sprintA },
+  Sharpen: { training: baseExploreT * 0.5, activity: sprintA },
+  Smelt: { training: sneakT, activity: sneakA },
 }
 
 /** Adds an animation hook on the player. */
@@ -147,9 +150,25 @@ function HookExploration() {
   TrainOnSpan(A.Animations.SneakStart, A.Animations.SneakStop, sk.Sneak)()
 }
 
+function HookWork() {
+  const exit = A.Animations.IdleChairExitStart
+
+  TrainOnSpan(A.Animations.IdleHammerCarpenterTableEnter, exit, sk.Build)()
+  TrainOnSpan(A.Animations.IdleSharpeningWheelStart, exit, sk.Sharpen)()
+  TrainOnSpan(A.Animations.IdleTanningEnter, exit, sk.Build)()
+  TrainOnSpan(A.Animations.IdleBlacksmithForgeEnter, exit, sk.Build)()
+  TrainOnSpan(A.Animations.IdleBlackSmithingEnterStart, exit, sk.Build)()
+  TrainOnSpan(
+    A.Animations.IdleSmelterEnter,
+    A.Animations.IdleFurnitureExitSlow,
+    sk.Smelt
+  )()
+}
+
 export function HookAnims() {
   HookAttacks()
   HookExploration()
+  HookWork()
 }
 
 /** Changes player `training` and `activity` based on how much time has passed since two animations
