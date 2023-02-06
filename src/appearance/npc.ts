@@ -1,4 +1,5 @@
-import { Combinators, DebugLib, FormLib } from "Dmlib"
+import { Combinators, DebugLib } from "Dmlib"
+import { getEspAndId } from "Dmlib/Form/uniqueId"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import { Actor, ActorBase, printConsole } from "skyrimPlatform"
 import { defaultArchetype } from "../constants"
@@ -53,6 +54,8 @@ interface NPCData {
   race: string
   /** NPC weight. [0..100] */
   weight: number
+  /** Current in game formID. Used for caching. */
+  formID: number
 }
 
 interface BodyslideData {
@@ -88,6 +91,19 @@ interface Appearance {
   headSize?: number
 }
 
+interface CachedAppearance {
+  sex: Sex
+  race: string
+  class: string
+  appearance: Appearance
+}
+
+interface Cache {
+  npcs: { [key: number]: CachedAppearance }
+}
+
+const cache: Cache = { npcs: {} }
+
 enum NpcType {
   known,
   generic,
@@ -114,6 +130,29 @@ export function ChangeMuscleDef(a: Actor | null) {
   ApplyAppearance(a, false, true)
 }
 
+function AddToCache(d: NPCData, appearance: Appearance) {
+  if (!cache.npcs[d.formID])
+    cache.npcs[d.formID] = {
+      sex: Sex.undefined,
+      class: "",
+      race: "",
+      appearance: {},
+    }
+  cache.npcs[d.formID].appearance = appearance
+  cache.npcs[d.formID].class = d.class
+  cache.npcs[d.formID].race = d.race
+  cache.npcs[d.formID].sex = d.sex
+}
+
+function GetCached(d: NPCData): Appearance | null {
+  printConsole("Get chaced++++++++++")
+  const c = cache.npcs[d.formID]
+  printConsole("c", c)
+  if (!c || c.sex !== d.sex || c.race !== d.race || c.class !== d.class)
+    return null
+  return c.appearance
+}
+
 function ApplyAppearance(
   a: Actor | null,
   applyBs: boolean,
@@ -123,6 +162,8 @@ function ApplyAppearance(
   if (!d) return
 
   const r = SolveAppearance(d, mcm.actors)
+  // AddToCache(d, r)
+
   if (applyBs) {
     if (r.bodyslide) ApplyBodyslide(d.actor, r.bodyslide)
     if (r.headSize) ChangeHeadSize(d.actor, r.headSize)
@@ -175,6 +216,12 @@ const NoMdef = (s: Sex, t: NpcType) => {
  * @returns Fitness stage, muscle definition and adjusted weight according to their Class Archetype.
  */
 function SolveAppearance(d: NPCData, o: ActorsCfg): Appearance {
+  // const cached = GetCached(d)
+  // if (cached) {
+  //   printConsole(`Actor got from cache. ${NPCDataToStr(d)}`)
+  //   return cached
+  // }
+
   const raceGroup = RacialMatch(d.race)
   if (!raceGroup) return LogR(InvalidRace(d), {}) // Get out and log
 
@@ -382,7 +429,7 @@ function GetActorData(a: Actor | null): NPCData | null {
     return null
   }
 
-  const { modName, fixedFormId } = FormLib.GetFormEspAndId(l)
+  const { modName, fixedFormId } = getEspAndId(l)
 
   return {
     actor: a,
@@ -394,5 +441,6 @@ function GetActorData(a: Actor | null): NPCData | null {
     esp: modName,
     fixedFormId: fixedFormId,
     weight: l.getWeight(),
+    formID: a.getFormID(),
   }
 }

@@ -251,9 +251,10 @@ function OnUnEquip(
 ) {
   // Basic validity checks
   const a = Actor.from(e.actor)
-  const b = a?.getLeveledActorBase()
+  if (!a) return
+  const b = a.getLeveledActorBase()
   const armor = Armor.from(e.baseObj)
-  if (!a || !isActorTypeNPC(a) || !b || !armor) return
+  if (!isActorTypeNPC(a) || !b || !armor) return
 
   // Only cares for cuirasses and gauntlets
   const sl = armor.getSlotMask()
@@ -316,13 +317,13 @@ function ResetNPC() {
 
 function InitializeSurroundingNPCs() {
   const f = async () => {
-    await Utility.wait(0.04)
+    await Utility.wait(1.04)
     const actors = ScanCellNPCs(Game.getPlayer(), 4096, null, false).map((a) =>
       a?.getFormID()
     )
 
     for (const a of actors) {
-      await Utility.wait(0.005)
+      await Utility.wait(0.05)
       if (!a) return
       if (a === playerId) return
       LogI("Setting appearance for nearby actor.")
