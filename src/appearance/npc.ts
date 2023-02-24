@@ -422,25 +422,32 @@ function NPCDataToStr(d: NPCData | null): string {
  */
 function GetActorData(a: Actor | null): NPCData | null {
   if (!a) return null
-  // TODO: Throws an exception
-  const l = a.getLeveledActorBase()
-  if (!l) {
-    LogE("GetActorData: Couldn't find an ActorBase. Is that even possible?")
+
+  try {
+    const l = a.getLeveledActorBase()
+    if (!l) {
+      LogE("GetActorData: Couldn't find an ActorBase. Is that even possible?")
+      return null
+    }
+
+    const { modName, fixedFormId } = getEspAndId(l)
+
+    return {
+      actor: a,
+      base: l,
+      sex: l.getSex(),
+      class: l.getClass()?.getName() || "",
+      name: l.getName() || "",
+      race: GetRaceEDID(a),
+      esp: modName,
+      fixedFormId: fixedFormId,
+      weight: l.getWeight(),
+      formID: a.getFormID(),
+    }
+  } catch (error) {
+    LogE(
+      "There was an error trying to get the NPC data. This rarely happens and cause is unknown."
+    )
     return null
-  }
-
-  const { modName, fixedFormId } = getEspAndId(l)
-
-  return {
-    actor: a,
-    base: l,
-    sex: l.getSex(),
-    class: l.getClass()?.getName() || "",
-    name: l.getName() || "",
-    race: GetRaceEDID(a),
-    esp: modName,
-    fixedFormId: fixedFormId,
-    weight: l.getWeight(),
-    formID: a.getFormID(),
   }
 }
