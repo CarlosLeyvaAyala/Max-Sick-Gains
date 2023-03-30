@@ -52,8 +52,8 @@ Function _RegisterForSex()
     RegisterForModEvent("StageEnd", "SexLabEvent")
     RegisterForModEvent("AnimationEnd", "SexLabEvent")
   EndIf
-  RegisterForModEvent("ostim_animationchanged", "OStimEvent")
-  RegisterForModEvent("ostim_end", "OStimEvent")
+  ; RegisterForModEvent("ostim_animationchanged", "OStimEvent")
+  ; RegisterForModEvent("ostim_end", "OStimEvent")
 EndFunction
 
 ; TODO: Activate again when I've figured out OStim dependencies

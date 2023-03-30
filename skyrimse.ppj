@@ -4,7 +4,7 @@
     Game="sse"
     Output="Scripts"
     Optimize="true"
-    Anonymize="true"
+    Anonymize="false"
     Package="false"
     Release="true"
     Final="false">
@@ -22,16 +22,17 @@
         <Import>@MO\PapyrusUtil SE - Modders Scripting Utility Functions\Scripts\Source</Import>
         <Import>@MO\JContainers SE\scripts\source</Import>
         <Import>@MO\Racemenu-src\scripts\source</Import>
-        <Import>@MO\SkyUI\scripts\source</Import>
+        <!-- <Import>@MO\SkyUI\scripts\source</Import> -->
+        <Import>@MO\skyui-master\dist\Data\Scripts\Source</Import>
         <Import>@MO\SkyUI_5.1_SDK\Scripts\source</Import>
         <Import>@MO\SexLabFrameworkSE v163 BETA8\scripts\Source\</Import>
         <Import>@MO\Fores New Idles in Skyrim SE - FNIS SE\source\scripts\</Import>
         <Import>@MO\FNIS Creature Pack SE 7.0\source\scripts\</Import>
         <Import>@MO\JContainers SE\scripts\source</Import>
         <Import>@MO\MCM SDK\Source\Scripts</Import>
-        <Import>@MO\OStim - OSex overhaul and API\Scripts\Source</Import>
+        <!-- <Import>@MO\OStim - OSex overhaul and API\Scripts\Source</Import> -->
         <Import>@MO\Mfg Fix\source\scripts</Import>
-        <Import>@MO\OSA - Skyrim Ascendancy Engine\Scripts\Source</Import>
+        <!-- <Import>@MO\OSA - Skyrim Ascendancy Engine\Scripts\Source</Import> -->
         <Import>@MO\iWant Widgets\Source\Scripts</Import>
         <Import>@MO\powerofthree's Papyrus Extender for SSE\source\scripts</Import>
         <Import>@lib\Source</Import>

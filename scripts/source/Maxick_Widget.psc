@@ -21,14 +21,15 @@ int _flashCritical = 0xff0000   ; Red
 
 bool _hidden = false
 int _iconSize = 20
-iWant_Widgets iWidgets
+; iWant_Widgets iWidgets
+iWant_Widgets Property iWidgets Auto
 
 ;>========================================================
 ;>===                 INITIALIZATION                 ===<;
 ;>========================================================
 
 Function OnGameReload()
-  iWidgets = iWantWidgetsHandle()
+  ; iWidgets = iWantWidgetsHandle()
   mcmHandler.UpdateWidget()
   _RegisterEvents()
 EndFunction
@@ -103,10 +104,75 @@ Function _RegisterEvents()
   RegisterForModEvent("iWantWidgetsReset", "OniWantWidgetsReset")
 EndFunction
 
-Event OniWantWidgetsReset(string _, string __, float ___, Form sender)
-  ; md.Log("========================================================")
-  md.LogVerb("Initializing iWantWidget. OniWantWidgetsReset.")
+Event OniWantWidgetsReset(String eventName, String strArg, Float numArg, Form sender)
+  If eventName == "iWantWidgetsReset"
+      iWidgets = sender As iWant_Widgets
+  EndIf
+  md.Log("========================================================")
+  md.Log("Maxick Widget Reset")
+  md.Log("========================================================")
+
+  _ResetWidget()
 EndEvent
+
+Function _ResetWidget()
+  ; int x = 1280 / 2
+  int x = 1206
+  int y = 350
+  int vGap = 15
+  _ShowFitnessStage(x, y, "Bodybuilder")
+  
+  ; =======================
+  int m1 = _CreateMeter(x, y + vGap, 0xc0c0c0, 0xcccccc)
+  iWidgets.setMeterPercent(m1, 100)
+
+  int m2 = _CreateMeter(x, y + (vGap * 2), 0x6b17cc, 0x8845d6)
+  iWidgets.setMeterPercent(m2, 100)
+
+  int m3 = _CreateMeter(x, y + (vGap * 3), 0xf2e97e, 0xf4ed97)
+  iWidgets.setMeterPercent(m3, 100)
+EndFunction
+
+Function _SetMeterColor(int meter, int c1, int c2)
+  int r1 = Math.RightShift(Math.LogicalAnd(c1, 0xFF0000), 16)
+  int g1 = Math.RightShift(Math.LogicalAnd(c1, 0xFF00), 8)
+  int b1 = Math.LogicalAnd(c1, 0xFF)
+  int r2 = Math.RightShift(Math.LogicalAnd(c2, 0xFF0000), 16)
+  int g2 = Math.RightShift(Math.LogicalAnd(c2, 0xFF00), 8)
+  int b2 = Math.LogicalAnd(c2, 0xFF)
+  iWidgets.setMeterRGB(meter, r1, g1, b1, r2, g2, b2)
+EndFunction
+
+int Function _CreateMeter(int x, int y, int color1, int color2, int xScale = 35, int yScale = 50)
+  int m = iWidgets.loadMeter(x, y)
+  iWidgets.setZoom(m, xScale, yScale)
+  _SetMeterColor(m, color1, color2)
+  iWidgets.setTransparency(m, 60)
+  iWidgets.setMeterFillDirection(m, "right")
+  iWidgets.setVisible(m)
+  return m
+EndFunction
+
+Function _ShowFitnessStage(int x, int y, string name)
+  int size = 18
+  string font = "$EverywhereFont"
+
+  ; Shadow
+  int s = iWidgets.loadText(name, font, size)
+  iWidgets.setPos(s, x + 1, y + 1)
+  iWidgets.setRGB(s, 0, 0, 0)
+  iWidgets.setVisible(s)  
+  
+  int t = iWidgets.loadText(name, font, size)
+  iWidgets.setPos(t, x, y)
+  iWidgets.setRGB(t, 255, 255, 255)
+  iWidgets.setVisible(t)  
+EndFunction
+
+; Event OniWantWidgetsReset(string _, string __, float ___, Form sender)
+;   ; md.Log("========================================================")
+;   md.LogVerb("Initializing iWantWidget. OniWantWidgetsReset.")
+; EndEvent
 
 
 ;>========================================================

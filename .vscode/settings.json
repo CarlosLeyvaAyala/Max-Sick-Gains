@@ -285,7 +285,10 @@
     "./_Tools/MainPython/nutsbolts/DataServer"
   ],
   "python.linting.mypyEnabled": false,
-  "Lua.diagnostics.globals": ["jrequire", "JMap"],
+  "Lua.diagnostics.globals": [
+    "jrequire",
+    "JMap"
+  ],
   "projects.indentationSpaces": 2,
   "Lua.runtime.version": "Lua 5.1",
   "Lua.workspace.library": [
@@ -301,5 +304,6 @@
     "separators.interfaces.borderColor": "#ff6d01",
     "separators.methods.borderColor": "#3c4262",
     "separators.namespaces.borderColor": "#4f8a35"
-  }
+  },
+  "FSharp.suggestGitignore": false
 }
