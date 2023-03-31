@@ -21,7 +21,6 @@ int _flashCritical = 0xff0000   ; Red
 
 bool _hidden = false
 int _iconSize = 20
-; iWant_Widgets iWidgets
 iWant_Widgets Property iWidgets Auto
 
 ;>========================================================
@@ -115,6 +114,15 @@ Event OniWantWidgetsReset(String eventName, String strArg, Float numArg, Form se
   _ResetWidget()
 EndEvent
 
+
+;>========================================================
+;>===                  iWant SETUP                   ===<;
+;>========================================================
+
+Maxick_MeterGains Property GainsMeter Auto
+Maxick_MeterTraining Property TrainingMeter Auto
+Maxick_MeterInactivity Property InactivityMeter Auto
+
 Function _ResetWidget()
   ; int x = 1280 / 2
   int x = 1206
@@ -123,35 +131,30 @@ Function _ResetWidget()
   _ShowFitnessStage(x, y, "Bodybuilder")
   
   ; =======================
-  int m1 = _CreateMeter(x, y + vGap, 0xc0c0c0, 0xcccccc)
-  iWidgets.setMeterPercent(m1, 100)
-
-  int m2 = _CreateMeter(x, y + (vGap * 2), 0x6b17cc, 0x8845d6)
-  iWidgets.setMeterPercent(m2, 100)
-
-  int m3 = _CreateMeter(x, y + (vGap * 3), 0xf2e97e, 0xf4ed97)
-  iWidgets.setMeterPercent(m3, 100)
+  GainsMeter.ResetMeter(iWidgets, x, y + vGap)
+  TrainingMeter.ResetMeter(iWidgets, x, y + (vGap * 2))
+  InactivityMeter.ResetMeter(iWidgets, x, y + (vGap * 3))
 EndFunction
 
-Function _SetMeterColor(int meter, int c1, int c2)
-  int r1 = Math.RightShift(Math.LogicalAnd(c1, 0xFF0000), 16)
-  int g1 = Math.RightShift(Math.LogicalAnd(c1, 0xFF00), 8)
-  int b1 = Math.LogicalAnd(c1, 0xFF)
-  int r2 = Math.RightShift(Math.LogicalAnd(c2, 0xFF0000), 16)
-  int g2 = Math.RightShift(Math.LogicalAnd(c2, 0xFF00), 8)
-  int b2 = Math.LogicalAnd(c2, 0xFF)
-  iWidgets.setMeterRGB(meter, r1, g1, b1, r2, g2, b2)
-EndFunction
+; Function _SetMeterColor(int meter, int c1, int c2)
+;   int r1 = Math.RightShift(Math.LogicalAnd(c1, 0xFF0000), 16)
+;   int g1 = Math.RightShift(Math.LogicalAnd(c1, 0xFF00), 8)
+;   int b1 = Math.LogicalAnd(c1, 0xFF)
+;   int r2 = Math.RightShift(Math.LogicalAnd(c2, 0xFF0000), 16)
+;   int g2 = Math.RightShift(Math.LogicalAnd(c2, 0xFF00), 8)
+;   int b2 = Math.LogicalAnd(c2, 0xFF)
+;   iWidgets.setMeterRGB(meter, r1, g1, b1, r2, g2, b2)
+; EndFunction
 
-int Function _CreateMeter(int x, int y, int color1, int color2, int xScale = 35, int yScale = 50)
-  int m = iWidgets.loadMeter(x, y)
-  iWidgets.setZoom(m, xScale, yScale)
-  _SetMeterColor(m, color1, color2)
-  iWidgets.setTransparency(m, 60)
-  iWidgets.setMeterFillDirection(m, "right")
-  iWidgets.setVisible(m)
-  return m
-EndFunction
+; int Function _CreateMeter(int x, int y, int color1, int color2, int xScale = 35, int yScale = 50)
+;   int m = iWidgets.loadMeter(x, y)
+;   iWidgets.setZoom(m, xScale, yScale)
+;   _SetMeterColor(m, color1, color2)
+;   iWidgets.setTransparency(m, 70)
+;   iWidgets.setMeterFillDirection(m, "right")
+;   iWidgets.setVisible(m)
+;   return m
+; EndFunction
 
 Function _ShowFitnessStage(int x, int y, string name)
   int size = 18
@@ -169,11 +172,6 @@ Function _ShowFitnessStage(int x, int y, string name)
   iWidgets.setVisible(t)  
 EndFunction
 
-; Event OniWantWidgetsReset(string _, string __, float ___, Form sender)
-;   ; md.Log("========================================================")
-;   md.LogVerb("Initializing iWantWidget. OniWantWidgetsReset.")
-; EndEvent
-
 
 ;>========================================================
 ;>===              SET, BUT DON'T FLASH              ===<;
@@ -182,23 +180,33 @@ EndFunction
 ; Sets the value but doesn't flash. That's what `OnGainsDelta` and `_CatabolicFlash` are for.
 Event OnGains(string _, string __, float val, Form ___)
   md.LogVerb("Widget got gains: " + val)
-  Gains.Position = val
+  Gains.Position = val ; TODO: Delete me
+  GainsMeter.Percent = val as int
 EndEvent
 
 ; Sets the value but doesn't flash. That's what `OnTrainDelta` and `_CatabolicFlash` are for.
 Event OnTraining(string _, string __, float val, Form ___)
   md.LogVerb("Widget got training: " + val)
   ; This meter will consider anything 10 and above as 100%
-  Training.Percent = val / 10.0
+  Training.Percent = val / 10.0  ; TODO: Delete me
+  TrainingMeter.Percent = (MaxF(val, 10.0) * 100.0 ) as int
 EndEvent
 
 ; Sets the value but doesn't flash. That's what `_CatabolicFlash` is for.
 Event OnInactivity(string _, string __, float val, Form ___)
   md.LogVerb("Widget got inactivity: " + val)
-  Inactivity.Position = val
+  InactivityMeter.Percent = val as int  
+  int p = InactivityMeter.Percent
+  
+  ; This is the only exception to the "no flash" rule
+  if  (p >= 80) && (p < 100)
+    InactivityMeter.FlashNow(_flashDanger)
+  endIf
+
+  Inactivity.Position = val  ; TODO: Delete me
   ; This is the only exception to the "no flash" rule
   If (Inactivity.Percent >= 0.8) && (Inactivity.Percent < 1)
-    Inactivity.FlashNow(_flashDanger)
+    Inactivity.FlashNow(_flashDanger)  ; TODO: Delete me
   EndIf
 EndEvent
 

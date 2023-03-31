@@ -1,0 +1,1 @@
+Scriptname Maxick_MeterTraining extends Maxick_iWantMeter

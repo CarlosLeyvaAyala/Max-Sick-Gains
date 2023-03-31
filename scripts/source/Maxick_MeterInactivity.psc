@@ -1,0 +1,1 @@
+Scriptname Maxick_MeterInactivity extends Maxick_iWantMeter

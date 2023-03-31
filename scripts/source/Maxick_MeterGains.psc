@@ -1,0 +1,1 @@
+Scriptname Maxick_MeterGains extends Maxick_iWantMeter
