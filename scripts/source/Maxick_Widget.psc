@@ -127,7 +127,7 @@ Function _ResetWidget()
   ; int x = 1280 / 2
   int x = 1206
   int y = 350
-  int vGap = 15
+  int vGap = 14
   _ShowFitnessStage(x, y, "Bodybuilder")
   
   ; =======================
@@ -135,26 +135,6 @@ Function _ResetWidget()
   TrainingMeter.ResetMeter(iWidgets, x, y + (vGap * 2))
   InactivityMeter.ResetMeter(iWidgets, x, y + (vGap * 3))
 EndFunction
-
-; Function _SetMeterColor(int meter, int c1, int c2)
-;   int r1 = Math.RightShift(Math.LogicalAnd(c1, 0xFF0000), 16)
-;   int g1 = Math.RightShift(Math.LogicalAnd(c1, 0xFF00), 8)
-;   int b1 = Math.LogicalAnd(c1, 0xFF)
-;   int r2 = Math.RightShift(Math.LogicalAnd(c2, 0xFF0000), 16)
-;   int g2 = Math.RightShift(Math.LogicalAnd(c2, 0xFF00), 8)
-;   int b2 = Math.LogicalAnd(c2, 0xFF)
-;   iWidgets.setMeterRGB(meter, r1, g1, b1, r2, g2, b2)
-; EndFunction
-
-; int Function _CreateMeter(int x, int y, int color1, int color2, int xScale = 35, int yScale = 50)
-;   int m = iWidgets.loadMeter(x, y)
-;   iWidgets.setZoom(m, xScale, yScale)
-;   _SetMeterColor(m, color1, color2)
-;   iWidgets.setTransparency(m, 70)
-;   iWidgets.setMeterFillDirection(m, "right")
-;   iWidgets.setVisible(m)
-;   return m
-; EndFunction
 
 Function _ShowFitnessStage(int x, int y, string name)
   int size = 18
@@ -187,9 +167,10 @@ EndEvent
 ; Sets the value but doesn't flash. That's what `OnTrainDelta` and `_CatabolicFlash` are for.
 Event OnTraining(string _, string __, float val, Form ___)
   md.LogVerb("Widget got training: " + val)
+  
   ; This meter will consider anything 10 and above as 100%
   Training.Percent = val / 10.0  ; TODO: Delete me
-  TrainingMeter.Percent = (MaxF(val, 10.0) * 100.0 ) as int
+  TrainingMeter.Percent = (val * 10.0 ) as int
 EndEvent
 
 ; Sets the value but doesn't flash. That's what `_CatabolicFlash` is for.
@@ -221,8 +202,22 @@ Function _FlashUp(Maxick_MeterBase meter, float delta)
   EndIf
 EndFunction
 
+; Flashes gains when conditions are right.
+Function _FlashUp2(Maxick_iWantMeter meter, float delta)
+  If (delta > 0) && (meter.Percent != 100)
+    meter.FlashNow(_flashUp)
+  EndIf
+EndFunction
+
 ; Flashes losses when conditions are right.
 Function _FlashDown(Maxick_MeterBase meter, float delta)
+  If (delta < 0) && (meter.Percent != 0)
+    meter.FlashNow(_flashDown)
+  EndIf
+EndFunction
+
+; Flashes losses when conditions are right.
+Function _FlashDown2(Maxick_iWantMeter meter, float delta)
   If (delta < 0) && (meter.Percent != 0)
     meter.FlashNow(_flashDown)
   EndIf
@@ -231,23 +226,30 @@ EndFunction
 ; Flash according to delta.
 Event OnGainsDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Widget got gains delta " + delta)
-  _FlashUp(Gains, delta)
-  _flashDown(Gains, delta)
+  _FlashUp(Gains, delta) ; TODO: Delete
+  _flashDown(Gains, delta) ; TODO: Delete
+  _FlashUp2(GainsMeter, delta)
+  _FlashDown2(GainsMeter, delta)
 EndEvent
 
 ; Flash according to delta.
 Event OnTrainDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Widget got training delta " + delta)
-  _FlashUp(Training, delta)
-  _FlashDown(Training, delta)
+  _FlashUp(Training, delta)  ; TODO: Delete
+  _FlashDown(Training, delta) ; TODO: Delete
+  _FlashUp2(TrainingMeter, delta)
+  _FlashDown2(TrainingMeter, delta)
 EndEvent
 
 ; Flashes meters while in catabolic state.
 Function _CatabolicFlash()
   md.LogVerb("Widget is flashing catabolic losses.")
-  Gains.FlashNow(_flashDown)
-  Training.FlashNow(_flashDown)
-  Inactivity.FlashNow(_flashCritical)
+  Gains.FlashNow(_flashDown)  ; TODO: Delete
+  Training.FlashNow(_flashDown)  ; TODO: Delete
+  Inactivity.FlashNow(_flashCritical)  ; TODO: Delete
+  GainsMeter.FlashNow(_flashDown)  
+  TrainingMeter.FlashNow(_flashDown)  
+  InactivityMeter.FlashNow(_flashCritical)  
   RegisterForSingleUpdate(2)
 EndFunction
 
@@ -274,13 +276,15 @@ State CatabolicState
   ; No need to flash losses while in catabolism, since it will be done periodically, anyway.
   Event OnGainsDelta(string _, string __, float delta, Form ___)
     md.LogVerb("Widget got gains delta " + delta)
-    _FlashUp(Gains, delta)
+    _FlashUp(Gains, delta) ; TODO: Delete
+    _FlashUp2(GainsMeter, delta)
   EndEvent
-
+  
   ; No need to flash losses while in catabolism, since it will be done periodically, anyway.
   Event OnTrainDelta(string _, string __, float delta, Form ___)
     md.LogVerb("Widget got training delta " + delta)
-    _FlashUp(Training, delta)
+    _FlashUp(Training, delta) ; TODO: Delete
+    _FlashUp2(TrainingMeter, delta)
   EndEvent
 EndState
 

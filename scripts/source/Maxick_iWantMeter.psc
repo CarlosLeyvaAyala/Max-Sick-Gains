@@ -26,12 +26,12 @@ int Property Percent
   EndFunction
 EndProperty
 
-Function ResetMeter(iWant_Widgets manager, int x, int y, bool isVisible = true, int xScale = 35, int yScale = 50)
+Function ResetMeter(iWant_Widgets manager, int x, int y, bool isVisible = true, int xScale = 35, int yScale = 46)
   iWidgets = manager
   handle = iWidgets.loadMeter(x, y)
   iWidgets.setZoom(handle, xScale, yScale)
   _SetColor(LightColor, DarkColor)
-  iWidgets.setTransparency(handle, 70)
+  iWidgets.setTransparency(handle, 80)
   iWidgets.setMeterFillDirection(handle, "right")
   _UpdatePercent()
   
