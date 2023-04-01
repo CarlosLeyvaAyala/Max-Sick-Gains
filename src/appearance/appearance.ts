@@ -1,18 +1,17 @@
+import { waitActor } from "DmLib/Actor/waitActor"
 import { DebugLib as D, MathLib } from "Dmlib"
-import { waitActor } from "Dmlib/Actor/waitActor"
-
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
   ClearMorphs,
   GetSkinOverrideString,
+  TextureIndex as Idx,
   Key,
   Key as NiOKey,
   RemoveAllReferenceOverrides,
   RemoveAllReferenceSkinOverrides,
   RemoveSkinOverride,
   SetBodyMorph,
-  TextureIndex as Idx,
   UpdateModelWeight,
 } from "Racemenu/nioverride"
 import {
@@ -26,10 +25,10 @@ import {
 import {
   BsSlider,
   FitStage,
-  muscleDefBanRace,
   MuscleDefinitionType,
   RacialGroup,
   Sex,
+  muscleDefBanRace,
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 

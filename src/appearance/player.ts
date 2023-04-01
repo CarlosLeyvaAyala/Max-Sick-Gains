@@ -1,3 +1,8 @@
+import { JContainersToPreserving } from "DmLib/Misc/JContainersToPreserving"
+import { preserveVar } from "DmLib/Misc/preserveVar"
+import { DebugLib as D, Hotkeys, MapLib, MathLib, TimeLib as Time } from "Dmlib"
+import * as JDB from "JContainers/JDB"
+import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import {
   ApplyBodyslide,
   ApplyMuscleDef,
@@ -13,42 +18,32 @@ import {
   IsMuscleDefBanned,
   LogBs,
 } from "appearance"
-import {
-  Combinators as C,
-  DebugLib as D,
-  Hotkeys,
-  MapLib,
-  MathLib,
-  Misc as M,
-  TimeLib as Time,
-} from "DmLib"
-import * as JDB from "JContainers/JDB"
-import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
+import { Journey } from "journeys"
 import {
   Actor,
   ActorBase,
   Debug,
   Game,
+  Utility,
   printConsole,
   storage,
-  Utility,
 } from "skyrimPlatform"
 import {
   FitStage,
-  fitStage,
-  mcm,
   PlayerStage,
-  playerStages,
   RacialGroup,
   RacialMatch,
   Sex,
+  fitStage,
+  mcm,
+  playerStages,
 } from "../database"
 import {
   LogE,
-  LogI as LogIo,
   LogIT as LogITo,
-  LogV as LogVo,
+  LogI as LogIo,
   LogVT as LogVTo,
+  LogV as LogVo,
 } from "../debug"
 import {
   SendCatabolismEnd,
@@ -63,6 +58,9 @@ import {
   SendTrainingSet,
 } from "../events/events_hidden"
 import { sendSleep } from "../events/maxick_compatibility"
+import { O } from "DmLib/Combinators/O"
+import { K } from "DmLib/Combinators/K"
+import { Log } from "DmLib/Log/R"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod
@@ -91,9 +89,9 @@ const isInCatabolicK = modKey("isInCatabolic")
 const lastSleptK = modKey("lastSlept")
 
 // Variable preserving functions.
-export const SaveFlt = M.JContainersToPreserving(JDB.solveFltSetter)
-export const SaveInt = M.JContainersToPreserving(JDB.solveIntSetter)
-export const SaveBool = M.JContainersToPreserving(JDB.solveBoolSetter)
+export const SaveFlt = JContainersToPreserving(JDB.solveFltSetter)
+export const SaveInt = JContainersToPreserving(JDB.solveIntSetter)
+export const SaveBool = JContainersToPreserving(JDB.solveBoolSetter)
 
 /** Variables that won't be saved when in _Testing Mode_. */
 function TestModeBanned<T>(f: (k: string, v: T) => void) {
@@ -103,21 +101,21 @@ function TestModeBanned<T>(f: (k: string, v: T) => void) {
 }
 
 /** Save `gains`. */
-const SGains = M.PreserveVar(TestModeBanned(SaveFlt), gainsK)
+const SGains = preserveVar(TestModeBanned(SaveFlt), gainsK)
 /** Save `pStage`. */
-const SpStage = M.PreserveVar(TestModeBanned(SaveInt), stageK)
+const SpStage = preserveVar(TestModeBanned(SaveInt), stageK)
 /** Save `training`. */
-const STraining = M.PreserveVar(TestModeBanned(SaveFlt), trainingK)
+const STraining = preserveVar(TestModeBanned(SaveFlt), trainingK)
 
 /** Save last training. */
-const SLastTrained = M.PreserveVar(TestModeBanned(SaveFlt), lastTrainK)
+const SLastTrained = preserveVar(TestModeBanned(SaveFlt), lastTrainK)
 /** Save last update. */
-const SLastUpdate = M.PreserveVar(SaveFlt, lastUpdateK)
+const SLastUpdate = preserveVar(SaveFlt, lastUpdateK)
 /** Save wheter player is in catabolic state. */
-const SIsInCatabolic = M.PreserveVar(TestModeBanned(SaveBool), isInCatabolicK)
+const SIsInCatabolic = preserveVar(TestModeBanned(SaveBool), isInCatabolicK)
 
 /** Save the last time the player slept. */
-const SLastSlept = M.PreserveVar(SaveFlt, lastSleptK)
+const SLastSlept = preserveVar(SaveFlt, lastSleptK)
 //#endregion
 
 // ;>========================================================
@@ -599,14 +597,14 @@ export namespace Player {
     /** Gets the data needed to change the player appearance. */
     function GetData(p: Actor): PlayerData | undefined {
       const b = ActorBase.from(p.getBaseObject())
-      if (!b) return D.Log.R(NoBase(), undefined)
+      if (!b) return Log.R(NoBase(), undefined)
 
       const race = LogIT("Race", GetRaceEDID(p))
 
       const sex = b.getSex()
       LogI(`Sex: ${Sex[sex]}`)
 
-      const racialGroup = C.O(RacialMatch, C.K(RacialGroup.Ban))(race)
+      const racialGroup = O(RacialMatch, K(RacialGroup.Ban))(race)
       LogI(`Racial group: ${RacialGroup[racialGroup]}`)
 
       const s = CurrentStage()
@@ -754,8 +752,8 @@ export namespace Player {
     /** Returns the muscle definition texture the player should use. */
     function GetMuscleDef(d: PlayerData) {
       if (!mcm.actors.player.applyMuscleDef)
-        return D.Log.R(MDefMcmBan(), undefined)
-      if (IsMuscleDefBanned(d.race)) return D.Log.R(MDefRaceBan(), undefined)
+        return Log.R(MDefMcmBan(), undefined)
+      if (IsMuscleDefBanned(d.race)) return Log.R(MDefRaceBan(), undefined)
 
       const mdt = d.fitnessStage.muscleDefType
       const md = InterpolateMusDef(

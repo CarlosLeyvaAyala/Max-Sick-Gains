@@ -1,4 +1,6 @@
-import { Combinators, DebugLib } from "Dmlib"
+import { O } from "DmLib/Combinators/O"
+import { Log } from "DmLib/Log/R"
+import { DebugLib } from "Dmlib"
 import { getEspAndId } from "Dmlib/Form/uniqueId"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import { Actor, ActorBase, printConsole } from "skyrimPlatform"
@@ -6,14 +8,14 @@ import { defaultArchetype } from "../constants"
 import {
   ActorsCfg,
   ClassArchetype,
-  classArchetype,
   ClassMatch,
-  fitStage,
-  knownNPCs,
-  mcm,
   MuscleDefinition,
   RacialMatch,
   Sex,
+  classArchetype,
+  fitStage,
+  knownNPCs,
+  mcm,
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 import {
@@ -30,8 +32,8 @@ import {
   IsMuscleDefBanned,
 } from "./appearance"
 
-const Alt = Combinators.O
-const LogR = DebugLib.Log.R
+const Alt = O
+const LogR = Log.R
 const IntToHex = DebugLib.Log.IntToHex
 
 /** Data needed to solve an NPC appearance. */
