@@ -317,17 +317,21 @@ function ResetNPC() {
 
 function InitializeSurroundingNPCs() {
   const f = async () => {
-    await Utility.wait(1.04)
+    await Utility.wait(0.54)
     const actors = ScanCellNPCs(Game.getPlayer(), 4096, null, false).map((a) =>
       a?.getFormID()
     )
 
-    for (const a of actors) {
+    for (const aId of actors) {
       await Utility.wait(0.05)
-      if (!a) return
-      if (a === playerId) return
-      LogI("Setting appearance for nearby actor.")
-      ChangeNpcAppearance(Actor.from(Game.getFormEx(a)))
+      if (!aId) return
+      const a = Actor.from(Game.getFormEx(aId))
+      if (!a || aId === playerId || !isActorTypeNPC(a)) return
+      LogI(
+        `Setting appearance to nearby actor: ${a.getBaseObject()?.getName()}`
+      )
+      // ClearAppearance(a) // Avoid CTD
+      ChangeNpcAppearance(a)
     }
   }
   f()

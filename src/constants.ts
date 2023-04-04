@@ -11,7 +11,7 @@ export const maxickSpell = 0x96d
 export const maxickSpellFx = 0x96c
 
 export const MaxickSpell = () =>
-  Spell.from(Game.getFormFromFile(0x96d, "Max Sick Gains.esp"))
+  Spell.from(Game.getFormFromFile(maxickSpell, "Max Sick Gains.esp"))
 export const MaxickSpellFx = () =>
   Game.getFormFromFile(maxickSpellFx, maxickEsp)
 

@@ -45,6 +45,7 @@ export class Journey extends SaverObject {
   }
 }
 
+/** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
   //#region training
   private readonly trainingKey: string
@@ -78,5 +79,12 @@ export class PlayerJourney extends Journey {
     super(key)
     this.trainingKey = this.modKey("training")
     this.lastTrainedKey = this.modKey("lastTrained")
+  }
+
+  protected initOrGetHotReloadValues() {
+    super.initOrGetHotReloadValues()
+
+    this._training = storage[this.trainingKey] as number | 0
+    this._lastTrained = storage[this.lastTrainedKey] as number | 0
   }
 }

@@ -121,6 +121,7 @@ interface NpcOptions {
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeAppearance(a: Actor | null) {
+  if (!a) return
   ApplyAppearance(a, true, true)
 }
 
