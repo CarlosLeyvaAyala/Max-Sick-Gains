@@ -180,6 +180,8 @@ const MDefAlias = (s: Sex) => {
 }
 
 export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
+  LogV(`Applying muscle definition ${path}`)
+
   if (!path) {
     RemoveMuscleDef(a, s)
     return
@@ -190,6 +192,7 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   AddSkinOverrideString(a, fem, true, body, t, n, path, true)
 
   waitActor(a, 0.05, (aa) => {
+    LogV("Fixing hands and genitals")
     EquipPizzaHandsFix(aa)
     FixGenitalTextures(aa)
   })
@@ -209,7 +212,12 @@ export function EquipPizzaHandsFix(a: Actor) {
       Idx.Normal
     ).trim()
   )
-  const g = LogVT("Has gauntlets", Armor.from(a.getWornForm(SlotMask.Hands)))
+  const g = Armor.from(a.getWornForm(SlotMask.Hands))
+  LogV(
+    `Current gauntlets: ${g?.getName()} (${D.Log.IntToHex(
+      g?.getFormID() || 0
+    )})`
+  )
   const exit = LogVT("Don't fix pizza hands?", g || skO === "")
   if (exit) return
 

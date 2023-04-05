@@ -297,13 +297,13 @@
     "separators.functions.borderStyle": "solid",
     // "separators.functions.ignoreCallbackInline": true,
     "workbench.colorCustomizations": {
-        "separators.classes.borderColor": "#6b17cc",
-        "separators.constructors.borderColor": "#a6c942",
-        "separators.enums.borderColor": "#ffd966",
-        "separators.functions.borderColor": "#3c4262",
-        "separators.interfaces.borderColor": "#ff6d01",
-        "separators.methods.borderColor": "#3c4262",
-        "separators.namespaces.borderColor": "#4f8a35"
+      "separators.classes.borderColor": "#6b17cc",
+      "separators.constructors.borderColor": "#a6c942",
+      "separators.enums.borderColor": "#ffd966",
+      "separators.functions.borderColor": "#3c4262",
+      "separators.interfaces.borderColor": "#ff6d01",
+      "separators.methods.borderColor": "#3c4262",
+      "separators.namespaces.borderColor": "#4f8a35"
     },
     "FSharp.suggestGitignore": false,
     "editor.tabSize": 2

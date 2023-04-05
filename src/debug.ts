@@ -32,5 +32,6 @@ export const LogIT = d.TapI
 export const LogVT = d.TapV
 
 export const LogN = d.None
+export const LogNT = d.TapN
 
 LogN(`Logging level: ${D.Log.Level[currLogLvl]}`)
