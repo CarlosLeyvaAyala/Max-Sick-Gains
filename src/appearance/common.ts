@@ -1,7 +1,5 @@
-import { printConsole } from "skyrimPlatform"
 import { RaceGroup, db } from "../types/exported"
 import { LogN } from "../debug" // TODO: Change to proper log level
-import { Log } from "DmLib/Log/R"
 
 /** EDID of a race */
 export type RaceEDID = string
@@ -9,48 +7,62 @@ export type RaceEDID = string
 type RaceEDIDLower = string
 
 /** Searches a map for a string by content */
-function searchMapByContent<T>(map: { [key: string]: T }, value: string) {
+export function searchMapByContent<T>(
+  map: { [key: string]: T },
+  value: string
+) {
   for (const key in map) if (value.indexOf(key) >= 0) return map[key]
   return null
 }
 
-/** Searches the race database for an unknown race */
-function searchRaceSig(edid: RaceEDIDLower) {
-  return searchMapByContent(db.raceSearch, edid)
-}
+/** Performs a direct search or a search by content.
+ * @remarks
+ * This function:
+ * - Makes a direct search
+ * - Makes a search by content if the direct search got nothing
+ * - Memoizes the results of the search by content
+ */
+export function searchDirectAndByContent<T>(
+  getPreGenerated: () => T,
+  getSearched: () => T | null,
+  memoizeFound: (v: T) => {},
+  memoizeNull: () => {},
+  logNotFound: (d: string) => void
+) {
+  const result = getPreGenerated()
 
-function logRaceSignatureResults(edid: RaceEDID) {
-  return (g: RaceGroup) => {
-    LogN(`Race "${edid}" signature is "${g}"`)
-
-    if (g == RaceGroup.Ban) {
-      LogN("Can't continue because race is banned")
-      return null
-    } else if (g == RaceGroup.Unk) {
-      LogN("Can't continue because race is unknown to this mod")
-      return null
-    }
-    return g
+  if (!result) {
+    logNotFound(
+      "was not found in exported data. Performing exhaustive search..."
+    )
+    const s = getSearched()
+    if (!s) memoizeNull()
+    else memoizeFound(s)
+    return getPreGenerated() // Null data was added and now is among the pre-generated data
   }
+
+  return result
 }
+
 /** Gets the race signature of an `Actor` */
 export function getRaceSignature(edid: RaceEDID) {
-  const LR = logRaceSignatureResults(edid)
+  const r = searchDirectAndByContent(
+    () => db.races[edid],
+    () => searchMapByContent(db.raceSearch, edid.toLowerCase()),
+    (r) => (db.races[edid] = r),
+    () => (db.races[edid] = { display: edid, group: RaceGroup.Unk }),
+    (desc) => LogN(`Race ${edid} ${desc}`)
+  )
 
-  let r = db.races[edid]
+  const g = r.group
+  LogN(`Race "${edid}" signature is "${g}"`)
 
-  if (!r) {
-    LogN(
-      `Race ${edid} was not found in exported data. Doing exhaustive search.`
-    )
-
-    const s = searchRaceSig(edid.toLowerCase())
-    // Memoize
-    if (!s) db.races[edid] = { display: edid, group: RaceGroup.Unk }
-    else db.races[edid] = s
-    // Found data
-    r = db.races[edid]
+  if (g == RaceGroup.Ban) {
+    LogN("Can't continue because race is banned")
+    return null
+  } else if (g == RaceGroup.Unk) {
+    LogN("Can't continue because race is unknown to this mod")
+    return null
   }
-
-  return LR(r.group)
+  return g
 }

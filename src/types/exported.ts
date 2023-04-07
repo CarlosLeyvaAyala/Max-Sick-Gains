@@ -1,3 +1,13 @@
+/** Types of NPCs available */
+export enum NpcType {
+  /** Has a Fitness Journey */
+  dynamic,
+  /** Data was fully known when the config file was generated */
+  known,
+  /** NPCs that fall into Archetypes */
+  generic,
+}
+
 // Data exported from Max Sick Gains App
 
 /** Whole data needed for the mod to function */
@@ -41,7 +51,7 @@ export interface FitJourneys {
   [key: string]: FitJourney
 }
 
-/**  */
+/** Fitness Journey data */
 export interface FitJourney {
   start: number
   totalDuration: number

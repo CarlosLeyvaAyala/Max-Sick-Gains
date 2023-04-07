@@ -3,7 +3,7 @@ import { Log } from "DmLib/Log/R"
 import { DebugLib } from "Dmlib"
 import { getEspAndId } from "Dmlib/Form/uniqueId"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
-import { Actor, ActorBase, printConsole } from "skyrimPlatform"
+import { Actor, printConsole } from "skyrimPlatform"
 import { defaultArchetype } from "../constants"
 import {
   ActorsCfg,
@@ -15,7 +15,6 @@ import {
   classArchetype,
   fitStage,
   knownNPCs,
-  maxickSettings,
   mcm,
 } from "../database"
 import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
@@ -32,36 +31,11 @@ import {
   InterpolateW,
   IsMuscleDefBanned,
 } from "./appearance"
-import { RaceEDID, getRaceSignature } from "./common"
-import { RaceGroup } from "../types/exported"
+import { getRaceSignature } from "./common"
 
 const Alt = O
 const LogR = Log.R
 const IntToHex = DebugLib.Log.IntToHex
-
-/** Data needed to solve an NPC appearance. */
-interface NPCData {
-  /** The `Actor` data per se */
-  actor: Actor
-  /** The leveled `ActorBase` the NPC belongs to */
-  base: ActorBase
-  /** Male or female? */
-  sex: Sex
-  /** TES class. */
-  class: string
-  /** Esp file where the actor was defined */
-  esp: string
-  /** FormId of `base` inside its esp file */
-  fixedFormId: number
-  /** Full name of the NPC */
-  name: string
-  /** Race EDID for the NPC */
-  race: RaceEDID
-  /** NPC weight. [0..100] */
-  weight: number
-  /** Current in game formID. Used for caching. */
-  formID: number
-}
 
 interface BodyslideData {
   preset: BodyslidePreset
@@ -126,12 +100,49 @@ function newChangeAppearance(a: Actor | null) {
 
   LogN("================================")
   LogN(`Setting appearance of ${d.name}`)
+  LogN("================================")
   const sig = getRaceSignature(d.race)
   if (!sig) return
+
+  const t = getNPCType(d)
   LogN("\n")
 }
 
+import { NPCData } from "./npc/common"
+import { getJourney } from "./npc/dynamic"
+import { getArchetype } from "./npc/generic"
+import { getKnownNPC } from "./npc/known"
+
 //#region Solve appearance
+function getNPCType(d: NPCData) {
+  LogN(`Getting NPC type`)
+  LogN(`Esp: ${d.esp}`)
+  LogN(`Fixed FormID: ${d.fixedFormId.toString(16)}`)
+
+  const esp = d.esp.toLowerCase()
+  const id = d.fixedFormId.toString()
+
+  const journey = getJourney(esp, id)
+  if (journey) {
+    LogN(`Has a Fitness Journey: ${journey}`)
+    return journey
+  }
+
+  const knData = getKnownNPC(esp, id)
+  if (knData) {
+    LogN("Is a Known/Explicit NPC")
+    return knData
+  }
+
+  const ar = getArchetype(d)
+  if (!ar)
+    LogN(
+      "No archetype matched this Race/Class combination. NPC will use the default Fitness Stage."
+    )
+  else LogN(`Archetype: ${ar}`)
+  return ar
+}
+
 //#endregion
 
 /** Changes an NPC appearance according to what they should look like.
@@ -447,12 +458,14 @@ function GetActorData(a: Actor | null): NPCData | null {
 
   try {
     const l = a.getLeveledActorBase()
-    if (!l) {
+    const b = a.getBaseObject()
+    if (!l || !b) {
       LogE("GetActorData: Couldn't find an ActorBase. Is that even possible?")
       return null
     }
 
-    const { modName, fixedFormId } = getEspAndId(l)
+    // Using base because esp getting fails for leveled actors
+    const { modName, fixedFormId } = getEspAndId(b)
 
     return {
       actor: a,
