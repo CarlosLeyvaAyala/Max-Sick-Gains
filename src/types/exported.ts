@@ -1,8 +1,11 @@
 // Data exported from Max Sick Gains App
 
+/** Whole data needed for the mod to function */
 export interface MaxickDB {
   mcm: MCM
+  /** Direct race solving */
   races: { [key: string]: Race }
+  /** Race solving by string contents */
   raceSearch: { [key: string]: Race }
   muscleDef: MuscleDef[]
   skin: Skin[]
@@ -190,4 +193,16 @@ export interface TexBanRaceSearch {
   astrid: string
   elder: string
   manakin: string
+}
+
+// TODO: Enable when ready
+// const modName = "maxick"
+//@ts-ignore
+// export const db: MaxickDB = settings[modName]
+export let db: MaxickDB
+
+// TODO: Delete
+import * as MiscUtil from "PapyrusUtil/MiscUtil"
+export function loadAlternateData() {
+  db = JSON.parse(MiscUtil.ReadFromFile("Data/SKSE/Plugins/Maxick/test.json"))
 }

@@ -15,9 +15,10 @@ import {
   classArchetype,
   fitStage,
   knownNPCs,
+  maxickSettings,
   mcm,
 } from "../database"
-import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
+import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
 import {
   ApplyBodyslide,
   ApplyMuscleDef,
@@ -31,6 +32,8 @@ import {
   InterpolateW,
   IsMuscleDefBanned,
 } from "./appearance"
+import { RaceEDID, getRaceSignature } from "./common"
+import { RaceGroup } from "../types/exported"
 
 const Alt = O
 const LogR = Log.R
@@ -53,7 +56,7 @@ interface NPCData {
   /** Full name of the NPC */
   name: string
   /** Race EDID for the NPC */
-  race: string
+  race: RaceEDID
   /** NPC weight. [0..100] */
   weight: number
   /** Current in game formID. Used for caching. */
@@ -116,11 +119,27 @@ interface NpcOptions {
   applyMuscleDef: boolean
 }
 
+function newChangeAppearance(a: Actor | null) {
+  if (!a) return
+  const d = GetActorData(a)
+  if (!d) return
+
+  LogN("================================")
+  LogN(`Setting appearance of ${d.name}`)
+  const sig = getRaceSignature(d.race)
+  if (!sig) return
+  LogN("\n")
+}
+
+//#region Solve appearance
+//#endregion
+
 /** Changes an NPC appearance according to what they should look like.
  *
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeAppearance(a: Actor | null) {
+  newChangeAppearance(a)
   if (!a) return
   ApplyAppearance(a, true, true)
 }

@@ -39,12 +39,16 @@ import { KnownNpcData, knownNPCs, mcm } from "./database"
 import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
+import { loadAlternateData } from "./types/exported"
 
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
 // const WasInitialized = () => JDB.solveBool(initK, false)
 
 export function main() {
+  // FIX: Delete when ready
+  once("update", () => loadAlternateData())
+
   // ;>========================================================
   // ;>===                 PLAYER EVENTS                  ===<;
   // ;>========================================================
