@@ -32,6 +32,11 @@ import {
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 
+export interface TexturePaths {
+  muscle?: string
+  skin?: string
+}
+
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
 
@@ -198,6 +203,24 @@ export function ApplyMuscleDef(a: Actor, s: Sex, path: string | undefined) {
   })
 }
 
+export function ApplySkin(a: Actor, s: Sex, path: string | undefined) {
+  LogV(`Applying skin ${path}`)
+
+  const SkinAlias = (s: Sex) => {
+    return {
+      fem: s === Sex.female,
+      t: Key.Texture,
+      n: Idx.Diffuse,
+      body: SlotMask.Body,
+    }
+  }
+
+  // TODO: Clear if undefined
+  if (!path) return
+
+  const { fem, t, n, body } = SkinAlias(s)
+  AddSkinOverrideString(a, fem, false, body, t, n, path, true)
+}
 const PizzaFix = () => Game.getFormFromFile(0x9dc, "Max Sick Gains.esp")
 
 export function EquipPizzaHandsFix(a: Actor) {
@@ -330,6 +353,12 @@ export function GetMuscleDefTex(
     `actors\\character\\Maxick\\${rg}\\${ss}${t}_${n}.dds`
   )
 }
+
+export const getMuscleDefTexName = (shortName: string) =>
+  shortName === "" ? undefined : `actors\\character\\Maxick\\mdef\\${shortName}`
+
+export const getSkinTexName = (shortName: string) =>
+  shortName === "" ? undefined : `actors\\character\\Maxick\\skin\\${shortName}`
 
 export function GetHeadSize(fitStage: FitStage, sex: Sex, w: number) {
   const lo = sex === Sex.female ? fitStage.femHeadLo : fitStage.manHeadLo

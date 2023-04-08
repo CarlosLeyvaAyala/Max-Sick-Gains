@@ -1,4 +1,5 @@
 // Data exported from Max Sick Gains App
+export type TextureSignature = "hm" | "hf" | "km" | "kf" | "am" | "af"
 
 /** Whole data needed for the mod to function */
 export interface MaxickDB {

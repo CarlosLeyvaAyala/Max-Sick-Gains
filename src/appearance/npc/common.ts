@@ -1,7 +1,12 @@
 import { Actor, ActorBase } from "skyrimPlatform"
 import { RaceEDID } from "../common"
 import { Sex } from "../../database"
-import { ActorAppearanceSettings, KnownNPCData, db } from "../../types/exported"
+import {
+  ActorAppearanceSettings,
+  KnownNPCData,
+  RaceGroup,
+  db,
+} from "../../types/exported"
 
 /** Lowercase esp name. The configuration app exports this. */
 export type EspLower = string
@@ -45,6 +50,7 @@ export interface NPCData {
 /** Data obtained while solving NPC identity */
 export interface NpcIdentity {
   npcType: NpcType
+  race: RaceGroup
   journey?: string
   knownData?: KnownNPCData
   archetype?: number

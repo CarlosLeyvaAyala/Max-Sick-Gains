@@ -1,3 +1,4 @@
+import { getBodyShape } from "./bodyslide"
 import { O } from "DmLib/Combinators/O"
 import { Log } from "DmLib/Log/R"
 import { DebugLib } from "Dmlib"
@@ -21,6 +22,7 @@ import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
 import {
   ApplyBodyslide,
   ApplyMuscleDef,
+  ApplySkin,
   BodyslidePreset,
   ChangeHeadSize,
   ClearAppearance as ClearActorAppearance,
@@ -31,16 +33,12 @@ import {
   InterpolateW,
   IsMuscleDefBanned,
 } from "./appearance"
-import { getRaceSignature } from "./common"
+import { getRaceSignature, getTextures } from "./common"
 import { NpcType as NT, canApplyChanges } from "./npc/common"
 
 const Alt = O
 const LogR = Log.R
 const IntToHex = DebugLib.Log.IntToHex
-
-interface BodyslideData {
-  preset: BodyslidePreset
-}
 
 /** Raw appearance data shared by both Known and Generic NPCs.
  *
@@ -94,6 +92,7 @@ interface NpcOptions {
   applyMuscleDef: boolean
 }
 
+/** Changes appearance */
 function newChangeAppearance(a: Actor | null) {
   if (!a) return
   const d = GetActorData(a)
@@ -103,17 +102,30 @@ function newChangeAppearance(a: Actor | null) {
   if (!identity) return // The NPC is not valid or known
 
   const canChange = canApplyChanges(d, identity)
+  if (identity.npcType == NT.generic) {
+    const app = getAppearanceData(d, identity.race, identity.archetype)
+
+    const shape = getBodyShape(app)
+    ApplyBodyslide(a, shape.bodySlide)
+
+    const texs = getTextures(app)
+    ApplyMuscleDef(a, d.sex, texs.muscle)
+    ApplySkin(a, d.sex, texs.skin)
+  }
+
   LogN("\n")
+
+  return identity.npcType
 }
 
 import { NPCData, NpcIdentity } from "./npc/common"
 import { getJourney } from "./npc/dynamic"
-import { getArchetype } from "./npc/generic"
+import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
-import { db } from "../types/exported"
-import { IndentStyle } from "../../node_modules/typescript/lib/typescript"
+import { RaceGroup, db } from "../types/exported"
 
 //#region Solve appearance
+
 function solveIdentity(d: NPCData) {
   LogN("================================")
   LogN(`Setting appearance of ${d.name}`)
@@ -122,10 +134,10 @@ function solveIdentity(d: NPCData) {
   const sig = getRaceSignature(d.race)
   if (!sig) return null
 
-  return getNPCType(d)
+  return getNPCType(d, sig)
 }
 
-function getNPCType(d: NPCData): NpcIdentity {
+function getNPCType(d: NPCData, sig: RaceGroup): NpcIdentity {
   LogN(`Getting NPC type`)
   LogN(`Esp: ${d.esp}`)
   LogN(`Fixed FormID: ${d.fixedFormId.toString(16)}`)
@@ -136,13 +148,13 @@ function getNPCType(d: NPCData): NpcIdentity {
   const journey = getJourney(esp, id)
   if (journey) {
     LogN(`Has a Fitness Journey: ${journey}`)
-    return { npcType: NT.dynamic, journey: journey }
+    return { npcType: NT.dynamic, journey: journey, race: sig }
   }
 
   const knData = getKnownNPC(esp, id)
   if (knData) {
     LogN("Is a Known/Explicit NPC")
-    return { npcType: NT.known, knownData: knData }
+    return { npcType: NT.known, knownData: knData, race: sig }
   }
 
   const ar = getArchetype(d)
@@ -151,7 +163,7 @@ function getNPCType(d: NPCData): NpcIdentity {
       "No archetype matched this Race/Class combination. NPC will use the default Fitness Stage."
     )
   else LogN(`Archetype: "${db.archetypes[ar.toString()].iName}" (${ar})`)
-  return { npcType: NT.generic, archetype: ar }
+  return { npcType: NT.generic, archetype: ar, race: sig }
 }
 
 //#endregion
@@ -161,7 +173,8 @@ function getNPCType(d: NPCData): NpcIdentity {
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeAppearance(a: Actor | null) {
-  newChangeAppearance(a)
+  const tt = newChangeAppearance(a) // TODO: Delete this
+  if (tt === NT.generic) return // Hijack generic NPC appearance setting
   if (!a) return
   ApplyAppearance(a, true, true)
 }

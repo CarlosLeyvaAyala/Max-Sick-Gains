@@ -1,13 +1,18 @@
-import { db } from "../../types/exported"
+import { RaceGroup, db } from "../../types/exported"
 import {
+  AppearanceData,
   RaceEDID,
+  raceSexToTexSignature,
   searchDirectAndByContent,
   searchMapByContent,
+  weightInterpolation,
 } from "../common"
 import { LogN, LogV } from "../../debug" // TODO: Change to proper log level
-import { NPCData } from "./common"
+import { CanApply, NPCData, NpcIdentity } from "./common"
 import { isInRange } from "DmLib/Math/isInRange"
+import { linCurve } from "DmLib/Math/linCurve"
 import { intersection } from "DmLib/Set/intersection"
+import { Sex } from "../../database"
 
 function getClassArchetypes(className: string) {
   const cn = className
@@ -55,11 +60,27 @@ function _getArchetype(
 export function getArchetype(d: NPCData) {
   LogN("Is a generic NPC")
   const ca = getClassArchetypes(d.class)
-  LogV(`Possible class archetypes: ${ca}`)
+  LogN(`Possible class archetypes: ${ca}`)
   const ra = getRaceArchetypes(d.race)
-  LogV(`Possible race archetypes: ${ra}`)
+  LogN(`Possible race archetypes: ${ra}`)
 
   return _getArchetype(d.weight, ca, ra)
 }
 
-export function generateMorphs() {}
+/** Gets the common appearance data for a generic NPC. */
+export function getAppearanceData(
+  d: NPCData,
+  race: RaceGroup,
+  archetypeId: number | undefined
+): AppearanceData {
+  const a = db.archetypes[archetypeId?.toString() ?? "1"]
+  const w = weightInterpolation(a.wLo, a.wHi, d.weight)
+
+  return {
+    fitstage: a.fitStage,
+    muscleDef: Math.round(weightInterpolation(w, a.mDefLo, a.mDefHi)),
+    texSig: raceSexToTexSignature(race, d.sex),
+    sex: d.sex,
+    weight: w,
+  }
+}
