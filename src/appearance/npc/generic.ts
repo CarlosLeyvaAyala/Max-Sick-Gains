@@ -4,14 +4,16 @@ import {
   searchDirectAndByContent,
   searchMapByContent,
 } from "../common"
-import { LogN } from "../../debug" // TODO: Change to proper log level
+import { LogN, LogV } from "../../debug" // TODO: Change to proper log level
 import { NPCData } from "./common"
+import { isInRange } from "DmLib/Math/isInRange"
+import { intersection } from "DmLib/Set/intersection"
 
 function getClassArchetypes(className: string) {
   const cn = className
   const r = searchDirectAndByContent(
     () => db.classArch[cn],
-    () => searchMapByContent(db.classArchSearch, cn.toLowerCase()),
+    () => searchMapByContent(db.classArchSearch, cn.toLowerCase()), // TODO: Fallback to all classes
     (a) => (db.classArch[cn] = a),
     () => (db.classArch[cn] = []),
     (desc) => LogN(`Class ${desc}`)
@@ -22,7 +24,7 @@ function getClassArchetypes(className: string) {
 function getRaceArchetypes(race: RaceEDID) {
   const r = searchDirectAndByContent(
     () => db.raceArch[race],
-    () => searchMapByContent(db.raceArchSearch, race.toLowerCase()),
+    () => searchMapByContent(db.raceArchSearch, race.toLowerCase()), // TODO: Fallback to all races
     (a) => (db.raceArch[race] = a),
     () => (db.raceArch[race] = []),
     (desc) => LogN(`Race ${desc}`)
@@ -30,22 +32,34 @@ function getRaceArchetypes(race: RaceEDID) {
   return r
 }
 
-function _getArchetype(classArchetypes: number[], raceArchetypes: number[]) {
+function _getArchetype(
+  weight: number,
+  classArchetypes: number[],
+  raceArchetypes: number[]
+) {
   const setA = new Set(classArchetypes)
   const setB = new Set(raceArchetypes)
 
-  // Set intersection
-  for (const elem of setB) if (setA.has(elem)) return elem
+  const possibleArchetypes = intersection(setA, setB)
 
-  return null
+  for (const archId of possibleArchetypes) {
+    const a = db.archetypes[archId.toString()]
+
+    if (isInRange(weight, a.wReqLo, a.wReqHi)) return archId
+  }
+
+  return undefined
 }
 
+/** Gets the Archetype id of the NPC */
 export function getArchetype(d: NPCData) {
   LogN("Is a generic NPC")
-  LogN(`Class: ${d.class}`)
   const ca = getClassArchetypes(d.class)
-  LogN(`Possible class archetypes: ${ca}`)
+  LogV(`Possible class archetypes: ${ca}`)
   const ra = getRaceArchetypes(d.race)
-  LogN(`Possible race archetypes: ${ra}`)
-  return _getArchetype(ca, ra)
+  LogV(`Possible race archetypes: ${ra}`)
+
+  return _getArchetype(d.weight, ca, ra)
 }
+
+export function generateMorphs() {}

@@ -32,6 +32,7 @@ import {
   IsMuscleDefBanned,
 } from "./appearance"
 import { getRaceSignature } from "./common"
+import { NpcType as NT, canApplyChanges } from "./npc/common"
 
 const Alt = O
 const LogR = Log.R
@@ -98,23 +99,33 @@ function newChangeAppearance(a: Actor | null) {
   const d = GetActorData(a)
   if (!d) return
 
-  LogN("================================")
-  LogN(`Setting appearance of ${d.name}`)
-  LogN("================================")
-  const sig = getRaceSignature(d.race)
-  if (!sig) return
+  const identity = solveIdentity(d)
+  if (!identity) return // The NPC is not valid or known
 
-  const t = getNPCType(d)
+  const canChange = canApplyChanges(d, identity)
   LogN("\n")
 }
 
-import { NPCData } from "./npc/common"
+import { NPCData, NpcIdentity } from "./npc/common"
 import { getJourney } from "./npc/dynamic"
 import { getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
+import { db } from "../types/exported"
+import { IndentStyle } from "../../node_modules/typescript/lib/typescript"
 
 //#region Solve appearance
-function getNPCType(d: NPCData) {
+function solveIdentity(d: NPCData) {
+  LogN("================================")
+  LogN(`Setting appearance of ${d.name}`)
+  LogN("================================")
+  LogN(`Class: ${d.class}`)
+  const sig = getRaceSignature(d.race)
+  if (!sig) return null
+
+  return getNPCType(d)
+}
+
+function getNPCType(d: NPCData): NpcIdentity {
   LogN(`Getting NPC type`)
   LogN(`Esp: ${d.esp}`)
   LogN(`Fixed FormID: ${d.fixedFormId.toString(16)}`)
@@ -125,13 +136,13 @@ function getNPCType(d: NPCData) {
   const journey = getJourney(esp, id)
   if (journey) {
     LogN(`Has a Fitness Journey: ${journey}`)
-    return journey
+    return { npcType: NT.dynamic, journey: journey }
   }
 
   const knData = getKnownNPC(esp, id)
   if (knData) {
     LogN("Is a Known/Explicit NPC")
-    return knData
+    return { npcType: NT.known, knownData: knData }
   }
 
   const ar = getArchetype(d)
@@ -139,8 +150,8 @@ function getNPCType(d: NPCData) {
     LogN(
       "No archetype matched this Race/Class combination. NPC will use the default Fitness Stage."
     )
-  else LogN(`Archetype: ${ar}`)
-  return ar
+  else LogN(`Archetype: "${db.archetypes[ar.toString()].iName}" (${ar})`)
+  return { npcType: NT.generic, archetype: ar }
 }
 
 //#endregion
