@@ -156,8 +156,6 @@ export function getTextures(d: AppearanceData): TexturePaths {
   // Skin #1 is always the default skin. Won't override.
   const sk = fs.skin === 1 ? "" : db.skin[fs.skin - 2][d.texSig]
   const md = db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
-  LogN(`"${sk}"`)
-  LogN(md)
   const t = getTexturePaths(d.race, md, sk)
   LogN(`Muscle def texture: ${t.muscle}`)
   LogN(`Skin texture: ${t.skin}`)
