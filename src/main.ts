@@ -23,7 +23,7 @@ import {
   SlotMask,
   Utility,
 } from "skyrimPlatform"
-import { HookAnims, LogAnims } from "./animations"
+import { HookAnims, LogAnims } from "./animations/hooks"
 import {
   ClearAppearance,
   EquipPizzaHandsFix,
