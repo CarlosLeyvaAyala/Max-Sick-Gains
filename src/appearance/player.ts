@@ -7,8 +7,6 @@ import {
   ApplyBodyslide,
   ApplyMuscleDef,
   BlendMorph,
-  BodyShape,
-  BodyslidePreset,
   ChangeHeadSize,
   GetBodyslide,
   GetHeadSize,
@@ -18,6 +16,7 @@ import {
   IsMuscleDefBanned,
   LogBs,
 } from "appearance"
+import { BodyShape, BodyslidePreset } from "./nioverride/common"
 import { Journey } from "journeys"
 import {
   Actor,
@@ -60,7 +59,7 @@ import {
 import { sendSleep } from "../events/maxick_compatibility"
 import { O } from "DmLib/Combinators/O"
 import { K } from "DmLib/Combinators/K"
-import { Log } from "DmLib/Log/R"
+import { R as LogR } from "DmLib/Log/R"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod
@@ -597,7 +596,7 @@ export namespace Player {
     /** Gets the data needed to change the player appearance. */
     function GetData(p: Actor): PlayerData | undefined {
       const b = ActorBase.from(p.getBaseObject())
-      if (!b) return Log.R(NoBase(), undefined)
+      if (!b) return LogR(NoBase(), undefined)
 
       const race = LogIT("Race", GetRaceEDID(p))
 
@@ -752,8 +751,8 @@ export namespace Player {
     /** Returns the muscle definition texture the player should use. */
     function GetMuscleDef(d: PlayerData) {
       if (!mcm.actors.player.applyMuscleDef)
-        return Log.R(MDefMcmBan(), undefined)
-      if (IsMuscleDefBanned(d.race)) return Log.R(MDefRaceBan(), undefined)
+        return LogR(MDefMcmBan(), undefined)
+      if (IsMuscleDefBanned(d.race)) return LogR(MDefRaceBan(), undefined)
 
       const mdt = d.fitnessStage.muscleDefType
       const md = InterpolateMusDef(

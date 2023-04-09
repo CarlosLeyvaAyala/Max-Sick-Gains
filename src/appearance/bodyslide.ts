@@ -4,6 +4,7 @@ import { DebugLib as D } from "Dmlib"
 import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
 import { FitStage, FitStageSexAppearance, BSSlider } from "../types/exported"
 import { AppearanceData, weightInterpolation } from "./common"
+import { I } from "DmLib/Combinators/I"
 import { db } from "../types/exported"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
@@ -24,30 +25,12 @@ export function getBodyShape(
   const app = d.sex == Sex.male ? fs.man : fs.fem
 
   Log(`Getting body shape from Fitness Stage: ${fs.iName}`)
+  LogN(`Weight: ${d.weight}`)
 
   return {
     bodySlide: blendBs(app, d.weight, Morph),
     headSize: weightInterpolation(d.weight, app.headLo, app.headHi),
   }
-}
-
-/**  Returns a fully calculated Bodyslide preset for some Fitness Stage, sex and weight.
- *
- * @param fs Fitness Stage.
- * @param s Sex.
- * @param w Weight. [`0..100`].
- * @param Morph Interpolation function. This is used to calculate individual sliders.
- * @returns Fully calculated Bodyslide preset. Ready to be applied to an `Actor`.
- */
-function getBodyslide(
-  app: FitStageSexAppearance,
-  s: Sex,
-  w: number,
-  Morph: BsCalc = stdMorph,
-  Log: D.Log.LoggingFunction = LogV
-): BodyslidePreset {
-  // Log(`Fitness Stage Bodyslide preset applied: ${fs.iName}`)
-  return blendBs(app, w, Morph)
 }
 
 /** A function that calculates a slider value.
@@ -79,16 +62,22 @@ export const blendMorph =
  * @param Morph Interpolation function.
  * @returns A {@link BodyslidePreset} with slider values corresponding to the input `weight`.
  */
-function blendBs(
-  bs: FitStageSexAppearance,
-  w: number,
-  Morph: BsCalc
+const blendBs = (bs: FitStageSexAppearance, w: number, Morph: BsCalc) =>
+  objToBsPreset(bs.bodyslide, (sl) => Morph(sl.min, sl.max, w))
+
+/**Converts a pre-calculated Bodyslide to data that can be applied by this mod.  */
+export const exportedBstoPreset = (bs: { [key: string]: number }) =>
+  objToBsPreset(bs, I)
+
+/** Converts an object with keys to a Bodyslide preset that can be applied by this mod. */
+function objToBsPreset<T>(
+  bs: { [key: string]: T },
+  mapping: (v: T) => number
 ): BodyslidePreset {
   const r = new Map()
 
-  for (const [slN, sl] of Object.entries(bs.bodyslide)) {
-    const v = Morph(sl.min, sl.max, w) / 100
-    r.set(slN, v)
+  for (const [slN, sl] of Object.entries(bs)) {
+    r.set(slN, mapping(sl))
   }
 
   return r

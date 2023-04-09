@@ -1,6 +1,6 @@
-import { getBodyShape } from "./bodyslide"
+import { BodyShape, getBodyShape, exportedBstoPreset } from "./bodyslide"
 import { O } from "DmLib/Combinators/O"
-import { Log } from "DmLib/Log/R"
+import { R as LogR } from "DmLib/Log/R"
 import { DebugLib } from "Dmlib"
 import { getEspAndId } from "Dmlib/Form/uniqueId"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
@@ -23,7 +23,6 @@ import {
   ApplyBodyslide,
   ApplyMuscleDef,
   ApplySkin,
-  BodyslidePreset,
   ChangeHeadSize,
   ClearAppearance as ClearActorAppearance,
   GetBodyslide,
@@ -33,11 +32,11 @@ import {
   InterpolateW,
   IsMuscleDefBanned,
 } from "./appearance"
+import { BodyslidePreset, getTexturePaths } from "./nioverride/common"
 import { getRaceSignature, getTextures } from "./common"
 import { NpcType as NT, canApplyChanges } from "./npc/common"
 
 const Alt = O
-const LogR = Log.R
 const IntToHex = DebugLib.Log.IntToHex
 
 /** Raw appearance data shared by both Known and Generic NPCs.
@@ -102,15 +101,33 @@ function newChangeAppearance(a: Actor | null) {
   if (!identity) return // The NPC is not valid or known
 
   const canChange = canApplyChanges(d, identity)
-  if (identity.npcType == NT.generic) {
-    const app = getAppearanceData(d, identity.race, identity.archetype)
+  switch (identity.npcType) {
+    case NT.generic:
+      const app = getAppearanceData(d, identity.race, identity.archetype)
 
-    const shape = getBodyShape(app)
-    ApplyBodyslide(a, shape.bodySlide)
+      const shape = getBodyShape(app)
+      ApplyBodyslide(a, shape.bodySlide)
+      ChangeHeadSize(a, shape.headSize)
 
-    const texs = getTextures(app)
-    ApplyMuscleDef(a, d.sex, texs.muscle)
-    ApplySkin(a, d.sex, texs.skin)
+      const texs = getTextures(app)
+      ApplyMuscleDef(a, d.sex, texs.muscle)
+      applySkin(a, d.sex, texs.skin)
+
+      break
+    case NT.known:
+      const knData = identity.knownData
+      if (!knData) return identity.npcType
+      LogN(
+        `${knData.name} data was already calculated when exporting. Check the configuration app report for more info.`
+      )
+      ApplyBodyslide(a, exportedBstoPreset(knData.bodyslide))
+      ChangeHeadSize(a, knData.head)
+
+      const ts = getTexturePaths(d.race, knData.muscleDef, knData.skin)
+      ApplyMuscleDef(a, d.sex, ts.muscle)
+      applySkin(a, d.sex, ts.skin)
+
+      break
   }
 
   LogN("\n")
@@ -123,6 +140,9 @@ import { getJourney } from "./npc/dynamic"
 import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
 import { RaceGroup, db } from "../types/exported"
+import { getMuscleDefTexName } from "./appearance"
+import { getSkinTexName } from "./appearance"
+import { applySkin } from "./nioverride/skin"
 
 //#region Solve appearance
 
@@ -174,7 +194,7 @@ function getNPCType(d: NPCData, sig: RaceGroup): NpcIdentity {
  */
 export function ChangeAppearance(a: Actor | null) {
   const tt = newChangeAppearance(a) // TODO: Delete this
-  if (tt === NT.generic) return // Hijack generic NPC appearance setting
+  if (tt === NT.generic || tt === NT.known) return // Hijack generic NPC appearance setting
   if (!a) return
   ApplyAppearance(a, true, true)
 }

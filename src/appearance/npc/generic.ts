@@ -81,6 +81,7 @@ export function getAppearanceData(
     muscleDef: Math.round(weightInterpolation(w, a.mDefLo, a.mDefHi)),
     texSig: raceSexToTexSignature(race, d.sex),
     sex: d.sex,
+    race: d.race,
     weight: w,
   }
 }

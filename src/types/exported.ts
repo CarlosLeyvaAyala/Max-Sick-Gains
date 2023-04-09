@@ -182,18 +182,11 @@ export interface Skin {
 }
 
 export interface TexBanRace {
-  DA13AfflictedRace: string
-  ElderRace: string
-  ManakinRace: string
-  NordRaceAstrid: string
-  TeeenAfflictedRace: string
+  [key: string]: boolean
 }
 
 export interface TexBanRaceSearch {
-  afflicted: string
-  astrid: string
-  elder: string
-  manakin: string
+  [key: string]: boolean
 }
 
 // TODO: Enable when ready

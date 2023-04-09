@@ -31,20 +31,7 @@ import {
   muscleDefBanRace,
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
-
-export interface TexturePaths {
-  muscle?: string
-  skin?: string
-}
-
-/** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
-export type BodyslidePreset = Map<string, number>
-
-/** Total ´Actor´ appearance: body morphs and head size */
-export interface BodyShape {
-  bodySlide: BodyslidePreset
-  headSize: number
-}
+import { BodyslidePreset } from "./nioverride/common"
 
 export function LogBs(
   bs: BodyslidePreset | undefined,

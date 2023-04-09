@@ -2,6 +2,8 @@ import { RaceGroup, TextureSignature, db } from "../types/exported"
 import { LogN } from "../debug" // TODO: Change to proper log level
 import { Sex } from "../database"
 import { linCurve } from "DmLib/Math/linCurve"
+import { getMuscleDefTexName, getSkinTexName } from "./appearance"
+import { TexturePaths, getTexturePaths } from "./nioverride/common"
 
 /** EDID of a race */
 export type RaceEDID = string
@@ -20,6 +22,8 @@ export interface AppearanceData {
   sex: Sex
   /** Signature used to set muscle definition and skin textures */
   texSig: TextureSignature
+  /** Race EDID */
+  race: RaceEDID
 }
 
 /** Body morphs */
@@ -131,10 +135,17 @@ export function raceSexToTexSignature(
 /** Gets the body shape for non-precalculated `Actors` */
 export function getBodyShape(d: AppearanceData) {}
 
-import { TexturePaths, getMuscleDefTexName, getSkinTexName } from "./appearance"
-
 export function getTextures(d: AppearanceData): TexturePaths {
   const fs = db.fitStages[d.fitstage.toString()]
+  const getMuscleDefTexName = (shortName: string) =>
+    shortName === ""
+      ? undefined
+      : `actors\\character\\Maxick\\mdef\\${shortName}`
+
+  const getSkinTexName = (shortName: string) =>
+    shortName === ""
+      ? undefined
+      : `actors\\character\\Maxick\\skin\\${shortName}`
 
   // Skin #1 is always the default skin. Won't override.
   const sk =
@@ -148,4 +159,36 @@ export function getTextures(d: AppearanceData): TexturePaths {
   LogN(`Muscle def texture: ${md}`)
   LogN(`Skin texture: ${sk}`)
   return { skin: sk, muscle: md }
+
+  // TODO: Make this work:
+
+  // Skin #1 is always the default skin. Won't override.
+  // const sk = fs.skin === 1 ? "" : db.skin[fs.skin - 2][d.texSig]
+  // const md = db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
+  // LogN(`"${sk}"`)
+  // LogN(md)
+  // const t = getTexturePaths(d.race, md, sk)
+  // LogN(`Muscle def texture: ${t.muscle}`)
+  // LogN(`Skin texture: ${t.skin}`)
+  // return t
+}
+
+/** Determines if the race for an actor is banned from getting textures applied */
+export function isTextureBanned(edid: RaceEDID) {
+  LogN("Is this Actor's race banned from getting textures?")
+
+  const r = searchDirectAndByContent(
+    () => db.texBanRace[edid],
+    () => searchMapByContent(db.texBanRaceSearch, edid.toLowerCase()),
+    (r) => (db.texBanRace[edid] = r),
+    () => (db.texBanRace[edid] = false),
+    (desc) => LogN(`Race ${edid} ${desc}`)
+  )
+
+  LogN(
+    `Race is${r ? "" : " not"} banned. Textures ${
+      r ? "won't" : "will"
+    } be applied`
+  )
+  return r
 }
