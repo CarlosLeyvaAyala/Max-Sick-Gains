@@ -1,6 +1,5 @@
 import { MathLib, TimeLib as Time } from "Dmlib"
 import { LogE, LogI, LogIT, LogN, LogNT, LogV, LogVT } from "../debug"
-import { Debug, storage } from "skyrimPlatform"
 import { SaverObject } from "../types/saving"
 import { FitJourney } from "../types/exported"
 import {

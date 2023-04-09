@@ -8,7 +8,7 @@ import {
   weightInterpolation,
 } from "../common"
 import { LogN, LogV } from "../../debug" // TODO: Change to proper log level
-import { CanApply, NPCData, NpcIdentity } from "./common"
+import { CanApply, NPCData, NpcIdentity } from "./calculated"
 import { isInRange } from "DmLib/Math/isInRange"
 import { linCurve } from "DmLib/Math/linCurve"
 import { intersection } from "DmLib/Set/intersection"

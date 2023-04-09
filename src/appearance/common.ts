@@ -2,8 +2,23 @@ import { RaceGroup, TextureSignature, db } from "../types/exported"
 import { LogN } from "../debug" // TODO: Change to proper log level
 import { Sex } from "../database"
 import { linCurve } from "DmLib/Math/linCurve"
-import { getMuscleDefTexName, getSkinTexName } from "./appearance"
-import { TexturePaths, getTexturePaths } from "./nioverride/common"
+import { Actor } from "skyrimPlatform"
+import { applySkin } from "./nioverride/skin"
+
+/** Path to the files to be applied */
+export interface TexturePaths {
+  muscle?: string
+  skin?: string
+}
+
+/** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
+export type BodyslidePreset = Map<string, number>
+
+/** Complete ´Actor´ appearance: body morphs and head size */
+export interface BodyShape {
+  bodySlide: BodyslidePreset
+  headSize: number
+}
 
 /** EDID of a race */
 export type RaceEDID = string
@@ -56,12 +71,12 @@ export function searchDirectAndByContent<T>(
 ) {
   const result = getPreGenerated()
 
-  if (!result) {
+  if (result === undefined || result === null) {
     logNotFound(
       "was not found in exported data. Performing exhaustive search..."
     )
     const s = getSearched()
-    if (!s) memoizeNull()
+    if (s === null) memoizeNull()
     else memoizeFound(s)
     return getPreGenerated() // Null data was added and now is among the pre-generated data
   }
@@ -137,44 +152,30 @@ export function getBodyShape(d: AppearanceData) {}
 
 export function getTextures(d: AppearanceData): TexturePaths {
   const fs = db.fitStages[d.fitstage.toString()]
-  const getMuscleDefTexName = (shortName: string) =>
-    shortName === ""
-      ? undefined
-      : `actors\\character\\Maxick\\mdef\\${shortName}`
-
-  const getSkinTexName = (shortName: string) =>
-    shortName === ""
-      ? undefined
-      : `actors\\character\\Maxick\\skin\\${shortName}`
 
   // Skin #1 is always the default skin. Won't override.
-  const sk =
-    fs.skin === 1 ? undefined : getSkinTexName(db.skin[fs.skin - 2][d.texSig])
-  const md = getMuscleDefTexName(
-    db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
-  )
-
-  LogN(`Muscle lvl: ${d.muscleDef}`)
-  LogN(`Texture signature: ${d.texSig}`)
-  LogN(`Muscle def texture: ${md}`)
-  LogN(`Skin texture: ${sk}`)
-  return { skin: sk, muscle: md }
-
-  // TODO: Make this work:
-
-  // Skin #1 is always the default skin. Won't override.
-  // const sk = fs.skin === 1 ? "" : db.skin[fs.skin - 2][d.texSig]
-  // const md = db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
-  // LogN(`"${sk}"`)
-  // LogN(md)
-  // const t = getTexturePaths(d.race, md, sk)
-  // LogN(`Muscle def texture: ${t.muscle}`)
-  // LogN(`Skin texture: ${t.skin}`)
-  // return t
+  const sk = fs.skin === 1 ? "" : db.skin[fs.skin - 2][d.texSig]
+  const md = db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
+  LogN(`"${sk}"`)
+  LogN(md)
+  const t = getTexturePaths(d.race, md, sk)
+  LogN(`Muscle def texture: ${t.muscle}`)
+  LogN(`Skin texture: ${t.skin}`)
+  return t
 }
 
+export type ShortTextureName = string
+
+const getTexName = (dir: string) => (shortName: ShortTextureName) =>
+  shortName === ""
+    ? undefined
+    : `actors\\character\\Maxick\\${dir}\\${shortName}`
+
+const getMuscleDefTexName = getTexName("mdef")
+const getSkinTexName = getTexName("skin")
+
 /** Determines if the race for an actor is banned from getting textures applied */
-export function isTextureBanned(edid: RaceEDID) {
+function isTextureBanned(edid: RaceEDID) {
   LogN("Is this Actor's race banned from getting textures?")
 
   const r = searchDirectAndByContent(
@@ -191,4 +192,21 @@ export function isTextureBanned(edid: RaceEDID) {
     } be applied`
   )
   return r
+}
+
+/** Gets the texture paths that will be applied to an Actor. */
+export function getTexturePaths(
+  race: RaceEDID,
+  muscle: ShortTextureName,
+  skin: ShortTextureName
+): TexturePaths {
+  const ban = isTextureBanned(race)
+  return {
+    muscle: ban ? undefined : getMuscleDefTexName(muscle),
+    skin: ban ? undefined : getSkinTexName(skin),
+  }
+}
+
+export function applyTextures(a: Actor, s: Sex, texs: TexturePaths) {
+  applySkin(a, s, texs.skin)
 }

@@ -1,5 +1,6 @@
 import { waitActor } from "DmLib/Actor/waitActor"
-import { DebugLib as D, MathLib } from "Dmlib"
+import { linCurve } from "DmLib/Math/linCurve"
+import { DebugLib as D } from "Dmlib"
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
@@ -31,7 +32,8 @@ import {
   muscleDefBanRace,
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
-import { BodyslidePreset } from "./nioverride/common"
+import { BodyslidePreset } from "./common"
+// import { BodyslidePreset } from "./nioverride/common"
 
 export function LogBs(
   bs: BodyslidePreset | undefined,
@@ -66,7 +68,7 @@ type BsCalc = (slMin: number, slMax: number, w: number) => number
  * @returns Interpolated value.
  */
 const StdMorph: BsCalc = (min, max, w) =>
-  MathLib.LinCurve({ x: 0, y: min }, { x: 100, y: max })(w)
+  linCurve({ x: 0, y: min }, { x: 100, y: max })(w)
 
 export const BlendMorph =
   (blend: number) => (min: number, max: number, w: number) =>
@@ -377,7 +379,7 @@ function UpdateNiNode(a: Actor) {
  * @returns The value associated to `weight`.
  */
 export function InterpolateW(y1: number, y2: number, weight: number) {
-  return MathLib.LinCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(weight)
+  return linCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(weight)
 }
 
 /** Gets which muscle definition level an `Actor` should have.

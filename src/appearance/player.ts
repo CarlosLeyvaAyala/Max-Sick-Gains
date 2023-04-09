@@ -1,3 +1,7 @@
+import { K } from "DmLib/Combinators/K"
+import { O } from "DmLib/Combinators/O"
+import { R as LogR } from "DmLib/Log/R"
+import { linCurve } from "DmLib/Math/linCurve"
 import { JContainersToPreserving } from "DmLib/Misc/JContainersToPreserving"
 import { preserveVar } from "DmLib/Misc/preserveVar"
 import { DebugLib as D, Hotkeys, MapLib, MathLib, TimeLib as Time } from "Dmlib"
@@ -16,8 +20,6 @@ import {
   IsMuscleDefBanned,
   LogBs,
 } from "appearance"
-import { BodyShape, BodyslidePreset } from "./nioverride/common"
-import { Journey } from "journeys"
 import {
   Actor,
   ActorBase,
@@ -57,9 +59,7 @@ import {
   SendTrainingSet,
 } from "../events/events_hidden"
 import { sendSleep } from "../events/maxick_compatibility"
-import { O } from "DmLib/Combinators/O"
-import { K } from "DmLib/Combinators/K"
-import { R as LogR } from "DmLib/Log/R"
+import { BodyShape, BodyslidePreset } from "./common"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod
@@ -355,7 +355,7 @@ export namespace Player {
         const hD = mcm.training.decayMax
         const trainUpperLim = 10
         const cappedTrain = MathLib.ForceRange(0, trainUpperLim)(training)
-        return MathLib.LinCurve(
+        return linCurve(
           { x: 0, y: lD },
           { x: trainUpperLim, y: hD }
         )(cappedTrain)
@@ -712,15 +712,12 @@ export namespace Player {
         LogV("Current stage was blended with previous")
         blendStage = currStage - 1
         g2 = 100
-        b1 = MathLib.LinCurve({ x: 0, y: 0.5 }, { x: lBlendLim, y: 1 })(d.gains)
+        b1 = linCurve({ x: 0, y: 0.5 }, { x: lBlendLim, y: 1 })(d.gains)
       } else if (uBlendLim <= d.gains && currStage < lastPlayerStage) {
         LogV("Current stage was blended with next")
         blendStage = currStage + 1
         g2 = 0
-        b1 = MathLib.LinCurve(
-          { x: uBlendLim, y: 1 },
-          { x: 100, y: 0.5 }
-        )(d.gains)
+        b1 = linCurve({ x: uBlendLim, y: 1 }, { x: 100, y: 0.5 })(d.gains)
       } else {
         LogV("No blending needed")
         b1 = 1
@@ -996,7 +993,7 @@ export namespace Sleep {
   const FP = MathLib.ForcePercent
 
   function JourneyByStage() {
-    const f = MathLib.LinCurve({ x: 0, y: 0 }, { x: playerStages.length, y: 1 })
+    const f = linCurve({ x: 0, y: 0 }, { x: playerStages.length, y: 1 })
     return LogIT("Journey by stage", FP(f(pStage + gains / 100)))
   }
 

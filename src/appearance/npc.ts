@@ -32,9 +32,14 @@ import {
   InterpolateW,
   IsMuscleDefBanned,
 } from "./appearance"
-import { BodyslidePreset, getTexturePaths } from "./nioverride/common"
-import { getRaceSignature, getTextures } from "./common"
-import { NpcType as NT, canApplyChanges } from "./npc/common"
+// import { BodyslidePreset, getTexturePaths } from "./nioverride/common"
+import {
+  BodyslidePreset,
+  getRaceSignature,
+  getTexturePaths,
+  getTextures,
+} from "./common"
+import { NpcType as NT, canApplyChanges } from "./npc/calculated"
 
 const Alt = O
 const IntToHex = DebugLib.Log.IntToHex
@@ -135,7 +140,7 @@ function newChangeAppearance(a: Actor | null) {
   return identity.npcType
 }
 
-import { NPCData, NpcIdentity } from "./npc/common"
+import { NPCData, NpcIdentity } from "./npc/calculated"
 import { getJourney } from "./npc/dynamic"
 import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
