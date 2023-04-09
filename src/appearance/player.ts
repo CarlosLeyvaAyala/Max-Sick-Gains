@@ -5,11 +5,13 @@ import { linCurve } from "DmLib/Math/linCurve"
 import { JContainersToPreserving } from "DmLib/Misc/JContainersToPreserving"
 import { preserveVar } from "DmLib/Misc/preserveVar"
 import { hourSpan } from "DmLib/Time/hourSpan"
+import { forceRange } from "DmLib/Math/forceRange"
+import { forcePercent } from "DmLib/Math/forcePercent"
 import { Now } from "DmLib/Time/now"
 import { toHumanHours } from "DmLib/Time/toHumanHours"
 import { toSkyrimHours } from "DmLib/Time/toSkyrimHours"
 import { HumanHours, SkyrimHours } from "DmLib/Time/types"
-import { DebugLib as D, Hotkeys, MapLib, MathLib } from "Dmlib"
+import { DebugLib as D, Hotkeys, MapLib } from "Dmlib"
 import * as JDB from "JContainers/JDB"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import {
@@ -156,8 +158,8 @@ const maxAllowedTraining = 12
 
 const CurrentStage = () => playerStages[pStage]
 const StageName = () => `Now you look ${CurrentStage().displayName}`
-const CapStage = MathLib.ForceRange(0, lastPlayerStage)
-const CapGains = MathLib.ForceRange(0, 100)
+const CapStage = forceRange(0, lastPlayerStage)
+const CapGains = forceRange(0, 100)
 const MaxGainsPerDay = () => 100 / CurrentStage().minDays
 
 // ;>========================================================
@@ -333,8 +335,7 @@ export namespace Player {
       export function HadActivity(activity: SkyrimHours) {
         const now = LogVT("Now", Now())
         LogV(`Last trained before: ${lastTrained}`)
-        const Cap = (x: number) =>
-          MathLib.ForceRange(now - inactiveTimeLim, now)(x)
+        const Cap = (x: number) => forceRange(now - inactiveTimeLim, now)(x)
 
         // Make sure inactivity is within acceptable values before updating
         const l = Cap(lastTrained)
@@ -359,7 +360,7 @@ export namespace Player {
         const lD = mcm.training.decayMin
         const hD = mcm.training.decayMax
         const trainUpperLim = 10
-        const cappedTrain = MathLib.ForceRange(0, trainUpperLim)(training)
+        const cappedTrain = forceRange(0, trainUpperLim)(training)
         return linCurve(
           { x: 0, y: lD },
           { x: trainUpperLim, y: hD }
@@ -514,7 +515,7 @@ export namespace Player {
         Activity.HadActivity(d.activity)
       }
 
-      const CapTraining = MathLib.ForceRange(0, maxAllowedTraining)
+      const CapTraining = forceRange(0, maxAllowedTraining)
 
       /** Sets training according to some `delta` and sends events telling training changed.
        *
@@ -995,7 +996,7 @@ export namespace Sleep {
     SendJourneyByStage(st)
   }
 
-  const FP = MathLib.ForcePercent
+  const FP = forcePercent
 
   function JourneyByStage() {
     const f = linCurve({ x: 0, y: 0 }, { x: playerStages.length, y: 1 })
@@ -1025,7 +1026,7 @@ export namespace Sleep {
    * @returns New gains and training.
    */
   function MakeGains(h: number, t: number, g: number) {
-    const sleepGains = Math.min(MathLib.ForcePercent(h / 10), t)
+    const sleepGains = Math.min(forcePercent(h / 10), t)
     const gainsDelta = MaxGainsPerDay() * sleepGains
     const newTraining = t - sleepGains
     return {
