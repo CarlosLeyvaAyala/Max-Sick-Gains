@@ -4,7 +4,12 @@ import { R as LogR } from "DmLib/Log/R"
 import { linCurve } from "DmLib/Math/linCurve"
 import { JContainersToPreserving } from "DmLib/Misc/JContainersToPreserving"
 import { preserveVar } from "DmLib/Misc/preserveVar"
-import { DebugLib as D, Hotkeys, MapLib, MathLib, TimeLib as Time } from "Dmlib"
+import { hourSpan } from "DmLib/Time/hourSpan"
+import { Now } from "DmLib/Time/now"
+import { toHumanHours } from "DmLib/Time/toHumanHours"
+import { toSkyrimHours } from "DmLib/Time/toSkyrimHours"
+import { HumanHours, SkyrimHours } from "DmLib/Time/types"
+import { DebugLib as D, Hotkeys, MapLib, MathLib } from "Dmlib"
 import * as JDB from "JContainers/JDB"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import {
@@ -140,7 +145,7 @@ let isInCatabolic = storage[isInCatabolicK] as boolean | false
 /** What was the last time the player woke up? */
 let lastSlept = storage[lastSleptK] as number | 0
 
-const inactiveTimeLim: Time.SkyrimHours = Time.ToSkyrimHours(48)
+const inactiveTimeLim: SkyrimHours = toSkyrimHours(48)
 const lastPlayerStage = playerStages.length - 1
 const maxAllowedTraining = 12
 //#endregion
@@ -210,7 +215,7 @@ export namespace Player {
   export function Init() {
     LogV("Initializing")
 
-    const now = Time.Now()
+    const now = Now()
 
     gains = Flt("Gains", gainsK, 0, SGains)
     pStage = Int("Stage", stageK, 0, SpStage)
@@ -238,7 +243,7 @@ export namespace Player {
   export namespace Calc {
     /** Constantly updates player state. */
     export function Update() {
-      const timeDelta = Time.Now() - lastUpdate
+      const timeDelta = Now() - lastUpdate
       if (timeDelta > 0)
         if (TestMode.enabled) {
           SendInactivity(0)
@@ -250,7 +255,7 @@ export namespace Player {
           Activity.Decay(timeDelta)
         }
 
-      lastUpdate = SLastUpdate(Time.Now())
+      lastUpdate = SLastUpdate(Now())
       if (timeDelta > 0 && !TestMode.enabled) LogV(`Last update: ${lastUpdate}`)
     }
 
@@ -288,8 +293,8 @@ export namespace Player {
       function Send() {
         LogV("--- Sending activity data")
         const hoursInactive =
-          LogVT("Now", Time.Now()) - LogVT("Last trained", lastTrained)
-        LogV(`Hours inactive: ${Time.ToHumanHours(hoursInactive)}`)
+          LogVT("Now", Now()) - LogVT("Last trained", lastTrained)
+        LogV(`Hours inactive: ${toHumanHours(hoursInactive)}`)
         const percent = (hoursInactive / inactiveTimeLim) * 100
 
         SendInactivity(LogVT("Sending inactivity percent", percent))
@@ -325,8 +330,8 @@ export namespace Player {
        *
        * @param activity Activity value. Send negative values to simulate inactivity.
        */
-      export function HadActivity(activity: Time.SkyrimHours) {
-        const now = LogVT("Now", Time.Now())
+      export function HadActivity(activity: SkyrimHours) {
+        const now = LogVT("Now", Now())
         LogV(`Last trained before: ${lastTrained}`)
         const Cap = (x: number) =>
           MathLib.ForceRange(now - inactiveTimeLim, now)(x)
@@ -522,7 +527,7 @@ export namespace Player {
 
       /** Data some skill contributes to training. */
       export interface TrainingData {
-        activity: Time.SkyrimHours
+        activity: SkyrimHours
         training: number
       }
 
@@ -930,23 +935,23 @@ export namespace Sleep {
 
   /** Player went to sleep. */
   export function OnStart() {
-    goneToSleepAt = LogVT("OnSleepStart", Time.Now())
+    goneToSleepAt = LogVT("OnSleepStart", Now())
   }
 
   /** Player woke up. */
   export function OnEnd() {
     LogI("--- Finished sleeping")
     const Ls = () => {
-      lastSlept = SLastSlept(LogVT("Awaken at", Time.Now()))
+      lastSlept = SLastSlept(LogVT("Awaken at", Now()))
     }
 
-    if (Time.HourSpan(lastSlept) < 3) {
+    if (hourSpan(lastSlept) < 3) {
       LogI("You just slept. Nothing will be done.")
       Ls()
       return
     }
 
-    const hoursSlept = LogVT("Hours slept", Time.HourSpan(goneToSleepAt))
+    const hoursSlept = LogVT("Hours slept", hourSpan(goneToSleepAt))
     if (hoursSlept < 0.8) return // Do nothing. Didn't really slept.
     Ls()
     SleepEvent(hoursSlept)
@@ -957,9 +962,9 @@ export namespace Sleep {
    * @remarks
    * This function was exported so it can be used for quick debugging.
    *
-   * @param hoursSlept How many {@link Time.HumanHours} the player slept.
+   * @param hoursSlept How many {@link HumanHours} the player slept.
    */
-  export function SleepEvent(hoursSlept: Time.HumanHours) {
+  export function SleepEvent(hoursSlept: HumanHours) {
     LogV("--- Calculating appearance after sleeping")
     const t = LogVT("Training", training)
     const s = LogVT("Current player stage", pStage)

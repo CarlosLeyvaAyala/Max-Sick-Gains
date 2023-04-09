@@ -1,10 +1,13 @@
-import { AnimLib as A, TimeLib } from "Dmlib"
+import { minutesToSkyrimHours } from "DmLib/Time/minutesToSkyrimHours"
+import { Now } from "DmLib/Time/now"
+import { toSkyrimHours } from "DmLib/Time/toSkyrimHours"
+import { AnimLib as A } from "Dmlib"
 import {
   Actor,
   EquippedItemType,
   Game,
-  hooks,
   SendAnimationEventHook,
+  hooks,
   writeLogs,
 } from "skyrimPlatform"
 import { Player } from "./appearance/player"
@@ -27,7 +30,7 @@ function Train(skill: TrainingData) {
 /** Trains a skill that expects activity as how many minutes it's worth. */
 function TrainSingleAnim(skill: TrainingData) {
   let { training, activity } = skill
-  activity = TimeLib.MinutesToSkyrimHours(activity)
+  activity = minutesToSkyrimHours(activity)
   Train({ training, activity })
 }
 
@@ -60,7 +63,7 @@ const sneakMult = 1.3 // Sneaking requires great physical effort
 /** Training to gain for 1 hour of non stop exploring actions. */
 const exploreWorth = 0.3
 /** How much training is gained per hour of exploring actions. */
-const baseExploreT = exploreWorth / TimeLib.ToSkyrimHours(1)
+const baseExploreT = exploreWorth / toSkyrimHours(1)
 const baseExploreA = 15
 const sprintT = baseExploreT * sprintMult
 const sprintA = baseExploreA * sprintMult
@@ -187,12 +190,12 @@ function TrainOnSpan(
 
   return () => {
     Hook(start, () => {
-      startTime = TimeLib.Now()
+      startTime = Now()
     })
 
     Hook(end, () => {
       if (startTime > 0) {
-        const dt = TimeLib.Now() - startTime
+        const dt = Now() - startTime
         Train({
           training: skillData.training * dt,
           activity: skillData.activity * dt,
