@@ -1,11 +1,11 @@
 import { Sex } from "../database"
 import { linCurve } from "DmLib/Math/linCurve"
-import { DebugLib as D } from "Dmlib"
 import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
 import { FitStage, FitStageSexAppearance, BSSlider } from "../types/exported"
 import { AppearanceData, weightInterpolation } from "./common"
 import { I } from "DmLib/Combinators/I"
 import { db } from "../types/exported"
+import { LoggingFunction } from "DmLib/Debug/Log/types"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
@@ -19,7 +19,7 @@ export interface BodyShape {
 export function getBodyShape(
   d: AppearanceData,
   Morph: BsCalc = stdMorph,
-  Log: D.Log.LoggingFunction = LogN
+  Log: LoggingFunction = LogN
 ): BodyShape {
   const fs = db.fitStages[d.fitstage.toString()]
   const app = d.sex == Sex.male ? fs.man : fs.fem

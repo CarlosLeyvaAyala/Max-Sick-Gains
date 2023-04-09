@@ -1,7 +1,7 @@
 import { BodyShape, getBodyShape, exportedBstoPreset } from "./bodyslide"
 import { O } from "DmLib/Combinators/O"
 import { R as LogR } from "DmLib/Log/R"
-import { DebugLib } from "Dmlib"
+import { intToHex } from "DmLib/Debug/Log/intToHex"
 import { getEspAndId } from "Dmlib/Form/uniqueId"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import { Actor, printConsole } from "skyrimPlatform"
@@ -42,7 +42,6 @@ import {
 import { NpcType as NT, canApplyChanges } from "./npc/calculated"
 
 const Alt = O
-const IntToHex = DebugLib.Log.IntToHex
 
 /** Raw appearance data shared by both Known and Generic NPCs.
  *
@@ -271,7 +270,7 @@ export function ClearAppearance(a: Actor | null) {
 const iRawApp = { fitStageId: -1 }
 
 const InvalidRace = (d: NPCData) => {
-  const id = IntToHex(d.actor.getFormID())
+  const id = intToHex(d.actor.getFormID())
   LogI(`NPC 0x${id} does not belong to any known racial group.`)
 }
 
@@ -485,8 +484,8 @@ function NPCDataToStr(d: NPCData | null): string {
   if (!d) return "Invalid NPC found. This should be harmless."
 
   return (
-    `BaseID: ${IntToHex(d.base.getFormID())} ` +
-    `RefId: ${IntToHex(d.actor.getFormID())} ` +
+    `BaseID: ${intToHex(d.base.getFormID())} ` +
+    `RefId: ${intToHex(d.actor.getFormID())} ` +
     `FixId: ${d.fixedFormId} ` +
     `${d.esp}|0x${d.fixedFormId.toString(16)}. ` +
     `${d.class}, ` +

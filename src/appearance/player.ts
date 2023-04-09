@@ -1,17 +1,20 @@
 import { K } from "DmLib/Combinators/K"
 import { O } from "DmLib/Combinators/O"
 import { R as LogR } from "DmLib/Log/R"
+import { joinMaps } from "DmLib/Map/joinMaps"
+import { forcePercent } from "DmLib/Math/forcePercent"
+import { forceRange } from "DmLib/Math/forceRange"
 import { linCurve } from "DmLib/Math/linCurve"
 import { JContainersToPreserving } from "DmLib/Misc/JContainersToPreserving"
 import { preserveVar } from "DmLib/Misc/preserveVar"
 import { hourSpan } from "DmLib/Time/hourSpan"
-import { forceRange } from "DmLib/Math/forceRange"
-import { forcePercent } from "DmLib/Math/forcePercent"
 import { Now } from "DmLib/Time/now"
 import { toHumanHours } from "DmLib/Time/toHumanHours"
 import { toSkyrimHours } from "DmLib/Time/toSkyrimHours"
 import { HumanHours, SkyrimHours } from "DmLib/Time/types"
-import { DebugLib as D, Hotkeys, MapLib } from "Dmlib"
+import { fromValue as hkFromValue } from "DmLib/Hotkeys/fromValue"
+import { listenTo as hkListenTo } from "DmLib/Hotkeys/listenTo"
+import { Hotkeys } from "Dmlib"
 import * as JDB from "JContainers/JDB"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import {
@@ -67,16 +70,18 @@ import {
 } from "../events/events_hidden"
 import { sendSleep } from "../events/maxick_compatibility"
 import { BodyShape, BodyslidePreset } from "./common"
+import { append } from "DmLib/Debug/Log/append"
+import { appendT } from "DmLib/Debug/Log/appendT"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod
  * when using log viewers or searching for strings.
  */
 const logMsg = "Player appearance: "
-const LogI = D.Log.Append(LogIo, logMsg)
-const LogIT = D.Log.AppendT(LogITo, logMsg)
-const LogV = D.Log.Append(LogVo, logMsg)
-const LogVT = D.Log.AppendT(LogVTo, logMsg)
+const LogI = append(LogIo, logMsg)
+const LogIT = appendT(LogITo, logMsg)
+const LogV = append(LogVo, logMsg)
+const LogVT = appendT(LogVTo, logMsg)
 
 // ;>========================================================
 // ;>===              PRESERVING VARIABLES              ===<;
@@ -698,7 +703,7 @@ export namespace Player {
       LogBs(sl1, "Current stage BS", LogV)
       LogBs(sl2, "Blend stage BS", LogV)
 
-      return MapLib.JoinMaps(sl1, sl2, (v1, v2) => v1 + v2)
+      return joinMaps(sl1, sl2, (v1, v2) => v1 + v2)
     }
 
     /** Returns which data will be used for blending appearance between two _Player Stages_.
@@ -782,8 +787,8 @@ export namespace TestMode {
   export const enabled = cfg.enabled
   if (enabled) printConsole(`+++ Max Sick Gains: TESTING MODE ENABLED`)
 
-  const FO = (k: string) => Hotkeys.FromValue(k)
-  const HK = (k: string) => Hotkeys.ListenTo(FO(k), enabled)
+  const FO = (k: string) => hkFromValue(k)
+  const HK = (k: string) => hkListenTo(FO(k), enabled)
 
   /** Gains +10 hotkey listener. */
   export const Add10 = HK(cfg.hkGainsAdd10)

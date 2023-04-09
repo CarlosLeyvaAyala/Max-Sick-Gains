@@ -1,6 +1,5 @@
 import { waitActor } from "DmLib/Actor/waitActor"
 import { linCurve } from "DmLib/Math/linCurve"
-import { DebugLib as D } from "Dmlib"
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
@@ -33,6 +32,8 @@ import {
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 import { BodyslidePreset } from "./common"
+import { intToHex } from "DmLib/Debug/Log/intToHex"
+import { LoggingFunction, TappedFunction } from "DmLib/Debug/Log/types"
 // import { BodyslidePreset } from "./nioverride/common"
 
 export function LogBs(
@@ -136,7 +137,7 @@ export function GetBodyslide(
   s: Sex,
   w: number,
   Morph: BsCalc = StdMorph,
-  Log: D.Log.LoggingFunction = LogV
+  Log: LoggingFunction = LogV
 ): BodyslidePreset {
   Log(`Fitness stage applied: ${fs.iName}`)
   return s === Sex.male ? BlendManBs(fs, w, Morph) : BlendFemBs(fs, w, Morph)
@@ -225,11 +226,7 @@ export function EquipPizzaHandsFix(a: Actor) {
     ).trim()
   )
   const g = Armor.from(a.getWornForm(SlotMask.Hands))
-  LogV(
-    `Current gauntlets: ${g?.getName()} (${D.Log.IntToHex(
-      g?.getFormID() || 0
-    )})`
-  )
+  LogV(`Current gauntlets: ${g?.getName()} (${intToHex(g?.getFormID() || 0)})`)
   const exit = LogVT("Don't fix pizza hands?", g || skO === "")
   if (exit) return
 
@@ -329,7 +326,7 @@ export function GetMuscleDefTex(
   r: RacialGroup,
   type: MuscleDefinitionType,
   lvl: number,
-  Log: D.Log.TappedFunction = LogIT
+  Log: TappedFunction = LogIT
 ) {
   const ss = s === Sex.female ? "Fem" : "Man"
   const n = lvl.toString().padStart(2, "0")

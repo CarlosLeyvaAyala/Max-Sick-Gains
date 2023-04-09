@@ -1,5 +1,8 @@
+import { fromValue as hkFromValue } from "DmLib/Hotkeys/fromValue"
+import { listenTo as hkListenTo } from "DmLib/Hotkeys/listenTo"
 import { MaxickSpell, MaxickSpellFx, playerId } from "constants"
-import { DebugLib, Hotkeys, Misc } from "Dmlib"
+import { Hotkeys, Misc } from "Dmlib"
+import { intToHex } from "DmLib/Debug/Log/intToHex"
 import { getBaseName } from "DmLib/Actor/getBaseName"
 import { isActorTypeNPC } from "DmLib/Actor/isActorTypeNPC"
 import { isPlayer } from "DmLib/Actor/player"
@@ -184,8 +187,8 @@ export function main() {
 
   /** Resets an `Actor` when pressing a key. */
   const h = mcm.actors
-  const OnResetNpc = Hotkeys.ListenTo(Hotkeys.FromValue(h.hkReset))
-  const OnResetNearby = Hotkeys.ListenTo(Hotkeys.FromValue(h.hkResetNearby))
+  const OnResetNpc = hkListenTo(hkFromValue(h.hkReset))
+  const OnResetNearby = hkListenTo(hkFromValue(h.hkResetNearby))
   /** Real time decay and catabolism calculations */
   const RTcalc = Misc.UpdateEach(3)
 
@@ -281,7 +284,7 @@ function LogUnEquip(
   e: EquipEvent
 ) {
   LogV(
-    `${evMsg}. Actor: ${b.getName()}. Id: 0x${DebugLib.Log.IntToHex(
+    `${evMsg}. Actor: ${b.getName()}. Id: 0x${intToHex(
       a.getFormID()
     )}. Object: ${e.baseObj.getName()}. Slot: ${sl}`
   )
