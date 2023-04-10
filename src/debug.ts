@@ -1,20 +1,16 @@
-import { levelFromValue } from "DmLib/Debug/Log/levelFromValue"
-import { createAll } from "DmLib/Debug/Log/createAll"
-import { Level } from "DmLib/Debug/Log/types"
-import { consoleFmt } from "DmLib/Debug/Log/consoleFmt"
-import { fileFmt } from "DmLib/Debug/Log/fileFmt"
+import * as Log from "DmLib/Log"
 import { modName } from "./constants"
 import { mcm } from "./database"
 
 const logToConsole = mcm.logging.toConsole
 const logToFile = mcm.logging.toFile
-const currLogLvl = levelFromValue(mcm.logging.level)
+const currLogLvl = Log.LevelFromValue(mcm.logging.level)
 
-const d = createAll(
+const d = Log.CreateAll(
   modName,
   currLogLvl,
-  logToConsole ? consoleFmt : undefined,
-  logToFile ? fileFmt : undefined
+  logToConsole ? Log.ConsoleFmt : undefined,
+  logToFile ? Log.FileFmt : undefined
 )
 
 /** Logs messages intended to detect bottlenecks. */
@@ -38,4 +34,4 @@ export const LogVT = d.TapV
 export const LogN = d.None
 export const LogNT = d.TapN
 
-LogN(`Logging level: ${Level[currLogLvl]}`)
+LogN(`Logging level: ${Log.Level[currLogLvl]}`)

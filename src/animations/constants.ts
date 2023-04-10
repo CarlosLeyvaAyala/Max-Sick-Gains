@@ -1,5 +1,4 @@
-import { minutesToSkyrimHours } from "DmLib/Time/minutesToSkyrimHours"
-import { toSkyrimHours } from "DmLib/Time/toSkyrimHours"
+import { MinutesToSkyrimHours, toSkyrimHours } from "DmLib/Time"
 import { Player } from "../appearance/player"
 import { mcm } from "../database"
 
@@ -19,7 +18,7 @@ export function Train(skill: TrainingData) {
 /** Trains a skill that expects activity as how many minutes it's worth. */
 export function TrainSingleAnim(skill: TrainingData) {
   let { training, activity } = skill
-  activity = minutesToSkyrimHours(activity)
+  activity = MinutesToSkyrimHours(activity)
   Train({ training, activity })
 }
 

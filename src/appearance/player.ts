@@ -1,20 +1,18 @@
-import { K } from "DmLib/Combinators/K"
-import { O } from "DmLib/Combinators/O"
-import { R as LogR } from "DmLib/Log/R"
-import { joinMaps } from "DmLib/Map/joinMaps"
-import { forcePercent } from "DmLib/Math/forcePercent"
-import { forceRange } from "DmLib/Math/forceRange"
-import { linCurve } from "DmLib/Math/linCurve"
-import { JContainersToPreserving } from "DmLib/Misc/JContainersToPreserving"
-import { preserveVar } from "DmLib/Misc/preserveVar"
-import { hourSpan } from "DmLib/Time/hourSpan"
-import { Now } from "DmLib/Time/now"
-import { toHumanHours } from "DmLib/Time/toHumanHours"
-import { toSkyrimHours } from "DmLib/Time/toSkyrimHours"
-import { HumanHours, SkyrimHours } from "DmLib/Time/types"
-import { fromValue as hkFromValue } from "DmLib/Hotkeys/fromValue"
-import { listenTo as hkListenTo } from "DmLib/Hotkeys/listenTo"
-import { Hotkeys } from "Dmlib"
+import { K, O } from "DmLib/Combinators"
+import { append, appendT } from "DmLib/Log"
+import { FromValue, ListenTo } from "DmLib/Hotkeys"
+import { R as LogR } from "DmLib/Log"
+import { joinMaps } from "DmLib/Map"
+import { LinCurve, forcePercent, forceRange } from "DmLib/Math"
+import { JContainersToPreserving, preserveVar } from "DmLib/Misc"
+import {
+  HumanHours,
+  Now,
+  SkyrimHours,
+  hourSpan,
+  toHumanHours,
+  toSkyrimHours,
+} from "DmLib/Time"
 import * as JDB from "JContainers/JDB"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import {
@@ -70,8 +68,6 @@ import {
 } from "../events/events_hidden"
 import { sendSleep } from "../events/maxick_compatibility"
 import { BodyShape, BodyslidePreset } from "./common"
-import { append } from "DmLib/Debug/Log/append"
-import { appendT } from "DmLib/Debug/Log/appendT"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod
@@ -366,7 +362,7 @@ export namespace Player {
         const hD = mcm.training.decayMax
         const trainUpperLim = 10
         const cappedTrain = forceRange(0, trainUpperLim)(training)
-        return linCurve(
+        return LinCurve(
           { x: 0, y: lD },
           { x: trainUpperLim, y: hD }
         )(cappedTrain)
@@ -723,12 +719,12 @@ export namespace Player {
         LogV("Current stage was blended with previous")
         blendStage = currStage - 1
         g2 = 100
-        b1 = linCurve({ x: 0, y: 0.5 }, { x: lBlendLim, y: 1 })(d.gains)
+        b1 = LinCurve({ x: 0, y: 0.5 }, { x: lBlendLim, y: 1 })(d.gains)
       } else if (uBlendLim <= d.gains && currStage < lastPlayerStage) {
         LogV("Current stage was blended with next")
         blendStage = currStage + 1
         g2 = 0
-        b1 = linCurve({ x: uBlendLim, y: 1 }, { x: 100, y: 0.5 })(d.gains)
+        b1 = LinCurve({ x: uBlendLim, y: 1 }, { x: 100, y: 0.5 })(d.gains)
       } else {
         LogV("No blending needed")
         b1 = 1
@@ -787,8 +783,8 @@ export namespace TestMode {
   export const enabled = cfg.enabled
   if (enabled) printConsole(`+++ Max Sick Gains: TESTING MODE ENABLED`)
 
-  const FO = (k: string) => hkFromValue(k)
-  const HK = (k: string) => hkListenTo(FO(k), enabled)
+  const FO = (k: string) => FromValue(k)
+  const HK = (k: string) => ListenTo(FO(k), enabled)
 
   /** Gains +10 hotkey listener. */
   export const Add10 = HK(cfg.hkGainsAdd10)
@@ -1004,7 +1000,7 @@ export namespace Sleep {
   const FP = forcePercent
 
   function JourneyByStage() {
-    const f = linCurve({ x: 0, y: 0 }, { x: playerStages.length, y: 1 })
+    const f = LinCurve({ x: 0, y: 0 }, { x: playerStages.length, y: 1 })
     return LogIT("Journey by stage", FP(f(pStage + gains / 100)))
   }
 

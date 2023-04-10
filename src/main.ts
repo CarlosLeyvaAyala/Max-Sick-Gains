@@ -1,16 +1,17 @@
-import { fromValue as hkFromValue } from "DmLib/Hotkeys/fromValue"
-import { listenTo as hkListenTo } from "DmLib/Hotkeys/listenTo"
+import * as HK from "DmLib/Hotkeys"
 import { MaxickSpell, MaxickSpellFx, playerId } from "constants"
-import { Hotkeys, Misc } from "Dmlib"
-import { intToHex } from "DmLib/Debug/Log/intToHex"
-import { getBaseName } from "DmLib/Actor/getBaseName"
-import { isActorTypeNPC } from "DmLib/Actor/isActorTypeNPC"
-import { isPlayer } from "DmLib/Actor/player"
-import { Player as P } from "DmLib/Actor/player"
-import { waitActor } from "DmLib/Actor/waitActor"
-import { wait } from "DmLib/Misc/wait"
-import { randomRange } from "DmLib/Math/randomRange"
-import { tryE } from "DmLib/Misc/tryE"
+import { updateEach } from "Misc"
+import * as Log from "DmLib/Log"
+import {
+  getBaseName,
+  isActorTypeNPC,
+  isPlayer,
+  Player as P,
+  waitActor,
+} from "DmLib/Actor"
+import { wait } from "DmLib/Misc"
+import { randomRange } from "DmLib/Math"
+import { tryE } from "DmLib/Misc"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
 import {
   ActiveEffectApplyRemoveEvent,
@@ -187,10 +188,10 @@ export function main() {
 
   /** Resets an `Actor` when pressing a key. */
   const h = mcm.actors
-  const OnResetNpc = hkListenTo(hkFromValue(h.hkReset))
-  const OnResetNearby = hkListenTo(hkFromValue(h.hkResetNearby))
+  const OnResetNpc = HK.ListenTo(HK.FromValue(h.hkReset))
+  const OnResetNearby = HK.ListenTo(HK.FromValue(h.hkResetNearby))
   /** Real time decay and catabolism calculations */
-  const RTcalc = Misc.UpdateEach(3)
+  const RTcalc = updateEach(3)
 
   on("update", () => {
     TestMode.Next(TestMode.GoNext)
@@ -284,7 +285,7 @@ function LogUnEquip(
   e: EquipEvent
 ) {
   LogV(
-    `${evMsg}. Actor: ${b.getName()}. Id: 0x${intToHex(
+    `${evMsg}. Actor: ${b.getName()}. Id: 0x${Log.IntToHex(
       a.getFormID()
     )}. Object: ${e.baseObj.getName()}. Slot: ${sl}`
   )

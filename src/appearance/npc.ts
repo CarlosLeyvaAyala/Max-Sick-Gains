@@ -1,8 +1,7 @@
 import { BodyShape, getBodyShape, exportedBstoPreset } from "./bodyslide"
-import { O } from "DmLib/Combinators/O"
-import { R as LogR } from "DmLib/Log/R"
-import { intToHex } from "DmLib/Debug/Log/intToHex"
-import { getEspAndId } from "Dmlib/Form/uniqueId"
+import { O } from "Combinators"
+import * as Log from "Log"
+import { getEspAndId } from "Form"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import { Actor, printConsole } from "skyrimPlatform"
 import { defaultArchetype } from "../constants"
@@ -270,7 +269,7 @@ export function ClearAppearance(a: Actor | null) {
 const iRawApp = { fitStageId: -1 }
 
 const InvalidRace = (d: NPCData) => {
-  const id = intToHex(d.actor.getFormID())
+  const id = Log.IntToHex(d.actor.getFormID())
   LogI(`NPC 0x${id} does not belong to any known racial group.`)
 }
 
@@ -304,7 +303,7 @@ function SolveAppearance(d: NPCData, o: ActorsCfg): Appearance {
   // }
 
   const raceGroup = RacialMatch(d.race)
-  if (!raceGroup) return LogR(InvalidRace(d), {}) // Get out and log
+  if (!raceGroup) return Log.R(InvalidRace(d), {}) // Get out and log
 
   // If it's not a Known NPC, it's a generic one.
   const raw = Alt(SolveKnownNPC, SolveGenericNPC)(d, o)
@@ -336,24 +335,24 @@ function SolveKnownNPC(d: NPCData, o: ActorsCfg): RawAppearance | null {
 
   const oo = GetNpcOptions(s, t, o)
   if (!oo.applyMuscleDef && !oo.applyMorphs)
-    return LogR(NothingToDo(s, t), iRawApp) // Get out and log
+    return Log.R(NothingToDo(s, t), iRawApp) // Get out and log
 
   const mt = fitStage(kn.fitStage).muscleDefType
   return {
     fitStageId: kn.fitStage,
     weight:
       kn.weight === -1
-        ? LogR(LogV("Body morphs were disabled for this NPC."), undefined)
+        ? Log.R(LogV("Body morphs were disabled for this NPC."), undefined)
         : !oo.applyMorphs
-        ? LogR(NoBs(s, t), undefined)
+        ? Log.R(NoBs(s, t), undefined)
         : kn.weight === 101
         ? d.weight
         : kn.weight,
     muscleDef:
       kn.muscleDef === -1
-        ? LogR(LogV("Muscle definition was disabled for this NPC."), undefined)
+        ? Log.R(LogV("Muscle definition was disabled for this NPC."), undefined)
         : !oo.applyMuscleDef
-        ? LogR(NoMdef(s, t), undefined)
+        ? Log.R(NoMdef(s, t), undefined)
         : kn.muscleDef === 0
         ? { level: InterpolateMusDef(1, 6, d.weight), type: mt }
         : { level: kn.muscleDef, type: mt },
@@ -372,7 +371,7 @@ function SolveGenericNPC(d: NPCData, o: ActorsCfg): RawAppearance {
 
   const oo = GetNpcOptions(s, t, o)
   if (!oo.applyMuscleDef && !oo.applyMorphs)
-    return LogR(NothingToDo(s, t), iRawApp) // Get out and log
+    return Log.R(NothingToDo(s, t), iRawApp) // Get out and log
 
   const arch = Alt(SolveArchetype, DefaultArchetype)(d)
   LogI(`Selected archetype: ${arch.iName}`)
@@ -381,13 +380,13 @@ function SolveGenericNPC(d: NPCData, o: ActorsCfg): RawAppearance {
 
   return {
     fitStageId: arch.fitStage,
-    weight: oo.applyMorphs ? fixedW : LogR(NoBs(s, t), undefined),
+    weight: oo.applyMorphs ? fixedW : Log.R(NoBs(s, t), undefined),
     muscleDef: oo.applyMuscleDef
       ? {
           level: InterpolateMusDef(arch.muscleDefLo, arch.muscleDefHi, fixedW),
           type: fitStage(arch.fitStage).muscleDefType,
         }
-      : LogR(NoMdef(s, t), undefined),
+      : Log.R(NoMdef(s, t), undefined),
   }
 }
 
@@ -484,8 +483,8 @@ function NPCDataToStr(d: NPCData | null): string {
   if (!d) return "Invalid NPC found. This should be harmless."
 
   return (
-    `BaseID: ${intToHex(d.base.getFormID())} ` +
-    `RefId: ${intToHex(d.actor.getFormID())} ` +
+    `BaseID: ${Log.IntToHex(d.base.getFormID())} ` +
+    `RefId: ${Log.IntToHex(d.actor.getFormID())} ` +
     `FixId: ${d.fixedFormId} ` +
     `${d.esp}|0x${d.fixedFormId.toString(16)}. ` +
     `${d.class}, ` +
@@ -529,7 +528,7 @@ function GetActorData(a: Actor | null): NPCData | null {
     }
   } catch (error) {
     LogE(
-      "There was an error trying to get the NPC data. This rarely happens and cause is unknown."
+      `There was an error trying to get the NPC data. This rarely happens and cause is unknown.`
     )
     return null
   }

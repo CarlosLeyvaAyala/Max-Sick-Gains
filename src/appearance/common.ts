@@ -1,9 +1,9 @@
 import { RaceGroup, TextureSignature, db } from "../types/exported"
 import { LogN } from "../debug" // TODO: Change to proper log level
 import { Sex } from "../database"
-import { linCurve } from "DmLib/Math/linCurve"
 import { Actor } from "skyrimPlatform"
 import { applySkin } from "./nioverride/skin"
+import { LinCurve } from "DmLib/Math"
 
 /** Path to the files to be applied */
 export interface TexturePaths {
@@ -115,7 +115,7 @@ export function getRaceSignature(edid: RaceEDID) {
  * @returns Interpolated value.
  */
 export const weightInterpolation = (x: number, y1: number, y2: number) =>
-  linCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(x)
+  LinCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(x)
 
 /** Gets the Texture signature given a racial signature and sex */
 export function raceSexToTexSignature(

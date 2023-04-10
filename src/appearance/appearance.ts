@@ -1,5 +1,3 @@
-import { waitActor } from "DmLib/Actor/waitActor"
-import { linCurve } from "DmLib/Math/linCurve"
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
@@ -32,8 +30,9 @@ import {
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 import { BodyslidePreset } from "./common"
-import { intToHex } from "DmLib/Debug/Log/intToHex"
-import { LoggingFunction, TappedFunction } from "DmLib/Debug/Log/types"
+import { waitActor } from "DmLib/Actor"
+import { IntToHex, LoggingFunction, TappedFunction } from "DmLib/Log"
+import { LinCurve } from "DmLib/Math"
 // import { BodyslidePreset } from "./nioverride/common"
 
 export function LogBs(
@@ -69,7 +68,7 @@ type BsCalc = (slMin: number, slMax: number, w: number) => number
  * @returns Interpolated value.
  */
 const StdMorph: BsCalc = (min, max, w) =>
-  linCurve({ x: 0, y: min }, { x: 100, y: max })(w)
+  LinCurve({ x: 0, y: min }, { x: 100, y: max })(w)
 
 export const BlendMorph =
   (blend: number) => (min: number, max: number, w: number) =>
@@ -226,7 +225,7 @@ export function EquipPizzaHandsFix(a: Actor) {
     ).trim()
   )
   const g = Armor.from(a.getWornForm(SlotMask.Hands))
-  LogV(`Current gauntlets: ${g?.getName()} (${intToHex(g?.getFormID() || 0)})`)
+  LogV(`Current gauntlets: ${g?.getName()} (${IntToHex(g?.getFormID() || 0)})`)
   const exit = LogVT("Don't fix pizza hands?", g || skO === "")
   if (exit) return
 
@@ -376,7 +375,7 @@ function UpdateNiNode(a: Actor) {
  * @returns The value associated to `weight`.
  */
 export function InterpolateW(y1: number, y2: number, weight: number) {
-  return linCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(weight)
+  return LinCurve({ x: 0, y: y1 }, { x: 100, y: y2 })(weight)
 }
 
 /** Gets which muscle definition level an `Actor` should have.

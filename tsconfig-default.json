@@ -3,11 +3,13 @@
     "alwaysStrict": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
     "strict": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
+    "removeComments": true,
     "module": "System",
     "target": "ES2017",
     "lib": [
@@ -16,14 +18,12 @@
     "paths": {
       "*": [
         "*",
-        "F:/SteamLibrary/steamapps/common/Skyrim Special Edition/Data/Platform/Modules/*"
-      ],
-      "chai": [
-        "./node_modules/@types/chai"
+        "F:/SteamLibrary/steamapps/common/Skyrim Special Edition/Data/Platform/Modules/*",
+        "F:/Skyrim SE/MO2/mods/DM-Lib-Typescript/DmLib/*"
       ]
     },
     "outFile": "F:/Skyrim SE/MO2/overwrite/Platform/Plugins/maxick.js",
-    "baseUrl": "."
+    "baseUrl": "./"
   },
   "include": [
     "./*.ts"

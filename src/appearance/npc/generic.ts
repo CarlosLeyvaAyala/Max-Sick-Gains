@@ -1,3 +1,6 @@
+import { isInRange } from "DmLib/Math"
+import { intersection } from "DmLib/Set"
+import { LogN } from "../../debug" // TODO: Change to proper log level
 import { RaceGroup, db } from "../../types/exported"
 import {
   AppearanceData,
@@ -7,12 +10,7 @@ import {
   searchMapByContent,
   weightInterpolation,
 } from "../common"
-import { LogN, LogV } from "../../debug" // TODO: Change to proper log level
-import { CanApply, NPCData, NpcIdentity } from "./calculated"
-import { isInRange } from "DmLib/Math/isInRange"
-import { linCurve } from "DmLib/Math/linCurve"
-import { intersection } from "DmLib/Set/intersection"
-import { Sex } from "../../database"
+import { NPCData } from "./calculated"
 
 function getClassArchetypes(className: string) {
   const cn = className

@@ -1,6 +1,4 @@
-import { Animations } from "DmLib/Animation/Animations"
-import { hookAnim } from "DmLib/Animation/hookAnim"
-import { Now } from "DmLib/Time/now"
+import { Animations, HookAnim } from "Animation"
 import {
   Actor,
   EquippedItemType,
@@ -17,11 +15,13 @@ import {
   TrainSingleAnim,
   twoHandedTrainMult,
 } from "./constants"
+import { Now } from "DmLib/Time"
 
 /** Adds an animation hook on the player. */
 function Hook(animName: string, f: () => void) {
-  hookAnim(animName, f, playerId, playerId)
+  HookAnim(animName, f, playerId, playerId)
 }
+
 function HookOneTwoHanded() {
   // Right hand
   TrainOnAttack(Animations.AttackStart, sk.Attack)

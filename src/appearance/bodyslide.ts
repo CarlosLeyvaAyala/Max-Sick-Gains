@@ -1,11 +1,11 @@
 import { Sex } from "../database"
-import { linCurve } from "DmLib/Math/linCurve"
 import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
 import { FitStage, FitStageSexAppearance, BSSlider } from "../types/exported"
 import { AppearanceData, weightInterpolation } from "./common"
-import { I } from "DmLib/Combinators/I"
 import { db } from "../types/exported"
-import { LoggingFunction } from "DmLib/Debug/Log/types"
+import { LoggingFunction } from "DmLib/Log"
+import { LinCurve } from "DmLib/Math"
+import { I } from "DmLib/Combinators"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
@@ -48,7 +48,7 @@ type BsCalc = (slMin: number, slMax: number, w: number) => number
  * @returns Interpolated value.
  */
 const stdMorph: BsCalc = (min, max, w) =>
-  linCurve({ x: 0, y: min }, { x: 100, y: max })(w)
+  LinCurve({ x: 0, y: min }, { x: 100, y: max })(w)
 
 /** Morph with blending capabilities */
 export const blendMorph =
