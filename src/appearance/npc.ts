@@ -1,12 +1,6 @@
-import {
-  BodyShape,
-  getBodyShape,
-  exportedBstoPreset,
-  BodyslidePreset,
-} from "./bodyslide"
 import { O } from "Combinators"
-import * as Log from "Log"
 import { getEspAndId } from "Form"
+import * as Log from "Log"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import { Actor, printConsole } from "skyrimPlatform"
 import { defaultArchetype } from "../constants"
@@ -26,7 +20,6 @@ import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
 import {
   ApplyBodyslide,
   ApplyMuscleDef,
-  ApplySkin,
   ChangeHeadSize,
   ClearAppearance as ClearActorAppearance,
   GetBodyslide,
@@ -36,6 +29,13 @@ import {
   InterpolateW,
   IsMuscleDefBanned,
 } from "./appearance"
+import {
+  BodyShape,
+  BodyslidePreset,
+  exportedBstoPreset,
+  getBodyShape,
+} from "./bodyslide"
+import { getCached, saveToCache } from "./shared/non_precalc/cache"
 // import { BodyslidePreset, getTexturePaths } from "./nioverride/common"
 import {
   TexturePaths,
@@ -156,19 +156,12 @@ function newChangeAppearance(a: Actor | null) {
   return identity.npcType
 }
 
+import { RaceGroup, db } from "../types/exported"
+import { applySkin } from "./nioverride/skin"
 import { NPCData, NpcIdentity } from "./npc/calculated"
 import { getJourney } from "./npc/dynamic"
-import {
-  getAppearanceData,
-  getArchetype,
-  getCached,
-  saveToCache,
-} from "./npc/generic"
+import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
-import { RaceGroup, db } from "../types/exported"
-import { getMuscleDefTexName } from "./appearance"
-import { getSkinTexName } from "./appearance"
-import { applySkin } from "./nioverride/skin"
 
 //#region Solve appearance
 
