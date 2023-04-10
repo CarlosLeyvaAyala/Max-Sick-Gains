@@ -1,7 +1,7 @@
 import { isInRange } from "DmLib/Math"
 import { intersection } from "DmLib/Set"
 import { LogN } from "../../debug" // TODO: Change to proper log level
-import { RaceGroup, db } from "../../types/exported"
+import { RaceGroup, db, muscleDefMax, muscleDefMin } from "../../types/exported"
 import {
   AppearanceData,
   RaceEDID,
@@ -80,12 +80,20 @@ export function getAppearanceData(
   race: RaceGroup,
   archetypeId: number | undefined
 ): AppearanceData {
-  const a = db.archetypes[archetypeId?.toString() ?? "1"]
-  const w = weightInterpolation(a.wLo, a.wHi, d.weight)
+  const a =
+    archetypeId === undefined ? null : db.archetypes[archetypeId.toString()]
+  const fs = a?.fitStage ?? 1
+  const w = weightInterpolation(a?.wLo ?? 0, a?.wHi ?? 100, d.weight)
 
   return {
-    fitstage: a.fitStage,
-    muscleDef: Math.round(weightInterpolation(w, a.mDefLo, a.mDefHi)),
+    fitstage: fs,
+    muscleDef: Math.round(
+      weightInterpolation(
+        w,
+        a?.mDefLo ?? muscleDefMin,
+        a?.mDefHi ?? muscleDefMax
+      )
+    ),
     texSig: raceSexToTexSignature(race, d.sex),
     sex: d.sex,
     race: d.race,
