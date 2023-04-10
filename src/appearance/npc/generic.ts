@@ -5,12 +5,21 @@ import { RaceGroup, db } from "../../types/exported"
 import {
   AppearanceData,
   RaceEDID,
+  TexturePaths,
   raceSexToTexSignature,
   searchDirectAndByContent,
   searchMapByContent,
   weightInterpolation,
 } from "../common"
 import { NPCData } from "./calculated"
+import {
+  Now,
+  SkyrimHours,
+  ToSkyrimHours,
+  hourSpan,
+  toSkyrimHours,
+} from "DmLib/Time"
+import { BodyShape } from "../bodyslide"
 
 function getClassArchetypes(className: string) {
   const cn = className
@@ -82,4 +91,41 @@ export function getAppearanceData(
     race: d.race,
     weight: w,
   }
+}
+
+interface CachedData {
+  /** Last time the Actor was seen by this mod. */
+  lastSeen: SkyrimHours
+  /** Shape to apply. */
+  shape: BodyShape
+  /** Textures to apply. */
+  textures: TexturePaths
+}
+
+/** Form id of the `Actor` instance; not their base ID. */
+export type CachedFormID = number
+
+type Cache = Map<CachedFormID, CachedData>
+const cache: Cache = new Map()
+
+/** Caches a generic NPC so its appearance calculation can be skipped */
+export function saveToCache(
+  formID: CachedFormID,
+  shape: BodyShape,
+  textures: TexturePaths
+) {
+  cache.set(formID, { lastSeen: Now(), shape: shape, textures: textures })
+}
+
+/** Gets the cached data if it exists */
+export function getCached(
+  formID: CachedFormID
+): { shape: BodyShape; textures: TexturePaths } | null {
+  const timeLimit = 24
+  const d = cache.get(formID)
+  if (!d) return null
+  if (hourSpan(d.lastSeen) > timeLimit) return null // Actor may have already been recycled
+
+  LogN("Actor was cached. Getting appearance from cache.")
+  return { shape: d.shape, textures: d.textures }
 }

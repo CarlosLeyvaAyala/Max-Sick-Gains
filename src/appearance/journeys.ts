@@ -1,4 +1,4 @@
-import { MathLib, TimeLib as Time } from "Dmlib"
+import { Debug, storage } from "skyrimPlatform"
 import { LogE, LogI, LogIT, LogN, LogNT, LogV, LogVT } from "../debug"
 import { SaverObject } from "../types/saving"
 import { FitJourney } from "../types/exported"
@@ -7,6 +7,8 @@ import {
   SendGainsSet,
   SendTrainingSet,
 } from "../events/events_hidden"
+import { ForcePercent, ForceRange } from "DmLib/Math"
+import { HumanHours } from "DmLib/Time"
 
 interface AdjustedData {
   stage: number
@@ -63,7 +65,7 @@ export class Journey extends SaverObject {
   protected currentStage() {
     return this._journey.stages[this.stage]
   }
-  protected capGains = MathLib.ForceRange(0, 100)
+  protected capGains = ForceRange(0, 100)
   protected welcomeMsg() {
     return this.currentStage().welcomeMsg
   }
@@ -208,7 +210,7 @@ export class PlayerJourney extends Journey {
    * @returns New gains and training.
    */
   private makeGains(h: number, t: number, g: number) {
-    const sleepGains = Math.min(MathLib.ForcePercent(h / 10), t)
+    const sleepGains = Math.min(ForcePercent(h / 10), t)
     const gainsDelta = this.maxGainsPerDay() * sleepGains
     const newTraining = t - sleepGains
     return {
@@ -222,7 +224,7 @@ export class PlayerJourney extends Journey {
    *
    * @param hoursSlept How many {@link Time.HumanHours} the player slept.
    */
-  public sleepEvent(hoursSlept: Time.HumanHours) {
+  public sleepEvent(hoursSlept: HumanHours) {
     LogN("--- Calculating appearance after sleeping")
     const t = LogNT("Training", this.training)
     const s = LogNT("Current player stage", this.stage)

@@ -8,11 +8,6 @@ import {
   db,
 } from "../../types/exported"
 
-/** Lowercase esp name. The configuration app exports this. */
-export type EspLower = string
-/** Form id as a string. The configuration app exports this.  */
-export type CachedFormID = string
-
 /** Types of NPCs available */
 export enum NpcType {
   /** Has a Fitness Journey */
@@ -56,19 +51,6 @@ export interface NpcIdentity {
   archetype?: number
 }
 
-/** Gets the data from a pre-generated esp[id] map if it exists */
-export function getPreGenerated<T>(
-  esp: EspLower,
-  id: CachedFormID,
-  map: { [esp: string]: { [id: string]: T } }
-) {
-  const j = map[esp]
-  if (!j) return null
-  const target = j[id]
-  if (!target) return null
-  return target
-}
-
 export interface CanApply {
   morphs: boolean
   textures: boolean
@@ -102,4 +84,23 @@ export function canApplyChanges(d: NPCData, i: NpcIdentity): CanApply {
     default:
       return { morphs: false, textures: false }
   }
+}
+
+// TODO: Move everything below to common.ts
+/** Lowercase esp name. The configuration app exports this. */
+export type EspLower = string
+/** Form id as a string. The configuration app exports this.  */
+export type CachedFormID = string
+
+/** Gets the data from a pre-generated esp[id] map if it exists */
+export function getPreGenerated<T>(
+  esp: EspLower,
+  id: CachedFormID,
+  map: { [esp: string]: { [id: string]: T } }
+) {
+  const j = map[esp]
+  if (!j) return null
+  const target = j[id]
+  if (!target) return null
+  return target
 }

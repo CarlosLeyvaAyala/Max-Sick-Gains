@@ -1,5 +1,4 @@
-import { JContainersToPreserving } from "DmLib/Misc/JContainersToPreserving"
-import { preserveVar } from "DmLib/Misc/preserveVar"
+import { JContainersToPreserving, preserveVar } from "DmLib/Misc"
 import * as JDB from "JContainers/JDB"
 
 /** An object that can save its data to a JDB. */

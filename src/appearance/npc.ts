@@ -1,4 +1,9 @@
-import { BodyShape, getBodyShape, exportedBstoPreset } from "./bodyslide"
+import {
+  BodyShape,
+  getBodyShape,
+  exportedBstoPreset,
+  BodyslidePreset,
+} from "./bodyslide"
 import { O } from "Combinators"
 import * as Log from "Log"
 import { getEspAndId } from "Form"
@@ -33,7 +38,7 @@ import {
 } from "./appearance"
 // import { BodyslidePreset, getTexturePaths } from "./nioverride/common"
 import {
-  BodyslidePreset,
+  TexturePaths,
   getRaceSignature,
   getTexturePaths,
   getTextures,
@@ -106,15 +111,27 @@ function newChangeAppearance(a: Actor | null) {
   const canChange = canApplyChanges(d, identity)
   switch (identity.npcType) {
     case NT.generic:
-      const app = getAppearanceData(d, identity.race, identity.archetype)
+      let shape: BodyShape
+      let texs: TexturePaths
+      const formID = a.getFormID()
 
-      const shape = getBodyShape(app)
+      const cd = getCached(formID)
+      if (cd) {
+        shape = cd.shape
+        texs = cd.textures
+      } else {
+        const app = getAppearanceData(d, identity.race, identity.archetype)
+        shape = getBodyShape(app)
+        texs = getTextures(app)
+      }
+
       ApplyBodyslide(a, shape.bodySlide)
       ChangeHeadSize(a, shape.headSize)
 
-      const texs = getTextures(app)
       ApplyMuscleDef(a, d.sex, texs.muscle)
       applySkin(a, d.sex, texs.skin)
+
+      saveToCache(formID, shape, texs)
 
       break
     case NT.known:
@@ -123,6 +140,7 @@ function newChangeAppearance(a: Actor | null) {
       LogN(
         `${knData.name} data was already calculated when exporting. Check the configuration app report for more info.`
       )
+
       ApplyBodyslide(a, exportedBstoPreset(knData.bodyslide))
       ChangeHeadSize(a, knData.head)
 
@@ -140,7 +158,12 @@ function newChangeAppearance(a: Actor | null) {
 
 import { NPCData, NpcIdentity } from "./npc/calculated"
 import { getJourney } from "./npc/dynamic"
-import { getAppearanceData, getArchetype } from "./npc/generic"
+import {
+  getAppearanceData,
+  getArchetype,
+  getCached,
+  saveToCache,
+} from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
 import { RaceGroup, db } from "../types/exported"
 import { getMuscleDefTexName } from "./appearance"
@@ -197,9 +220,14 @@ function getNPCType(d: NPCData, sig: RaceGroup): NpcIdentity {
  */
 export function ChangeAppearance(a: Actor | null) {
   const tt = newChangeAppearance(a) // TODO: Delete this
-  if (tt === NT.generic || tt === NT.known) return // Hijack generic NPC appearance setting
+  if (tt === NT.generic || tt === NT.known) {
+    LogN("Hijacking old method")
+    return // Hijack generic NPC appearance setting
+  }
+  LogN("******************************************************")
   if (!a) return
   ApplyAppearance(a, true, true)
+  LogN("******************************************************")
 }
 
 /** Changes an NPC muscle definition according to what they should look like.

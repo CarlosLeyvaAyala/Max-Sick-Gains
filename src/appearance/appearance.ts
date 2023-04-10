@@ -1,3 +1,6 @@
+import { waitActor } from "DmLib/Actor"
+import { IntToHex, LoggingFunction, TappedFunction } from "DmLib/Log"
+import { LinCurve } from "DmLib/Math"
 import {
   AddNodeOverrideString,
   AddSkinOverrideString,
@@ -29,11 +32,7 @@ import {
   muscleDefBanRace,
 } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
-import { BodyslidePreset } from "./common"
-import { waitActor } from "DmLib/Actor"
-import { IntToHex, LoggingFunction, TappedFunction } from "DmLib/Log"
-import { LinCurve } from "DmLib/Math"
-// import { BodyslidePreset } from "./nioverride/common"
+import { BodyslidePreset } from "./bodyslide"
 
 export function LogBs(
   bs: BodyslidePreset | undefined,

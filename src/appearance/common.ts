@@ -11,15 +11,6 @@ export interface TexturePaths {
   skin?: string
 }
 
-/** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
-export type BodyslidePreset = Map<string, number>
-
-/** Complete ´Actor´ appearance: body morphs and head size */
-export interface BodyShape {
-  bodySlide: BodyslidePreset
-  headSize: number
-}
-
 /** EDID of a race */
 export type RaceEDID = string
 /** Lowercase race EDID */
@@ -39,11 +30,6 @@ export interface AppearanceData {
   texSig: TextureSignature
   /** Race EDID */
   race: RaceEDID
-}
-
-/** Body morphs */
-export interface Morphs {
-  headSize: number
 }
 
 /** Searches a map for a string by content */
@@ -147,9 +133,7 @@ export function raceSexToTexSignature(
   }
 }
 
-/** Gets the body shape for non-precalculated `Actors` */
-export function getBodyShape(d: AppearanceData) {}
-
+/** Gets texture paths for non-precalculated `Actors` */
 export function getTextures(d: AppearanceData): TexturePaths {
   const fs = db.fitStages[d.fitstage.toString()]
 

@@ -1,16 +1,15 @@
-import { Sex } from "../database"
-import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
-import { FitStage, FitStageSexAppearance, BSSlider } from "../types/exported"
-import { AppearanceData, weightInterpolation } from "./common"
-import { db } from "../types/exported"
+import { I } from "DmLib/Combinators"
 import { LoggingFunction } from "DmLib/Log"
 import { LinCurve } from "DmLib/Math"
-import { I } from "DmLib/Combinators"
+import { Sex } from "../database"
+import { LogN } from "../debug"
+import { FitStageSexAppearance, db } from "../types/exported"
+import { AppearanceData, weightInterpolation } from "./common"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
 
-/** Total ´Actor´ shape appearance: body morphs and head size */
+/** Complete ´Actor´ shape appearance: body morphs and head size */
 export interface BodyShape {
   bodySlide: BodyslidePreset
   headSize: number
