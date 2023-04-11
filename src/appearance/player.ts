@@ -68,7 +68,7 @@ import {
 } from "../events/events_hidden"
 import { sendSleep } from "../events/maxick_compatibility"
 import { BodyShape, BodyslidePreset } from "./bodyslide"
-import {} from "./journeys"
+import {} from "./shared/non_precalc/journey/types"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod

@@ -5,6 +5,7 @@ import { Sex } from "../database"
 import { LogN } from "../debug"
 import { FitStageSexAppearance, db } from "../types/exported"
 import { AppearanceData, weightInterpolation } from "./common"
+import * as O from "DmLib/typescript/Object"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
@@ -74,10 +75,6 @@ function objToBsPreset<T>(
   mapping: (v: T) => number
 ): BodyslidePreset {
   const r = new Map()
-
-  for (const [slN, sl] of Object.entries(bs)) {
-    r.set(slN, mapping(sl))
-  }
-
+  O.iterateEntries(bs, (slN, sl) => r.set(slN, mapping(sl)))
   return r
 }

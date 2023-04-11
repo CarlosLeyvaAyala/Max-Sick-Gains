@@ -44,6 +44,7 @@ import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
+import * as JourneyManager from "./appearance/shared/non_precalc/journey/manager"
 
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
@@ -51,7 +52,10 @@ import { loadAlternateData } from "./types/exported"
 
 export function main() {
   // FIX: Delete when ready
-  once("update", () => loadAlternateData())
+  once("update", () => {
+    loadAlternateData()
+    JourneyManager.initialize()
+  })
 
   // ;>========================================================
   // ;>===                 PLAYER EVENTS                  ===<;
