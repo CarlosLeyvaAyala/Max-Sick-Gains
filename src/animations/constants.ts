@@ -1,10 +1,15 @@
 import { MinutesToSkyrimHours, toSkyrimHours } from "DmLib/Time"
 import { Player } from "../appearance/player"
 import { mcm } from "../database"
+import { PlayerJourney } from "../appearance/player/journey"
+import { LogN } from "../debug"
 
+let playerJourney: PlayerJourney | null = null
 const HadTraining = Player.Calc.Training.HadTraining
 const HadActivity = Player.Calc.Activity.HadActivity
 export type TrainingData = Player.Calc.Training.TrainingData
+
+export const setPlayerJourney = (p: PlayerJourney) => (playerJourney = p)
 
 /** Trains a skill as is. */
 export function Train(skill: TrainingData) {
@@ -13,6 +18,11 @@ export function Train(skill: TrainingData) {
   const am = mcm.training.activityMult
   HadTraining(skill.training * tm, f)
   HadActivity(skill.activity * am)
+
+  if (!playerJourney) return
+  LogN("Using new animation system")
+  playerJourney.hadTraining(skill.training * tm)
+  playerJourney.hadActivity(skill.activity * am)
 }
 
 /** Trains a skill that expects activity as how many minutes it's worth. */

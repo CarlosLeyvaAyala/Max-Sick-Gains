@@ -1,7 +1,7 @@
 import { forcePercent } from "DmLib/Math"
 import { HumanHours, Now, SkyrimHours } from "DmLib/Time"
 import { Debug, printConsole } from "skyrimPlatform"
-import { LogN, LogNT, LogV } from "../../debug"
+import { LogN, LogNT, LogV, LogVT } from "../../debug"
 import {
   SendCatabolismEnd,
   SendGainsChange,
@@ -138,10 +138,10 @@ export class PlayerJourney extends Journey {
   private sendEvents(gd: number, sd: number) {
     // Widget display
     SendTrainingSet(this.training)
-    SendGainsSet(LogNT("Setting gains on widget", this.gains))
+    SendGainsSet(LogVT("Setting gains on widget", this.gains))
 
     // Widget flashing
-    SendGainsChange(LogNT("Gains changed by", gd))
+    SendGainsChange(LogVT("Gains changed by", gd))
 
     // Other
     const N = (m: string) => Debug.messageBox(`${m}\n\n${this.welcomeMsg()}.`)
@@ -153,16 +153,16 @@ export class PlayerJourney extends Journey {
   protected restoreVariables() {
     super.restoreVariables()
     this._training = this.restoreFloat(this.trainingKey)
-    LogN(`Training: ${this._training}`)
+    LogV(`Training: ${this._training}`)
     this._lastTrained = this.restoreFloat(this.lastTrainedKey)
-    LogN(`Last trained: ${this._lastTrained}`)
+    LogV(`Last trained: ${this._lastTrained}`)
   }
 
   /** Sets data for debugging purposes */
   public setDebugE(training: number, lastTrained: number) {
     this.training = training
     this.lastTrained = lastTrained
-    LogN(
+    LogV(
       `Debug data was set to Training: ${training} Last Trained: ${lastTrained}`
     )
   }
@@ -175,7 +175,7 @@ export class PlayerJourney extends Journey {
    *
    * @param activity Activity value. Send negative values to simulate inactivity.
    */
-  private hadActivity(activity: SkyrimHours) {
+  public hadActivity(activity: SkyrimHours) {
     this.lastTrained = hadActivity(activity, this.lastTrained)
     const inactivePercent = sendActivity(this.lastTrained)
     this.isInCatabolic = catabolicCheck(inactivePercent, this.isInCatabolic)

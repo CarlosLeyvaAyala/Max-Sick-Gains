@@ -46,13 +46,15 @@ import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
 import * as JourneyManager from "./appearance/shared/non_precalc/journey/manager"
+import { PlayerJourney } from "./appearance/player/journey"
+import * as AnimHooks from "./animations/constants"
 
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
 // const WasInitialized = () => JDB.solveBool(initK, false)
 
 export function main() {
-  let modInitialized = false
+  let playerJourney: PlayerJourney | null = null
 
   // FIX: Delete when ready
   once("update", () => {
@@ -62,7 +64,8 @@ export function main() {
     LogN("Starting player update cycle")
     LogN("+++++++++++++++++++++++++++++++++++++++")
     // Kickstart real time calculations
-    // modInitialized = true
+    playerJourney = JourneyManager.player()
+    AnimHooks.setPlayerJourney(playerJourney)
   })
 
   // ;>========================================================
@@ -214,12 +217,9 @@ export function main() {
     TestMode.SlideShow(TestMode.GoSlideShow)
 
     RTcalc(Player.Calc.Update)
-    // RTcalc2(playerUpdate)
-    if (modInitialized) {
-      RTcalc2(() => {
-        JourneyManager.player().updateRT()
-      })
-    }
+    RTcalc2(() => {
+      playerJourney?.updateRT()
+    })
     OnResetNpc(ResetNPC)
 
     OnResetNearby(InitializeSurroundingNPCs)

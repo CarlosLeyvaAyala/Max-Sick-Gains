@@ -1,5 +1,5 @@
 import { LinCurve, forceRange } from "DmLib/Math"
-import { LogN, LogNT, LogVT } from "../../debug"
+import { LogN, LogNT, LogV, LogVT } from "../../debug"
 import { db } from "../../types/exported"
 import { SendTrainingChange, SendTrainingSet } from "../../events/events_hidden"
 
@@ -31,7 +31,7 @@ export function decay(
   isInCatabolic: boolean,
   maxGainsPerDay: number
 ) {
-  LogN("--- Decay")
+  LogV("--- Decay")
   const decayRate = dynDecay(training)
   const PollAdjust = (x: number) => td * x * training
   const Catabolism = (x: number) => (isInCatabolic ? PollAdjust(x) : 0)
@@ -40,9 +40,9 @@ export function decay(
   const trainD = LogNT("Training decay", PollAdjust(decayRate))
 
   // Catabolism calculations
-  const trainC = LogNT("Training catabolism", Catabolism(trainCat))
+  const trainC = LogVT("Training catabolism", Catabolism(trainCat))
   const gainsC = Catabolism(maxGainsPerDay * gainsCat)
-  LogN(`Gains catabolism: ${gainsC}`)
+  LogV(`Gains catabolism: ${gainsC}`)
 
   return {
     trainDecay: trainD,
