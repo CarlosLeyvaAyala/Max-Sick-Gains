@@ -1,8 +1,9 @@
+import * as JDB from "JContainers/JDB"
 import { ForceRange } from "DmLib/Math"
 import { storage } from "skyrimPlatform"
 import { LogN, LogNT, LogV, LogVT } from "../../../../debug"
 import { FitJourney } from "../../../../types/exported"
-import { SaverObject } from "../../../../types/saving"
+import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
 
 interface AdjustedData {
   stage: number
@@ -21,13 +22,7 @@ export class Journey extends SaverObject {
   /** Creates a JDB key asociated with this object. */
   protected readonly modKey: (varName: string) => string
 
-  /** Initializes values or gets them from the storage map when hot reloading. */
-  protected initOrGetHotReloadValues() {
-    this._gains = storage[this.gainsKey] as number | 0
-    this._stage = storage[this.stageKey] as number | 0
-  }
-
-  //#region Gains
+  //#region Property: Gains
   private _gains = 0
 
   /** Current gains */
@@ -40,8 +35,9 @@ export class Journey extends SaverObject {
   }
   //#endregion
 
-  //#region Stage
+  //#region Property: Stage
   private _stage = 0
+  // TODO: Check if protect encapsulation is needed
   /** Current stage in its Journey */
   get stage() {
     return this._stage
@@ -52,14 +48,20 @@ export class Journey extends SaverObject {
   }
   //#endregion
 
+  /** Name to identify this Journey in logs */
+  protected readonly _name: string
+  /** Journey data */
   protected readonly _journey: FitJourney
   /** Index of the last Journey Stage */
   protected readonly _lastStage: number
+
   /** Getst the current journey stage data */
   protected currentStage() {
     return this._journey.stages[this.stage]
   }
+
   protected capGains = ForceRange(0, 100)
+
   protected welcomeMsg() {
     return this.currentStage().welcomeMsg
   }
@@ -70,37 +72,52 @@ export class Journey extends SaverObject {
   }
 
   constructor(key: string, journey: FitJourney) {
-    super()
+    super(
+      [JDBSaveAdapter(JDB.solveStrSetter), JDB.solveStr],
+      [JDBSaveAdapter(JDB.solveIntSetter), JDB.solveInt],
+      [JDBSaveAdapter(JDB.solveFltSetter), JDB.solveFlt],
+      [JDBSaveAdapter(JDB.solveBoolSetter), JDB.solveBool]
+    )
+    this._name = key
     this.modKey = (v: string) => `.maxickVars.${key}${v}`
     this.gainsKey = this.modKey("gains")
     this.stageKey = this.modKey("stage")
-    this.initOrGetHotReloadValues()
     this._journey = journey
     this._lastStage = journey.stages.length - 1
 
-    LogN(
-      `${key} Journey was initialized with (${journey.stages.length}) stages`
-    )
+    LogN(`${key} Journey was created with (${journey.stages.length}) stages`)
+  }
+
+  /** Initializes variables */
+  public start() {
+    if (!this.keyExists(this.stageKey)) this.initialize()
+    else this.restoreVariables()
   }
 
   /** Adjust gains and stage based on minDays.
    *
-   * @param g Current `gains` that need to be adjusted.
+   * @param gains Current `gains` that need to be adjusted.
    */
-  protected adjust(g: number): AdjustedData {
+  protected adjust(gains: number): AdjustedData {
     const s = this.stage
-    LogV(`Adjusting Player Stage: s = ${s}, g = ${g}`)
+    LogV(`Adjusting Player Stage: s = ${s}, g = ${gains}`)
     const ProgPred: ChangePredicate = (x, st) =>
       x >= 100 && st < this._lastStage
 
-    if (g >= 100)
-      return this.Change(s, g, ProgPred, this.Progress, this.OnProgress)
-    else if (g < 0)
-      return this.Change(s, g, (x, _) => x < 0, this.Regress, this.OnRegress)
+    if (gains >= 100)
+      return this.Change(s, gains, ProgPred, this.Progress, this.OnProgress)
+    else if (gains < 0)
+      return this.Change(
+        s,
+        gains,
+        (x, _) => x < 0,
+        this.Regress,
+        this.OnRegress
+      )
 
     return {
       stage: LogVT("Adjusted stage", s),
-      gains: LogVT("Adjusted gains", g),
+      gains: LogVT("Adjusted gains", gains),
     }
   }
 
@@ -154,5 +171,29 @@ export class Journey extends SaverObject {
     const a = this.adjust(newGains)
     this.gains = LogNT("Setting gains", this.capGains(a.gains))
     this.stage = LogNT("Setting stage", a.stage)
+  }
+
+  /** Initializes the Fitness Journey data the mod needs to work */
+  protected initialize() {
+    LogN(
+      `${this._name} Fitness Journey will be initialized at stage (${this._journey.start}).`
+    )
+    this.gains = 0
+    this.stage = this._journey.start
+  }
+
+  protected restoreVariables() {
+    LogN(`${this._name} restored:`)
+    this._gains = this.restoreFloat(this.gainsKey)
+    LogN(`Gains: ${this._gains}`)
+    this._stage = this.restoreInt(this.stageKey)
+    LogN(`Stage: ${this._stage}`)
+  }
+
+  /** Sets data for debugging purposes */
+  public setDebug(gains: number, stage: number) {
+    this.gains = gains
+    this.stage = stage
+    LogN(`Debug data was set to Gains: ${gains} Stage: ${stage}`)
   }
 }

@@ -1,5 +1,5 @@
 import { Journey } from "./types"
-import { db } from "../../../../types/exported"
+import { FitJourney, db } from "../../../../types/exported"
 import { PlayerJourney } from "../../../player/journey"
 import { LogN } from "../../../../debug"
 import * as O from "DmLib/typescript/Object"
@@ -21,4 +21,9 @@ export function initialize() {
   O.entriesToArray(db.fitJourneys)
     .filter(([k, _]) => k !== "Player")
     .forEach(([k, v]) => journeys.push(new Journey(k, v)))
+
+  journeys.forEach((j) => j.start())
 }
+
+export const player = () => journeys[0] as PlayerJourney
+export const NPCs = () => journeys.slice(1)

@@ -24,6 +24,7 @@ import {
   Game,
   on,
   once,
+  printConsole,
   SlotMask,
   Utility,
 } from "skyrimPlatform"
@@ -51,10 +52,17 @@ import * as JourneyManager from "./appearance/shared/non_precalc/journey/manager
 // const WasInitialized = () => JDB.solveBool(initK, false)
 
 export function main() {
+  let modInitialized = false
+
   // FIX: Delete when ready
   once("update", () => {
     loadAlternateData()
     JourneyManager.initialize()
+    LogN("+++++++++++++++++++++++++++++++++++++++")
+    LogN("Starting player update cycle")
+    LogN("+++++++++++++++++++++++++++++++++++++++")
+    // Kickstart real time calculations
+    // modInitialized = true
   })
 
   // ;>========================================================
@@ -196,6 +204,7 @@ export function main() {
   const OnResetNearby = HK.ListenTo(HK.FromValue(h.hkResetNearby))
   /** Real time decay and catabolism calculations */
   const RTcalc = updateEach(3)
+  const RTcalc2 = updateEach(3)
 
   on("update", () => {
     TestMode.Next(TestMode.GoNext)
@@ -205,7 +214,12 @@ export function main() {
     TestMode.SlideShow(TestMode.GoSlideShow)
 
     RTcalc(Player.Calc.Update)
-
+    // RTcalc2(playerUpdate)
+    if (modInitialized) {
+      RTcalc2(() => {
+        JourneyManager.player().updateRT()
+      })
+    }
     OnResetNpc(ResetNPC)
 
     OnResetNearby(InitializeSurroundingNPCs)
@@ -328,9 +342,12 @@ function ResetNPC() {
 }
 
 function InitializeSurroundingNPCs() {
+  LogN("/////////////////////////////////////////")
+  LogN("Initializing surrounding NPCs")
+  LogN("/////////////////////////////////////////")
   const f = async () => {
     await Utility.wait(0.54)
-    const actors = ScanCellNPCs(Game.getPlayer(), 4096, null, false).map((a) =>
+    const actors = ScanCellNPCs(Game.getPlayer(), 7000, null, false).map((a) =>
       a?.getFormID()
     )
 
@@ -339,7 +356,7 @@ function InitializeSurroundingNPCs() {
       if (!aId) return
       const a = Actor.from(Game.getFormEx(aId))
       if (!a || aId === playerId || !isActorTypeNPC(a)) return
-      LogI(
+      LogN(
         `Setting appearance to nearby actor: ${a.getBaseObject()?.getName()}`
       )
       // ClearAppearance(a) // Avoid CTD

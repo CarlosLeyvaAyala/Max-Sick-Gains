@@ -1,3 +1,4 @@
+import * as JourneyManager from "./shared/non_precalc/journey/manager"
 import { K, O } from "DmLib/Combinators"
 import { append, appendT } from "DmLib/Log"
 import { FromValue, ListenTo } from "DmLib/Hotkeys"
@@ -51,6 +52,7 @@ import {
   LogE,
   LogIT as LogITo,
   LogI as LogIo,
+  LogN,
   LogVT as LogVTo,
   LogV as LogVo,
 } from "../debug"
@@ -261,6 +263,13 @@ export namespace Player {
 
       lastUpdate = SLastUpdate(Now())
       if (timeDelta > 0 && !TestMode.enabled) LogV(`Last update: ${lastUpdate}`)
+
+      // const p = JourneyManager.player()
+      // if (p) {
+      //   // LogN(`++++++++++++++++++++++++++++++++++++ ${p.training}`)
+      //   p.setDebug(gains, pStage)
+      //   p.setDebugE(training, lastTrained)
+      // }
     }
 
     export function SetGains(g: number, delta?: number) {
@@ -958,6 +967,7 @@ export namespace Sleep {
     if (hoursSlept < 0.8) return // Do nothing. Didn't really slept.
     Ls()
     SleepEvent(hoursSlept)
+    JourneyManager.player().sleepEvent(hoursSlept)
   }
 
   /** Do gains calculations after sleeping.
