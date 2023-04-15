@@ -3,7 +3,11 @@ import { LogN } from "../../../debug" // TODO: Change to proper log level
 import { BodyShape } from "../../bodyslide"
 import { TexturePaths } from "../../common"
 
-/** Form id of the `Actor` instance; not their base ID. */
+/** Form id of the `Actor` instance; not their base ID.
+ * @remarks
+ * This value is valid only while playing and should not be saved in co-save,
+ * since adding or moving mods around may change these RefIDs.
+ */
 export type CachedFormID = number
 
 interface CachedData {
@@ -18,7 +22,7 @@ interface CachedData {
 type Cache = Map<CachedFormID, CachedData>
 const cache: Cache = new Map()
 
-/** Caches a generic NPC so its appearance calculation can be skipped */
+/** Caches an NPC so its appearance calculation can be skipped */
 export function saveToCache(
   formID: CachedFormID,
   shape: BodyShape,

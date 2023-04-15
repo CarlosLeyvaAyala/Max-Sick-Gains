@@ -35,7 +35,11 @@ import {
   exportedBstoPreset,
   getBodyShape,
 } from "./bodyslide"
-import { getCached, saveToCache } from "./shared/non_precalc/cache"
+import {
+  CachedFormID,
+  getCached,
+  saveToCache,
+} from "./shared/non_dynamic/cache"
 // import { BodyslidePreset, getTexturePaths } from "./nioverride/common"
 import {
   TexturePaths,
@@ -99,11 +103,46 @@ interface NpcOptions {
   applyMuscleDef: boolean
 }
 
+/** Logs the NPC name banner */
+function logNPCBanner(name: string, formID: number) {
+  LogN("================================")
+  LogN(`Setting appearance of ${name}`)
+  LogN("================================")
+  LogN(`RefID (will be cached): ${formID}`)
+}
+
+function applyFromCache(a: Actor, sex: Sex, formID: CachedFormID): NT | null {
+  const cd = getCached(formID)
+  if (!cd) return null
+
+  LogN(`${formID} was found in cache.`)
+
+  const shape = cd.shape
+  const texs = cd.textures
+
+  ApplyBodyslide(a, shape.bodySlide)
+  ChangeHeadSize(a, shape.headSize)
+
+  ApplyMuscleDef(a, sex, texs.muscle)
+  applySkin(a, sex, texs.skin)
+
+  saveToCache(formID, shape, texs) // NPC was just seen once again
+
+  return NT.cached
+}
+
 /** Changes appearance */
 function newChangeAppearance(a: Actor | null) {
   if (!a) return
+
   const d = GetActorData(a)
   if (!d) return
+
+  const formID = a.getFormID()
+  const wasCached = applyFromCache(a, d.sex, formID)
+  if (wasCached) return wasCached
+
+  logNPCBanner(d.name, formID)
 
   const identity = solveIdentity(d)
   if (!identity) return // The NPC is not valid or known
@@ -111,19 +150,21 @@ function newChangeAppearance(a: Actor | null) {
   const canChange = canApplyChanges(d, identity)
   switch (identity.npcType) {
     case NT.generic:
-      let shape: BodyShape
-      let texs: TexturePaths
-      const formID = a.getFormID()
+      // let shape: BodyShape
+      // let texs: TexturePaths
 
-      const cd = getCached(formID)
-      if (cd) {
-        shape = cd.shape
-        texs = cd.textures
-      } else {
-        const app = getAppearanceData(d, identity.race, identity.archetype)
-        shape = getBodyShape(app)
-        texs = getTextures(app)
-      }
+      // const cd = getCached(formID)
+      // if (cd) {
+      //   shape = cd.shape
+      //   texs = cd.textures
+      // } else {
+      // const app = getAppearanceData(d, identity.race, identity.archetype)
+      // shape = getBodyShape(app)
+      // texs = getTextures(app)
+      // }
+      const app = getAppearanceData(d, identity.race, identity.archetype)
+      const shape = getBodyShape(app)
+      const texs = getTextures(app)
 
       ApplyBodyslide(a, shape.bodySlide)
       ChangeHeadSize(a, shape.headSize)
@@ -141,12 +182,24 @@ function newChangeAppearance(a: Actor | null) {
         `${knData.name} data was already calculated when exporting. Check the configuration app report for more info.`
       )
 
-      ApplyBodyslide(a, exportedBstoPreset(knData.bodyslide))
-      ChangeHeadSize(a, knData.head)
+      const knShape: BodyShape = {
+        bodySlide: exportedBstoPreset(knData.bodyslide),
+        headSize: knData.head,
+      }
 
       const ts = getTexturePaths(d.race, knData.muscleDef, knData.skin)
+      const knTexs: TexturePaths = {
+        muscle: ts.muscle,
+        skin: ts.skin,
+      }
+
+      ApplyBodyslide(a, knShape.bodySlide)
+      ChangeHeadSize(a, knData.head)
+
       ApplyMuscleDef(a, d.sex, ts.muscle)
       applySkin(a, d.sex, ts.skin)
+
+      saveToCache(formID, knShape, knTexs)
 
       break
   }
@@ -166,9 +219,6 @@ import { getKnownNPC } from "./npc/known"
 //#region Solve appearance
 
 function solveIdentity(d: NPCData) {
-  LogN("================================")
-  LogN(`Setting appearance of ${d.name}`)
-  LogN("================================")
   LogN(`Class: ${d.class}`)
   const sig = getRaceSignature(d.race)
   if (!sig) return null
@@ -213,7 +263,7 @@ function getNPCType(d: NPCData, sig: RaceGroup): NpcIdentity {
  */
 export function ChangeAppearance(a: Actor | null) {
   const tt = newChangeAppearance(a) // TODO: Delete this
-  if (tt === NT.generic || tt === NT.known) {
+  if (tt === NT.generic || tt === NT.known || tt === NT.cached) {
     LogN("Hijacking old method")
     return // Hijack generic NPC appearance setting
   }

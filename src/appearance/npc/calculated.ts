@@ -16,6 +16,8 @@ export enum NpcType {
   known,
   /** NPCs that fall into Archetypes */
   generic,
+  /** Non-dynamic cached NPCs. Cache is made by RefID */
+  cached,
 }
 
 /** Data needed to solve an NPC appearance. */
@@ -69,6 +71,7 @@ export function canApplyChanges(d: NPCData, i: NpcIdentity): CanApply {
       switch (i.npcType) {
         case NpcType.dynamic:
         case NpcType.known:
+        case NpcType.cached:
           return toCanA(settings.knownFem)
         case NpcType.generic:
           return toCanA(settings.genericFem)
@@ -77,6 +80,7 @@ export function canApplyChanges(d: NPCData, i: NpcIdentity): CanApply {
       switch (i.npcType) {
         case NpcType.dynamic:
         case NpcType.known:
+        case NpcType.cached:
           return toCanA(settings.knownMan)
         case NpcType.generic:
           return toCanA(settings.genericMan)
@@ -90,12 +94,12 @@ export function canApplyChanges(d: NPCData, i: NpcIdentity): CanApply {
 /** Lowercase esp name. The configuration app exports this. */
 export type EspLower = string
 /** Form id as a string. The configuration app exports this.  */
-export type CachedFormID = string
+export type AppCachedFormID = string
 
 /** Gets the data from a pre-generated esp[id] map if it exists */
 export function getPreGenerated<T>(
   esp: EspLower,
-  id: CachedFormID,
+  id: AppCachedFormID,
   map: { [esp: string]: { [id: string]: T } }
 ) {
   const j = map[esp]
