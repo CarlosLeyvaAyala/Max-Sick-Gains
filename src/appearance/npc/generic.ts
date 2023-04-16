@@ -10,7 +10,7 @@ import {
   searchMapByContent,
   weightInterpolation,
 } from "../common"
-import { NPCData } from "./calculated"
+import { ActorData } from "../shared/ActorData"
 
 function getClassArchetypes(className: string) {
   const cn = className
@@ -55,7 +55,7 @@ function _getArchetype(
 }
 
 /** Gets the Archetype id of the NPC */
-export function getArchetype(d: NPCData) {
+export function getArchetype(d: ActorData) {
   LogN("Is a generic NPC")
   const ca = getClassArchetypes(d.class)
   LogN(`Possible class archetypes: ${ca}`)
@@ -67,7 +67,7 @@ export function getArchetype(d: NPCData) {
 
 /** Gets the common appearance data for a generic NPC. */
 export function getAppearanceData(
-  d: NPCData,
+  d: ActorData,
   race: RaceGroup,
   archetypeId: number | undefined
 ): AppearanceData {

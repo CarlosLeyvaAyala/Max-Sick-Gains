@@ -10,7 +10,7 @@ import {
   SendTrainingSet,
 } from "../../events/events_hidden"
 import { FitJourney, db } from "../../types/exported"
-import { Journey } from "../shared/non_precalc/journey/types"
+import { Journey } from "../shared/dynamic/journey/types"
 import { catabolicCheck, hadActivity, sendActivity } from "./_activity"
 import { decay, hadTraining } from "./_training"
 import { sendJourney } from "./_sendJourney"

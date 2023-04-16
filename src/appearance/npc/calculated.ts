@@ -1,12 +1,4 @@
-import { Actor, ActorBase } from "skyrimPlatform"
-import { RaceEDID } from "../common"
-import { Sex } from "../../database"
-import {
-  ActorAppearanceSettings,
-  KnownNPCData,
-  RaceGroup,
-  db,
-} from "../../types/exported"
+import { KnownNPCData, RaceGroup } from "../../types/exported"
 
 /** Types of NPCs available */
 export enum NpcType {
@@ -18,30 +10,6 @@ export enum NpcType {
   generic,
   /** Non-dynamic cached NPCs. Cache is made by RefID */
   cached,
-}
-
-/** Data needed to solve an NPC appearance. */
-export interface NPCData {
-  /** The `Actor` data per se */
-  actor: Actor
-  /** The leveled `ActorBase` the NPC belongs to */
-  base: ActorBase
-  /** Male or female? */
-  sex: Sex
-  /** TES class. */
-  class: string
-  /** Esp file where the actor was defined */
-  esp: string
-  /** FormId of `base` inside its esp file */
-  fixedFormId: number
-  /** Full name of the NPC */
-  name: string
-  /** Race EDID for the NPC */
-  race: RaceEDID
-  /** NPC weight. [0..100] */
-  weight: number
-  /** Current in game formID. Used for caching. */
-  formID: number
 }
 
 /** Data obtained while solving NPC identity */
@@ -59,36 +27,36 @@ export interface CanApply {
 }
 
 /** Check which settings a solved NPC can get applied */
-export function canApplyChanges(d: NPCData, i: NpcIdentity): CanApply {
-  function toCanA(s: ActorAppearanceSettings): CanApply {
-    return { morphs: s.applyMorphs, textures: s.applyMuscleDef }
-  }
+// export function canApplyChanges(d: NPCData, i: NpcIdentity): CanApply {
+//   function toCanA(s: ActorAppearanceSettings): CanApply {
+//     return { morphs: s.applyMorphs, textures: s.applyMuscleDef }
+//   }
 
-  const settings = db.mcm.actors
+//   const settings = db.mcm.actors
 
-  switch (d.sex) {
-    case Sex.female:
-      switch (i.npcType) {
-        case NpcType.dynamic:
-        case NpcType.known:
-        case NpcType.cached:
-          return toCanA(settings.knownFem)
-        case NpcType.generic:
-          return toCanA(settings.genericFem)
-      }
-    case Sex.male:
-      switch (i.npcType) {
-        case NpcType.dynamic:
-        case NpcType.known:
-        case NpcType.cached:
-          return toCanA(settings.knownMan)
-        case NpcType.generic:
-          return toCanA(settings.genericMan)
-      }
-    default:
-      return { morphs: false, textures: false }
-  }
-}
+//   switch (d.sex) {
+//     case Sex.female:
+//       switch (i.npcType) {
+//         case NpcType.dynamic:
+//         case NpcType.known:
+//         case NpcType.cached:
+//           return toCanA(settings.knownFem)
+//         case NpcType.generic:
+//           return toCanA(settings.genericFem)
+//       }
+//     case Sex.male:
+//       switch (i.npcType) {
+//         case NpcType.dynamic:
+//         case NpcType.known:
+//         case NpcType.cached:
+//           return toCanA(settings.knownMan)
+//         case NpcType.generic:
+//           return toCanA(settings.genericMan)
+//       }
+//     default:
+//       return { morphs: false, textures: false }
+//   }
+// }
 
 // TODO: Move everything below to common.ts
 /** Lowercase esp name. The configuration app exports this. */

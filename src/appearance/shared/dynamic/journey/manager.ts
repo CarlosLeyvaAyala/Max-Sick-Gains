@@ -1,10 +1,10 @@
-import { Journey } from "./types"
-import { FitJourney, db } from "../../../../types/exported"
-import { PlayerJourney } from "../../../player/journey"
-import { LogI, LogN, LogVT } from "../../../../debug"
-import * as O from "DmLib/typescript/Object"
 import { HumanHours, Now, hourSpan } from "DmLib/Time"
+import * as O from "DmLib/typescript/Object"
+import { LogN, LogVT } from "../../../../debug"
 import { sendSleep } from "../../../../events/maxick_compatibility"
+import { db } from "../../../../types/exported"
+import { PlayerJourney } from "../../../player/journey"
+import { Journey } from "./types"
 
 /** Journey list. */
 const journeys: Journey[] = []
@@ -33,6 +33,7 @@ export function initialize() {
 export const player = () => journeys[0] as PlayerJourney
 export const NPCs = () => journeys.slice(1)
 
+/** Calculations made on Journeys when sleeping */
 function onSleep(hoursSlept: HumanHours) {
   journeys.forEach((j) => {
     j.advanceStage(hoursSlept)

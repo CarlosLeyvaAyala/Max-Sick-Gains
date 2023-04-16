@@ -20,7 +20,6 @@ export function Train(skill: TrainingData) {
   HadActivity(skill.activity * am)
 
   if (!playerJourney) return
-  LogN("Using new animation system")
   playerJourney.hadTraining(skill.training * tm)
   playerJourney.hadActivity(skill.activity * am)
 }

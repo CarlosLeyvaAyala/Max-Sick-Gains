@@ -1,4 +1,4 @@
-import * as JourneyManager from "./shared/non_precalc/journey/manager"
+import * as JourneyManager from "./shared/dynamic/journey/manager"
 import { K, O } from "DmLib/Combinators"
 import { append, appendT } from "DmLib/Log"
 import { FromValue, ListenTo } from "DmLib/Hotkeys"
@@ -70,7 +70,7 @@ import {
 } from "../events/events_hidden"
 import { sendSleep } from "../events/maxick_compatibility"
 import { BodyShape, BodyslidePreset } from "./bodyslide"
-import {} from "./shared/non_precalc/journey/types"
+import {} from "./shared/dynamic/journey/types"
 
 /** All logging funcions here log `"Player appearance: ${msg}"` because
  * this make them easier to isolate from other functionality in this mod
@@ -301,6 +301,9 @@ export namespace Player {
       if (flash) SendTrainingChange(delta)
     }
 
+    // FIX: =============================================================================
+    // FIX: Namespace can be deleted
+    // FIX: =============================================================================
     export namespace Activity {
       /** Sends events and does checks needed after inactivity change. */
       function Send() {
@@ -403,6 +406,9 @@ export namespace Player {
       }
     }
 
+    // FIX: =============================================================================
+    // FIX: Namespace can be deleted
+    // FIX: =============================================================================
     export namespace Stage {
       export interface AdjustedData {
         stage: number
@@ -477,6 +483,7 @@ export namespace Player {
       }
     }
 
+    // TODO: Move sex and sack calculations elsewhere
     /** Training related operations and data. */
     export namespace Training {
       /** Skills belong to `skillTypes`; each one representing a broad type of skills.

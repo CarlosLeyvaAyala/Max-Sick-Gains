@@ -1,7 +1,10 @@
 import { O } from "Combinators"
 import { getEspAndId } from "Form"
 import * as Log from "Log"
-import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
+import {
+  GetActorRaceEditorID,
+  GetActorRaceEditorID as GetRaceEDID,
+} from "PapyrusUtil/MiscUtil"
 import { Actor, printConsole } from "skyrimPlatform"
 import { defaultArchetype } from "../constants"
 import {
@@ -47,7 +50,7 @@ import {
   getTexturePaths,
   getTextures,
 } from "./common"
-import { NpcType as NT, canApplyChanges } from "./npc/calculated"
+import { NpcType as NT } from "./npc/calculated"
 
 const Alt = O
 
@@ -135,7 +138,7 @@ function applyFromCache(a: Actor, sex: Sex, formID: CachedFormID): NT | null {
 function newChangeAppearance(a: Actor | null) {
   if (!a) return
 
-  const d = GetActorData(a)
+  const d = getActorData(a)
   if (!d) return
 
   const formID = a.getFormID()
@@ -147,7 +150,7 @@ function newChangeAppearance(a: Actor | null) {
   const identity = solveIdentity(d)
   if (!identity) return // The NPC is not valid or known
 
-  const canChange = canApplyChanges(d, identity)
+  const canChange = d.sex === Sex.female ? db.mcm.actors.fem : db.mcm.actors.men
   switch (identity.npcType) {
     case NT.generic:
       const app = getAppearanceData(d, identity.race, identity.archetype)
@@ -199,14 +202,15 @@ function newChangeAppearance(a: Actor | null) {
 
 import { RaceGroup, db } from "../types/exported"
 import { applySkin } from "./nioverride/skin"
-import { NPCData, NpcIdentity } from "./npc/calculated"
+import { NpcIdentity } from "./npc/calculated"
+import { ActorData, getActorData } from "./shared/ActorData"
 import { getJourney } from "./npc/dynamic"
 import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
 
 //#region Solve appearance
 
-function solveIdentity(d: NPCData) {
+function solveIdentity(d: ActorData) {
   LogN(`Class: ${d.class}`)
   const sig = getRaceSignature(d.race)
   if (!sig) return null
@@ -214,7 +218,7 @@ function solveIdentity(d: NPCData) {
   return getNPCType(d, sig)
 }
 
-function getNPCType(d: NPCData, sig: RaceGroup): NpcIdentity {
+function getNPCType(d: ActorData, sig: RaceGroup): NpcIdentity {
   LogN(`Getting NPC type`)
   LogN(`Esp: ${d.esp}`)
   LogN(`Fixed FormID: ${d.fixedFormId.toString(16)}`)
@@ -269,7 +273,7 @@ export function ChangeMuscleDef(a: Actor | null) {
   ApplyAppearance(a, false, true)
 }
 
-function AddToCache(d: NPCData, appearance: Appearance) {
+function AddToCache(d: ActorData, appearance: Appearance) {
   if (!cache.npcs[d.formID])
     cache.npcs[d.formID] = {
       sex: Sex.undefined,
@@ -283,7 +287,7 @@ function AddToCache(d: NPCData, appearance: Appearance) {
   cache.npcs[d.formID].sex = d.sex
 }
 
-function GetCached(d: NPCData): Appearance | null {
+function GetCached(d: ActorData): Appearance | null {
   printConsole("Get chaced++++++++++")
   const c = cache.npcs[d.formID]
   printConsole("c", c)
@@ -297,7 +301,7 @@ function ApplyAppearance(
   applyBs: boolean,
   applyMuscleDef: boolean
 ) {
-  const d = LogIT("+++", GetActorData(a), NPCDataToStr)
+  const d = LogIT("+++", getActorData(a), NPCDataToStr)
   if (!d) return
 
   const r = SolveAppearance(d, mcm.actors)
@@ -316,7 +320,7 @@ function ApplyAppearance(
 export function ClearAppearance(a: Actor | null) {
   try {
     ClearActorAppearance(a)
-    LogV(`--- ${NPCDataToStr(GetActorData(a))}`)
+    LogV(`--- ${NPCDataToStr(getActorData(a))}`)
   } catch (error) {
     LogE(
       "There was an error trying to clear an NPC. This should be benign and no harm should be done."
@@ -327,7 +331,7 @@ export function ClearAppearance(a: Actor | null) {
 /** Invalid raw appearance */
 const iRawApp = { fitStageId: -1 }
 
-const InvalidRace = (d: NPCData) => {
+const InvalidRace = (d: ActorData) => {
   const id = Log.IntToHex(d.actor.getFormID())
   LogI(`NPC 0x${id} does not belong to any known racial group.`)
 }
@@ -354,7 +358,7 @@ const NoMdef = (s: Sex, t: NpcType) => {
  * @param a `Actor` to get their appearance.
  * @returns Fitness stage, muscle definition and adjusted weight according to their Class Archetype.
  */
-function SolveAppearance(d: NPCData, o: ActorsCfg): Appearance {
+function SolveAppearance(d: ActorData, o: ActorsCfg): Appearance {
   // const cached = GetCached(d)
   // if (cached) {
   //   printConsole(`Actor got from cache. ${NPCDataToStr(d)}`)
@@ -382,7 +386,7 @@ function SolveAppearance(d: NPCData, o: ActorsCfg): Appearance {
   }
 }
 
-function SolveKnownNPC(d: NPCData, o: ActorsCfg): RawAppearance | null {
+function SolveKnownNPC(d: ActorData, o: ActorsCfg): RawAppearance | null {
   const esp = knownNPCs[d.esp.toLowerCase()]
   if (!esp) return null
   const kn = esp[d.fixedFormId]
@@ -422,9 +426,9 @@ function SolveKnownNPC(d: NPCData, o: ActorsCfg): RawAppearance | null {
 
 /** Gets the {@link RawAppearance} of a Generic NPC.
  *
- * @param d {@link NPCData}
+ * @param d {@link ActorData}
  */
-function SolveGenericNPC(d: NPCData, o: ActorsCfg): RawAppearance {
+function SolveGenericNPC(d: ActorData, o: ActorsCfg): RawAppearance {
   const s = d.sex
   const t = NpcType.generic
 
@@ -451,10 +455,10 @@ function SolveGenericNPC(d: NPCData, o: ActorsCfg): RawAppearance {
 
 /** Gets the best Class Archetype for an NPC.
  *
- * @param d {@link NPCData}
+ * @param d {@link ActorData}
  * @returns A {ClassArchetype}. `null` if none was found.
  */
-function SolveArchetype(d: NPCData): ClassArchetype | null {
+function SolveArchetype(d: ActorData): ClassArchetype | null {
   const archs = LogVT(
     "All possible unfiltered archetypes",
     ClassMatch(d.name, d.class)
@@ -493,13 +497,13 @@ function SelectArchetype(arr: ClassArchetype[]) {
  * class archetypes where the NPC race matches. The other contains the rest of them.
  *
  * @param {ClassArchetype} ar Archetype to test.
- * @param {NPCData} d NPC data.
+ * @param {ActorData} d NPC data.
  * @param {ClassArchetype[]} exclusive Array containing all archetypes where the NPC has race exclusiveness.
  * @param {ClassArchetype[]} nonExclusive Array with all non exclusive archetype the NPC matched.
  */
 function FilterViableArchetypes(
   ar: ClassArchetype,
-  d: NPCData,
+  d: ActorData,
   exclusive: ClassArchetype[],
   nonExclusive: ClassArchetype[]
 ) {
@@ -514,7 +518,7 @@ function FilterViableArchetypes(
   if (ar.raceExclusive.some((r, _) => race.indexOf(r) >= 0)) exclusive.push(ar)
 }
 
-const DefaultArchetype = (_: NPCData) => defaultArchetype
+const DefaultArchetype = (_: ActorData) => defaultArchetype
 
 //#endregion
 
@@ -531,14 +535,14 @@ function GetNpcOptions(s: Sex, t: NpcType, o: ActorsCfg): NpcOptions {
 
 /** Outputs a string with all data needed to debug an NPC.
  *
- * @param d {@link NPCData}
+ * @param d {@link ActorData}
  * @returns A message with all data needed to recognize an NPC while debugging.
  *
  * @remarks
  * "FixedFormId" message is only useful for making sure this mod is correctly finding
  * a known NPC. It's totally useless for leveled NPCs.
  */
-function NPCDataToStr(d: NPCData | null): string {
+function NPCDataToStr(d: ActorData | null): string {
   if (!d) return "Invalid NPC found. This should be harmless."
 
   return (
@@ -559,36 +563,36 @@ function NPCDataToStr(d: NPCData | null): string {
  * @param a `Actor` to get data from.
  * @returns All needed data.
  */
-function GetActorData(a: Actor | null): NPCData | null {
-  if (!a) return null
+// function GetActorData(a: Actor | null): ActorData | null {
+//   if (!a) return null
 
-  try {
-    const l = a.getLeveledActorBase()
-    const b = a.getBaseObject()
-    if (!l || !b) {
-      LogE("GetActorData: Couldn't find an ActorBase. Is that even possible?")
-      return null
-    }
+//   try {
+//     const l = a.getLeveledActorBase()
+//     const b = a.getBaseObject()
+//     if (!l || !b) {
+//       LogE("GetActorData: Couldn't find an ActorBase. Is that even possible?")
+//       return null
+//     }
 
-    // Using base because esp getting fails for leveled actors
-    const { modName, fixedFormId } = getEspAndId(b)
+//     // Using base because esp getting fails for leveled actors
+//     const { modName, fixedFormId } = getEspAndId(b)
 
-    return {
-      actor: a,
-      base: l,
-      sex: l.getSex(),
-      class: l.getClass()?.getName() || "",
-      name: l.getName() || "",
-      race: GetRaceEDID(a),
-      esp: modName,
-      fixedFormId: fixedFormId,
-      weight: l.getWeight(),
-      formID: a.getFormID(),
-    }
-  } catch (error) {
-    LogE(
-      `There was an error trying to get the NPC data. This rarely happens and cause is unknown.`
-    )
-    return null
-  }
-}
+//     return {
+//       actor: a,
+//       base: l,
+//       sex: l.getSex(),
+//       class: l.getClass()?.getName() || "",
+//       name: l.getName() || "",
+//       race: GetActorRaceEditorID(a),
+//       esp: modName,
+//       fixedFormId: fixedFormId,
+//       weight: l.getWeight(),
+//       formID: a.getFormID(),
+//     }
+//   } catch (error) {
+//     LogE(
+//       `There was an error trying to get the NPC data. This rarely happens and cause is unknown.`
+//     )
+//     return null
+//   }
+// }
