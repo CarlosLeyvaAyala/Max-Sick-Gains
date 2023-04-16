@@ -1,18 +1,17 @@
-import * as HK from "DmLib/Hotkeys"
-import { MaxickSpell, MaxickSpellFx, playerId } from "constants"
-import { updateEach } from "Misc"
-import * as Log from "DmLib/Log"
 import {
+  Player as P,
   getBaseName,
   isActorTypeNPC,
   isPlayer,
-  Player as P,
   waitActor,
 } from "DmLib/Actor"
-import { wait } from "DmLib/Misc"
+import * as HK from "DmLib/Hotkeys"
+import * as Log from "DmLib/Log"
 import { randomRange } from "DmLib/Math"
-import { tryE } from "DmLib/Misc"
+import { tryE, wait } from "DmLib/Misc"
+import { updateEach } from "Misc"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
+import { MaxickSpell, MaxickSpellFx, playerId } from "constants"
 import {
   ActiveEffectApplyRemoveEvent,
   Actor,
@@ -22,12 +21,12 @@ import {
   Debug,
   EquipEvent,
   Game,
-  on,
-  once,
-  printConsole,
   SlotMask,
   Utility,
+  on,
+  once,
 } from "skyrimPlatform"
+import * as AnimHooks from "./animations/constants"
 import { HookAnims, LogAnims } from "./animations/hooks"
 import {
   ClearAppearance,
@@ -35,20 +34,18 @@ import {
   FixGenitalTextures,
 } from "./appearance/appearance"
 import {
-  ChangeAppearance as ChangeNpcAppearance,
   ChangeMuscleDef,
+  ChangeAppearance as ChangeNpcAppearance,
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
-import { Player, Sleep, TestMode } from "./appearance/player"
+import { Player, TestMode } from "./appearance/player"
+import { PlayerJourney } from "./appearance/player/journey"
+import * as JourneyManager from "./appearance/shared/dynamic/journey/manager"
 import { KnownNpcData, knownNPCs, mcm } from "./database"
 import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
-import * as JourneyManager from "./appearance/shared/non_precalc/journey/manager"
-import { PlayerJourney } from "./appearance/player/journey"
-import * as AnimHooks from "./animations/constants"
-import { Journey } from "./appearance/shared/non_precalc/journey/types"
 
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)

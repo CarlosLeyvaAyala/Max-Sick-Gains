@@ -106,10 +106,12 @@ export interface MCM {
 
 export interface Actors {
   player: ActorAppearanceSettings
-  knownMan: ActorAppearanceSettings
-  knownFem: ActorAppearanceSettings
-  genericMan: ActorAppearanceSettings
-  genericFem: ActorAppearanceSettings
+  men: ActorAppearanceSettings
+  fem: ActorAppearanceSettings
+  // knownMan: ActorAppearanceSettings
+  // knownFem: ActorAppearanceSettings
+  // genericMan: ActorAppearanceSettings
+  // genericFem: ActorAppearanceSettings
   hkReset: string
   hkResetNearby: string
 }
