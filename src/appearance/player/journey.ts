@@ -13,6 +13,7 @@ import { FitJourney, db } from "../../types/exported"
 import { Journey } from "../shared/non_precalc/journey/types"
 import { catabolicCheck, hadActivity, sendActivity } from "./_activity"
 import { decay, hadTraining } from "./_training"
+import { sendJourney } from "./_sendJourney"
 
 /** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
@@ -103,7 +104,7 @@ export class PlayerJourney extends Journey {
    * @returns New gains and training.
    */
   private makeGains(h: number, t: number, g: number) {
-    const sleepGains = Math.min(forcePercent(h / 10), t)
+    const sleepGains = Math.min(this.capSleepingGains(t), t)
     const gainsDelta = this.maxGainsPerDay() * sleepGains
     const newTraining = t - sleepGains
     return {
@@ -117,7 +118,7 @@ export class PlayerJourney extends Journey {
    *
    * @param hoursSlept How many {@link HumanHours} the player slept.
    */
-  public sleepEvent(hoursSlept: HumanHours) {
+  public advanceStage(hoursSlept: HumanHours) {
     LogN("--- Calculating appearance after sleeping")
     const t = LogNT("Training", this.training)
     const s = LogNT("Current player stage", this.stage)
@@ -128,6 +129,7 @@ export class PlayerJourney extends Journey {
     this.training = LogNT("Setting training", n.newTraining)
 
     this.sendEvents(n.gainsDelta, this.stage - s)
+    sendJourney(this.gains, this.stage, this._journey)
     // Player.Appearance.Change()
     // SendJourney()
     // sendSleep(hoursSlept)
@@ -217,7 +219,7 @@ export class PlayerJourney extends Journey {
         this.isInCatabolic = false
         SendCatabolismEnd()
       } else {
-        LogN("****** Update cycle ******")
+        LogV("****** Update cycle ******")
         this.hadActivity(0) // Update inactivty and avoid values getting out of bounds
         this.decay(timeDelta)
       }

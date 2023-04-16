@@ -1,6 +1,6 @@
+import { ForceRange, forcePercent } from "DmLib/Math"
+import { HumanHours } from "DmLib/Time"
 import * as JDB from "JContainers/JDB"
-import { ForceRange } from "DmLib/Math"
-import { storage } from "skyrimPlatform"
 import { LogN, LogNT, LogV, LogVT } from "../../../../debug"
 import { FitJourney } from "../../../../types/exported"
 import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
@@ -13,6 +13,9 @@ interface AdjustedData {
 type ChangePredicate = (gains: number, stage: number) => boolean
 type GainsTransform = (d: AdjustedData) => AdjustedData
 type GainsAdjust = (d: AdjustedData, oldStage: number) => AdjustedData
+
+/** Maximum number of hours this mod will convert to training */
+const maxSleepingHours = 10
 
 /** Used to save the data of a person that has a Fitness Journey. */
 export class Journey extends SaverObject {
@@ -167,7 +170,7 @@ export class Journey extends SaverObject {
     return { gains: 100 + d.gains * r, stage: d.stage }
   }
 
-  public changeStageByGains(newGains: number) {
+  protected changeStageByGains(newGains: number) {
     const a = this.adjust(newGains)
     this.gains = LogNT("Setting gains", this.capGains(a.gains))
     this.stage = LogNT("Setting stage", a.stage)
@@ -195,5 +198,18 @@ export class Journey extends SaverObject {
     this.gains = gains
     this.stage = stage
     LogN(`Debug data was set to Gains: ${gains} Stage: ${stage}`)
+  }
+
+  protected capSleepingGains(hoursSlept: HumanHours) {
+    return forcePercent(hoursSlept / maxSleepingHours)
+  }
+
+  public advanceStage(hoursSlept: HumanHours) {
+    LogN(`${this._name} is getting gains after sleeping`)
+    this.changeStageByGains(this.capSleepingGains(hoursSlept))
+  }
+
+  public calculateAppearance() {
+    LogN(`Calculating ${this._name} appearance`)
   }
 }

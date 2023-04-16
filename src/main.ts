@@ -48,6 +48,7 @@ import { loadAlternateData } from "./types/exported"
 import * as JourneyManager from "./appearance/shared/non_precalc/journey/manager"
 import { PlayerJourney } from "./appearance/player/journey"
 import * as AnimHooks from "./animations/constants"
+import { Journey } from "./appearance/shared/non_precalc/journey/types"
 
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
@@ -77,11 +78,13 @@ export function main() {
   if (mcm.logging.anims) LogAnims()
 
   on("sleepStop", (_) => {
-    Sleep.OnEnd()
+    JourneyManager.onSleepEnd()
+    // Sleep.OnEnd()
   })
 
   on("sleepStart", (_) => {
-    Sleep.OnStart()
+    JourneyManager.onSleepStart()
+    // Sleep.OnStart()
   })
 
   let allowInit = true
@@ -216,7 +219,7 @@ export function main() {
     TestMode.Sub10(TestMode.GoSub10)
     TestMode.SlideShow(TestMode.GoSlideShow)
 
-    RTcalc(Player.Calc.Update)
+    // RTcalc(Player.Calc.Update)
     RTcalc2(() => {
       playerJourney?.updateRT()
     })

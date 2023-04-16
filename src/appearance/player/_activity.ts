@@ -1,5 +1,5 @@
 import { Now, SkyrimHours, toHumanHours, toSkyrimHours } from "DmLib/Time"
-import { LogN, LogNT, LogV, LogVT } from "../../debug"
+import { LogI, LogN, LogNT, LogV, LogVT } from "../../debug"
 import { forceRange } from "DmLib/Math"
 import {
   SendCatabolismEnd,
@@ -37,7 +37,7 @@ export function sendActivity(lastTrained: SkyrimHours) {
   LogV(`Hours inactive: ${toHumanHours(hoursInactive)}`)
   const inactivePercent = (hoursInactive / inactiveTimeLim) * 100
 
-  SendInactivity(LogNT("Sending inactivity percent", inactivePercent))
+  SendInactivity(LogVT("Sending inactivity percent", inactivePercent))
   return inactivePercent
 }
 
@@ -51,12 +51,12 @@ export function catabolicCheck(i: number, isInCatabolic: boolean) {
   isInCatabolic = LogVT("isInCatabolic", i >= 99.8)
 
   if (isInCatabolic != old) {
-    LogN("There was a change in catabolic state.")
+    LogV("There was a change in catabolic state.")
     if (isInCatabolic) {
-      LogN("Entered catabolic state.")
+      LogI("Entered catabolic state.")
       SendCatabolismStart()
     } else {
-      LogN("Got out from catabolic state.")
+      LogI("Got out from catabolic state.")
       SendCatabolismEnd()
     }
   }

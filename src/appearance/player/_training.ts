@@ -37,7 +37,7 @@ export function decay(
   const Catabolism = (x: number) => (isInCatabolic ? PollAdjust(x) : 0)
 
   /** Training decays all the time. No matter what. */
-  const trainD = LogNT("Training decay", PollAdjust(decayRate))
+  const trainD = LogVT("Training decay", PollAdjust(decayRate))
 
   // Catabolism calculations
   const trainC = LogVT("Training catabolism", Catabolism(trainCat))

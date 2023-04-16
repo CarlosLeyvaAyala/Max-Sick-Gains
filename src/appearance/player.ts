@@ -941,6 +941,9 @@ export namespace TestMode {
   }
 }
 
+// FIX: =============================================================================
+// FIX: Everything below can be deleted
+// FIX: =============================================================================
 /** Sleeping calculations are done inside this file because they only concern to players. */
 export namespace Sleep {
   let goneToSleepAt = 0
@@ -967,7 +970,8 @@ export namespace Sleep {
     if (hoursSlept < 0.8) return // Do nothing. Didn't really slept.
     Ls()
     SleepEvent(hoursSlept)
-    JourneyManager.player().sleepEvent(hoursSlept)
+    // JourneyManager.player().sleepEvent(hoursSlept)
+    // JourneyManager.onSleep(hoursSlept)
   }
 
   /** Do gains calculations after sleeping.
