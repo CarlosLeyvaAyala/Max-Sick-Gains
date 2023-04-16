@@ -1,6 +1,6 @@
 import { HumanHours, Now, hourSpan } from "DmLib/Time"
 import * as O from "DmLib/typescript/Object"
-import { LogN, LogVT } from "../../../../debug"
+import { LogN, LogNT, LogVT } from "../../../../debug"
 import { sendSleep } from "../../../../events/maxick_compatibility"
 import { db } from "../../../../types/exported"
 import { PlayerJourney } from "../../../player/journey"
@@ -54,7 +54,7 @@ export function onSleepStart() {
 export function onSleepEnd() {
   const p = player()
   const Ls = () => {
-    p.lastSlept = LogVT("Awaken at", Now())
+    p.lastSlept = LogNT("Awaken at", Now())
   }
 
   LogN("--- Finished sleeping")
@@ -65,7 +65,7 @@ export function onSleepEnd() {
     return
   }
 
-  const hoursSlept = LogVT("Hours slept", hourSpan(goneToSleepAt))
+  const hoursSlept = LogNT("Hours slept", hourSpan(goneToSleepAt))
   if (hoursSlept < 0.8) return // Do nothing. Didn't really slept.
   Ls()
   onSleep(hoursSlept)

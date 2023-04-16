@@ -3,7 +3,7 @@ import { K, O } from "DmLib/Combinators"
 import { append, appendT } from "DmLib/Log"
 import { FromValue, ListenTo } from "DmLib/Hotkeys"
 import { R as LogR } from "DmLib/Log"
-import { joinMaps } from "DmLib/Map"
+import { joinMaps } from "DmLib/typescript/Map"
 import { LinCurve, forcePercent, forceRange } from "DmLib/Math"
 import { JContainersToPreserving, preserveVar } from "DmLib/Misc"
 import {

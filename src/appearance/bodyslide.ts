@@ -62,7 +62,7 @@ export const blendMorph =
  * @param Morph Interpolation function.
  * @returns A {@link BodyslidePreset} with slider values corresponding to the input `weight`.
  */
-const blendBs = (bs: FitStageSexAppearance, w: number, Morph: BsCalc) =>
+export const blendBs = (bs: FitStageSexAppearance, w: number, Morph: BsCalc) =>
   objToBsPreset(bs.bodyslide, (sl) => Morph(sl.min, sl.max, w))
 
 /**Converts a pre-calculated Bodyslide to data that can be applied by this mod.  */

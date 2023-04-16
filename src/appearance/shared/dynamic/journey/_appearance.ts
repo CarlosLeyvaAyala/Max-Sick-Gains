@@ -1,5 +1,6 @@
+import * as Maps from "DmLib/typescript/Map"
 import { LinCurve } from "DmLib/Math"
-import { LogE, LogI, LogIT, LogNT, LogV, LogVT } from "../../../../debug"
+import { LogI, LogN, LogNT, LogV } from "../../../../debug"
 import {
   ActorAppearanceSettings,
   FitJourney,
@@ -7,7 +8,12 @@ import {
   JourneyStage,
   db,
 } from "../../../../types/exported"
-import { BodyShape } from "../../../bodyslide"
+import {
+  BodyShape,
+  BodyslidePreset,
+  blendBs,
+  blendMorph,
+} from "../../../bodyslide"
 import { weightInterpolation } from "../../../common"
 
 const CantChangeMDef = "Can't change muscle definition."
@@ -46,6 +52,8 @@ interface BlendData {
   blend: number
   /** On which `gains` this Fitness Stage appearance will be calculated. */
   gains: number
+  /** Weight at which data will be calculated. It's based Journey Stage weight limits. */
+  weight: number
 }
 
 /** Data needed to calculate the final player Bodyslide. */
@@ -136,30 +144,19 @@ function getBodyShape(
   isFem: boolean
 ): BodyShape {
   let b = getBlends(j, stage, gains)
+
   return {
-    bodySlide: undefined,
+    bodySlide: getBodySlide(b, isFem),
     headSize: getHeadS(b, isFem),
   }
 }
 
-// function GetBodyShape(d: PlayerData): BodyShape | undefined {
-//   const b = GetBlends(d)
-//   return {
-//     bodySlide: GetBodySlide(d, b),
-//     headSize: GetHeadS(d, b),
-//   }
-// }
-
+/** Get head size */
 function getHeadS(b: BlendPair, isFem: boolean) {
   const B = (bl: BlendData) => {
     if (bl.blend === 0) return 0
-    const g = weightInterpolation(
-      bl.gains,
-      bl.journeyStage.bsLo,
-      bl.journeyStage.bsHi
-    )
     const app = isFem ? bl.fitStage.man : bl.fitStage.fem
-    const hs = weightInterpolation(g, app.headLo, app.headHi)
+    const hs = weightInterpolation(bl.weight, app.headLo, app.headHi)
     return hs * bl.blend
   }
 
@@ -168,75 +165,42 @@ function getHeadS(b: BlendPair, isFem: boolean) {
   return LogNT("Head size", s1 + s2)
 }
 
-// function GetHeadS(d: PlayerData, b: BlendPair) {
-//   const B = (bl: BlendData) => {
-//     if (bl.blend === 0) return 0
-//     const g = InterpolateW(bl.playerStage.bsLo, bl.playerStage.bsHi, bl.gains)
-//     const hs = GetHeadSize(bl.fitStage, d.sex, g)
-//     return hs * bl.blend
-//   }
-//   const s1 = LogVT("Current stage Hs", B(b.blend1))
-//   const s2 = LogVT("Blend stage Hs", B(b.blend2))
-//   return LogIT("Head size", s1 + s2)
-// }
+/** Returns a fully blended Bodyslide preset. Ready to be applied on the player.
+ *
+ * @param d Player data.
+ * @returns A fully blended {@link BodyslidePreset} or `undefined` (that last thing
+ * should actually never happen).
+ */
+function getBodySlide(b: BlendPair, isFem: boolean) {
+  const { blend1: b1, blend2: b2 } = b
+  const L = (b: BlendData) =>
+    `fitStage (${b.fitStage.iName}), blend (${b.blend}), simulated weight: (${b.weight})`
 
-// /** Returns a fully blended Bodyslide preset. Ready to be applied on the player.
-//  *
-//  * @param d Player data.
-//  * @returns A fully blended {@link BodyslidePreset} or `undefined` (that last thing
-//  * should actually never happen).
-//  */
-// function GetBodySlide(d: PlayerData, b: BlendPair) {
-//   const { blend1: b1, blend2: b2 } = b
-//   const L = (b: BlendData) =>
-//     `fitStage: ${b.fitStage.iName}, blend: ${b.blend}, gains: ${b.gains}`
+  LogN("Bodyslide blending")
 
-//   const sl1 = GetSliders(d, LogVT("Current Stage", b1, L)) as BodyslidePreset
-//   const sl2 = b2 ? GetSliders(d, LogVT("Blend Stage", b2, L)) : undefined
+  const sl1 = getSliders(
+    LogNT("Current Stage", b1, L),
+    isFem
+  ) as BodyslidePreset // Sl1 always exist
+  const sl2 = getSliders(LogNT("Blend Stage", b2, L), isFem)
 
-//   LogBs(sl1, "Current stage BS", LogV)
-//   LogBs(sl2, "Blend stage BS", LogV)
+  // const r = Maps.join(sl1, sl2, (v1, v2) => v1 + v2)
+  // Maps.toArray(r).forEach(([sl, v]) => LogN(`${sl}: ${v}`))
+  // return r
+  return Maps.join(sl1, sl2, (v1, v2) => v1 + v2)
+}
 
-//   return joinMaps(sl1, sl2, (v1, v2) => v1 + v2)
-// }
-
-// /** Returns which data will be used for blending appearance between two _Player Stages_.
-//  *
-//  * @param d Player data.
-//  * @returns Current and Blending stage data.
-//  */
-// function GetBlends(d: PlayerData): BlendPair {
-//   const lBlendLim = d.playerStage.blend
-//   const uBlendLim = 100 - lBlendLim
-//   const currStage = d.playerStageId
-//   let b1 = 0
-//   let g2 = 0
-//   let blendStage = 0
-
-//   if (lBlendLim >= d.gains && currStage > 0) {
-//     LogV("Current stage was blended with previous")
-//     blendStage = currStage - 1
-//     g2 = 100
-//     b1 = LinCurve({ x: 0, y: 0.5 }, { x: lBlendLim, y: 1 })(d.gains)
-//   } else if (uBlendLim <= d.gains && currStage < lastPlayerStage) {
-//     LogV("Current stage was blended with next")
-//     blendStage = currStage + 1
-//     g2 = 0
-//     b1 = LinCurve({ x: uBlendLim, y: 1 }, { x: 100, y: 0.5 })(d.gains)
-//   } else {
-//     LogV("No blending needed")
-//     b1 = 1
-//   }
-
-//   const fs1 = d.fitnessStage
-//   const ps1 = d.playerStage
-//   const ps2 = playerStages[blendStage]
-//   const fs2 = fitStage(ps2.fitStage)
-//   return {
-//     blend1: { fitStage: fs1, playerStage: ps1, gains: d.gains, blend: b1 },
-//     blend2: { fitStage: fs2, playerStage: ps2, gains: g2, blend: 1 - b1 },
-//   }
-// }
+/** Calculates the Bodyslide associated to some blend.
+ *
+ * @param d Player data.
+ * @param b Blending data.
+ * @returns Fully formed Bodyslide preset.
+ */
+function getSliders(b: BlendData, isFem: boolean) {
+  if (b.blend === 0) return null
+  const app = isFem ? b.fitStage.man : b.fitStage.fem
+  return blendBs(app, b.weight, blendMorph(b.blend))
+}
 
 /** Returns which data will be used for blending appearance between two _Player Stages_.
  *
@@ -269,27 +233,30 @@ function getBlends(j: FitJourney, stage: number, gains: number): BlendPair {
   }
 
   const getFS = (fsId: number) => db.fitStages[fsId.toString()]
+  const getW = (g: number, jStage: JourneyStage) =>
+    weightInterpolation(g, jStage.bsLo, jStage.bsHi)
+
   const js1 = currentStage
   const js2 = j.stages[blendStage]
   const fs1 = getFS(js1.fitStage)
   const fs2 = getFS(js2.fitStage)
   return {
-    blend1: { fitStage: fs1, journeyStage: js1, gains: gains, blend: b1 },
-    blend2: { fitStage: fs2, journeyStage: js2, gains: g2, blend: 1 - b1 },
+    blend1: {
+      fitStage: fs1,
+      journeyStage: js1,
+      gains: gains,
+      blend: b1,
+      weight: getW(gains, js1),
+    },
+    blend2: {
+      fitStage: fs2,
+      journeyStage: js2,
+      gains: g2,
+      blend: 1 - b1,
+      weight: getW(g2, js2),
+    },
   }
 }
-
-// /** Calculates the Bodyslide associated to some blend.
-//  *
-//  * @param d Player data.
-//  * @param b Blending data.
-//  * @returns Fully formed Bodyslide preset.
-//  */
-// function GetSliders(d: PlayerData, b: BlendData) {
-//   if (b.blend === 0) return undefined
-//   const g = InterpolateW(b.playerStage.bsLo, b.playerStage.bsHi, b.gains)
-//   return GetBodyslide(b.fitStage, d.sex, g, BlendMorph(b.blend), LogV)
-// }
 
 ////////////////////////////////////////////////////////////////////
 /** Returns the muscle definition texture the player should use. */
