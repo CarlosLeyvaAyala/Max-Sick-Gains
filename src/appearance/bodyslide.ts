@@ -12,8 +12,8 @@ export type BodyslidePreset = Map<string, number>
 
 /** Complete ´Actor´ shape appearance: body morphs and head size */
 export interface BodyShape {
-  bodySlide: BodyslidePreset
-  headSize: number
+  bodySlide?: BodyslidePreset
+  headSize?: number
 }
 
 export function getBodyShape(

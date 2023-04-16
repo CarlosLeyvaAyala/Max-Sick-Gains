@@ -49,6 +49,7 @@ export interface FitJourney {
   start: number
   totalDuration: number
   durations: number[]
+  isFem: boolean
   stages: JourneyStage[]
 }
 

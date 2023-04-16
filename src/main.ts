@@ -46,6 +46,7 @@ import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
+import { logBanner } from "./appearance/common"
 
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
@@ -58,9 +59,7 @@ export function main() {
   once("update", () => {
     loadAlternateData()
     JourneyManager.initialize()
-    LogN("+++++++++++++++++++++++++++++++++++++++")
-    LogN("Starting player update cycle")
-    LogN("+++++++++++++++++++++++++++++++++++++++")
+    logBanner("Player is ready to get processed", LogN, "+")
     // Kickstart real time calculations
     playerJourney = JourneyManager.player()
     AnimHooks.setPlayerJourney(playerJourney)

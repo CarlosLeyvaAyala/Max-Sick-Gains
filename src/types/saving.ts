@@ -40,16 +40,13 @@ export abstract class SaverObject {
 
   protected saveFloat(key: string, value: number) {
     this._setFlt(key, value)
-    // JDB.solveFltSetter(key, value, true)
   }
 
   protected saveInt(key: string, value: number) {
     this._setInt(key, value)
-    // JDB.solveIntSetter(key, value, true)
   }
 
   protected saveBool(key: string, value: boolean) {
-    // JDB.solveBoolSetter(key, value, true)
     this._setBool(key, value)
   }
 
@@ -62,26 +59,23 @@ export abstract class SaverObject {
     defaultVal: T,
     getter: (k: string, defaultVal?: T) => T
   ) {
-    LogN(`returned getter (${key}): ${getter(key, defaultVal)}`)
+    // LogN(`${key}: ${getter(key, defaultVal)}`)
     return getter(key, defaultVal)
   }
 
   /** Gets value from co-save */
   protected restoreInt(key: string, defaultVal: number = 0) {
     return this.restoreType(key, defaultVal, this._getInt)
-    // return this.restoreType<number>(key, defaultVal, JDB.solveInt)
   }
 
   /** Gets value from co-save */
   protected restoreFloat(key: string, defaultVal: number = 0.0) {
     return this.restoreType(key, defaultVal, this._getFlt)
-    // return this.restoreType<number>(key, defaultVal, JDB.solveFlt)
   }
 
   /** Gets value from co-save */
   protected restoreBool(key: string, defaultVal: boolean = false) {
     return this.restoreType(key, defaultVal, this._getBool)
-    // return this.restoreType(key, defaultVal, JDB.solveBool)
   }
 
   protected restoreStr(key: string, defaultVal: string = "") {

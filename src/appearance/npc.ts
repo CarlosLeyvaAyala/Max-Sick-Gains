@@ -49,6 +49,7 @@ import {
   getRaceSignature,
   getTexturePaths,
   getTextures,
+  logBanner,
 } from "./common"
 import { NpcType as NT } from "./npc/calculated"
 
@@ -108,17 +109,16 @@ interface NpcOptions {
 
 /** Logs the NPC name banner */
 function logNPCBanner(name: string, formID: number) {
-  LogN("================================")
-  LogN(`Setting appearance of ${name}`)
-  LogN("================================")
+  // LogN("================================")
+  // LogN(`Setting appearance of ${name}`)
+  // LogN("================================")
+  logBanner(`Setting appearance of ${name}`, LogN)
   LogN(`RefID (will be cached): ${formID}`)
 }
 
 function applyFromCache(a: Actor, sex: Sex, formID: CachedFormID): NT | null {
   const cd = getCached(formID)
   if (!cd) return null
-
-  LogN(`${formID} was found in cache.`)
 
   const shape = cd.shape
   const texs = cd.textures

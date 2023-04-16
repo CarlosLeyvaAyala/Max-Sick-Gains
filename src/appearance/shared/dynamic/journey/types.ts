@@ -2,8 +2,10 @@ import { ForceRange, forcePercent } from "DmLib/Math"
 import { HumanHours } from "DmLib/Time"
 import * as JDB from "JContainers/JDB"
 import { LogN, LogNT, LogV, LogVT } from "../../../../debug"
-import { FitJourney } from "../../../../types/exported"
+import { FitJourney, db } from "../../../../types/exported"
 import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
+import { calculateAppearance } from "./_appearance"
+import { logBanner } from "../../../common"
 
 interface AdjustedData {
   stage: number
@@ -186,7 +188,7 @@ export class Journey extends SaverObject {
   }
 
   protected restoreVariables() {
-    LogN(`${this._name} restored:`)
+    logBanner(`${this._name} Journey data was restored`, LogN)
     this._gains = this.restoreFloat(this.gainsKey)
     LogN(`Gains: ${this._gains}`)
     this._stage = this.restoreInt(this.stageKey)
@@ -211,5 +213,21 @@ export class Journey extends SaverObject {
 
   public calculateAppearance() {
     LogN(`Calculating ${this._name} appearance`)
+
+    calculateAppearance(
+      this._journey,
+      this.stage,
+      this.gains,
+      this.isFem(),
+      this.canApplySettings()
+    )
+  }
+
+  protected isFem() {
+    return this._journey.isFem
+  }
+
+  protected canApplySettings() {
+    return this._journey.isFem ? db.mcm.actors.fem : db.mcm.actors.men
   }
 }

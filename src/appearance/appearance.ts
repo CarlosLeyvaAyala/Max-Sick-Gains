@@ -141,7 +141,9 @@ export function GetBodyslide(
   return s === Sex.male ? BlendManBs(fs, w, Morph) : BlendFemBs(fs, w, Morph)
 }
 
-export function ApplyBodyslide(a: Actor, bs: BodyslidePreset) {
+export function ApplyBodyslide(a: Actor, bs: BodyslidePreset | undefined) {
+  if (!bs) return
+
   ClearMorphs(a)
 
   bs.forEach((v, sl) => {
@@ -350,7 +352,9 @@ export function GetHeadSize(fitStage: FitStage, sex: Sex, w: number) {
   return InterpolateW(lo, hi, w)
 }
 
-export function ChangeHeadSize(a: Actor, size: number) {
+export function ChangeHeadSize(a: Actor, size?: number) {
+  if (size === undefined) return
+
   const headNode = "NPC Head [Head]"
   if (NetImmerse.hasNode(a, headNode, false)) {
     NetImmerse.setNodeScale(a, headNode, size, false)

@@ -1,7 +1,8 @@
+import { R as LogR } from "DmLib/Log"
 import { forcePercent } from "DmLib/Math"
 import { HumanHours, Now, SkyrimHours } from "DmLib/Time"
-import { Debug, printConsole } from "skyrimPlatform"
-import { LogN, LogNT, LogV, LogVT } from "../../debug"
+import { ActorBase, Debug, printConsole } from "skyrimPlatform"
+import { LogE, LogN, LogNT, LogV, LogVT } from "../../debug"
 import {
   SendCatabolismEnd,
   SendGainsChange,
@@ -14,6 +15,8 @@ import { Journey } from "../shared/dynamic/journey/types"
 import { catabolicCheck, hadActivity, sendActivity } from "./_activity"
 import { decay, hadTraining } from "./_training"
 import { sendJourney } from "./_sendJourney"
+import { Player } from "DmLib/Actor"
+import { Sex } from "../../database"
 
 /** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
@@ -154,10 +157,15 @@ export class PlayerJourney extends Journey {
 
   protected restoreVariables() {
     super.restoreVariables()
-    this._training = this.restoreFloat(this.trainingKey)
-    LogV(`Training: ${this._training}`)
-    this._lastTrained = this.restoreFloat(this.lastTrainedKey)
-    LogV(`Last trained: ${this._lastTrained}`)
+    const LL = LogNT
+    const RF = (msg: string, k: string) => LL(msg, this.restoreFloat(k))
+    const RB = (msg: string, k: string) => LL(msg, this.restoreBool(k))
+
+    this._training = RF("Training", this.trainingKey)
+    this._lastTrained = RF("Last trained", this.lastTrainedKey)
+    this._lastUpdate = RF("Last update", this.lastUpdateKey)
+    this._lastSlept = RF("Last slept", this.lastSleptKey)
+    this._isInCatabolic = RB("Is in catabolic state?", this.isInCatabolicKey)
   }
 
   /** Sets data for debugging purposes */
@@ -226,5 +234,20 @@ export class PlayerJourney extends Journey {
 
     this.lastUpdate = Now()
     if (timeDelta > 0 && !tm) LogV(`Last update: ${this.lastUpdate}`)
+  }
+
+  protected isFem() {
+    const NoBase = () => {
+      LogE(
+        "No base object for player (how is that even possible?). Let's assume it's a woman."
+      )
+    }
+    const b = ActorBase.from(Player().getBaseObject())
+    if (!b) return LogR(NoBase(), true)
+    return Sex.female === b.getSex()
+  }
+
+  protected canApplySettings() {
+    return db.mcm.actors.player
   }
 }

@@ -4,6 +4,7 @@ import { Sex } from "../database"
 import { Actor } from "skyrimPlatform"
 import { applySkin } from "./nioverride/skin"
 import { LinCurve } from "DmLib/Math"
+import { LoggingFunction } from "DmLib/Log"
 
 /** Path to the files to be applied */
 export interface TexturePaths {
@@ -191,4 +192,15 @@ export function getTexturePaths(
 
 export function applyTextures(a: Actor, s: Sex, texs: TexturePaths) {
   applySkin(a, s, texs.skin)
+}
+
+export function logBanner(
+  message: string,
+  log: LoggingFunction,
+  separator: string = "="
+) {
+  const s = separator.repeat(message.length)
+  log(s)
+  log(message)
+  log(s)
 }
