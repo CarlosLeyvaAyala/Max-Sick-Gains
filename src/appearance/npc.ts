@@ -139,10 +139,10 @@ function newChangeAppearance(a: Actor | null) {
   if (!d) return
 
   const formID = a.getFormID()
+  logNPCBanner(d.name, formID)
+
   const wasCached = applyFromCache(a, d.sex, formID)
   if (wasCached) return wasCached
-
-  logNPCBanner(d.name, formID)
 
   const identity = solveIdentity(d)
   if (!identity) return // The NPC is not valid or known
@@ -150,18 +150,6 @@ function newChangeAppearance(a: Actor | null) {
   const canChange = canApplyChanges(d, identity)
   switch (identity.npcType) {
     case NT.generic:
-      // let shape: BodyShape
-      // let texs: TexturePaths
-
-      // const cd = getCached(formID)
-      // if (cd) {
-      //   shape = cd.shape
-      //   texs = cd.textures
-      // } else {
-      // const app = getAppearanceData(d, identity.race, identity.archetype)
-      // shape = getBodyShape(app)
-      // texs = getTextures(app)
-      // }
       const app = getAppearanceData(d, identity.race, identity.archetype)
       const shape = getBodyShape(app)
       const texs = getTextures(app)
