@@ -1,10 +1,10 @@
-import { RaceGroup, TextureSignature, db } from "../types/exported"
-import { LogN } from "../debug" // TODO: Change to proper log level
-import { Sex } from "../database"
-import { Actor } from "skyrimPlatform"
-import { applySkin } from "./nioverride/skin"
-import { LinCurve } from "DmLib/Math"
 import { LoggingFunction } from "DmLib/Log"
+import { LinCurve } from "DmLib/Math"
+import { Actor } from "skyrimPlatform"
+import { Sex } from "../database"
+import { LogI, LogV } from "../debug"
+import { RaceGroup, TextureSignature, db } from "../types/exported"
+import { applySkin } from "./nioverride/skin"
 
 /** Path to the files to be applied */
 export interface TexturePaths {
@@ -78,17 +78,17 @@ export function getRaceSignature(edid: RaceEDID) {
     () => searchMapByContent(db.raceSearch, edid.toLowerCase()),
     (r) => (db.races[edid] = r),
     () => (db.races[edid] = { display: edid, group: RaceGroup.Unk }),
-    (desc) => LogN(`Race ${edid} ${desc}`)
+    (desc) => LogV(`Race ${edid} ${desc}`)
   )
 
   const g = r.group
-  LogN(`Race "${edid}" signature is "${g}"`)
+  LogV(`Race "${edid}" signature is "${g}"`)
 
   if (g == RaceGroup.Ban) {
-    LogN("Can't continue because race is banned")
+    LogI("Can't continue because race is banned")
     return null
   } else if (g == RaceGroup.Unk) {
-    LogN("Can't continue because race is unknown to this mod")
+    LogI("Can't continue because race is unknown to this mod")
     return null
   }
   return g
@@ -142,8 +142,8 @@ export function getTextures(d: AppearanceData): TexturePaths {
   const sk = fs.skin === 1 ? "" : db.skin[fs.skin - 2][d.texSig]
   const md = db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
   const t = getTexturePaths(d.race, md, sk)
-  LogN(`Muscle def texture: ${t.muscle}`)
-  LogN(`Skin texture: ${t.skin}`)
+  LogI(`Muscle def texture: ${t.muscle}`)
+  LogI(`Skin texture: ${t.skin}`)
   return t
 }
 
@@ -159,17 +159,17 @@ const getSkinTexName = getTexName("skin")
 
 /** Determines if the race for an actor is banned from getting textures applied */
 function isTextureBanned(edid: RaceEDID) {
-  LogN("Is this Actor's race banned from getting textures?")
+  LogV("Is this Actor's race banned from getting textures?")
 
   const r = searchDirectAndByContent(
     () => db.texBanRace[edid],
     () => searchMapByContent(db.texBanRaceSearch, edid.toLowerCase()),
     (r) => (db.texBanRace[edid] = r),
     () => (db.texBanRace[edid] = false),
-    (desc) => LogN(`Race ${edid} ${desc}`)
+    (desc) => LogV(`Race ${edid} ${desc}`)
   )
 
-  LogN(
+  LogI(
     `Race is${r ? "" : " not"} banned. Textures ${
       r ? "won't" : "will"
     } be applied`

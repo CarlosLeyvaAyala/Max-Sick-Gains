@@ -211,7 +211,7 @@ import { getKnownNPC } from "./npc/known"
 //#region Solve appearance
 
 function solveIdentity(d: ActorData) {
-  LogN(`Class: ${d.class}`)
+  LogI(`Class: ${d.class}`)
   const sig = getRaceSignature(d.race)
   if (!sig) return null
 
@@ -219,9 +219,9 @@ function solveIdentity(d: ActorData) {
 }
 
 function getNPCType(d: ActorData, sig: RaceGroup): NpcIdentity {
-  LogN(`Getting NPC type`)
-  LogN(`Esp: ${d.esp}`)
-  LogN(`Fixed FormID: ${d.fixedFormId.toString(16)}`)
+  LogV(`Getting NPC type`)
+  LogV(`Esp: ${d.esp}`)
+  LogV(`Fixed FormID: ${d.fixedFormId.toString(16)}`)
 
   const esp = d.esp.toLowerCase()
   const id = d.fixedFormId.toString()

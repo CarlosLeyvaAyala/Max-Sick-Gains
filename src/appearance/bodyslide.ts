@@ -2,7 +2,7 @@ import { I } from "DmLib/Combinators"
 import { LoggingFunction } from "DmLib/Log"
 import { LinCurve } from "DmLib/Math"
 import { Sex } from "../database"
-import { LogN } from "../debug"
+import { LogI, LogN } from "../debug"
 import { FitStageSexAppearance, db } from "../types/exported"
 import { AppearanceData, weightInterpolation } from "./common"
 import * as O from "DmLib/typescript/Object"
@@ -19,13 +19,13 @@ export interface BodyShape {
 export function getBodyShape(
   d: AppearanceData,
   Morph: BsCalc = stdMorph,
-  Log: LoggingFunction = LogN
+  Log: LoggingFunction = LogI
 ): BodyShape {
   const fs = db.fitStages[d.fitstage.toString()]
   const app = d.sex == Sex.male ? fs.man : fs.fem
 
   Log(`Getting body shape from Fitness Stage: ${fs.iName}`)
-  LogN(`Weight: ${d.weight}`)
+  LogI(`Weight: ${d.weight}`)
 
   return {
     bodySlide: blendBs(app, d.weight, Morph),

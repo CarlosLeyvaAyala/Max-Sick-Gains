@@ -1,6 +1,6 @@
 import { isInRange } from "DmLib/Math"
 import { intersection } from "DmLib/Set"
-import { LogN } from "../../debug" // TODO: Change to proper log level
+import { LogI, LogN, LogV, LogVT } from "../../debug" // TODO: Change to proper log level
 import { RaceGroup, db, muscleDefMax, muscleDefMin } from "../../types/exported"
 import {
   AppearanceData,
@@ -56,11 +56,9 @@ function _getArchetype(
 
 /** Gets the Archetype id of the NPC */
 export function getArchetype(d: ActorData) {
-  LogN("Is a generic NPC")
-  const ca = getClassArchetypes(d.class)
-  LogN(`Possible class archetypes: ${ca}`)
-  const ra = getRaceArchetypes(d.race)
-  LogN(`Possible race archetypes: ${ra}`)
+  LogI("Is a generic NPC")
+  const ca = LogVT("Possible class archetypes", getClassArchetypes(d.class))
+  const ra = LogVT("Possible race archetypes", getRaceArchetypes(d.race))
 
   return _getArchetype(d.weight, ca, ra)
 }
