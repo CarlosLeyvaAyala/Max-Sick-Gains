@@ -17,6 +17,7 @@ import { decay, hadTraining } from "./_training"
 import { sendJourney } from "./_sendJourney"
 import { Player } from "DmLib/Actor"
 import { Sex } from "../../database"
+import { logBanner } from "../common"
 
 /** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
@@ -122,7 +123,7 @@ export class PlayerJourney extends Journey {
    * @param hoursSlept How many {@link HumanHours} the player slept.
    */
   public advanceStage(hoursSlept: HumanHours) {
-    LogN("--- Calculating appearance after sleeping")
+    logBanner("Calculating player gains after sleeping", LogN, "-")
     const t = LogNT("Training", this.training)
     const s = LogNT("Current player stage", this.stage)
     const g = LogNT("Gains", this.gains)

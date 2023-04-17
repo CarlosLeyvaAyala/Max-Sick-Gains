@@ -207,12 +207,14 @@ export class Journey extends SaverObject {
   }
 
   public advanceStage(hoursSlept: HumanHours) {
-    LogN(`${this._name} is getting gains after sleeping`)
-    this.changeStageByGains(this.capSleepingGains(hoursSlept))
+    logBanner(`${this._name} is getting gains after sleeping`, LogN, "-")
+    this.changeStageByGains(
+      this.capSleepingGains(hoursSlept) * this.maxGainsPerDay()
+    )
   }
 
   public calculateAppearance() {
-    LogN(`Calculating ${this._name} appearance`)
+    logBanner(`Calculating ${this._name} appearance`, LogN)
 
     calculateAppearance(
       this._journey,

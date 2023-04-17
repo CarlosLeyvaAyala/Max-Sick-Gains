@@ -53,17 +53,22 @@ import { logBanner } from "./appearance/common"
 // const WasInitialized = () => JDB.solveBool(initK, false)
 
 export function main() {
+  LogN("|".repeat(100))
+  LogN("Initializing Max Sick Gains.")
   let playerJourney: PlayerJourney | null = null
 
-  // FIX: Delete when ready
   once("update", () => {
-    loadAlternateData()
+    initializeJourneys()
+  })
+
+  function initializeJourneys() {
+    loadAlternateData() // FIX: Delete when ready
     JourneyManager.initialize()
     logBanner("Player is ready to get processed", LogN, "+")
     // Kickstart real time calculations
     playerJourney = JourneyManager.player()
     AnimHooks.setPlayerJourney(playerJourney)
-  })
+  }
 
   // ;>========================================================
   // ;>===                 PLAYER EVENTS                  ===<;
@@ -92,6 +97,7 @@ export function main() {
   on("loadGame", () => {
     LogV("||| Game loaded |||")
     if (!allowInit) Initialize()
+    initializeJourneys()
     // This needs to be called because reloading in situ (like after being killed)
     // requires to initialize NPCs again.
     InitializeSurroundingNPCs()
@@ -341,9 +347,8 @@ function ResetNPC() {
 }
 
 function InitializeSurroundingNPCs() {
-  LogN("/////////////////////////////////////////")
-  LogN("Initializing surrounding NPCs")
-  LogN("/////////////////////////////////////////")
+  logBanner("Initializing surrounding NPCs", LogN, "/")
+
   const f = async () => {
     await Utility.wait(0.54)
     const actors = ScanCellNPCs(Game.getPlayer(), 7000, null, false).map((a) =>
@@ -354,7 +359,8 @@ function InitializeSurroundingNPCs() {
       await Utility.wait(0.05)
       if (!aId) return
       const a = Actor.from(Game.getFormEx(aId))
-      if (!a || aId === playerId || !isActorTypeNPC(a)) return
+      if (!a || !a.is3DLoaded() || aId === playerId || !isActorTypeNPC(a))
+        return
       LogN(
         `Setting appearance to nearby actor: ${a.getBaseObject()?.getName()}`
       )

@@ -7,7 +7,7 @@ import { PlayerJourney } from "../../../player/journey"
 import { Journey } from "./types"
 
 /** Journey list. */
-const journeys: Journey[] = []
+let journeys: Journey[] = []
 
 /** Creates all Fitness Journey objects that will be used in game.
  * @remarks
@@ -15,6 +15,7 @@ const journeys: Journey[] = []
  * the needed data to start is not available before them.
  */
 export function initialize() {
+  journeys = []
   LogN("Initializing Fitness Journeys")
 
   // Player is always the first journey added
@@ -65,8 +66,8 @@ export function onSleepEnd() {
     return
   }
 
-  const hoursSlept = LogNT("Hours slept", hourSpan(goneToSleepAt))
+  const hoursSlept = hourSpan(goneToSleepAt)
   if (hoursSlept < 0.8) return // Do nothing. Didn't really slept.
   Ls()
-  onSleep(hoursSlept)
+  onSleep(LogNT("Hours slept", Math.round(hoursSlept)))
 }
