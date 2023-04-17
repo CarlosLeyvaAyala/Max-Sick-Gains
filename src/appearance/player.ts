@@ -483,7 +483,6 @@ export namespace Player {
       }
     }
 
-    // TODO: Move sex and sack calculations elsewhere
     /** Training related operations and data. */
     export namespace Training {
       /** Skills belong to `skillTypes`; each one representing a broad type of skills.

@@ -47,7 +47,7 @@ import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
 import { logBanner } from "./appearance/common"
-
+import { onTraining } from "./appearance/player/modEvents"
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
 // const WasInitialized = () => JDB.solveBool(initK, false)
@@ -125,7 +125,11 @@ export function main() {
 
     if (e.eventName === TRAIN)
       return Exe(() => {
-        if (!mcm.testingMode.enabled) Player.Calc.Training.OnTrain(e.strArg)
+        if (!mcm.testingMode.enabled) {
+          const t = onTraining(e.strArg)
+          playerJourney?.hadTraining(t.training)
+          playerJourney?.hadActivity(t.activity)
+        }
       })
 
     if (e.eventName === GAME_INIT) return Exe(Initialize)
