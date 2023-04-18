@@ -100,7 +100,7 @@ export function main() {
     initializeJourneys()
     // This needs to be called because reloading in situ (like after being killed)
     // requires to initialize NPCs again.
-    InitializeSurroundingNPCs()
+    initSurroundingNPCsDelayed()
   })
 
   /** Hot reload management.*/
@@ -231,7 +231,7 @@ export function main() {
     })
     OnResetNpc(ResetNPC)
 
-    OnResetNearby(InitializeSurroundingNPCs)
+    OnResetNearby(initSurroundingNPCs)
   })
   //#endregion
 
@@ -350,27 +350,22 @@ function ResetNPC() {
   else ChangeNpcAppearance(a)
 }
 
-function InitializeSurroundingNPCs() {
+function initSurroundingNPCs() {
   logBanner("Initializing surrounding NPCs", LogN, "/")
 
-  const f = async () => {
-    await Utility.wait(0.54)
-    const actors = ScanCellNPCs(Game.getPlayer(), 7000, null, false).map((a) =>
-      a?.getFormID()
-    )
-
-    for (const aId of actors) {
-      await Utility.wait(0.05)
-      if (!aId) return
-      const a = Actor.from(Game.getFormEx(aId))
-      if (!a || !a.is3DLoaded() || aId === playerId || !isActorTypeNPC(a))
-        return
-      LogN(
-        `Setting appearance to nearby actor: ${a.getBaseObject()?.getName()}`
-      )
-      // ClearAppearance(a) // Avoid CTD
+  ScanCellNPCs(Game.getPlayer(), 4000, null, false)
+    .filter((a) => a && isActorTypeNPC(a) && !isPlayer(a) && a.is3DLoaded)
+    .forEach((a) => {
+      LogN(`Setting appearance to nearby actor`)
       ChangeNpcAppearance(a)
-    }
+    })
+}
+
+function initSurroundingNPCsDelayed() {
+  LogN("About to initialize NPCs...")
+  const f = async () => {
+    await Utility.wait(3)
+    initSurroundingNPCs()
   }
   f()
 }
