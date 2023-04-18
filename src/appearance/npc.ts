@@ -38,11 +38,7 @@ import {
   exportedBstoPreset,
   getBodyShape,
 } from "./bodyslide"
-import {
-  CachedFormID,
-  getCached,
-  saveToCache,
-} from "./shared/non_dynamic/cache"
+import { getCached, saveToCache } from "./shared/cache/non_dynamic"
 // import { BodyslidePreset, getTexturePaths } from "./nioverride/common"
 import {
   TexturePaths,
@@ -109,14 +105,11 @@ interface NpcOptions {
 
 /** Logs the NPC name banner */
 function logNPCBanner(name: string, formID: number) {
-  // LogN("================================")
-  // LogN(`Setting appearance of ${name}`)
-  // LogN("================================")
   logBanner(`Setting appearance of ${name}`, LogN)
   LogN(`RefID (will be cached): ${formID}`)
 }
 
-function applyFromCache(a: Actor, sex: Sex, formID: CachedFormID): NT | null {
+function applyFromCache(a: Actor, sex: Sex, formID: number): NT | null {
   const cd = getCached(formID)
   if (!cd) return null
 

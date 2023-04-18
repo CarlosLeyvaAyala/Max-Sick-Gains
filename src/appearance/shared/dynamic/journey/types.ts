@@ -6,6 +6,7 @@ import { FitJourney, db } from "../../../../types/exported"
 import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
 import { calculateAppearance } from "./_appearance"
 import { logBanner } from "../../../common"
+import {} from "./_cache"
 
 interface AdjustedData {
   stage: number
@@ -55,6 +56,11 @@ export class Journey extends SaverObject {
 
   /** Name to identify this Journey in logs */
   protected readonly _name: string
+  /** Name to identify this Journey in cache */
+  get name() {
+    return this._name
+  }
+
   /** Journey data */
   protected readonly _journey: FitJourney
   /** Index of the last Journey Stage */
@@ -216,7 +222,7 @@ export class Journey extends SaverObject {
   public calculateAppearance() {
     logBanner(`Calculating ${this._name} appearance`, LogN)
 
-    calculateAppearance(
+    const app = calculateAppearance(
       this._journey,
       this.stage,
       this.gains,
