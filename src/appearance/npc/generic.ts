@@ -11,6 +11,7 @@ import {
   weightInterpolation,
 } from "../common"
 import { ActorData } from "../shared/ActorData"
+import { getMuscleDef } from "../shared/textures"
 
 function getClassArchetypes(className: string) {
   const cn = className
@@ -76,12 +77,10 @@ export function getAppearanceData(
 
   return {
     fitstage: fs,
-    muscleDef: Math.round(
-      weightInterpolation(
-        w,
-        a?.mDefLo ?? muscleDefMin,
-        a?.mDefHi ?? muscleDefMax
-      )
+    muscleDef: getMuscleDef(
+      w,
+      a?.mDefLo ?? muscleDefMin,
+      a?.mDefHi ?? muscleDefMax
     ),
     texSig: raceSexToTexSignature(race, d.sex),
     sex: d.sex,
