@@ -16,6 +16,7 @@ import { applyTextures } from "./nioverride/textures"
 import { NpcType as NT } from "./npc/calculated"
 import { getCached, saveToCache } from "./shared/cache/non_dynamic"
 import * as Journeys from "./shared/dynamic/journey/manager"
+import * as JourneyCache from "./shared/cache/dynamic"
 
 /** Logs the NPC name banner */
 function logNPCBanner(name: string, formID: number) {
@@ -23,10 +24,26 @@ function logNPCBanner(name: string, formID: number) {
   LogN(`RefID (will be cached): ${formID}`)
 }
 
-function applyFromCache(a: Actor, sex: Sex, formID: number): NT | null {
-  const cd = getCached(formID)
-  if (!cd) return null
+interface ApplyAppearance {
+  shape: BodyShape
+  textures: TexturePaths
+}
 
+function applyFromCache(a: Actor, d: ActorData, formID: number): NT | null {
+  const cd = getCached(formID)
+  if (cd) return applyNonDynamicCache(formID, a, d.sex, cd)
+
+  const jc = JourneyCache.get(formID)
+  if (jc) return applyDynamicCache(formID, a, d, jc)
+  return null
+}
+
+function applyNonDynamicCache(
+  formID: number,
+  a: Actor,
+  sex: Sex,
+  cd: ApplyAppearance
+) {
   const shape = cd.shape
   const texs = cd.textures
 
@@ -34,6 +51,22 @@ function applyFromCache(a: Actor, sex: Sex, formID: number): NT | null {
   applyTextures(a, sex, texs)
 
   saveToCache(formID, shape, texs) // NPC was just seen once again
+
+  return NT.cached
+}
+
+function applyDynamicCache(
+  formID: number,
+  a: Actor,
+  d: ActorData,
+  c: JourneyCache.CachedNPC
+) {
+  const app = Journeys.getAppearanceData(c.key, c.raceGroup, d.race, d.sex)
+  if (!app) return null
+
+  applyBodyShape(a, app.bodyShape)
+  applyTextures(a, d.sex, app.textures)
+  JourneyCache.save(formID, c.key, c.raceGroup)
 
   return NT.cached
 }
@@ -48,7 +81,7 @@ function newChangeAppearance(a: Actor | null) {
   const formID = a.getFormID()
   logNPCBanner(d.name, formID)
 
-  const wasCached = applyFromCache(a, d.sex, formID)
+  const wasCached = applyFromCache(a, d, formID)
   if (wasCached) return wasCached
 
   const identity = solveIdentity(d)
@@ -57,14 +90,18 @@ function newChangeAppearance(a: Actor | null) {
   const canChange = d.sex === Sex.female ? db.mcm.actors.fem : db.mcm.actors.men
   switch (identity.npcType) {
     case NT.dynamic:
+      const jk = identity.journey as string
       const dynApp = Journeys.getAppearanceData(
-        identity.journey as string,
+        jk,
         identity.race,
         d.race,
         d.sex
       )
-      applyBodyShape(a, dynApp?.bodyShape)
-      applyTextures(a, d.sex, dynApp?.textures)
+      if (!dynApp) return
+      applyBodyShape(a, dynApp.bodyShape)
+      applyTextures(a, d.sex, dynApp.textures)
+
+      JourneyCache.save(formID, jk, identity.race)
 
       break
     case NT.generic:
@@ -115,6 +152,7 @@ import { getJourney } from "./npc/dynamic"
 import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
 import { ActorData, getActorData } from "./shared/ActorData"
+import { fromValue } from "DmLib/Hotkeys"
 
 //#region Solve appearance
 
@@ -183,8 +221,7 @@ export function ChangeAppearance(a: Actor | null) {
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeMuscleDef(a: Actor | null) {
-  newChangeAppearance(a)
-  // ApplyAppearance(a, false, true)
+  // newChangeAppearance(a)
 }
 
 /** Removes body morphs and texture overrides to avoid save game bloating.

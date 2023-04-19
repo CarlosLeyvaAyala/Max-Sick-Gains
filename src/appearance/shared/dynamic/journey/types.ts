@@ -1,6 +1,5 @@
 import { ForceRange, forcePercent } from "DmLib/Math"
 import { HumanHours } from "DmLib/Time"
-import * as Maps from "DmLib/typescript/Map"
 import * as JDB from "JContainers/JDB"
 import { LogN, LogNT, LogV, LogVT } from "../../../../debug"
 import { FitJourney, TextureSignature, db } from "../../../../types/exported"
@@ -9,7 +8,6 @@ import { BodyShape } from "../../../bodyslide"
 import { TexturePaths, logBanner, textureIdsToPaths } from "../../../common"
 import { get as getFromCache, save as saveToCache } from "../../cache/journey"
 import { calculateAppearance } from "./_appearance"
-import {} from "./_cache"
 
 interface AdjustedData {
   stage: number
