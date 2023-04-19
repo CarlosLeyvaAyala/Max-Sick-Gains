@@ -15,7 +15,6 @@ import { joinMaps } from "DmLib/typescript/Map"
 import * as JDB from "JContainers/JDB"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import {
-  ApplyMuscleDef,
   BlendMorph,
   GetBodyslide,
   GetHeadSize,
@@ -659,8 +658,8 @@ export namespace Player {
         LogBs(shape.bodySlide, "Final preset", LogV)
       }
       if (applyMuscleDef) {
-        const tex = GetMuscleDef(d)
-        ApplyMuscleDef(p, d.sex, tex)
+        // const tex = GetMuscleDef(d)
+        // ApplyMuscleDef(p, d.sex, tex)
       }
     }
 

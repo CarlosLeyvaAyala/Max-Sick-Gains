@@ -1,10 +1,8 @@
 import { LoggingFunction } from "DmLib/Log"
 import { LinCurve } from "DmLib/Math"
-import { Actor } from "skyrimPlatform"
 import { Sex } from "../database"
 import { LogI, LogN, LogV } from "../debug"
 import { RaceGroup, TextureSignature, db } from "../types/exported"
-import { applySkin } from "./nioverride/skin"
 
 /** Path to the files to be applied */
 export interface TexturePaths {
@@ -213,10 +211,6 @@ export function getTexturePaths(
       ban || muscle === undefined ? undefined : getMuscleDefTexName(muscle),
     skin: ban || skin === undefined ? undefined : getSkinTexName(skin),
   }
-}
-
-export function applyTextures(a: Actor, s: Sex, texs: TexturePaths) {
-  applySkin(a, s, texs.skin)
 }
 
 export function logBanner(

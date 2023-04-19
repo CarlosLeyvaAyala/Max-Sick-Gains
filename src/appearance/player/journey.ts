@@ -13,17 +13,16 @@ import {
   SendTrainingSet,
 } from "../../events/events_hidden"
 import { FitJourney, RaceGroup, db } from "../../types/exported"
-import {
-  /*ApplyBodyslide,*/ ApplyMuscleDef /*ChangeHeadSize*/,
-} from "../appearance"
+
 import { getRaceSignature, logBanner, raceSexToTexSignature } from "../common"
 import { applyBodyShape } from "../nioverride/morphs"
-import { applySkin } from "../nioverride/skin"
+import { applySkin } from "../nioverride/_skin"
 import { getActorData } from "../shared/ActorData"
 import { Journey } from "../shared/dynamic/journey/types"
 import { catabolicCheck, hadActivity, sendActivity } from "./_activity"
 import { sendJourney } from "./_sendJourney"
 import { decay, hadTraining } from "./_training"
+import { applyTextures } from "../nioverride/textures"
 
 /** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
@@ -281,8 +280,6 @@ export class PlayerJourney extends Journey {
     if (!app) return
 
     applyBodyShape(a, app.appearance.bodyShape)
-
-    ApplyMuscleDef(a, app.sex, app.appearance.textures?.muscle)
-    applySkin(a, app.sex, app.appearance.textures?.skin)
+    applyTextures(a, app.sex, app.appearance.textures)
   }
 }

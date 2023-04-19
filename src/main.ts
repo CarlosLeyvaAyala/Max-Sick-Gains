@@ -28,12 +28,12 @@ import {
 } from "skyrimPlatform"
 import * as AnimHooks from "./animations/constants"
 import { HookAnims, LogAnims } from "./animations/hooks"
-import {
-  ClearAppearance,
-  EquipPizzaHandsFix,
-  FixGenitalTextures,
-} from "./appearance/appearance"
+import { ClearAppearance } from "./appearance/appearance"
 import { logBanner } from "./appearance/common"
+import {
+  equipPizzaHandsFix,
+  fixGenitalTextures,
+} from "./appearance/nioverride/_muscle"
 import {
   ChangeMuscleDef,
   ChangeAppearance as ChangeNpcAppearance,
@@ -44,7 +44,7 @@ import { PlayerJourney } from "./appearance/player/journey"
 import { onTraining } from "./appearance/player/modEvents"
 import * as JourneyManager from "./appearance/shared/dynamic/journey/manager"
 import { KnownNpcData, knownNPCs, mcm } from "./database"
-import { LogE, LogI, LogIT, LogN, LogNT, LogV } from "./debug"
+import { LogE, LogI, LogN, LogNT, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
@@ -171,7 +171,7 @@ export function main() {
   on("unequip", (e) => {
     OnUnEquip(e, "UNEQUIP", (a, slot) => {
       if (slot !== SlotMask.Hands) return
-      EquipPizzaHandsFix(a)
+      equipPizzaHandsFix(a)
     })
   })
   //#endregion
@@ -299,7 +299,7 @@ function OnUnEquip(
 
   // Wait before fixing things because Skyrim Platform is TOO fast <3.
   waitActor(a, 0.001, (act) => {
-    if (sl === SlotMask.Body) FixGenitalTextures(act)
+    if (sl === SlotMask.Body) fixGenitalTextures(act)
     if (DoSomething) DoSomething(act, sl)
   })
 }

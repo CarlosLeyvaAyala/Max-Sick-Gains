@@ -2,10 +2,7 @@ import * as Log from "Log"
 import { Actor } from "skyrimPlatform"
 import { Sex } from "../database"
 import { LogE, LogI, LogN, LogV } from "../debug"
-import {
-  ApplyMuscleDef,
-  ClearAppearance as ClearActorAppearance,
-} from "./appearance"
+import { ClearAppearance as ClearActorAppearance } from "./appearance"
 import { BodyShape, exportedBstoPreset, getBodyShape } from "./bodyslide"
 import {
   TexturePaths,
@@ -15,6 +12,7 @@ import {
   logBanner,
 } from "./common"
 import { applyBodyShape } from "./nioverride/morphs"
+import { applyTextures } from "./nioverride/textures"
 import { NpcType as NT } from "./npc/calculated"
 import { getCached, saveToCache } from "./shared/cache/non_dynamic"
 import * as Journeys from "./shared/dynamic/journey/manager"
@@ -33,9 +31,7 @@ function applyFromCache(a: Actor, sex: Sex, formID: number): NT | null {
   const texs = cd.textures
 
   applyBodyShape(a, shape)
-
-  ApplyMuscleDef(a, sex, texs.muscle)
-  applySkin(a, sex, texs.skin)
+  applyTextures(a, sex, texs)
 
   saveToCache(formID, shape, texs) // NPC was just seen once again
 
@@ -68,9 +64,8 @@ function newChangeAppearance(a: Actor | null) {
         d.sex
       )
       applyBodyShape(a, dynApp?.bodyShape)
+      applyTextures(a, d.sex, dynApp?.textures)
 
-      ApplyMuscleDef(a, d.sex, dynApp?.textures?.muscle)
-      applySkin(a, d.sex, dynApp?.textures?.skin)
       break
     case NT.generic:
       const app = getAppearanceData(d, identity.race, identity.archetype)
@@ -78,9 +73,7 @@ function newChangeAppearance(a: Actor | null) {
       const texs = getTextures(app)
 
       applyBodyShape(a, shape)
-
-      ApplyMuscleDef(a, d.sex, texs.muscle)
-      applySkin(a, d.sex, texs.skin)
+      applyTextures(a, d.sex, texs)
 
       saveToCache(formID, shape, texs)
 
@@ -104,9 +97,7 @@ function newChangeAppearance(a: Actor | null) {
       }
 
       applyBodyShape(a, { bodySlide: knShape.bodySlide, headSize: knData.head })
-
-      ApplyMuscleDef(a, d.sex, ts.muscle)
-      applySkin(a, d.sex, ts.skin)
+      applyTextures(a, d.sex, ts)
 
       saveToCache(formID, knShape, knTexs)
 
@@ -119,7 +110,6 @@ function newChangeAppearance(a: Actor | null) {
 }
 
 import { RaceGroup, db } from "../types/exported"
-import { applySkin } from "./nioverride/skin"
 import { NpcIdentity } from "./npc/calculated"
 import { getJourney } from "./npc/dynamic"
 import { getAppearanceData, getArchetype } from "./npc/generic"
@@ -193,6 +183,7 @@ export function ChangeAppearance(a: Actor | null) {
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeMuscleDef(a: Actor | null) {
+  newChangeAppearance(a)
   // ApplyAppearance(a, false, true)
 }
 
