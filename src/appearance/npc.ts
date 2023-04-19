@@ -1,38 +1,14 @@
-import { O } from "Combinators"
 import * as Log from "Log"
-import { Actor, printConsole } from "skyrimPlatform"
-import { defaultArchetype } from "../constants"
-import {
-  ActorsCfg,
-  ClassArchetype,
-  ClassMatch,
-  MuscleDefinition,
-  RacialMatch,
-  Sex,
-  classArchetype,
-  fitStage,
-  knownNPCs,
-  mcm,
-} from "../database"
-import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../debug"
+import { Actor } from "skyrimPlatform"
+import { Sex } from "../database"
+import { LogE, LogI, LogN, LogV } from "../debug"
 import {
   ApplyBodyslide,
   ApplyMuscleDef,
   ChangeHeadSize,
   ClearAppearance as ClearActorAppearance,
-  GetBodyslide,
-  GetHeadSize,
-  GetMuscleDefTex,
-  InterpolateMusDef,
-  InterpolateW,
-  IsMuscleDefBanned,
 } from "./appearance"
-import {
-  BodyShape,
-  BodyslidePreset,
-  exportedBstoPreset,
-  getBodyShape,
-} from "./bodyslide"
+import { BodyShape, exportedBstoPreset, getBodyShape } from "./bodyslide"
 import {
   TexturePaths,
   getRaceSignature,
@@ -43,33 +19,6 @@ import {
 import { NpcType as NT } from "./npc/calculated"
 import { getCached, saveToCache } from "./shared/cache/non_dynamic"
 import * as Journeys from "./shared/dynamic/journey/manager"
-
-const Alt = O
-
-/** Raw appearance data shared by both Known and Generic NPCs.
- *
- * @remarks
- * This is intermediate data that will be processed to its final form the same way for both
- * Known and Generic NPCs, but the ways to obtain it are different.
- */
-interface RawAppearance {
-  /** Body morphs will be gotten from this. */
-  fitStageId: number
-  /** No muscle definition will be calculated if undefined. */
-  muscleDef?: MuscleDefinition
-  /** No body morph will be calculated if undefined. */
-  weight?: number
-}
-
-enum NpcType {
-  known,
-  generic,
-}
-
-interface NpcOptions {
-  applyMorphs: boolean
-  applyMuscleDef: boolean
-}
 
 /** Logs the NPC name banner */
 function logNPCBanner(name: string, formID: number) {
@@ -181,7 +130,6 @@ import { getJourney } from "./npc/dynamic"
 import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
 import { ActorData, getActorData } from "./shared/ActorData"
-// import { getTexturePaths } from "./shared/textures"
 
 //#region Solve appearance
 
