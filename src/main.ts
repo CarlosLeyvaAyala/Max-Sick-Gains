@@ -11,7 +11,7 @@ import { randomRange } from "DmLib/Math"
 import { tryE, wait } from "DmLib/Misc"
 import { updateEach } from "Misc"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
-import { MaxickSpell, MaxickSpellFx, playerId } from "constants"
+import { MaxickSpell, MaxickSpellFx } from "constants"
 import {
   ActiveEffectApplyRemoveEvent,
   Actor,
@@ -33,6 +33,7 @@ import {
   EquipPizzaHandsFix,
   FixGenitalTextures,
 } from "./appearance/appearance"
+import { logBanner } from "./appearance/common"
 import {
   ChangeMuscleDef,
   ChangeAppearance as ChangeNpcAppearance,
@@ -40,14 +41,13 @@ import {
 } from "./appearance/npc"
 import { Player, TestMode } from "./appearance/player"
 import { PlayerJourney } from "./appearance/player/journey"
+import { onTraining } from "./appearance/player/modEvents"
 import * as JourneyManager from "./appearance/shared/dynamic/journey/manager"
 import { KnownNpcData, knownNPCs, mcm } from "./database"
 import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
-import { logBanner } from "./appearance/common"
-import { onTraining } from "./appearance/player/modEvents"
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
 // const WasInitialized = () => JDB.solveBool(initK, false)
@@ -364,7 +364,7 @@ function initSurroundingNPCs() {
 function initSurroundingNPCsDelayed() {
   LogN("About to initialize NPCs...")
   const f = async () => {
-    await Utility.wait(3)
+    await Utility.wait(5)
     initSurroundingNPCs()
   }
   f()
