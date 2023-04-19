@@ -2,6 +2,7 @@ import { Now } from "DmLib/Time"
 import { BodyShape } from "../../bodyslide"
 import { TexturePaths } from "../../common"
 import { RecyclableActor, RefID, get } from "./_lastSeen"
+import { Maybe } from "Maybe"
 
 interface CachedData extends RecyclableActor {
   /** Shape to apply. */
@@ -24,6 +25,10 @@ export function saveToCache(
 
 /** Gets the cached data if it exists */
 export function getCached(formID: RefID) {
-  const d = get(formID, cache)
-  return d !== null ? { shape: d.shape, textures: d.textures } : null
+  return new Maybe(get(formID, cache))
+    .map((d) => ({
+      shape: d.shape,
+      textures: d.textures,
+    }))
+    .noneToNull()
 }
