@@ -11,12 +11,20 @@ import {
   getTextures,
   logBanner,
 } from "./common"
-import { applyBodyShape } from "./nioverride/morphs"
-import { applyTextures } from "./nioverride/textures"
+import {
+  ShapeSetter,
+  applyBodyShape,
+  dontApplyBodyShape,
+} from "./nioverride/morphs"
+import {
+  TextureSetter,
+  applyTextures,
+  dontApplyTextures,
+} from "./nioverride/textures"
 import { NpcType as NT } from "./npc/calculated"
+import * as JourneyCache from "./shared/cache/dynamic"
 import { getCached, saveToCache } from "./shared/cache/non_dynamic"
 import * as Journeys from "./shared/dynamic/journey/manager"
-import * as JourneyCache from "./shared/cache/dynamic"
 
 /** Logs the NPC name banner */
 function logNPCBanner(name: string, formID: number) {
@@ -29,12 +37,19 @@ interface ApplyAppearance {
   textures: TexturePaths
 }
 
-function applyFromCache(a: Actor, d: ActorData, formID: number): NT | null {
+function applyFromCache(
+  a: Actor,
+  d: ActorData,
+  formID: number,
+  setShape: ShapeSetter,
+  setTextures: TextureSetter
+): NT | null {
   const cd = getCached(formID)
-  if (cd) return applyNonDynamicCache(formID, a, d.sex, cd)
+  if (cd)
+    return applyNonDynamicCache(formID, a, d.sex, cd, setShape, setTextures)
 
   const jc = JourneyCache.get(formID)
-  if (jc) return applyDynamicCache(formID, a, d, jc)
+  if (jc) return applyDynamicCache(formID, a, d, jc, setShape, setTextures)
   return null
 }
 
@@ -42,13 +57,15 @@ function applyNonDynamicCache(
   formID: number,
   a: Actor,
   sex: Sex,
-  cd: ApplyAppearance
+  cd: ApplyAppearance,
+  setShape: ShapeSetter,
+  setTextures: TextureSetter
 ) {
   const shape = cd.shape
   const texs = cd.textures
 
-  applyBodyShape(a, shape)
-  applyTextures(a, sex, texs)
+  setShape(a, shape)
+  setTextures(a, sex, texs)
 
   saveToCache(formID, shape, texs) // NPC was just seen once again
 
@@ -59,20 +76,27 @@ function applyDynamicCache(
   formID: number,
   a: Actor,
   d: ActorData,
-  c: JourneyCache.CachedNPC
+  c: JourneyCache.CachedNPC,
+  setShape: ShapeSetter,
+  setTextures: TextureSetter
 ) {
   const app = Journeys.getAppearanceData(c.key, c.raceGroup, d.race, d.sex)
   if (!app) return null
 
-  applyBodyShape(a, app.bodyShape)
-  applyTextures(a, d.sex, app.textures)
+  setShape(a, app.bodyShape)
+  setTextures(a, d.sex, app.textures)
+
   JourneyCache.save(formID, c.key, c.raceGroup)
 
   return NT.cached
 }
 
 /** Changes appearance */
-function newChangeAppearance(a: Actor | null) {
+function newChangeAppearance(
+  a: Actor | null,
+  setShape: ShapeSetter,
+  setTextures: TextureSetter
+) {
   if (!a) return
 
   const d = getActorData(a)
@@ -81,7 +105,7 @@ function newChangeAppearance(a: Actor | null) {
   const formID = a.getFormID()
   logNPCBanner(d.name, formID)
 
-  const wasCached = applyFromCache(a, d, formID)
+  const wasCached = applyFromCache(a, d, formID, setShape, setTextures)
   if (wasCached) return wasCached
 
   const identity = solveIdentity(d)
@@ -98,8 +122,8 @@ function newChangeAppearance(a: Actor | null) {
         d.sex
       )
       if (!dynApp) return
-      applyBodyShape(a, dynApp.bodyShape)
-      applyTextures(a, d.sex, dynApp.textures)
+      setShape(a, dynApp.bodyShape)
+      setTextures(a, d.sex, dynApp.textures)
 
       JourneyCache.save(formID, jk, identity.race)
 
@@ -109,8 +133,8 @@ function newChangeAppearance(a: Actor | null) {
       const shape = getBodyShape(app)
       const texs = getTextures(app)
 
-      applyBodyShape(a, shape)
-      applyTextures(a, d.sex, texs)
+      setShape(a, shape)
+      setTextures(a, d.sex, texs)
 
       saveToCache(formID, shape, texs)
 
@@ -133,8 +157,8 @@ function newChangeAppearance(a: Actor | null) {
         skin: ts.skin,
       }
 
-      applyBodyShape(a, { bodySlide: knShape.bodySlide, headSize: knData.head })
-      applyTextures(a, d.sex, ts)
+      setShape(a, { bodySlide: knShape.bodySlide, headSize: knData.head })
+      setTextures(a, d.sex, ts)
 
       saveToCache(formID, knShape, knTexs)
 
@@ -152,7 +176,6 @@ import { getJourney } from "./npc/dynamic"
 import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
 import { ActorData, getActorData } from "./shared/ActorData"
-import { fromValue } from "DmLib/Hotkeys"
 
 //#region Solve appearance
 
@@ -200,20 +223,7 @@ function getNPCType(d: ActorData, sig: RaceGroup): NpcIdentity {
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeAppearance(a: Actor | null) {
-  newChangeAppearance(a) // FIX: Move code here
-  // if (
-  //   tt === NT.generic ||
-  //   tt === NT.known ||
-  //   tt === NT.cached ||
-  //   tt === NT.dynamic
-  // ) {
-  //   LogN("Hijacking old method")
-  //   return // Hijack generic NPC appearance setting
-  // }
-  // LogN("******************************************************")
-  // if (!a) return
-  // ApplyAppearance(a, true, true)
-  // LogN("******************************************************")
+  newChangeAppearance(a, applyBodyShape, applyTextures)
 }
 
 /** Changes an NPC muscle definition according to what they should look like.
@@ -221,7 +231,7 @@ export function ChangeAppearance(a: Actor | null) {
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeMuscleDef(a: Actor | null) {
-  // newChangeAppearance(a)
+  newChangeAppearance(a, dontApplyBodyShape, applyTextures)
 }
 
 /** Removes body morphs and texture overrides to avoid save game bloating.

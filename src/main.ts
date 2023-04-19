@@ -140,6 +140,7 @@ export function main() {
     const a = Actor.from(e.reference)
     if (!isActorTypeNPC(a)) return
 
+    LogN(`NiNode update: ${a?.getLeveledActorBase()?.getName()}`)
     if (isPlayer(a)) {
       Player.Appearance.ChangeMuscleDef()
       return

@@ -47,7 +47,11 @@ function applyBodyslide(a: Actor, bs: BodyslidePreset | undefined) {
   UpdateModelWeight(a)
 }
 
-export function applyBodyShape(a: Actor, shape?: BodyShape) {
+export type ShapeSetter = (a: Actor, shape?: BodyShape) => void
+
+export const applyBodyShape: ShapeSetter = (a, shape) => {
   applyHeadSize(a, shape?.headSize ?? 1.0)
   applyBodyslide(a, shape?.bodySlide ?? undefined)
 }
+
+export const dontApplyBodyShape: ShapeSetter = (_, __) => {}
