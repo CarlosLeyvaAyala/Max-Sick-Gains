@@ -2,7 +2,7 @@ import { LoggingFunction } from "DmLib/Log"
 import { LinCurve } from "DmLib/Math"
 import { Actor } from "skyrimPlatform"
 import { Sex } from "../database"
-import { LogI, LogV } from "../debug"
+import { LogI, LogN, LogV } from "../debug"
 import { RaceGroup, TextureSignature, db } from "../types/exported"
 import { applySkin } from "./nioverride/skin"
 
@@ -137,13 +137,37 @@ export function raceSexToTexSignature(
 /** Gets texture paths for non-precalculated `Actors` */
 export function getTextures(d: AppearanceData): TexturePaths {
   const fs = db.fitStages[d.fitstage.toString()]
+  return textureIdsToPaths(d.muscleDef, fs.muscleDef, fs.skin, d.texSig, d.race)
 
   // Skin #1 is always the default skin. Won't override.
-  const sk = fs.skin === 1 ? "" : db.skin[fs.skin - 2][d.texSig]
-  const md = db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
-  const t = getTexturePaths(d.race, md, sk)
-  LogI(`Muscle def texture: ${t.muscle}`)
-  LogI(`Skin texture: ${t.skin}`)
+  // const sk = fs.skin === 1 ? "" : db.skin[fs.skin - 2][d.texSig]
+  // const md = db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
+  // const t = getTexturePaths(d.race, md, sk)
+  // LogN(`Muscle def texture: ${t.muscle}`)
+  // LogN(`Skin texture: ${t.skin}`)
+  // return t
+}
+
+export function textureIdsToPaths(
+  muscleLvl: number | undefined,
+  muscleType: number | undefined,
+  skin: number | undefined,
+  texSig: TextureSignature,
+  race: RaceEDID
+) {
+  // Skin #1 is always the default skin. Won't override.
+  const sk =
+    skin === undefined ? undefined : skin === 1 ? "" : db.skin[skin - 2][texSig]
+
+  const md =
+    muscleType === undefined || muscleLvl === undefined
+      ? undefined
+      : db.muscleDef[muscleType - 1][texSig][muscleLvl - 1]
+
+  const t = getTexturePaths(race, md, sk)
+
+  LogN(`Muscle def texture: ${t.muscle}`)
+  LogN(`Skin texture: ${t.skin}`)
   return t
 }
 
@@ -180,13 +204,14 @@ function isTextureBanned(edid: RaceEDID) {
 /** Gets the texture paths that will be applied to an Actor. */
 export function getTexturePaths(
   race: RaceEDID,
-  muscle: ShortTextureName,
-  skin: ShortTextureName
+  muscle: ShortTextureName | undefined,
+  skin: ShortTextureName | undefined
 ): TexturePaths {
   const ban = isTextureBanned(race)
   return {
-    muscle: ban ? undefined : getMuscleDefTexName(muscle),
-    skin: ban ? undefined : getSkinTexName(skin),
+    muscle:
+      ban || muscle === undefined ? undefined : getMuscleDefTexName(muscle),
+    skin: ban || skin === undefined ? undefined : getSkinTexName(skin),
   }
 }
 

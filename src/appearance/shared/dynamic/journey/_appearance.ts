@@ -1,6 +1,6 @@
 import { LinCurve } from "DmLib/Math"
 import * as Maps from "DmLib/typescript/Map"
-import { LogI, LogN, LogNT, LogV } from "../../../../debug"
+import { LogN, LogNT, LogV } from "../../../../debug"
 import {
   ActorAppearanceSettings,
   FitJourney,
@@ -11,11 +11,12 @@ import {
 import {
   BodyShape,
   BodyslidePreset,
+  blankBodyShape,
   blendBs,
   blendMorph,
 } from "../../../bodyslide"
 import { weightInterpolation } from "../../../common"
-import { TextureIDs } from "../../cache/journey"
+import { TextureIDs, blankTextureIDs } from "../../cache/journey"
 import { getMuscleDef } from "../../textures"
 
 /** Data needed to calculate a blended Bodyslide. */
@@ -50,23 +51,22 @@ export function calculateAppearance(
 ) {
   const shape = canApply.applyMorphs
     ? getBodyShape(journey, stage, gains, isFem)
-    : {
-        bodySlide: undefined,
-        headSize: undefined,
-      }
+    : blankBodyShape
   const texs = canApply.applyMuscleDef
     ? getTextures(journey.stages[stage], gains)
-    : { skin: undefined, muscle: undefined }
+    : blankTextureIDs
   return { bodyShape: shape, textures: texs }
 }
 
 function getTextures(st: JourneyStage, gains: number): TextureIDs {
+  const fs = db.fitStages[st.fitStage.toString()]
   return {
-    skin: LogNT("Skin", db.fitStages[st.fitStage.toString()].skin),
-    muscle: LogNT(
+    skin: LogNT("Skin", fs.skin),
+    muscleLvl: LogNT(
       "Muscle definition",
       getMuscleDef(gains, st.muscleDefLo, st.muscleDefHi)
     ),
+    muscleType: fs.muscleDef,
   }
 }
 
@@ -131,7 +131,7 @@ function getBodySlide(b: BlendPair, isFem: boolean) {
  */
 function getSliders(b: BlendData, isFem: boolean) {
   if (b.blend === 0) return null
-  const app = isFem ? b.fitStage.man : b.fitStage.fem
+  const app = isFem ? b.fitStage.fem : b.fitStage.man
   return blendBs(app, b.weight, blendMorph(b.blend))
 }
 

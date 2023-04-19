@@ -1,8 +1,14 @@
 import { HumanHours, Now, hourSpan } from "DmLib/Time"
 import * as O from "DmLib/typescript/Object"
+import { Sex } from "../../../../database"
 import { LogN, LogNT, LogVT } from "../../../../debug"
 import { sendSleep } from "../../../../events/maxick_compatibility"
-import { db, playerJourneyKey as pk } from "../../../../types/exported"
+import {
+  RaceGroup,
+  db,
+  playerJourneyKey as pk,
+} from "../../../../types/exported"
+import { raceSexToTexSignature } from "../../../common"
 import { PlayerJourney } from "../../../player/journey"
 import { Journey } from "./types"
 
@@ -31,6 +37,17 @@ export function initialize() {
   })
 }
 
+export function getAppearanceData(
+  journey: string,
+  raceGroup: RaceGroup,
+  race: string,
+  sex: Sex
+) {
+  const texSig = raceSexToTexSignature(raceGroup, sex)
+  return journeys.get(journey)?.getAppearanceData(race, texSig)
+}
+
+/** Player Journey */
 export const player = () => journeys.get(pk) as PlayerJourney
 
 /** Calculations made on Journeys when sleeping */

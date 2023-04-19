@@ -1,10 +1,5 @@
 import { O } from "Combinators"
-import { getEspAndId } from "Form"
 import * as Log from "Log"
-import {
-  GetActorRaceEditorID,
-  GetActorRaceEditorID as GetRaceEDID,
-} from "PapyrusUtil/MiscUtil"
 import { Actor, printConsole } from "skyrimPlatform"
 import { defaultArchetype } from "../constants"
 import {
@@ -38,8 +33,6 @@ import {
   exportedBstoPreset,
   getBodyShape,
 } from "./bodyslide"
-import { getCached, saveToCache } from "./shared/cache/non_dynamic"
-// import { BodyslidePreset, getTexturePaths } from "./nioverride/common"
 import {
   TexturePaths,
   getRaceSignature,
@@ -48,6 +41,8 @@ import {
   logBanner,
 } from "./common"
 import { NpcType as NT } from "./npc/calculated"
+import { getCached, saveToCache } from "./shared/cache/non_dynamic"
+import * as Journeys from "./shared/dynamic/journey/manager"
 
 const Alt = O
 
@@ -145,6 +140,19 @@ function newChangeAppearance(a: Actor | null) {
 
   const canChange = d.sex === Sex.female ? db.mcm.actors.fem : db.mcm.actors.men
   switch (identity.npcType) {
+    case NT.dynamic:
+      const dynApp = Journeys.getAppearanceData(
+        identity.journey as string,
+        identity.race,
+        d.race,
+        d.sex
+      )
+      ApplyBodyslide(a, dynApp?.bodyShape?.bodySlide)
+      ChangeHeadSize(a, dynApp?.bodyShape?.headSize)
+
+      ApplyMuscleDef(a, d.sex, dynApp?.textures?.muscle)
+      applySkin(a, d.sex, dynApp?.textures?.skin)
+      break
     case NT.generic:
       const app = getAppearanceData(d, identity.race, identity.archetype)
       const shape = getBodyShape(app)
@@ -196,10 +204,11 @@ function newChangeAppearance(a: Actor | null) {
 import { RaceGroup, db } from "../types/exported"
 import { applySkin } from "./nioverride/skin"
 import { NpcIdentity } from "./npc/calculated"
-import { ActorData, getActorData } from "./shared/ActorData"
 import { getJourney } from "./npc/dynamic"
 import { getAppearanceData, getArchetype } from "./npc/generic"
 import { getKnownNPC } from "./npc/known"
+import { ActorData, getActorData } from "./shared/ActorData"
+// import { getTexturePaths } from "./shared/textures"
 
 //#region Solve appearance
 
@@ -247,15 +256,20 @@ function getNPCType(d: ActorData, sig: RaceGroup): NpcIdentity {
  * @param a The `Actor` to change their appearance.
  */
 export function ChangeAppearance(a: Actor | null) {
-  const tt = newChangeAppearance(a) // TODO: Delete this
-  if (tt === NT.generic || tt === NT.known || tt === NT.cached) {
-    LogN("Hijacking old method")
-    return // Hijack generic NPC appearance setting
-  }
-  LogN("******************************************************")
-  if (!a) return
-  ApplyAppearance(a, true, true)
-  LogN("******************************************************")
+  newChangeAppearance(a) // FIX: Move code here
+  // if (
+  //   tt === NT.generic ||
+  //   tt === NT.known ||
+  //   tt === NT.cached ||
+  //   tt === NT.dynamic
+  // ) {
+  //   LogN("Hijacking old method")
+  //   return // Hijack generic NPC appearance setting
+  // }
+  // LogN("******************************************************")
+  // if (!a) return
+  // ApplyAppearance(a, true, true)
+  // LogN("******************************************************")
 }
 
 /** Changes an NPC muscle definition according to what they should look like.

@@ -1,13 +1,15 @@
 import { ForceRange, forcePercent } from "DmLib/Math"
 import { HumanHours } from "DmLib/Time"
+import * as Maps from "DmLib/typescript/Map"
 import * as JDB from "JContainers/JDB"
 import { LogN, LogNT, LogV, LogVT } from "../../../../debug"
-import { FitJourney, db } from "../../../../types/exported"
+import { FitJourney, TextureSignature, db } from "../../../../types/exported"
 import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
+import { BodyShape } from "../../../bodyslide"
+import { TexturePaths, logBanner, textureIdsToPaths } from "../../../common"
+import { get as getFromCache, save as saveToCache } from "../../cache/journey"
 import { calculateAppearance } from "./_appearance"
-import { logBanner } from "../../../common"
 import {} from "./_cache"
-import { save as saveToCache } from "../../cache/journey"
 
 interface AdjustedData {
   stage: number
@@ -240,5 +242,30 @@ export class Journey extends SaverObject {
 
   protected canApplySettings() {
     return this._journey.isFem ? db.mcm.actors.fem : db.mcm.actors.men
+  }
+
+  public getAppearanceData(
+    race: string,
+    texSig: TextureSignature
+  ): {
+    bodyShape?: BodyShape
+    textures?: TexturePaths
+  } {
+    LogN(`Getting appearance data for ${this._name}`)
+
+    const app = getFromCache(this._name)
+
+    return {
+      bodyShape: app?.shape,
+      textures: !app
+        ? undefined
+        : textureIdsToPaths(
+            app.textures.muscleLvl,
+            app.textures.muscleType,
+            app.textures.skin,
+            texSig,
+            race
+          ),
+    }
   }
 }

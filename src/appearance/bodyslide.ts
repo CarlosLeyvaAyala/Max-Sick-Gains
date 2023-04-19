@@ -1,11 +1,11 @@
 import { I } from "DmLib/Combinators"
 import { LoggingFunction } from "DmLib/Log"
 import { LinCurve } from "DmLib/Math"
+import * as O from "DmLib/typescript/Object"
 import { Sex } from "../database"
-import { LogI, LogN } from "../debug"
+import { LogI } from "../debug"
 import { FitStageSexAppearance, db } from "../types/exported"
 import { AppearanceData, weightInterpolation } from "./common"
-import * as O from "DmLib/typescript/Object"
 
 /** An already calculated Bodyslide preset. Ready to be applied to an `Actor`. */
 export type BodyslidePreset = Map<string, number>
@@ -15,6 +15,8 @@ export interface BodyShape {
   bodySlide?: BodyslidePreset
   headSize?: number
 }
+
+export const blankBodyShape: BodyShape = {}
 
 export function getBodyShape(
   d: AppearanceData,

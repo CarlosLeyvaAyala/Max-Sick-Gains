@@ -8,9 +8,12 @@ export type JourneyKey = string
  * These are not precalculated because the racial signature is known until the very end.
  */
 export interface TextureIDs {
-  muscle?: number
+  muscleLvl?: number
+  muscleType?: number
   skin?: number
 }
+
+export const blankTextureIDs: TextureIDs = {}
 
 interface CachedAppearance {
   /** Shape to apply. */
