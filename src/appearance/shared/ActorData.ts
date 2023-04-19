@@ -1,4 +1,4 @@
-import { Actor, ActorBase } from "skyrimPlatform"
+import { Actor, ActorBase, Form } from "skyrimPlatform"
 import { Sex } from "../../database"
 import { RaceEDID } from "../common"
 import { LogE } from "../../debug"
@@ -12,8 +12,10 @@ import { getErrorMsg } from "DmLib/Error"
 export interface ActorData {
   /** The `Actor` per se */
   actor: Actor
+  /** The `ActorBase` the `Actor` belongs to */
+  base: Form
   /** The leveled `ActorBase` the `Actor` belongs to */
-  base: ActorBase
+  leveledBase: ActorBase
   /** Male or female? */
   sex: Sex
   /** TES class. */
@@ -53,7 +55,8 @@ export function getActorData(a: Actor | null): ActorData | null {
 
     return {
       actor: a,
-      base: l,
+      leveledBase: l,
+      base: b,
       sex: l.getSex(),
       class: l.getClass()?.getName() || "",
       name: l.getName() || "",
