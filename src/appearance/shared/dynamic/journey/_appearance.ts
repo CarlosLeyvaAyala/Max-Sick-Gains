@@ -88,7 +88,7 @@ function getBodyShape(
 function getHeadS(b: BlendPair, isFem: boolean) {
   const B = (bl: BlendData) => {
     if (bl.blend === 0) return 0
-    const app = isFem ? bl.fitStage.man : bl.fitStage.fem
+    const app = isFem ? bl.fitStage.fem : bl.fitStage.man
     const hs = weightInterpolation(bl.weight, app.headLo, app.headHi)
     return hs * bl.blend
   }
