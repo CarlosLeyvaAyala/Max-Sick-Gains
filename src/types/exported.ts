@@ -2,6 +2,7 @@
 export type TextureSignature = "hm" | "hf" | "km" | "kf" | "am" | "af"
 export const muscleDefMin = 1
 export const muscleDefMax = 10
+export const playerJourneyKey = "Player"
 
 /** Whole data needed for the mod to function */
 export interface MaxickDB {

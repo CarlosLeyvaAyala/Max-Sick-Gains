@@ -2,12 +2,12 @@ import { HumanHours, Now, hourSpan } from "DmLib/Time"
 import * as O from "DmLib/typescript/Object"
 import { LogN, LogNT, LogVT } from "../../../../debug"
 import { sendSleep } from "../../../../events/maxick_compatibility"
-import { db } from "../../../../types/exported"
+import { db, playerJourneyKey as pk } from "../../../../types/exported"
 import { PlayerJourney } from "../../../player/journey"
 import { Journey } from "./types"
 
 /** Journey list. */
-let journeys: Journey[] = []
+let journeys: Map<string, Journey>
 
 /** Creates all Fitness Journey objects that will be used in game.
  * @remarks
@@ -15,15 +15,15 @@ let journeys: Journey[] = []
  * the needed data to start is not available before them.
  */
 export function initialize() {
-  journeys = []
+  journeys = new Map()
   LogN("Initializing Fitness Journeys")
 
   // Player is always the first journey added
-  journeys.push(new PlayerJourney("Player", db.fitJourneys["Player"]))
+  journeys.set(pk, new PlayerJourney(pk, db.fitJourneys[pk]))
 
   O.entriesToArray(db.fitJourneys)
-    .filter(([k, _]) => k !== "Player")
-    .forEach(([k, v]) => journeys.push(new Journey(k, v)))
+    .filter(([k, _]) => k !== pk)
+    .forEach(([k, v]) => journeys.set(k, new Journey(k, v)))
 
   journeys.forEach((j) => {
     j.start()
@@ -31,8 +31,7 @@ export function initialize() {
   })
 }
 
-export const player = () => journeys[0] as PlayerJourney
-export const NPCs = () => journeys.slice(1)
+export const player = () => journeys.get(pk) as PlayerJourney
 
 /** Calculations made on Journeys when sleeping */
 function onSleep(hoursSlept: HumanHours) {
