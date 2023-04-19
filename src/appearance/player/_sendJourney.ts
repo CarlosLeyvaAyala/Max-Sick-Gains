@@ -1,5 +1,5 @@
 import { LinCurve, forcePercent } from "DmLib/Math"
-import { LogIT, LogN, LogNT, LogV, LogVT } from "../../debug"
+import { LogIT, LogN, LogNT } from "../../debug"
 import {
   SendJourneyAverage,
   SendJourneyByDays,

@@ -1,11 +1,9 @@
-import {
-  get as getFromCache,
-  save as saveToCache,
-} from "../shared/cache/journey"
+import { Player } from "DmLib/Actor"
 import { R as LogR } from "DmLib/Log"
-import { forcePercent } from "DmLib/Math"
 import { HumanHours, Now, SkyrimHours } from "DmLib/Time"
-import { ActorBase, Debug, printConsole } from "skyrimPlatform"
+import { Maybe } from "Maybe"
+import { ActorBase, Debug } from "skyrimPlatform"
+import { Sex } from "../../database"
 import { LogE, LogN, LogNT, LogV, LogVT } from "../../debug"
 import {
   SendCatabolismEnd,
@@ -15,17 +13,17 @@ import {
   SendTrainingSet,
 } from "../../events/events_hidden"
 import { FitJourney, RaceGroup, db } from "../../types/exported"
+import {
+  /*ApplyBodyslide,*/ ApplyMuscleDef /*ChangeHeadSize*/,
+} from "../appearance"
+import { getRaceSignature, logBanner, raceSexToTexSignature } from "../common"
+import { applyBodyShape } from "../nioverride/morphs"
+import { applySkin } from "../nioverride/skin"
+import { getActorData } from "../shared/ActorData"
 import { Journey } from "../shared/dynamic/journey/types"
 import { catabolicCheck, hadActivity, sendActivity } from "./_activity"
-import { decay, hadTraining } from "./_training"
 import { sendJourney } from "./_sendJourney"
-import { Player, playerId } from "DmLib/Actor"
-import { Sex } from "../../database"
-import { getRaceSignature, logBanner, raceSexToTexSignature } from "../common"
-import { ActorData, getActorData } from "../shared/ActorData"
-import { Maybe } from "Maybe"
-import { ApplyBodyslide, ApplyMuscleDef, ChangeHeadSize } from "../appearance"
-import { applySkin } from "../nioverride/skin"
+import { decay, hadTraining } from "./_training"
 
 /** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
@@ -142,9 +140,6 @@ export class PlayerJourney extends Journey {
 
     this.sendEvents(n.gainsDelta, this.stage - s)
     sendJourney(this.gains, this.stage, this._journey)
-    // Player.Appearance.Change()
-    // SendJourney()
-    // sendSleep(hoursSlept)
 
     return n.newGains
   }
@@ -285,8 +280,7 @@ export class PlayerJourney extends Journey {
 
     if (!app) return
 
-    ApplyBodyslide(a, app.appearance.bodyShape?.bodySlide)
-    ChangeHeadSize(a, app.appearance.bodyShape?.headSize)
+    applyBodyShape(a, app.appearance.bodyShape)
 
     ApplyMuscleDef(a, app.sex, app.appearance.textures?.muscle)
     applySkin(a, app.sex, app.appearance.textures?.skin)

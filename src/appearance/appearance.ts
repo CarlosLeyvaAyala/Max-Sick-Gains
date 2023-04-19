@@ -141,18 +141,6 @@ export function GetBodyslide(
   return s === Sex.male ? BlendManBs(fs, w, Morph) : BlendFemBs(fs, w, Morph)
 }
 
-export function ApplyBodyslide(a: Actor, bs: BodyslidePreset | undefined) {
-  if (!bs) return
-
-  ClearMorphs(a)
-
-  bs.forEach((v, sl) => {
-    SetBodyMorph(a, sl, "Maxick", v)
-  })
-
-  UpdateModelWeight(a)
-}
-
 function RemoveMuscleDef(a: Actor, s: Sex) {
   LogV("Removing muscle definition and pizza hands fix")
   const pf = PizzaFix()
@@ -350,24 +338,6 @@ export function GetHeadSize(fitStage: FitStage, sex: Sex, w: number) {
   const lo = sex === Sex.female ? fitStage.femHeadLo : fitStage.manHeadLo
   const hi = sex === Sex.female ? fitStage.femHeadHi : fitStage.manHeadHi
   return InterpolateW(lo, hi, w)
-}
-
-export function ChangeHeadSize(a: Actor, size?: number) {
-  if (size === undefined) return
-
-  const headNode = "NPC Head [Head]"
-  if (NetImmerse.hasNode(a, headNode, false)) {
-    NetImmerse.setNodeScale(a, headNode, size, false)
-    UpdateNiNode(a)
-  }
-}
-
-function UpdateNiNode(a: Actor) {
-  if (a.isOnMount()) {
-    LogE("ERROR: Can't update a character while mounting.")
-    return
-  }
-  a.queueNiNodeUpdate()
 }
 
 /** Performs a linear interpolation based on some `weight`.

@@ -3,9 +3,7 @@ import { Actor } from "skyrimPlatform"
 import { Sex } from "../database"
 import { LogE, LogI, LogN, LogV } from "../debug"
 import {
-  ApplyBodyslide,
   ApplyMuscleDef,
-  ChangeHeadSize,
   ClearAppearance as ClearActorAppearance,
 } from "./appearance"
 import { BodyShape, exportedBstoPreset, getBodyShape } from "./bodyslide"
@@ -16,6 +14,7 @@ import {
   getTextures,
   logBanner,
 } from "./common"
+import { applyBodyShape } from "./nioverride/morphs"
 import { NpcType as NT } from "./npc/calculated"
 import { getCached, saveToCache } from "./shared/cache/non_dynamic"
 import * as Journeys from "./shared/dynamic/journey/manager"
@@ -33,8 +32,7 @@ function applyFromCache(a: Actor, sex: Sex, formID: number): NT | null {
   const shape = cd.shape
   const texs = cd.textures
 
-  ApplyBodyslide(a, shape.bodySlide)
-  ChangeHeadSize(a, shape.headSize)
+  applyBodyShape(a, shape)
 
   ApplyMuscleDef(a, sex, texs.muscle)
   applySkin(a, sex, texs.skin)
@@ -69,8 +67,7 @@ function newChangeAppearance(a: Actor | null) {
         d.race,
         d.sex
       )
-      ApplyBodyslide(a, dynApp?.bodyShape?.bodySlide)
-      ChangeHeadSize(a, dynApp?.bodyShape?.headSize)
+      applyBodyShape(a, dynApp?.bodyShape)
 
       ApplyMuscleDef(a, d.sex, dynApp?.textures?.muscle)
       applySkin(a, d.sex, dynApp?.textures?.skin)
@@ -80,8 +77,7 @@ function newChangeAppearance(a: Actor | null) {
       const shape = getBodyShape(app)
       const texs = getTextures(app)
 
-      ApplyBodyslide(a, shape.bodySlide)
-      ChangeHeadSize(a, shape.headSize)
+      applyBodyShape(a, shape)
 
       ApplyMuscleDef(a, d.sex, texs.muscle)
       applySkin(a, d.sex, texs.skin)
@@ -107,8 +103,7 @@ function newChangeAppearance(a: Actor | null) {
         skin: ts.skin,
       }
 
-      ApplyBodyslide(a, knShape.bodySlide)
-      ChangeHeadSize(a, knData.head)
+      applyBodyShape(a, { bodySlide: knShape.bodySlide, headSize: knData.head })
 
       ApplyMuscleDef(a, d.sex, ts.muscle)
       applySkin(a, d.sex, ts.skin)

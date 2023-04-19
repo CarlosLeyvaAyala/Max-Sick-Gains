@@ -1,9 +1,6 @@
-import * as JourneyManager from "./shared/dynamic/journey/manager"
 import { K, O } from "DmLib/Combinators"
-import { append, appendT } from "DmLib/Log"
 import { FromValue, ListenTo } from "DmLib/Hotkeys"
-import { R as LogR } from "DmLib/Log"
-import { joinMaps } from "DmLib/typescript/Map"
+import { R as LogR, append, appendT } from "DmLib/Log"
 import { LinCurve, forcePercent, forceRange } from "DmLib/Math"
 import { JContainersToPreserving, preserveVar } from "DmLib/Misc"
 import {
@@ -14,13 +11,12 @@ import {
   toHumanHours,
   toSkyrimHours,
 } from "DmLib/Time"
+import { joinMaps } from "DmLib/typescript/Map"
 import * as JDB from "JContainers/JDB"
 import { GetActorRaceEditorID as GetRaceEDID } from "PapyrusUtil/MiscUtil"
 import {
-  ApplyBodyslide,
   ApplyMuscleDef,
   BlendMorph,
-  ChangeHeadSize,
   GetBodyslide,
   GetHeadSize,
   GetMuscleDefTex,
@@ -52,7 +48,6 @@ import {
   LogE,
   LogIT as LogITo,
   LogI as LogIo,
-  LogN,
   LogVT as LogVTo,
   LogV as LogVo,
 } from "../debug"
@@ -662,8 +657,6 @@ export namespace Player {
       const shape = GetBodyShape(d)
       if (shape && applyBs) {
         LogBs(shape.bodySlide, "Final preset", LogV)
-        ApplyBodyslide(p, shape.bodySlide)
-        ChangeHeadSize(p, shape.headSize)
       }
       if (applyMuscleDef) {
         const tex = GetMuscleDef(d)
