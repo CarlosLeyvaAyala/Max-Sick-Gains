@@ -44,18 +44,18 @@ import { PlayerJourney } from "./appearance/player/journey"
 import { onTraining } from "./appearance/player/modEvents"
 import * as JourneyManager from "./appearance/shared/dynamic/journey/manager"
 import { KnownNpcData, knownNPCs, mcm } from "./database"
-import { LogE, LogI, LogIT, LogN, LogV } from "./debug"
+import { LogE, LogI, LogIT, LogN, LogNT, LogV } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
 // const WasInitialized = () => JDB.solveBool(initK, false)
+let playerJourney: PlayerJourney | null = null
 
 export function main() {
   LogN("|".repeat(100))
   LogN("Initializing Max Sick Gains.")
-  let playerJourney: PlayerJourney | null = null
 
   once("update", () => {
     initializeJourneys()
@@ -337,16 +337,16 @@ function DeTach(
 }
 
 function ResetNPC() {
-  let r = LogIT("Getting reference at crosshair", Game.getCurrentCrosshairRef())
+  let r = LogNT("Getting reference at crosshair", Game.getCurrentCrosshairRef())
   if (!r)
-    r = LogIT(
+    r = LogNT(
       "No reference found at crosshair. Trying console one",
       Game.getCurrentConsoleRef()
     )
   const a = Actor.from(r)
   if (!a || !isActorTypeNPC(a)) return
 
-  if (isPlayer(a)) Player.Appearance.Change()
+  if (isPlayer(a)) playerJourney?.applyAppearance()
   else ChangeNpcAppearance(a)
 }
 

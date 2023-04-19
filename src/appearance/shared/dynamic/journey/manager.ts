@@ -35,6 +35,7 @@ export function initialize() {
     j.start()
     j.calculateAppearance()
   })
+  player().applyAppearance()
 }
 
 export function getAppearanceData(
@@ -56,6 +57,7 @@ function onSleep(hoursSlept: HumanHours) {
     j.advanceStage(hoursSlept)
     j.calculateAppearance()
   })
+  player().applyAppearance()
 
   sendSleep(hoursSlept)
 }

@@ -1,3 +1,7 @@
+import {
+  get as getFromCache,
+  save as saveToCache,
+} from "../shared/cache/journey"
 import { R as LogR } from "DmLib/Log"
 import { forcePercent } from "DmLib/Math"
 import { HumanHours, Now, SkyrimHours } from "DmLib/Time"
@@ -10,14 +14,18 @@ import {
   SendInactivity,
   SendTrainingSet,
 } from "../../events/events_hidden"
-import { FitJourney, db } from "../../types/exported"
+import { FitJourney, RaceGroup, db } from "../../types/exported"
 import { Journey } from "../shared/dynamic/journey/types"
 import { catabolicCheck, hadActivity, sendActivity } from "./_activity"
 import { decay, hadTraining } from "./_training"
 import { sendJourney } from "./_sendJourney"
-import { Player } from "DmLib/Actor"
+import { Player, playerId } from "DmLib/Actor"
 import { Sex } from "../../database"
-import { logBanner } from "../common"
+import { getRaceSignature, logBanner, raceSexToTexSignature } from "../common"
+import { ActorData, getActorData } from "../shared/ActorData"
+import { Maybe } from "Maybe"
+import { ApplyBodyslide, ApplyMuscleDef, ChangeHeadSize } from "../appearance"
+import { applySkin } from "../nioverride/skin"
 
 /** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
@@ -250,5 +258,37 @@ export class PlayerJourney extends Journey {
 
   protected canApplySettings() {
     return db.mcm.actors.player
+  }
+
+  public applyAppearance() {
+    logBanner("Setting player appearance", LogN)
+    const a = Player()
+
+    const app = new Maybe(getActorData(a))
+      .map((d) => {
+        const rg = getRaceSignature(d.race) as RaceGroup
+        if (!rg) {
+          LogE(
+            "Can not change the appearance of an unknown race. Setup your player race at Max Sick Gains App > MCM > Races"
+          )
+          return null
+        }
+        return {
+          data: d,
+          sig: raceSexToTexSignature(rg, d.sex),
+        }
+      })
+      .map(({ data: d, sig: texSig }) => ({
+        appearance: this.getAppearanceData(d.race, texSig),
+        sex: d.sex,
+      })).noneAsUndefined
+
+    if (!app) return
+
+    ApplyBodyslide(a, app.appearance.bodyShape?.bodySlide)
+    ChangeHeadSize(a, app.appearance.bodyShape?.headSize)
+
+    ApplyMuscleDef(a, app.sex, app.appearance.textures?.muscle)
+    applySkin(a, app.sex, app.appearance.textures?.skin)
   }
 }
