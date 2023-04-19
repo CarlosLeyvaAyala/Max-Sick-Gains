@@ -1,5 +1,5 @@
-import * as Maps from "DmLib/typescript/Map"
 import { LinCurve } from "DmLib/Math"
+import * as Maps from "DmLib/typescript/Map"
 import { LogI, LogN, LogNT, LogV } from "../../../../debug"
 import {
   ActorAppearanceSettings,
@@ -15,31 +15,8 @@ import {
   blendMorph,
 } from "../../../bodyslide"
 import { weightInterpolation } from "../../../common"
-
-const CantChangeMDef = "Can't change muscle definition."
-const MDefMcmBan = () => {
-  LogI(`Muscle definition changing is banned. ${CantChangeMDef}`)
-}
-const MDefRaceBan = () => {
-  LogI(`Race is banned from changing muscle defininion. ${CantChangeMDef}`)
-}
-// const NoBase = () => {
-//   LogE("No base object for player (how is that even possible?)")
-// }
-
-/** Data needed to change the player appearance. */
-// interface PlayerData {
-//   race: string
-//   sex: Sex
-//   gains: number
-//   racialGroup: RacialGroup
-//   /** Current player stage id. */
-//   playerStageId: number
-//   /** Current player stage object. */
-//   playerStage: PlayerStage
-//   /** Fitness Stage asociated to the current Player Stage. */
-//   fitnessStage: FitStage
-// }
+import { TextureIDs } from "../../cache/journey"
+import { getMuscleDef } from "../../textures"
 
 /** Data needed to calculate a blended Bodyslide. */
 interface BlendData {
@@ -64,62 +41,6 @@ interface BlendPair {
   blend2: BlendData
 }
 
-/** Gets the data needed to change the player appearance. */
-// function GetData(p: Actor): PlayerData | undefined {
-//   const b = ActorBase.from(p.getBaseObject())
-//   if (!b) return LogR(NoBase(), undefined)
-
-//   const race = LogIT("Race", GetRaceEDID(p))
-
-//   const sex = b.getSex()
-//   LogI(`Sex: ${Sex[sex]}`)
-
-//   const racialGroup = O(RacialMatch, K(RacialGroup.Ban))(race)
-//   LogI(`Racial group: ${RacialGroup[racialGroup]}`)
-
-//   const s = CurrentStage()
-//   const fs = fitStage(s.fitStage)
-//   LogV(`Player Stage [${pStage}]: "${fs.iName}" [${s.fitStage}]`)
-
-//   return {
-//     race: race,
-//     sex: sex,
-//     racialGroup: racialGroup,
-//     playerStageId: pStage,
-//     playerStage: s,
-//     fitnessStage: fs,
-//     gains: gains,
-//   }
-// }
-
-/** Changes the player appearance. */
-// export function Change() {
-//   LogV("Changing appearance.")
-//   ChangeAppearance(true, true)
-// }
-
-// export function ChangeMuscleDef() {
-//   LogV("Changing muscle definition.")
-//   ChangeAppearance(false, true)
-// }
-
-///////////////////////////////////////////////////////////////
-// function ChangeAppearance(applyBs: boolean, applyMuscleDef: boolean) {
-//   const p = Game.getPlayer() as Actor
-//   const d = GetData(p)
-//   if (!d) return
-//   const shape = GetBodyShape(d)
-//   if (shape && applyBs) {
-//     LogBs(shape.bodySlide, "Final preset", LogV)
-//     ApplyBodyslide(p, shape.bodySlide)
-//     ChangeHeadSize(p, shape.headSize)
-//   }
-//   if (applyMuscleDef) {
-//     const tex = GetMuscleDef(d)
-//     ApplyMuscleDef(p, d.sex, tex)
-//   }
-// }
-
 export function calculateAppearance(
   journey: FitJourney,
   stage: number,
@@ -133,8 +54,20 @@ export function calculateAppearance(
         bodySlide: undefined,
         headSize: undefined,
       }
-  const texs = canApply.applyMuscleDef ? undefined : undefined
-  return { bodyShape: shape }
+  const texs = canApply.applyMuscleDef
+    ? getTextures(journey.stages[stage], gains)
+    : { skin: undefined, muscle: undefined }
+  return { bodyShape: shape, textures: texs }
+}
+
+function getTextures(st: JourneyStage, gains: number): TextureIDs {
+  return {
+    skin: LogNT("Skin", db.fitStages[st.fitStage.toString()].skin),
+    muscle: LogNT(
+      "Muscle definition",
+      getMuscleDef(gains, st.muscleDefLo, st.muscleDefHi)
+    ),
+  }
 }
 
 function getBodyShape(
@@ -257,18 +190,3 @@ function getBlends(j: FitJourney, stage: number, gains: number): BlendPair {
     },
   }
 }
-
-////////////////////////////////////////////////////////////////////
-/** Returns the muscle definition texture the player should use. */
-// function GetMuscleDef(d: PlayerData) {
-//   if (!mcm.actors.player.applyMuscleDef) return LogR(MDefMcmBan(), undefined)
-//   if (IsMuscleDefBanned(d.race)) return LogR(MDefRaceBan(), undefined)
-
-//   const mdt = d.fitnessStage.muscleDefType
-//   const md = InterpolateMusDef(
-//     d.playerStage.muscleDefLo,
-//     d.playerStage.muscleDefHi,
-//     gains
-//   )
-//   return GetMuscleDefTex(d.sex, d.racialGroup, mdt, md, LogIT)
-// }

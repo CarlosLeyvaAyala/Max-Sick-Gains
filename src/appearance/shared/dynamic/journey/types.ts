@@ -7,6 +7,7 @@ import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
 import { calculateAppearance } from "./_appearance"
 import { logBanner } from "../../../common"
 import {} from "./_cache"
+import { save as saveToCache } from "../../cache/journey"
 
 interface AdjustedData {
   stage: number
@@ -229,6 +230,8 @@ export class Journey extends SaverObject {
       this.isFem(),
       this.canApplySettings()
     )
+
+    saveToCache(this._name, app.bodyShape, app.textures)
   }
 
   protected isFem() {
