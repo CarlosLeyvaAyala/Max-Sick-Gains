@@ -16,11 +16,9 @@ export function Train(skill: TrainingData) {
   const f = mcm.training.flashOnGain
   const tm = mcm.training.trainingMult
   const am = mcm.training.activityMult
-  HadTraining(skill.training * tm, f)
-  HadActivity(skill.activity * am)
 
   if (!playerJourney) return
-  playerJourney.hadTraining(skill.training * tm)
+  playerJourney.hadTraining(skill.training * tm, f)
   playerJourney.hadActivity(skill.activity * am)
 }
 
