@@ -15,14 +15,18 @@ import {
 import { FitJourney, RaceGroup, db } from "../../types/exported"
 
 import { getRaceSignature, logBanner, raceSexToTexSignature } from "../common"
-import { applyBodyShape } from "../nioverride/morphs"
+import {
+  ShapeSetter,
+  applyBodyShape,
+  dontApplyBodyShape,
+} from "../nioverride/morphs"
 import { applySkin } from "../nioverride/_skin"
 import { getActorData } from "../shared/ActorData"
 import { Journey } from "../shared/dynamic/journey/types"
 import { catabolicCheck, hadActivity, sendActivity } from "./_activity"
 import { sendJourney } from "./_sendJourney"
 import { decay, hadTraining } from "./_training"
-import { applyTextures } from "../nioverride/textures"
+import { TextureSetter, applyTextures } from "../nioverride/textures"
 
 /** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
@@ -254,7 +258,7 @@ export class PlayerJourney extends Journey {
     return db.mcm.actors.player
   }
 
-  public applyAppearance() {
+  private _applyAppearance(setShape: ShapeSetter, setTextures: TextureSetter) {
     logBanner("Setting player appearance", LogN)
     const a = Player()
 
@@ -279,7 +283,15 @@ export class PlayerJourney extends Journey {
 
     if (!app) return
 
-    applyBodyShape(a, app.appearance.bodyShape)
-    applyTextures(a, app.sex, app.appearance.textures)
+    setShape(a, app.appearance.bodyShape)
+    setTextures(a, app.sex, app.appearance.textures)
+  }
+
+  public applyAppearance() {
+    this._applyAppearance(applyBodyShape, applyTextures)
+  }
+
+  public applyMuscleDefinition() {
+    this._applyAppearance(dontApplyBodyShape, applyTextures)
   }
 }

@@ -80,12 +80,10 @@ export function main() {
 
   on("sleepStop", (_) => {
     JourneyManager.onSleepEnd()
-    // Sleep.OnEnd()
   })
 
   on("sleepStart", (_) => {
     JourneyManager.onSleepStart()
-    // Sleep.OnStart()
   })
 
   let allowInit = true
@@ -114,7 +112,7 @@ export function main() {
 
   /** Changed to were-something. */
   on("switchRaceComplete", (e) => {
-    if (isPlayer(e.subject)) Player.Appearance.Change()
+    if (isPlayer(e.subject)) playerJourney?.applyAppearance()
   })
 
   on("modEvent", (e) => {
@@ -142,7 +140,7 @@ export function main() {
 
     LogN(`NiNode update: ${a?.getLeveledActorBase()?.getName()}`)
     if (isPlayer(a)) {
-      Player.Appearance.ChangeMuscleDef()
+      playerJourney?.applyMuscleDefinition()
       return
     }
     ChangeMuscleDef(a)
@@ -153,7 +151,7 @@ export function main() {
       if (!P().is3DLoaded()) return
       Player.Init()
       ClearAppearance(P()) // Avoid CTD
-      Player.Appearance.Change()
+      playerJourney?.applyAppearance()
       allowInit = false
     })
   }
@@ -184,10 +182,6 @@ export function main() {
   //#region NPC events
 
   const useSPID = true // TODO: Make this a configurable option
-
-  // Execute inmediately after (re)loading a game to try to avoid having
-  // unset NPCs when reloading a game
-  once("cellAttach", (e) => DeTach("Attached", e, ChangeNpcAppearance))
 
   // Not as reliable as SPID, but can be used for a backup method in
   // case SPID doesn't work, like v5.2.0 on SE.
