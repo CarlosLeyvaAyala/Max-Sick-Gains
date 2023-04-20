@@ -78,7 +78,7 @@ function _getAppearanceData(
   const a =
     archetypeId === undefined ? null : db.archetypes[archetypeId.toString()]
   const fs = a?.fitStage ?? 1
-  const w = weightInterpolation(a?.wLo ?? 0, a?.wHi ?? 100, d.weight)
+  const w = weightInterpolation(d.weight, a?.wLo ?? 0, a?.wHi ?? 100)
 
   return {
     fitstage: fs,
