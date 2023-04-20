@@ -3,24 +3,14 @@ import { Actor } from "skyrimPlatform"
 import { Sex } from "../database"
 import { LogE, LogI, LogN, LogV } from "../debug"
 import { ClearAppearance as ClearActorAppearance } from "./appearance"
-import { BodyShape, exportedBstoPreset, getBodyShape } from "./bodyslide"
-import {
-  TexturePaths,
-  getRaceSignature,
-  getTexturePaths,
-  getTextures,
-  logBanner,
-} from "./common"
+import { BodyShape } from "./bodyslide"
+import { TexturePaths, getRaceSignature, logBanner } from "./common"
 import {
   ShapeSetter,
   applyBodyShape,
   dontApplyBodyShape,
 } from "./nioverride/morphs"
-import {
-  TextureSetter,
-  applyTextures,
-  dontApplyTextures,
-} from "./nioverride/textures"
+import { TextureSetter, applyTextures } from "./nioverride/textures"
 import { NpcType as NT } from "./npc/calculated"
 import * as JourneyCache from "./shared/cache/dynamic"
 import { getCached, saveToCache } from "./shared/cache/non_dynamic"
@@ -68,6 +58,7 @@ function applyNonDynamicCache(
   setTextures(a, sex, texs)
 
   saveToCache(formID, shape, texs) // NPC was just seen once again
+  LogN("\n")
 
   return NT.cached
 }
@@ -87,6 +78,7 @@ function applyDynamicCache(
   setTextures(a, d.sex, app.textures)
 
   JourneyCache.save(formID, c.key, c.raceGroup)
+  LogN("\n")
 
   return NT.cached
 }
@@ -112,70 +104,40 @@ function newChangeAppearance(
   if (!identity) return // The NPC is not valid or known
 
   const canChange = d.sex === Sex.female ? db.mcm.actors.fem : db.mcm.actors.men
-  switch (identity.npcType) {
-    case NT.dynamic:
-      const jk = identity.journey as string
-      const dynApp = Journeys.getAppearanceData(
-        jk,
-        identity.race,
-        d.race,
-        d.sex
-      )
-      if (!dynApp) return
-      setShape(a, dynApp.bodyShape)
-      setTextures(a, d.sex, dynApp.textures)
 
-      JourneyCache.save(formID, jk, identity.race)
+  const app = getAppearanceData(formID, identity, d)
 
-      break
-    case NT.generic:
-      const app = getAppearanceData(d, identity.race, identity.archetype)
-      const shape = getBodyShape(app)
-      const texs = getTextures(app)
-
-      setShape(a, shape)
-      setTextures(a, d.sex, texs)
-
-      saveToCache(formID, shape, texs)
-
-      break
-    case NT.known:
-      const knData = identity.knownData
-      if (!knData) return identity.npcType
-      LogN(
-        `${knData.name} data was already calculated when exporting. Check the configuration app report for more info.`
-      )
-
-      const knShape: BodyShape = {
-        bodySlide: exportedBstoPreset(knData.bodyslide),
-        headSize: knData.head,
-      }
-
-      const ts = getTexturePaths(d.race, knData.muscleDef, knData.skin)
-      const knTexs: TexturePaths = {
-        muscle: ts.muscle,
-        skin: ts.skin,
-      }
-
-      setShape(a, { bodySlide: knShape.bodySlide, headSize: knData.head })
-      setTextures(a, d.sex, ts)
-
-      saveToCache(formID, knShape, knTexs)
-
-      break
-  }
+  setShape(a, canChange.applyMorphs ? app?.bodyShape : undefined)
+  setTextures(a, d.sex, canChange.applyMuscleDef ? app?.textures : undefined)
+  app?.saveToCache()
 
   LogN("\n")
 
   return identity.npcType
 }
+export function getAppearanceData(
+  formID: number,
+  identity: NpcIdentity,
+  d: ActorData
+): ApplyAppearanceData | null {
+  switch (identity.npcType) {
+    case NT.dynamic:
+      return DynamicNPC.getAppearanceData(formID, identity, d)
+    case NT.generic:
+      return GenericNPC.getAppearanceData(formID, identity, d)
+    case NT.known:
+      return KnownNPC.getAppearanceData(formID, identity, d)
+  }
+  return null
+}
 
 import { RaceGroup, db } from "../types/exported"
 import { NpcIdentity } from "./npc/calculated"
-import { getJourney } from "./npc/dynamic"
-import { getAppearanceData, getArchetype } from "./npc/generic"
-import { getKnownNPC } from "./npc/known"
+import * as DynamicNPC from "./npc/dynamic"
+import * as GenericNPC from "./npc/generic"
+import * as KnownNPC from "./npc/known"
 import { ActorData, getActorData } from "./shared/ActorData"
+import { ApplyAppearanceData } from "./shared/appearance"
 
 //#region Solve appearance
 
@@ -195,19 +157,19 @@ function getNPCType(d: ActorData, sig: RaceGroup): NpcIdentity {
   const esp = d.esp.toLowerCase()
   const id = d.fixedFormId.toString()
 
-  const journey = getJourney(esp, id)
+  const journey = DynamicNPC.getJourney(esp, id)
   if (journey) {
     LogN(`Has a Fitness Journey: ${journey}`)
     return { npcType: NT.dynamic, journey: journey, race: sig }
   }
 
-  const knData = getKnownNPC(esp, id)
+  const knData = KnownNPC.get(esp, id)
   if (knData) {
     LogN("Is a Known/Explicit NPC")
     return { npcType: NT.known, knownData: knData, race: sig }
   }
 
-  const ar = getArchetype(d)
+  const ar = GenericNPC.getArchetype(d)
   if (!ar)
     LogN(
       "No archetype matched this Race/Class combination. NPC will use the default Fitness Stage."

@@ -5,6 +5,7 @@ import { RaceGroup, db, muscleDefMax, muscleDefMin } from "../../types/exported"
 import {
   AppearanceData,
   RaceEDID,
+  getTextures,
   raceSexToTexSignature,
   searchDirectAndByContent,
   searchMapByContent,
@@ -12,6 +13,10 @@ import {
 } from "../common"
 import { ActorData } from "../shared/ActorData"
 import { getMuscleDef } from "../shared/textures"
+import { NpcIdentity } from "./calculated"
+import { ApplyAppearanceData } from "../shared/appearance"
+import { getBodyShape } from "../bodyslide"
+import { saveToCache } from "../shared/cache/non_dynamic"
 
 function getClassArchetypes(className: string) {
   const cn = className
@@ -65,7 +70,7 @@ export function getArchetype(d: ActorData) {
 }
 
 /** Gets the common appearance data for a generic NPC. */
-export function getAppearanceData(
+function _getAppearanceData(
   d: ActorData,
   race: RaceGroup,
   archetypeId: number | undefined
@@ -86,5 +91,22 @@ export function getAppearanceData(
     sex: d.sex,
     race: d.race,
     weight: w,
+  }
+}
+
+/** Gets the ready to be applied appearance data for a Dynamic NPC */
+export function getAppearanceData(
+  formID: number,
+  identity: NpcIdentity,
+  d: ActorData
+): ApplyAppearanceData | null {
+  const app = _getAppearanceData(d, identity.race, identity.archetype)
+  const shape = getBodyShape(app)
+  const texs = getTextures(app)
+
+  return {
+    bodyShape: shape,
+    textures: texs,
+    saveToCache: () => saveToCache(formID, shape, texs),
   }
 }

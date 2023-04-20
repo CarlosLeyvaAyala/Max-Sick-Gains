@@ -136,14 +136,6 @@ export function raceSexToTexSignature(
 export function getTextures(d: AppearanceData): TexturePaths {
   const fs = db.fitStages[d.fitstage.toString()]
   return textureIdsToPaths(d.muscleDef, fs.muscleDef, fs.skin, d.texSig, d.race)
-
-  // Skin #1 is always the default skin. Won't override.
-  // const sk = fs.skin === 1 ? "" : db.skin[fs.skin - 2][d.texSig]
-  // const md = db.muscleDef[fs.muscleDef - 1][d.texSig][d.muscleDef - 1]
-  // const t = getTexturePaths(d.race, md, sk)
-  // LogN(`Muscle def texture: ${t.muscle}`)
-  // LogN(`Skin texture: ${t.skin}`)
-  // return t
 }
 
 export function textureIdsToPaths(

@@ -26,38 +26,6 @@ export interface CanApply {
   textures: boolean
 }
 
-/** Check which settings a solved NPC can get applied */
-// export function canApplyChanges(d: NPCData, i: NpcIdentity): CanApply {
-//   function toCanA(s: ActorAppearanceSettings): CanApply {
-//     return { morphs: s.applyMorphs, textures: s.applyMuscleDef }
-//   }
-
-//   const settings = db.mcm.actors
-
-//   switch (d.sex) {
-//     case Sex.female:
-//       switch (i.npcType) {
-//         case NpcType.dynamic:
-//         case NpcType.known:
-//         case NpcType.cached:
-//           return toCanA(settings.knownFem)
-//         case NpcType.generic:
-//           return toCanA(settings.genericFem)
-//       }
-//     case Sex.male:
-//       switch (i.npcType) {
-//         case NpcType.dynamic:
-//         case NpcType.known:
-//         case NpcType.cached:
-//           return toCanA(settings.knownMan)
-//         case NpcType.generic:
-//           return toCanA(settings.genericMan)
-//       }
-//     default:
-//       return { morphs: false, textures: false }
-//   }
-// }
-
 // TODO: Move everything below to common.ts
 /** Lowercase esp name. The configuration app exports this. */
 export type EspLower = string
