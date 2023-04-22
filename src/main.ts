@@ -68,6 +68,7 @@ export function main() {
     // Kickstart real time calculations
     playerJourney = JourneyManager.player()
     AnimHooks.setPlayerJourney(playerJourney)
+    Initialize()
   }
 
   // ;>========================================================
@@ -185,8 +186,8 @@ export function main() {
 
   // Not as reliable as SPID, but can be used for a backup method in
   // case SPID doesn't work, like v5.2.0 on SE.
+  on("cellAttach", (e) => DeTach("Attached", e, ChangeNpcAppearance))
   if (!useSPID) {
-    on("cellAttach", (e) => DeTach("Attached", e, ChangeNpcAppearance))
     on("cellDetach", (e) => DeTach("Detached", e, ClearNpcAppearance))
   }
 
@@ -322,7 +323,7 @@ function DeTach(
 ) {
   tryE(() => {
     const a = Actor.from(e.refr)
-    if (!a || !isActorTypeNPC(a) || a.isDisabled()) return
+    if (!a || !isActorTypeNPC(a) || a.isDisabled() || !a.is3DLoaded()) return
 
     waitActor(a, npcWaitTime(), (actor) => {
       LogV(`${evt} actor: ${getBaseName(actor)}`)
