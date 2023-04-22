@@ -1,5 +1,4 @@
 import * as JDB from "JContainers/JDB"
-import { LogN } from "../debug"
 
 export type SaveFunc<T> = (key: string, value: T) => void
 export type RestoreFunc<T> = (key: string, defaultVal?: T) => T
@@ -59,7 +58,6 @@ export abstract class SaverObject {
     defaultVal: T,
     getter: (k: string, defaultVal?: T) => T
   ) {
-    // LogN(`${key}: ${getter(key, defaultVal)}`)
     return getter(key, defaultVal)
   }
 

@@ -1,6 +1,6 @@
 import { LinCurve } from "DmLib/Math"
 import * as Maps from "DmLib/typescript/Map"
-import { LogN, LogNT, LogV } from "../../../../debug"
+import { LogIT, LogV, LogVT } from "../../../../debug"
 import {
   ActorAppearanceSettings,
   FitJourney,
@@ -61,8 +61,8 @@ export function calculateAppearance(
 function getTextures(st: JourneyStage, gains: number): TextureIDs {
   const fs = db.fitStages[st.fitStage.toString()]
   return {
-    skin: LogNT("Skin", fs.skin),
-    muscleLvl: LogNT(
+    skin: LogIT("Skin", fs.skin),
+    muscleLvl: LogIT(
       "Muscle definition",
       getMuscleDef(gains, st.muscleDefLo, st.muscleDefHi)
     ),
@@ -93,9 +93,9 @@ function getHeadS(b: BlendPair, isFem: boolean) {
     return hs * bl.blend
   }
 
-  const s1 = LogNT("Current stage head size", B(b.blend1))
-  const s2 = LogNT("Blend stage head size", B(b.blend2))
-  return LogNT("Head size", s1 + s2)
+  const s1 = LogVT("Current stage head size", B(b.blend1))
+  const s2 = LogVT("Blend stage head size", B(b.blend2))
+  return LogVT("Head size", s1 + s2)
 }
 
 /** Returns a fully blended Bodyslide preset. Ready to be applied on the player.
@@ -109,13 +109,13 @@ function getBodySlide(b: BlendPair, isFem: boolean) {
   const L = (b: BlendData) =>
     `fitStage (${b.fitStage.iName}), blend (${b.blend}), simulated weight: (${b.weight})`
 
-  LogN("Bodyslide blending")
+  LogV("Bodyslide blending")
 
   const sl1 = getSliders(
-    LogNT("Current Stage", b1, L),
+    LogVT("Current Stage", b1, L),
     isFem
   ) as BodyslidePreset // Sl1 always exist
-  const sl2 = getSliders(LogNT("Blend Stage", b2, L), isFem)
+  const sl2 = getSliders(LogVT("Blend Stage", b2, L), isFem)
 
   // const r = Maps.join(sl1, sl2, (v1, v2) => v1 + v2)
   // Maps.toArray(r).forEach(([sl, v]) => LogN(`${sl}: ${v}`))

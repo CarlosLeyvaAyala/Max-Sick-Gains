@@ -4,7 +4,7 @@ import { HumanHours, Now, SkyrimHours } from "DmLib/Time"
 import { Maybe } from "Maybe"
 import { ActorBase, Debug } from "skyrimPlatform"
 import { Sex } from "../../database"
-import { LogE, LogN, LogNT, LogV, LogVT } from "../../debug"
+import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../../debug"
 import {
   SendCatabolismEnd,
   SendGainsChange,
@@ -20,13 +20,12 @@ import {
   applyBodyShape,
   dontApplyBodyShape,
 } from "../nioverride/morphs"
-import { applySkin } from "../nioverride/_skin"
+import { TextureSetter, applyTextures } from "../nioverride/textures"
 import { getActorData } from "../shared/ActorData"
 import { Journey } from "../shared/dynamic/journey/types"
 import { catabolicCheck, hadActivity, sendActivity } from "./_activity"
 import { sendJourney } from "./_sendJourney"
 import { decay, hadTraining } from "./_training"
-import { TextureSetter, applyTextures } from "../nioverride/textures"
 
 /** Player Journey. Supports calculations and has mode data. */
 export class PlayerJourney extends Journey {
@@ -121,9 +120,9 @@ export class PlayerJourney extends Journey {
     const gainsDelta = this.maxGainsPerDay() * sleepGains
     const newTraining = t - sleepGains
     return {
-      gainsDelta: LogNT("Gains delta", gainsDelta),
-      newTraining: LogNT("Training after gains", newTraining),
-      newGains: LogNT("New raw gains", g + gainsDelta),
+      gainsDelta: LogVT("Gains delta", gainsDelta),
+      newTraining: LogVT("Training after gains", newTraining),
+      newGains: LogVT("New raw gains", g + gainsDelta),
     }
   }
 
@@ -132,14 +131,14 @@ export class PlayerJourney extends Journey {
    * @param hoursSlept How many {@link HumanHours} the player slept.
    */
   public advanceStage(hoursSlept: HumanHours) {
-    logBanner("Calculating player gains after sleeping", LogN, "-")
-    const t = LogNT("Training", this.training)
-    const s = LogNT("Current player stage", this.stage)
-    const g = LogNT("Gains", this.gains)
+    logBanner("Calculating player gains after sleeping", LogI, "-")
+    const t = LogIT("Training", this.training)
+    const s = LogIT("Current player stage", this.stage)
+    const g = LogIT("Gains", this.gains)
 
     const n = this.makeGains(hoursSlept, t, g)
     this.changeStageByGains(n.newGains)
-    this.training = LogNT("Setting training", n.newTraining)
+    this.training = LogIT("Setting training", n.newTraining)
 
     this.sendEvents(n.gainsDelta, this.stage - s)
     sendJourney(this.gains, this.stage, this._journey)
@@ -164,7 +163,7 @@ export class PlayerJourney extends Journey {
 
   protected restoreVariables() {
     super.restoreVariables()
-    const LL = LogNT
+    const LL = LogVT
     const RF = (msg: string, k: string) => LL(msg, this.restoreFloat(k))
     const RB = (msg: string, k: string) => LL(msg, this.restoreBool(k))
 

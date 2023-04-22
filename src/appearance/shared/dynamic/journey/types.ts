@@ -1,7 +1,7 @@
 import { ForceRange, forcePercent } from "DmLib/Math"
 import { HumanHours } from "DmLib/Time"
 import * as JDB from "JContainers/JDB"
-import { LogE, LogI, LogIT, LogN, LogNT, LogV, LogVT } from "../../../../debug"
+import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../../../../debug"
 import { FitJourney, TextureSignature, db } from "../../../../types/exported"
 import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
 import { BodyShape } from "../../../bodyslide"
@@ -97,7 +97,7 @@ export class Journey extends SaverObject {
     this._journey = journey
     this._lastStage = journey.stages.length - 1
 
-    LogN(`${key} Journey was created with (${journey.stages.length}) stages`)
+    LogV(`${key} Journey was created with (${journey.stages.length}) stages`)
   }
 
   /** Initializes variables */
@@ -222,7 +222,7 @@ export class Journey extends SaverObject {
   }
 
   public advanceStage(hoursSlept: HumanHours) {
-    logBanner(`${this._name} is getting gains after sleeping`, LogN, "-")
+    logBanner(`${this._name} is getting gains after sleeping`, LogI, "-")
     this.changeStageByGains(
       this.capSleepingGains(hoursSlept) * this.maxGainsPerDay() + this.gains
     )
@@ -257,7 +257,7 @@ export class Journey extends SaverObject {
     bodyShape?: BodyShape
     textures?: TexturePaths
   } {
-    LogN(`Getting appearance data for ${this._name}`)
+    LogV(`Getting appearance data for ${this._name}`)
 
     const app = getFromCache(this._name)
 

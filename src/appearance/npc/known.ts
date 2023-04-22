@@ -1,8 +1,9 @@
-import { LogN } from "../../debug"
+import { LogI } from "../../debug"
 import { db } from "../../types/exported"
 import { BodyShape, exportedBstoPreset } from "../bodyslide"
-import { TexturePaths, getTexturePaths } from "../common"
+import { getTexturePaths } from "../common"
 import { ActorData } from "../shared/ActorData"
+import { ApplyAppearanceData } from "../shared/appearance"
 import { saveToCache } from "../shared/cache/non_dynamic"
 import {
   AppCachedFormID,
@@ -10,7 +11,6 @@ import {
   NpcIdentity,
   getPreGenerated,
 } from "./calculated"
-import { ApplyAppearanceData } from "../shared/appearance"
 
 /** Gets Known NPC data from exported database */
 export const get = (esp: EspLower, id: AppCachedFormID) =>
@@ -25,7 +25,7 @@ export function getAppearanceData(
   const knData = identity.knownData
   if (!knData) return null
 
-  LogN(
+  LogI(
     `${knData.name} data was already calculated when exporting. Check the configuration app report for more info.`
   )
 

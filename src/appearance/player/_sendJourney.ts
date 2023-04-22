@@ -1,5 +1,5 @@
 import { LinCurve, forcePercent } from "DmLib/Math"
-import { LogIT, LogN, LogNT } from "../../debug"
+import { LogIT, LogV, LogVT } from "../../debug"
 import {
   SendJourneyAverage,
   SendJourneyByDays,
@@ -11,7 +11,7 @@ export function sendJourney(gains: number, stage: number, journey: FitJourney) {
   const gainsP = gains / 100
   const st = journeyByStage(gainsP, stage, journey)
   const days = journeyByDays(gainsP, stage, journey)
-  const avg = LogNT("Journey average", (st + days) / 2)
+  const avg = LogVT("Journey average", (st + days) / 2)
 
   SendJourneyAverage(avg)
   SendJourneyByDays(days)
@@ -25,21 +25,21 @@ function journeyByStage(gainsP: number, stage: number, journey: FitJourney) {
     { x: 0, y: 0 },
     { x: journey.stages.length, y: 1 }
   )(stage + gainsP)
-  return LogNT("Journey by stage", FP(v))
+  return LogVT("Journey by stage", FP(v))
 }
 
 function journeyByDays(gainsP: number, stage: number, journey: FitJourney) {
-  LogN("Calculating journey by days")
+  LogV("Calculating journey by days")
 
   const pastDays = journey.durations[stage] // Precalculated by Maxick App
-  const c = LogNT(
+  const c = LogVT(
     "Current stage days passed",
     journey.stages[stage].minDays * gainsP
   )
 
   const r =
-    LogNT("Days passed", pastDays + c) /
-    LogNT("Total days", journey.totalDuration)
+    LogVT("Days passed", pastDays + c) /
+    LogVT("Total days", journey.totalDuration)
 
   return LogIT("Journey by days", FP(r))
 }

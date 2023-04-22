@@ -1,5 +1,5 @@
-import { Now, SkyrimHours, hourSpan } from "DmLib/Time"
-import { LogN } from "../../../debug"
+import { SkyrimHours, hourSpan } from "DmLib/Time"
+import { LogV } from "../../../debug"
 
 /** Form id of the `Actor` instance; not their base ID.
  * @remarks
@@ -25,6 +25,6 @@ export function get<V extends RecyclableActor>(
   const d = cache.get(key)
   if (!d || hourSpan(d.lastSeen) > timeLimit) return null
 
-  LogN("Actor was cached. Getting appearance from cache.")
+  LogV("Actor was cached. Getting appearance from cache.")
   return d
 }

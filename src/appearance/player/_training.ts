@@ -1,7 +1,7 @@
 import { LinCurve, forceRange } from "DmLib/Math"
-import { LogN, LogNT, LogV, LogVT } from "../../debug"
-import { db } from "../../types/exported"
+import { LogV, LogVT } from "../../debug"
 import { SendTrainingChange, SendTrainingSet } from "../../events/events_hidden"
+import { db } from "../../types/exported"
 
 /** How much `training` is lost a day when in _Catabolic State_. Absolute value. */
 const trainCat = 1.8

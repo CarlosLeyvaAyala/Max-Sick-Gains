@@ -44,7 +44,7 @@ import { PlayerJourney } from "./appearance/player/journey"
 import { onTraining } from "./appearance/player/modEvents"
 import * as JourneyManager from "./appearance/shared/dynamic/journey/manager"
 import { KnownNpcData, knownNPCs, mcm } from "./database"
-import { LogE, LogI, LogN, LogNT, LogV } from "./debug"
+import { LogE, LogI, LogN, LogV, LogVT } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
 import { loadAlternateData } from "./types/exported"
@@ -64,7 +64,7 @@ export function main() {
   function initializeJourneys() {
     loadAlternateData() // FIX: Delete when ready
     JourneyManager.initialize()
-    logBanner("Player is ready to get processed", LogN, "+")
+    logBanner("Player is ready to get processed", LogI, "+")
     // Kickstart real time calculations
     playerJourney = JourneyManager.player()
     AnimHooks.setPlayerJourney(playerJourney)
@@ -139,7 +139,7 @@ export function main() {
     const a = Actor.from(e.reference)
     if (!isActorTypeNPC(a)) return
 
-    LogN(`NiNode update: ${a?.getLeveledActorBase()?.getName()}`)
+    LogV(`NiNode update: ${a?.getLeveledActorBase()?.getName()}`)
     if (isPlayer(a)) {
       playerJourney?.applyMuscleDefinition()
       return
@@ -333,9 +333,9 @@ function DeTach(
 }
 
 function ResetNPC() {
-  let r = LogNT("Getting reference at crosshair", Game.getCurrentCrosshairRef())
+  let r = LogVT("Getting reference at crosshair", Game.getCurrentCrosshairRef())
   if (!r)
-    r = LogNT(
+    r = LogVT(
       "No reference found at crosshair. Trying console one",
       Game.getCurrentConsoleRef()
     )
@@ -352,13 +352,13 @@ function initSurroundingNPCs() {
   ScanCellNPCs(Game.getPlayer(), 4000, null, false)
     .filter((a) => a && isActorTypeNPC(a) && !isPlayer(a) && a.is3DLoaded)
     .forEach((a) => {
-      LogN(`Setting appearance to nearby actor`)
+      LogV(`Setting appearance to nearby actor`)
       ChangeNpcAppearance(a)
     })
 }
 
 function initSurroundingNPCsDelayed() {
-  LogN("About to initialize NPCs...")
+  LogV("About to initialize NPCs...")
   const f = async () => {
     await Utility.wait(5)
     initSurroundingNPCs()

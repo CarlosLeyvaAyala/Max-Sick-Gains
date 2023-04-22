@@ -19,7 +19,7 @@ import * as Journeys from "./shared/dynamic/journey/manager"
 /** Logs the NPC name banner */
 function logNPCBanner(name: string, formID: number) {
   logBanner(`Setting appearance of ${name}`, LogN)
-  LogN(`RefID (will be cached): ${formID}`)
+  LogI(`RefID (will be cached): ${formID}`)
 }
 
 interface ApplyAppearance {
@@ -58,7 +58,7 @@ function applyNonDynamicCache(
   setTextures(a, sex, texs)
 
   saveToCache(formID, shape, texs) // NPC was just seen once again
-  LogN("\n")
+  LogI("\n")
 
   return NT.cached
 }
@@ -78,7 +78,7 @@ function applyDynamicCache(
   setTextures(a, d.sex, app.textures)
 
   JourneyCache.save(formID, c.key, c.raceGroup)
-  LogN("\n")
+  LogI("\n")
 
   return NT.cached
 }
@@ -111,7 +111,7 @@ function newChangeAppearance(
   setTextures(a, d.sex, canChange.applyMuscleDef ? app?.textures : undefined)
   app?.saveToCache()
 
-  LogN("\n")
+  LogI("\n")
 
   return identity.npcType
 }
@@ -159,22 +159,22 @@ function getNPCType(d: ActorData, sig: RaceGroup): NpcIdentity {
 
   const journey = DynamicNPC.getJourney(esp, id)
   if (journey) {
-    LogN(`Has a Fitness Journey: ${journey}`)
+    LogI(`Has a Fitness Journey: ${journey}`)
     return { npcType: NT.dynamic, journey: journey, race: sig }
   }
 
   const knData = KnownNPC.get(esp, id)
   if (knData) {
-    LogN("Is a Known/Explicit NPC")
+    LogI("Is a Known/Explicit NPC")
     return { npcType: NT.known, knownData: knData, race: sig }
   }
 
   const ar = GenericNPC.getArchetype(d)
   if (!ar)
-    LogN(
+    LogV(
       "No archetype matched this Race/Class combination. NPC will use the default Fitness Stage."
     )
-  else LogN(`Archetype: "${db.archetypes[ar.toString()].iName}" (${ar})`)
+  else LogI(`Archetype: "${db.archetypes[ar.toString()].iName}" (${ar})`)
   return { npcType: NT.generic, archetype: ar, race: sig }
 }
 

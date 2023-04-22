@@ -1,7 +1,7 @@
 import { HumanHours, Now, hourSpan } from "DmLib/Time"
 import * as O from "DmLib/typescript/Object"
 import { Sex } from "../../../../database"
-import { LogN, LogNT, LogVT } from "../../../../debug"
+import { LogI, LogV, LogVT } from "../../../../debug"
 import { sendSleep } from "../../../../events/maxick_compatibility"
 import {
   RaceGroup,
@@ -22,7 +22,7 @@ let journeys: Map<string, Journey>
  */
 export function initialize() {
   journeys = new Map()
-  LogN("Initializing Fitness Journeys")
+  LogV("Initializing Fitness Journeys")
 
   // Player is always the first journey added
   journeys.set(pk, new PlayerJourney(pk, db.fitJourneys[pk]))
@@ -73,13 +73,13 @@ export function onSleepStart() {
 export function onSleepEnd() {
   const p = player()
   const Ls = () => {
-    p.lastSlept = LogNT("Awaken at", Now())
+    p.lastSlept = LogVT("Awaken at", Now())
   }
 
-  LogN("--- Finished sleeping")
+  LogV("--- Finished sleeping")
 
   if (hourSpan(p.lastSlept) < 3) {
-    LogN("You just slept. Nothing will be done.")
+    LogI("You just slept. Nothing will be done.")
     Ls()
     return
   }
@@ -87,5 +87,5 @@ export function onSleepEnd() {
   const hoursSlept = hourSpan(goneToSleepAt)
   if (hoursSlept < 0.8) return // Do nothing. Didn't really slept.
   Ls()
-  onSleep(LogNT("Hours slept", Math.round(hoursSlept)))
+  onSleep(LogVT("Hours slept", Math.round(hoursSlept)))
 }

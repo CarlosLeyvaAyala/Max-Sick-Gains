@@ -156,8 +156,8 @@ export function textureIdsToPaths(
 
   const t = getTexturePaths(race, md, sk)
 
-  LogN(`Muscle def texture: ${t.muscle}`)
-  LogN(`Skin texture: ${t.skin}`)
+  LogI(`Muscle def texture: ${t.muscle}`)
+  LogI(`Skin texture: ${t.skin}`)
   return t
 }
 

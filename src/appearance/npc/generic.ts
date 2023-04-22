@@ -1,7 +1,8 @@
 import { isInRange } from "DmLib/Math"
 import { intersection } from "DmLib/Set"
-import { LogI, LogN, LogV, LogVT } from "../../debug" // TODO: Change to proper log level
+import { LogI, LogV, LogVT } from "../../debug" // TODO: Change to proper log level
 import { RaceGroup, db, muscleDefMax, muscleDefMin } from "../../types/exported"
+import { getBodyShape } from "../bodyslide"
 import {
   AppearanceData,
   RaceEDID,
@@ -12,11 +13,10 @@ import {
   weightInterpolation,
 } from "../common"
 import { ActorData } from "../shared/ActorData"
+import { ApplyAppearanceData } from "../shared/appearance"
+import { saveToCache } from "../shared/cache/non_dynamic"
 import { getMuscleDef } from "../shared/textures"
 import { NpcIdentity } from "./calculated"
-import { ApplyAppearanceData } from "../shared/appearance"
-import { getBodyShape } from "../bodyslide"
-import { saveToCache } from "../shared/cache/non_dynamic"
 
 function getClassArchetypes(className: string) {
   const cn = className
@@ -25,7 +25,7 @@ function getClassArchetypes(className: string) {
     () => searchMapByContent(db.classArchSearch, cn.toLowerCase()), // TODO: Fallback to all classes
     (a) => (db.classArch[cn] = a),
     () => (db.classArch[cn] = []),
-    (desc) => LogN(`Class ${desc}`)
+    (desc) => LogV(`Class ${desc}`)
   )
   return r
 }
@@ -36,7 +36,7 @@ function getRaceArchetypes(race: RaceEDID) {
     () => searchMapByContent(db.raceArchSearch, race.toLowerCase()), // TODO: Fallback to all races
     (a) => (db.raceArch[race] = a),
     () => (db.raceArch[race] = []),
-    (desc) => LogN(`Race ${desc}`)
+    (desc) => LogV(`Race ${desc}`)
   )
   return r
 }
