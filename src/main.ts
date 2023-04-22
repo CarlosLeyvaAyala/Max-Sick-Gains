@@ -323,7 +323,7 @@ function DeTach(
 ) {
   tryE(() => {
     const a = Actor.from(e.refr)
-    if (!a || !isActorTypeNPC(a) || a.isDisabled() || !a.is3DLoaded()) return
+    if (!a || a.isDisabled() || !a.is3DLoaded() || !isActorTypeNPC(a)) return
 
     waitActor(a, npcWaitTime(), (actor) => {
       LogV(`${evt} actor: ${getBaseName(actor)}`)
