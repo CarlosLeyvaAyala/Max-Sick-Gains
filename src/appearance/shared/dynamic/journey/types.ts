@@ -1,7 +1,7 @@
 import { ForceRange, forcePercent } from "DmLib/Math"
 import { HumanHours } from "DmLib/Time"
 import * as JDB from "JContainers/JDB"
-import { LogN, LogNT, LogV, LogVT } from "../../../../debug"
+import { LogI, LogIT, LogN, LogNT, LogV, LogVT } from "../../../../debug"
 import { FitJourney, TextureSignature, db } from "../../../../types/exported"
 import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
 import { BodyShape } from "../../../bodyslide"
@@ -181,13 +181,13 @@ export class Journey extends SaverObject {
 
   protected changeStageByGains(newGains: number) {
     const a = this.adjust(newGains)
-    this.gains = LogNT("Setting gains", this.capGains(a.gains))
-    this.stage = LogNT("Setting stage", a.stage)
+    this.gains = LogIT("Setting gains", this.capGains(a.gains))
+    this.stage = LogIT("Setting stage", a.stage)
   }
 
   /** Initializes the Fitness Journey data the mod needs to work */
   protected initialize() {
-    LogN(
+    LogI(
       `${this._name} Fitness Journey will be initialized at stage (${this._journey.start}).`
     )
     this.gains = 0
@@ -195,18 +195,18 @@ export class Journey extends SaverObject {
   }
 
   protected restoreVariables() {
-    logBanner(`${this._name} Journey data was restored`, LogN)
+    logBanner(`${this._name} Journey data was restored`, LogV)
     this._gains = this.restoreFloat(this.gainsKey)
-    LogN(`Gains: ${this._gains}`)
+    LogV(`Gains: ${this._gains}`)
     this._stage = this.restoreInt(this.stageKey)
-    LogN(`Stage: ${this._stage}`)
+    LogV(`Stage: ${this._stage}`)
   }
 
   /** Sets data for debugging purposes */
   public setDebug(gains: number, stage: number) {
     this.gains = gains
     this.stage = stage
-    LogN(`Debug data was set to Gains: ${gains} Stage: ${stage}`)
+    LogI(`Debug data was set to Gains: ${gains} Stage: ${stage}`)
   }
 
   protected capSleepingGains(hoursSlept: HumanHours) {
