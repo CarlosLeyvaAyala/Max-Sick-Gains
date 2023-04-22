@@ -1,7 +1,7 @@
 import { ForceRange, forcePercent } from "DmLib/Math"
 import { HumanHours } from "DmLib/Time"
 import * as JDB from "JContainers/JDB"
-import { LogI, LogIT, LogN, LogNT, LogV, LogVT } from "../../../../debug"
+import { LogE, LogI, LogIT, LogN, LogNT, LogV, LogVT } from "../../../../debug"
 import { FitJourney, TextureSignature, db } from "../../../../types/exported"
 import { JDBSaveAdapter, SaverObject } from "../../../../types/saving"
 import { BodyShape } from "../../../bodyslide"
@@ -200,6 +200,14 @@ export class Journey extends SaverObject {
     LogV(`Gains: ${this._gains}`)
     this._stage = this.restoreInt(this.stageKey)
     LogV(`Stage: ${this._stage}`)
+
+    if (this._stage > this._lastStage) {
+      this._stage = this._lastStage
+      this.gains = 100
+      LogE(
+        `Saved Journey Stage was greater than the actual number of stages and was adjusted. Did you delete a Journey Stage in the app?`
+      )
+    }
   }
 
   /** Sets data for debugging purposes */
