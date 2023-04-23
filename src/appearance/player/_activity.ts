@@ -1,6 +1,6 @@
-import { Now, SkyrimHours, toHumanHours, toSkyrimHours } from "DmLib/Time"
-import { LogI, LogN, LogNT, LogV, LogVT } from "../../debug"
 import { forceRange } from "DmLib/Math"
+import { Now, SkyrimHours, toHumanHours, toSkyrimHours } from "DmLib/Time"
+import { LogI, LogV, LogVT } from "../../debug"
 import {
   SendCatabolismEnd,
   SendCatabolismStart,
