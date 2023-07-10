@@ -1,5 +1,6 @@
 import { ActorValue, Game, Spell } from "skyrimPlatform"
-import { ClassArchetype } from "./database"
+import { Archetype } from "./types/exported"
+// import { ClassArchetype } from "./database"
 
 export const playerId = 0x14
 
@@ -37,14 +38,14 @@ export function ActorValueToStr(a: ActorValue): string {
   return ""
 }
 
-export const defaultArchetype: ClassArchetype = {
-  iName: "Default",
-  fitStage: 1,
-  bsLo: 0,
-  bsHi: 100,
-  muscleDefLo: 1,
-  muscleDefHi: 6,
-  raceExclusive: [],
-  weightLo: 0,
-  weightHi: 100,
-}
+// export const defaultArchetype: Archetype = {
+//   iName: "Default",
+//   fitStage: 1,
+//   wLo: 0,
+//   wHi: 100,
+//   mDefLo: 1,
+//   mDefHi: 6,
+//   raceExclusive: [],
+//   weightLo: 0,
+//   weightHi: 100,
+// }

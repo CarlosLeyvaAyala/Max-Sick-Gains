@@ -25,9 +25,9 @@ import {
   Utility,
   on,
   once,
+  printConsole,
 } from "skyrimPlatform"
 import * as AnimHooks from "./animations/constants"
-import { HookAnims, LogAnims } from "./animations/hooks"
 import { ClearAppearance } from "./appearance/appearance"
 import { logBanner } from "./appearance/common"
 import {
@@ -39,15 +39,17 @@ import {
   ChangeAppearance as ChangeNpcAppearance,
   ClearAppearance as ClearNpcAppearance,
 } from "./appearance/npc"
-import { Player, TestMode } from "./appearance/player"
+import * as TestingMode from "./appearance/player/testMode"
+// import { Player, TestMode } from "./appearance/player"
 import { PlayerJourney } from "./appearance/player/journey"
 import { onTraining } from "./appearance/player/modEvents"
 import * as JourneyManager from "./appearance/shared/dynamic/journey/manager"
-import { KnownNpcData, knownNPCs, mcm } from "./database"
+// import { KnownNpcData, knownNPCs, mcm } from "./database"
 import { LogE, LogI, LogN, LogV, LogVT } from "./debug"
 import { GAME_INIT } from "./events/events_hidden"
 import { TRAIN } from "./events/maxick_compatibility"
-import { loadAlternateData } from "./types/exported"
+import { db } from "./types/exported"
+import { HookAnims, LogAnims } from "./animations/hooks"
 // const initK = ".DmPlugins.Maxick.init"
 // const MarkInitialized = () => JDB.solveBoolSetter(initK, true, true)
 // const WasInitialized = () => JDB.solveBool(initK, false)
@@ -62,11 +64,12 @@ export function main() {
   })
 
   function initializeJourneys() {
-    loadAlternateData() // FIX: Delete when ready
+    // loadAlternateData() // FIX: Delete when ready
     JourneyManager.initialize()
     logBanner("Player is ready to get processed", LogI, "+")
     // Kickstart real time calculations
     playerJourney = JourneyManager.player()
+    TestingMode.setup(playerJourney)
     AnimHooks.setPlayerJourney(playerJourney)
     Initialize()
   }
@@ -76,8 +79,8 @@ export function main() {
   // ;>========================================================
 
   //#region Player events
-  if (!mcm.testingMode.enabled) HookAnims()
-  if (mcm.logging.anims) LogAnims()
+  if (!db.mcm.testingMode.enabled) HookAnims()
+  if (db.mcm.logging.anims) LogAnims()
 
   on("sleepStop", (_) => {
     JourneyManager.onSleepEnd()
@@ -124,7 +127,8 @@ export function main() {
 
     if (e.eventName === TRAIN)
       return Exe(() => {
-        if (!mcm.testingMode.enabled) {
+        // FIX: Use testing mode
+        if (!db.mcm.testingMode.enabled) {
           const t = onTraining(e.strArg)
           playerJourney?.hadTraining(t.training)
           playerJourney?.hadActivity(t.activity)
@@ -150,7 +154,7 @@ export function main() {
   const Initialize = () => {
     wait(0.2, () => {
       if (!P().is3DLoaded()) return
-      Player.Init()
+      // Player.Init()
       ClearAppearance(P()) // Avoid CTD
       playerJourney?.applyAppearance()
       allowInit = false
@@ -207,7 +211,7 @@ export function main() {
   //#region Real time events
 
   /** Resets an `Actor` when pressing a key. */
-  const h = mcm.actors
+  const h = db.mcm.actors
   const OnResetNpc = HK.ListenTo(HK.FromValue(h.hkReset))
   const OnResetNearby = HK.ListenTo(HK.FromValue(h.hkResetNearby))
   /** Real time decay and catabolism calculations */
@@ -215,11 +219,11 @@ export function main() {
   const RTcalc2 = updateEach(3)
 
   on("update", () => {
-    TestMode.Next(TestMode.GoNext)
-    TestMode.Prev(TestMode.GoPrev)
-    TestMode.Add10(TestMode.GoAdd10)
-    TestMode.Sub10(TestMode.GoSub10)
-    TestMode.SlideShow(TestMode.GoSlideShow)
+    // TestMode.Next(TestMode.GoNext)
+    // TestMode.Prev(TestMode.GoPrev)
+    // TestMode.Add10(TestMode.GoAdd10)
+    // TestMode.Sub10(TestMode.GoSub10)
+    // TestMode.SlideShow(TestMode.GoSlideShow)
 
     // RTcalc(Player.Calc.Update)
     RTcalc2(() => {
@@ -376,14 +380,14 @@ function ExecuteSPIDSpell(
 }
 
 export function CheckExpectedEsps() {
-  const PrintNames = (a: { [key: string]: KnownNpcData }) => {
-    for (const id in a) LogE(a[id].fullName)
-  }
-
-  for (const esp in knownNPCs)
-    if (!Game.isPluginInstalled(esp)) {
-      const msg = `"${esp}" is not installed. These Known NPCs will not look as expected:`
-      LogE(msg)
-      PrintNames(knownNPCs[esp])
-    }
+  // FIX: Enable
+  // const PrintNames = (a: { [key: string]: KnownNpcData }) => {
+  //   for (const id in a) LogE(a[id].fullName)
+  // }
+  // for (const esp in knownNPCs)
+  //   if (!Game.isPluginInstalled(esp)) {
+  //     const msg = `"${esp}" is not installed. These Known NPCs will not look as expected:`
+  //     LogE(msg)
+  //     PrintNames(knownNPCs[esp])
+  //   }
 }

@@ -1,21 +1,22 @@
 import { MinutesToSkyrimHours, toSkyrimHours } from "DmLib/Time"
-import { Player } from "../appearance/player"
-import { mcm } from "../database"
+// import { mcm } from "../database"
 import { PlayerJourney } from "../appearance/player/journey"
-import { LogN } from "../debug"
+// import { db } from "../types/exported"
+import { TrainingData } from "../appearance/player/modEvents"
 
 let playerJourney: PlayerJourney | null = null
-const HadTraining = Player.Calc.Training.HadTraining
-const HadActivity = Player.Calc.Activity.HadActivity
-export type TrainingData = Player.Calc.Training.TrainingData
+// const HadTraining = Player.Calc.Training.HadTraining
+// const HadActivity = Player.Calc.Activity.HadActivity
+// export type TrainingData = Player.Calc.Training.TrainingData
 
 export const setPlayerJourney = (p: PlayerJourney) => (playerJourney = p)
 
 /** Trains a skill as is. */
 export function Train(skill: TrainingData) {
-  const f = mcm.training.flashOnGain
-  const tm = mcm.training.trainingMult
-  const am = mcm.training.activityMult
+  // TODO: Add options to app
+  const f = false //db.mcm.training.flashOnGain
+  const tm = 1 //db.mcm.training.trainingMult
+  const am = 1 //db.mcm.training.activityMult
 
   if (!playerJourney) return
   playerJourney.hadTraining(skill.training * tm, f)

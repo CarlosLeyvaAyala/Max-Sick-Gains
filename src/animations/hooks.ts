@@ -1,4 +1,5 @@
 import { Animations, HookAnim } from "Animation"
+import { Now } from "DmLib/Time"
 import {
   Actor,
   EquippedItemType,
@@ -9,13 +10,13 @@ import {
 } from "skyrimPlatform"
 import { animLog, playerId } from "../constants"
 import {
-  sk,
-  TrainingData,
   Train,
   TrainSingleAnim,
+  // TrainingData,
+  sk,
   twoHandedTrainMult,
 } from "./constants"
-import { Now } from "DmLib/Time"
+import { TrainingData } from "../appearance/player/modEvents"
 
 /** Adds an animation hook on the player. */
 function Hook(animName: string, f: () => void) {

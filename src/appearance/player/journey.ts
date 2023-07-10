@@ -2,7 +2,7 @@ import { Player } from "DmLib/Actor"
 import { R as LogR } from "DmLib/Log"
 import { HumanHours, Now, SkyrimHours } from "DmLib/Time"
 import { Maybe } from "Maybe"
-import { ActorBase, Debug } from "skyrimPlatform"
+import { ActorBase, Debug, printConsole } from "skyrimPlatform"
 import { Sex } from "../../database"
 import { LogE, LogI, LogIT, LogN, LogV, LogVT } from "../../debug"
 import {
@@ -155,7 +155,7 @@ export class PlayerJourney extends Journey {
     SendGainsChange(LogVT("Gains changed by", gd))
 
     // Other
-    const N = (m: string) => Debug.messageBox(`${m}\n\n${this.welcomeMsg()}.`)
+    const N = (m: string) => Debug.messageBox(`${m}\n\n${this.welcomeMsg}.`)
     if (sd > 0) N("Your hard training has paid off!")
     else if (sd < 0)
       N("You lost gains, but don't fret; you can always come back.")

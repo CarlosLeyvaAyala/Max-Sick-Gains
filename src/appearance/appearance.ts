@@ -23,14 +23,14 @@ import {
   NetImmerse,
   SlotMask,
 } from "skyrimPlatform"
-import {
-  BsSlider,
-  FitStage,
-  MuscleDefinitionType,
-  RacialGroup,
-  Sex,
-  muscleDefBanRace,
-} from "../database"
+// import {
+//   BsSlider,
+//   FitStage,
+//   MuscleDefinitionType,
+//   RacialGroup,
+//   Sex,
+//   muscleDefBanRace,
+// } from "../database"
 import { LogE, LogI, LogIT, LogV, LogVT } from "../debug"
 import { BodyslidePreset } from "./bodyslide"
 
@@ -99,13 +99,13 @@ function BlendBs(bs: object, w: number, Morph: BsCalc): BodyslidePreset {
  * @param Morph Interpolation function.
  * @returns A {@link BodyslidePreset} with slider values corresponding to the input `weight`.
  */
-function BlendFemBs(
-  fitStage: FitStage,
-  weight: number,
-  Morph: BsCalc
-): BodyslidePreset {
-  return BlendBs(fitStage.femBs, weight, Morph)
-}
+// function BlendFemBs(
+//   fitStage: FitStage,
+//   weight: number,
+//   Morph: BsCalc
+// ): BodyslidePreset {
+//   return BlendBs(fitStage.femBs, weight, Morph)
+// }
 
 /** Calculates how a man Bodyslide preset for some Fitness Stage should look at some given weight.
  *
@@ -114,13 +114,13 @@ function BlendFemBs(
  * @param Morph Interpolation function.
  * @returns A {@link BodyslidePreset} with slider values corresponding to the input `weight`.
  */
-function BlendManBs(
-  fitStage: FitStage,
-  weight: number,
-  Morph: BsCalc
-): BodyslidePreset {
-  return BlendBs(fitStage.manBs, weight, Morph)
-}
+// function BlendManBs(
+//   fitStage: FitStage,
+//   weight: number,
+//   Morph: BsCalc
+// ): BodyslidePreset {
+//   return BlendBs(fitStage.manBs, weight, Morph)
+// }
 
 /**  Returns a fully calculated Bodyslide preset for some Fitness Stage, sex and weight.
  *
@@ -130,16 +130,16 @@ function BlendManBs(
  * @param Morph Interpolation function. This is used to calculate individual sliders.
  * @returns Fully calculated Bodyslide preset. Ready to be applied to an `Actor`.
  */
-export function GetBodyslide(
-  fs: FitStage,
-  s: Sex,
-  w: number,
-  Morph: BsCalc = StdMorph,
-  Log: LoggingFunction = LogV
-): BodyslidePreset {
-  Log(`Fitness stage applied: ${fs.iName}`)
-  return s === Sex.male ? BlendManBs(fs, w, Morph) : BlendFemBs(fs, w, Morph)
-}
+// export function GetBodyslide(
+//   fs: FitStage,
+//   s: Sex,
+//   w: number,
+//   Morph: BsCalc = StdMorph,
+//   Log: LoggingFunction = LogV
+// ): BodyslidePreset {
+//   Log(`Fitness stage applied: ${fs.iName}`)
+//   return s === Sex.male ? BlendManBs(fs, w, Morph) : BlendFemBs(fs, w, Morph)
+// }
 
 /** Clears all NiOverride data on an `Actor`.
  * @remarks
@@ -153,20 +153,20 @@ export function ClearAppearance(a: Actor | null) {
   RemoveAllReferenceSkinOverrides(a)
 }
 
-function MuscleDefTypeToTexStr(type: MuscleDefinitionType) {
-  const mt = MuscleDefinitionType
-  return type === mt.athletic
-    ? "Fit"
-    : type === mt.fat
-    ? "Fat"
-    : type === mt.custom1
-    ? "Cs1"
-    : type === mt.custom2
-    ? "Cs2"
-    : type === mt.custom3
-    ? "Cs3"
-    : "Meh"
-}
+// function MuscleDefTypeToTexStr(type: MuscleDefinitionType) {
+//   const mt = MuscleDefinitionType
+//   return type === mt.athletic
+//     ? "Fit"
+//     : type === mt.fat
+//     ? "Fat"
+//     : type === mt.custom1
+//     ? "Cs1"
+//     : type === mt.custom2
+//     ? "Cs2"
+//     : type === mt.custom3
+//     ? "Cs3"
+//     : "Meh"
+// }
 
 /** Generates a normal texture path given some values.
  *
@@ -176,24 +176,24 @@ function MuscleDefTypeToTexStr(type: MuscleDefinitionType) {
  * @param lvl Actor muscle definition level.
  * @returns A texture path that can be used to override normal maps.
  */
-export function GetMuscleDefTex(
-  s: Sex,
-  r: RacialGroup,
-  type: MuscleDefinitionType,
-  lvl: number,
-  Log: TappedFunction = LogIT
-) {
-  const ss = s === Sex.female ? "Fem" : "Man"
-  const n = lvl.toString().padStart(2, "0")
-  const mt = MuscleDefinitionType
-  const t = MuscleDefTypeToTexStr(type)
-  const rg = typeof r === "number" ? RacialGroup[r] : r
+// export function GetMuscleDefTex(
+//   s: Sex,
+//   r: RacialGroup,
+//   type: MuscleDefinitionType,
+//   lvl: number,
+//   Log: TappedFunction = LogIT
+// ) {
+//   const ss = s === Sex.female ? "Fem" : "Man"
+//   const n = lvl.toString().padStart(2, "0")
+//   const mt = MuscleDefinitionType
+//   const t = MuscleDefTypeToTexStr(type)
+//   const rg = typeof r === "number" ? RacialGroup[r] : r
 
-  return Log(
-    "Applied muscle definition",
-    `actors\\character\\Maxick\\${rg}\\${ss}${t}_${n}.dds`
-  )
-}
+//   return Log(
+//     "Applied muscle definition",
+//     `actors\\character\\Maxick\\${rg}\\${ss}${t}_${n}.dds`
+//   )
+// }
 
 export const getMuscleDefTexName = (shortName: string) =>
   shortName === "" ? undefined : `actors\\character\\Maxick\\mdef\\${shortName}`
@@ -201,11 +201,11 @@ export const getMuscleDefTexName = (shortName: string) =>
 export const getSkinTexName = (shortName: string) =>
   shortName === "" ? undefined : `actors\\character\\Maxick\\skin\\${shortName}`
 
-export function GetHeadSize(fitStage: FitStage, sex: Sex, w: number) {
-  const lo = sex === Sex.female ? fitStage.femHeadLo : fitStage.manHeadLo
-  const hi = sex === Sex.female ? fitStage.femHeadHi : fitStage.manHeadHi
-  return InterpolateW(lo, hi, w)
-}
+// export function GetHeadSize(fitStage: FitStage, sex: Sex, w: number) {
+//   const lo = sex === Sex.female ? fitStage.femHeadLo : fitStage.manHeadLo
+//   const hi = sex === Sex.female ? fitStage.femHeadHi : fitStage.manHeadHi
+//   return InterpolateW(lo, hi, w)
+// }
 
 /** Performs a linear interpolation based on some `weight`.
  *
@@ -234,16 +234,16 @@ export function InterpolateMusDef(lo: number, hi: number, weight: number) {
  * @param raceEDID Race Editor Id to check.
  * @returns `boolean`
  */
-export function IsMuscleDefBanned(raceEDID: string) {
-  const r = raceEDID.toLowerCase()
-  const isBanned =
-    muscleDefBanRace.filter((ban) => r.indexOf(ban) >= 0).length > 0
-  if (isBanned) LogI("Can't change muscle definition. Race is banned.")
-  return isBanned
-}
+// export function IsMuscleDefBanned(raceEDID: string) {
+//   const r = raceEDID.toLowerCase()
+//   const isBanned =
+//     muscleDefBanRace.filter((ban) => r.indexOf(ban) >= 0).length > 0
+//   if (isBanned) LogI("Can't change muscle definition. Race is banned.")
+//   return isBanned
+// }
 
-export function IsFem(a: Actor) {
-  const b = ActorBase.from(a.getLeveledActorBase())
-  if (!b) return false
-  return b.getSex() === Sex.female
-}
+// export function IsFem(a: Actor) {
+//   const b = ActorBase.from(a.getLeveledActorBase())
+//   if (!b) return false
+//   return b.getSex() === Sex.female
+// }

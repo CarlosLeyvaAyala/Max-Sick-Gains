@@ -195,14 +195,16 @@ export interface TexBanRaceSearch {
   [key: string]: boolean
 }
 
+import { settings } from "skyrimPlatform"
+
 // TODO: Enable when ready
-// const modName = "maxick"
+const modName = "maxick"
 //@ts-ignore
-// export const db: MaxickDB = settings[modName]
-export let db: MaxickDB
+export const db: MaxickDB = settings[modName]
+// export let db: MaxickDB
 
 // TODO: Delete
-import * as MiscUtil from "PapyrusUtil/MiscUtil"
-export function loadAlternateData() {
-  db = JSON.parse(MiscUtil.ReadFromFile("Data/SKSE/Plugins/Maxick/test.json"))
-}
+// import * as MiscUtil from "PapyrusUtil/MiscUtil"
+// export function loadAlternateData() {
+//   db = JSON.parse(MiscUtil.ReadFromFile("Data/SKSE/Plugins/Maxick/test.json"))
+// }

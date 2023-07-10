@@ -1,10 +1,11 @@
 import * as Log from "DmLib/Log"
 import { modName } from "./constants"
-import { mcm } from "./database"
+import { db } from "./types/exported"
+// import { mcm } from "./database"
 
-const logToConsole = mcm.logging.toConsole
-const logToFile = mcm.logging.toFile
-const currLogLvl = Log.LevelFromValue(mcm.logging.level)
+const logToConsole = db.mcm.logging.toConsole
+const logToFile = db.mcm.logging.toFile
+const currLogLvl = Log.LevelFromValue(db.mcm.logging.level)
 
 const d = Log.CreateAll(
   modName,

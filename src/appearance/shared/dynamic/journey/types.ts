@@ -74,7 +74,7 @@ export class Journey extends SaverObject {
 
   protected capGains = ForceRange(0, 100)
 
-  protected welcomeMsg() {
+  public get welcomeMsg() {
     return this.currentStage().welcomeMsg
   }
 
