@@ -69,6 +69,7 @@ export function main() {
     logBanner("Player is ready to get processed", LogI, "+")
     // Kickstart real time calculations
     playerJourney = JourneyManager.player()
+    playerJourney.sendWidgetData()
     TestingMode.setup(playerJourney)
     AnimHooks.setPlayerJourney(playerJourney)
     Initialize()

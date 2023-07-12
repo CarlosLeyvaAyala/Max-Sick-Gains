@@ -37,7 +37,7 @@ EndProperty
 ; Use sparsely.
 Function Log(string msg)
   If msg
-    MiscUtil.PrintConsole("[Makicx] " + msg)
+    MiscUtil.PrintConsole("[Maxick] " + msg)
   EndIf
 EndFunction
 

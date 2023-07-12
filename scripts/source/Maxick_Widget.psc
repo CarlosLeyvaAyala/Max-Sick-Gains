@@ -101,6 +101,7 @@ Function _RegisterEvents()
   RegisterForModEvent(ev.CATABOLISM_END, "OnCatabolicExit")
   RegisterForModEvent(ev.PLAYER_STAGE_DELTA, "OnChangeStage")
   RegisterForModEvent("iWantWidgetsReset", "OniWantWidgetsReset")
+  RegisterForModEvent("MaxickWidgetSetStageName", "OnMaxickSetStageName")
 EndFunction
 
 Event OniWantWidgetsReset(String eventName, String strArg, Float numArg, Form sender)
@@ -110,10 +111,19 @@ Event OniWantWidgetsReset(String eventName, String strArg, Float numArg, Form se
   md.Log("========================================================")
   md.Log("Maxick Widget Reset")
   md.Log("========================================================")
-
+  
   _ResetWidget()
 EndEvent
 
+string _stage = ""
+
+Event OnMaxickSetStageName(string _, string stage, float ____, Form ___)
+  _stage = stage
+  ; MiscUtil.PrintConsole("========================================================")
+  ; MiscUtil.PrintConsole(stage)
+  ; MiscUtil.PrintConsole(_stage)
+  ; MiscUtil.PrintConsole("[Makicx] ========================= ")
+EndEvent
 
 ;>========================================================
 ;>===                  iWant SETUP                   ===<;
@@ -128,7 +138,7 @@ Function _ResetWidget()
   int x = 1206
   int y = 350
   int vGap = 14
-  _ShowFitnessStage(x, y, "Bodybuilder")
+  _ShowFitnessStage(x, y, _stage)
   
   ; =======================
   GainsMeter.ResetMeter(iWidgets, x, y + vGap)

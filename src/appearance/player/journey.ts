@@ -116,7 +116,7 @@ export class PlayerJourney extends Journey {
    * @returns New gains and training.
    */
   private makeGains(h: number, t: number, g: number) {
-    const sleepGains = Math.min(this.capSleepingGains(t), t)
+    const sleepGains = Math.min(this.capSleepingGains(h), t)
     const gainsDelta = this.maxGainsPerDay() * sleepGains
     const newTraining = t - sleepGains
     return {
@@ -146,8 +146,15 @@ export class PlayerJourney extends Journey {
     return n.newGains
   }
 
+  public sendWidgetData() {
+    // Current stage name
+    const name = db.fitStages[this.currentStage().fitStage].iName
+    Player()?.sendModEvent("MaxickWidgetSetStageName", name, 0.0)
+  }
+
   private sendEvents(gd: number, sd: number) {
     // Widget display
+    this.sendWidgetData()
     SendTrainingSet(this.training)
     SendGainsSet(LogVT("Setting gains on widget", this.gains))
 
