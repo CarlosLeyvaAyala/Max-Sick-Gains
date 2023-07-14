@@ -113,19 +113,14 @@ export class Journey extends SaverObject {
   protected adjust(gains: number): AdjustedData {
     const s = this.stage
     LogV(`Adjusting Player Stage: s = ${s}, g = ${gains}`)
-    const ProgPred: ChangePredicate = (x, st) =>
-      x >= 100 && st < this._lastStage
 
-    if (gains >= 100)
-      return this.Change(s, gains, ProgPred, this.Progress, this.OnProgress)
-    else if (gains < 0)
-      return this.Change(
-        s,
-        gains,
-        (x, _) => x < 0,
-        this.Regress,
-        this.OnRegress
-      )
+    if (gains >= 100) {
+      const [canProgress, doProgress, onProgress] = this.getProgressFuncs()
+      return this.Change(s, gains, canProgress, doProgress, onProgress)
+    } else if (gains < 0) {
+      const [canRegress, doRegress, onRegress] = this.getRegressFuncs()
+      return this.Change(s, gains, canRegress, doRegress, onRegress)
+    }
 
     return {
       stage: LogVT("Adjusted stage", s),
@@ -141,6 +136,7 @@ export class Journey extends SaverObject {
     AdjustGains: GainsAdjust
   ): AdjustedData {
     let r: AdjustedData = { stage: stage, gains: gains }
+
     while (Predicate(r.gains, r.stage)) {
       const old = r.stage
       r = f(r)
@@ -149,34 +145,52 @@ export class Journey extends SaverObject {
     return r
   }
 
-  private Progress(d: AdjustedData): AdjustedData {
-    // Can't go any further
-    if (d.stage === this._lastStage)
-      return { stage: this._lastStage, gains: 100 }
-    // Go to next level as usual
-    return { stage: d.stage + 1, gains: d.gains - 100 }
-  }
-
-  private OnProgress(d: AdjustedData, old: number): AdjustedData {
+  /** Gets the functions needed to make progress.
+   * @returns The functions needed to make progress.
+   * @remarks
+   * This function was needed because object fields sometimes got lost on closures.
+   */
+  private getProgressFuncs(): [ChangePredicate, GainsTransform, GainsAdjust] {
     const st = this._journey.stages
-    return {
-      gains: d.gains * (st[old].minDays / st[d.stage].minDays),
-      stage: d.stage,
+    const lst = this._lastStage
+
+    const canProgress: ChangePredicate = (x, st) => x >= 100 && st < lst
+    const doProgress = (d: AdjustedData): AdjustedData => {
+      // Can't go any further
+      if (d.stage === lst) return { stage: lst, gains: 100 }
+      // Go to next level as usual
+      return { stage: d.stage + 1, gains: d.gains - 100 }
     }
+    const onProgress = (d: AdjustedData, old: number): AdjustedData => {
+      return {
+        gains: d.gains * (st[old].minDays / st[d.stage].minDays),
+        stage: d.stage,
+      }
+    }
+    return [canProgress, doProgress, onProgress]
   }
 
-  private Regress(d: AdjustedData): AdjustedData {
-    // Can't descend any further
-    if (d.stage <= 0) return { stage: 0, gains: 0 }
-    // Gains will be taken care of by the adjusting function
-    return { stage: d.stage - 1, gains: d.gains }
-  }
-
-  private OnRegress(d: AdjustedData, old: number): AdjustedData {
+  /** Gets the functions needed to regress.
+   * @returns The functions needed to make regress.
+   * @remarks
+   * This function was needed because object fields sometimes got lost on closures.
+   */
+  private getRegressFuncs(): [ChangePredicate, GainsTransform, GainsAdjust] {
+    const canRegress = (x: number, _: number) => x < 0
+    const doRegress = (d: AdjustedData): AdjustedData => {
+      // Can't descend any further
+      if (d.stage <= 0) return { stage: 0, gains: 0 }
+      // Gains will be taken care of by the adjusting function
+      return { stage: d.stage - 1, gains: d.gains }
+    }
     const st = this._journey.stages
-    if (d.gains >= 0) return d
-    const r = st[old].minDays / st[d.stage].minDays
-    return { gains: 100 + d.gains * r, stage: d.stage }
+
+    const onRegress = (d: AdjustedData, old: number): AdjustedData => {
+      if (d.gains >= 0) return d
+      const r = st[old].minDays / st[d.stage].minDays
+      return { gains: 100 + d.gains * r, stage: d.stage }
+    }
+    return [canRegress, doRegress, onRegress]
   }
 
   protected changeStageByGains(newGains: number) {
