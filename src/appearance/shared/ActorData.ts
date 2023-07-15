@@ -1,11 +1,10 @@
-import { Actor, ActorBase, Form } from "skyrimPlatform"
-import { Sex } from "../../database"
-import { RaceEDID } from "../common"
-import { LogE } from "../../debug"
+import { getErrorMsg } from "DmLib/Error"
 import { getEspAndId } from "DmLib/Form"
 import { GetActorRaceEditorID } from "PapyrusUtil/MiscUtil"
-import { tryE } from "DmLib/Misc"
-import { getErrorMsg } from "DmLib/Error"
+import { Actor, ActorBase, Form } from "skyrimPlatform"
+import { Sex } from "../../database"
+import { LogE } from "../../debug"
+import { RaceEDID } from "../common"
 
 /** Data needed to solve an `Actor` appearance. */
 

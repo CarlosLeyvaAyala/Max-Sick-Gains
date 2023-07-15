@@ -138,6 +138,7 @@ Function _ResetWidget()
   int x = 1206
   int y = 350
   int vGap = 14
+  ; TODO: Call when sleeping
   _ShowFitnessStage(x, y, _stage)
   
   ; =======================
