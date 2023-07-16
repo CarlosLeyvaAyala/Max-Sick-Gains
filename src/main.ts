@@ -8,8 +8,7 @@ import {
 import * as HK from "DmLib/Hotkeys"
 import * as Log from "DmLib/Log"
 import { randomRange } from "DmLib/Math"
-import { tryE, wait } from "DmLib/Misc"
-import { updateEach } from "Misc"
+import { tryE, wait, updateEach } from "DmLib/Misc"
 import { ScanCellNPCs } from "PapyrusUtil/MiscUtil"
 import { MaxickSpell, MaxickSpellFx } from "constants"
 import {
