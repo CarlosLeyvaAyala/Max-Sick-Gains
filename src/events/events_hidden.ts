@@ -31,6 +31,7 @@ export function SendGainsSet(gains: number) {
  *
  * @remarks
  * This event will make the widget flash.
+ * Send `0` to disable flashing.
  *
  * @param delta How much gains changed.
  */

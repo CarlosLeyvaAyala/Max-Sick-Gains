@@ -119,6 +119,10 @@ string _stage = ""
 
 Event OnMaxickSetStageName(string _, string stage, float ____, Form ___)
   _stage = stage
+
+  if _widgetReady 
+    _ChangeFitnessStage(stage)
+  endIf
   ; MiscUtil.PrintConsole("========================================================")
   ; MiscUtil.PrintConsole(stage)
   ; MiscUtil.PrintConsole(_stage)
@@ -129,22 +133,34 @@ EndEvent
 ;>===                  iWant SETUP                   ===<;
 ;>========================================================
 
+bool _widgetReady = false
+int _text = -1
+int _textShadow = -1
+
 Maxick_MeterGains Property GainsMeter Auto
 Maxick_MeterTraining Property TrainingMeter Auto
 Maxick_MeterInactivity Property InactivityMeter Auto
 
 Function _ResetWidget()
-  ; int x = 1280 / 2
+  _widgetReady = false
   int x = 1206
   int y = 350
   int vGap = 14
-  ; TODO: Call when sleeping
+  
+  ; =======================
   _ShowFitnessStage(x, y, _stage)
   
   ; =======================
   GainsMeter.ResetMeter(iWidgets, x, y + vGap)
   TrainingMeter.ResetMeter(iWidgets, x, y + (vGap * 2))
   InactivityMeter.ResetMeter(iWidgets, x, y + (vGap * 3))
+
+  _widgetReady = true
+  
+  if _stage == ""
+    ; Ask the SP plugin for the stage name
+    SendModEvent("MaxickWidgetAskedForStageName")
+  endIf
 EndFunction
 
 Function _ShowFitnessStage(int x, int y, string name)
@@ -156,11 +172,18 @@ Function _ShowFitnessStage(int x, int y, string name)
   iWidgets.setPos(s, x + 1, y + 1)
   iWidgets.setRGB(s, 0, 0, 0)
   iWidgets.setVisible(s)  
+  _textShadow = s
   
   int t = iWidgets.loadText(name, font, size)
   iWidgets.setPos(t, x, y)
   iWidgets.setRGB(t, 255, 255, 255)
   iWidgets.setVisible(t)  
+  _text = t
+EndFunction
+
+Function _ChangeFitnessStage(string stage)
+  iWidgets.setText(_text, stage)
+  iWidgets.setText(_textShadow, stage)
 EndFunction
 
 

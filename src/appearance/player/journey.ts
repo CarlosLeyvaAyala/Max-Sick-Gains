@@ -146,17 +146,11 @@ export class PlayerJourney extends Journey {
     return n.newGains
   }
 
-  public sendWidgetData() {
-    // Current stage name
-    const name = db.fitStages[this.currentStage().fitStage].iName
-    Player()?.sendModEvent("MaxickWidgetSetStageName", name, 0.0)
-  }
-
   private sendEvents(gd: number, sd: number) {
     // Widget display
-    this.sendWidgetData()
     SendTrainingSet(this.training)
     SendGainsSet(LogVT("Setting gains on widget", this.gains))
+    this.sendStageName()
 
     // Widget flashing
     SendGainsChange(LogVT("Gains changed by", gd))
@@ -166,6 +160,33 @@ export class PlayerJourney extends Journey {
     if (sd > 0) N("Your hard training has paid off!")
     else if (sd < 0)
       N("You lost gains, but don't fret; you can always come back.")
+  }
+
+  /** Directly sets the player gains while in Testing Mode.
+   * @remarks
+   * ***WARNING***: never call this from any other places than the
+   * Testing Mode functions.
+   * Since these methods are designed to work only from them.
+   */
+  public testModeSetGains(x: number) {
+    this.gains = x
+    SendGainsSet(this.gains)
+    sendJourney(this.gains, this.stage, this._journey)
+    this.sendStageName()
+  }
+
+  /** Sends the widget data from the configuration app to Papyrus. */
+  public sendWidgetData() {
+    this.sendStageName()
+  }
+
+  /** Sends the current Fitness Stage name to the widget so it can
+   * display it.
+   */
+  public sendStageName() {
+    // Current stage name
+    const name = db.fitStages[this.currentStage().fitStage].iName
+    Player().sendModEvent("MaxickWidgetSetStageName", name, 0.0)
   }
 
   protected restoreVariables() {

@@ -74,6 +74,11 @@ export function main() {
     Initialize()
   }
 
+  on("modEvent", (e) => {
+    if (e.eventName !== "MaxickWidgetAskedForStageName") return
+    playerJourney?.sendStageName()
+  })
+
   // ;>========================================================
   // ;>===                 PLAYER EVENTS                  ===<;
   // ;>========================================================

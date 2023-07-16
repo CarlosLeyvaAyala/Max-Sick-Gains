@@ -43,14 +43,15 @@ function LogGainsDelta(delta: number) {
   }
 }
 
-// function ModGains(delta: number) {
-//   SetGains(gains + delta)
-// }
+function ModGains(delta: number) {
+  player.testModeSetGains(player.gains + delta)
+}
 
-// function SetGains(x: number) {
-//   gains = SGains(x)
-//   Sleep.SendJourney()
-// }
+function SetGains(x: number) {
+  player.testModeSetGains(x)
+  // gains = SGains(x)
+  // Sleep.SendJourney()
+}
 
 // function ModStage(delta: number) {
 //   SetStage(pStage + delta)
