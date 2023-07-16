@@ -1,3 +1,4 @@
+; TODO: Delete whole script
 Scriptname Maxick_MCM extends MCM_ConfigBase
 {All the work is done by [MCM Helper](https://www.nexusmods.com/skyrimspecialedition/mods/53000) (thankfully).}
 
@@ -14,5 +15,5 @@ Function UpdateWidget()
   float vGap = GetModSettingFloat("fVgap:Widget")
   int hAlign = GetModSettingInt("iHalign:Widget")
   int vAlign = GetModSettingInt("iValign:Widget")
-  widget.SetAppearanceance(x, y, h, w, vGap, hAlign, vAlign)
+  ; widget.SetAppearanceance(x, y, h, w, vGap, hAlign, vAlign)
 EndFunction
