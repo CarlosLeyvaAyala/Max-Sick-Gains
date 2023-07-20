@@ -14,6 +14,13 @@ EndFunction
 int Property LightColor Auto
 int Property DarkColor Auto
 
+int Property XScale = 35 Auto
+int Property YScale= 46 Auto
+
+; Start the widget out of view, then wait for the data coming from typescript
+int Property X = 1000 Auto 
+int Property Y = 1000 Auto
+
 int Property Percent
   { Meter percent position [0 .. 100] }
   int Function get()
@@ -26,10 +33,10 @@ int Property Percent
   EndFunction
 EndProperty
 
-Function ResetMeter(iWant_Widgets manager, int x, int y, bool isVisible = true, int xScale = 35, int yScale = 46)
+Function ResetMeter(iWant_Widgets manager, bool isVisible = true)
   iWidgets = manager
-  handle = iWidgets.loadMeter(x, y)
-  iWidgets.setZoom(handle, xScale, yScale)
+  handle = iWidgets.loadMeter(X, Y)
+  iWidgets.setZoom(handle, XScale, YScale)
   _SetColor(LightColor, DarkColor)
   iWidgets.setTransparency(handle, 80)
   iWidgets.setMeterFillDirection(handle, "right")
@@ -69,4 +76,16 @@ EndFunction
 Function FlashNow(int flashColor)
   _SetColor(LightColor, DarkColor, flashColor)
   iWidgets.doMeterFlash(handle)
+EndFunction
+
+Function MoveToXY()
+  float secs = 0.1
+  iWidgets.doTransitionByTime(handle, X, secs, "x")
+  iWidgets.doTransitionByTime(handle, Y, secs, "y")
+EndFunction
+
+Function SetScale()
+  float secs = 0.1
+  iWidgets.doTransitionByTime(handle, XScale, secs, "xscale")
+  iWidgets.doTransitionByTime(handle, YScale, secs, "yscale")
 EndFunction

@@ -7,9 +7,6 @@ import DM_Utils
 Maxick_Debug Property md Auto
 Maxick_MCM Property mcmHandler Auto
 Maxick_Events Property ev Auto
-; Maxick_Meter01 Property Gains Auto
-; Maxick_Meter02 Property Training Auto
-; Maxick_Meter03 Property Inactivity Auto
 
 int _updateInterval = 2
 int _flashNormal = 0xffffff     ; White
@@ -28,24 +25,8 @@ iWant_Widgets Property iWidgets Auto
 ;>========================================================
 
 Function OnGameReload()
-  ; mcmHandler.UpdateWidget()
   _RegisterEvents()
 EndFunction
-
-; Gets data from Lua for setting the meters.
-; This function is called by `Maxick_MCM.UpdateWidget()`.
-; Function SetAppearanceance(float x, float y, float meterH, float meterW, float vGap, int hAlign, int vAlign)
-;   md.LogVerb("Widget.SetAppearanceance()")
-;   md.LogVerb(x + ", " + y + ", " + meterH + ", " + meterW + ", " + vGap + ", " + hAlign + ", " + vAlign)
-;   int data = LuaTable("maxick.WidgetMeterPositions", x, y, meterH, vGap, hAlign + 1, vAlign + 1)
-;   ; LuaDebugTable(data, "widget")
-;   Gains.SetData(data, meterH, meterW, hAlign + 1, vAlign + 1)
-;   Training.SetData(data, meterH, meterW, hAlign + 1, vAlign + 1)
-;   Inactivity.SetData(data, meterH, meterW, hAlign + 1, vAlign + 1)
-
-;   ; Reconstruir iconos
-;   ; _RebuildIcons()
-; EndFunction
 
 Function _RebuildIcons()
   ; int meterW = mcmHandler.GetModSettingFloat("fW:Widget") as int
@@ -101,6 +82,7 @@ Function _RegisterEvents()
   RegisterForModEvent(ev.PLAYER_STAGE_DELTA, "OnChangeStage")
   RegisterForModEvent("iWantWidgetsReset", "OniWantWidgetsReset")
   RegisterForModEvent("MaxickWidgetSetStageName", "OnMaxickSetStageName")
+  RegisterForModEvent("MaxickWidgetSetMeters", "OnMaxickSetMeters")
 EndFunction
 
 Event OniWantWidgetsReset(String eventName, String strArg, Float numArg, Form sender)
@@ -122,10 +104,39 @@ Event OnMaxickSetStageName(string _, string stage, float ____, Form ___)
   if _widgetReady 
     _ChangeFitnessStage(stage)
   endIf
-  ; MiscUtil.PrintConsole("========================================================")
-  ; MiscUtil.PrintConsole(stage)
-  ; MiscUtil.PrintConsole(_stage)
-  ; MiscUtil.PrintConsole("[Makicx] ========================= ")
+EndEvent
+
+; Gets the starting index for a meter data got from `OnMaxickSetMeters`
+int Function _meterArrayStartFromData(int meterNumber)
+  ; `4` is the number of variables per meter sent by typescript
+  return (meterNumber - 1) * 4
+EndFunction
+
+; Sets up meters size and positions as coming from the configuration app.
+; `data` contains all the info in the form 
+;     `x1|y1|width1|height1|x2|y2|width2|height2|x3|y3|width3|height3`
+; 
+;@NOTE: Change `_meterArrayStartFromData` if the number of variables sent by typescript ever changes.
+Event OnMaxickSetMeters(string _, string data, float ____, Form ___)
+  string[] d = StringUtil.Split(data, "|")
+
+  int m = _meterArrayStartFromData(1)
+  GainsMeter.X = d[m] as int
+  GainsMeter.Y = d[m + 1] as int
+
+  m = _meterArrayStartFromData(2)
+  TrainingMeter.X = d[m] as int
+  TrainingMeter.Y = d[m + 1] as int
+
+  m = _meterArrayStartFromData(3)
+  InactivityMeter.X = d[m] as int
+  InactivityMeter.Y = d[m + 1] as int
+
+  if _widgetReady 
+    GainsMeter.MoveToXY()
+    TrainingMeter.MoveToXY()
+    InactivityMeter.MoveToXY()
+  endIf
 EndEvent
 
 ;>========================================================
@@ -142,17 +153,17 @@ Maxick_MeterInactivity Property InactivityMeter Auto
 
 Function _ResetWidget()
   _widgetReady = false
-  int x = 1206
-  int y = 350
   int vGap = 14
+  int x = 1206
+  int y = 292 - vGap ; FIXME: Get fitness stage position from typescript
   
   ; =======================
   _ShowFitnessStage(x, y, _stage)
   
   ; =======================
-  GainsMeter.ResetMeter(iWidgets, x, y + vGap)
-  TrainingMeter.ResetMeter(iWidgets, x, y + (vGap * 2))
-  InactivityMeter.ResetMeter(iWidgets, x, y + (vGap * 3))
+  GainsMeter.ResetMeter(iWidgets)
+  TrainingMeter.ResetMeter(iWidgets)
+  InactivityMeter.ResetMeter(iWidgets)
 
   _widgetReady = true
   
@@ -193,7 +204,6 @@ EndFunction
 ; Sets the value but doesn't flash. That's what `OnGainsDelta` and `_CatabolicFlash` are for.
 Event OnGains(string _, string __, float val, Form ___)
   md.LogVerb("Widget got gains: " + val)
-  ; Gains.Position = val ; TODO: Delete me
   GainsMeter.Percent = val as int
 EndEvent
 
@@ -202,7 +212,6 @@ Event OnTraining(string _, string __, float val, Form ___)
   md.LogVerb("Widget got training: " + val)
   
   ; This meter will consider anything 10 and above as 100%
-  ; Training.Percent = val / 10.0  ; TODO: Delete me
   TrainingMeter.Percent = (val * 10.0 ) as int
 EndEvent
 
@@ -216,12 +225,6 @@ Event OnInactivity(string _, string __, float val, Form ___)
   if  (p >= 80) && (p < 100)
     InactivityMeter.FlashNow(_flashDanger)
   endIf
-
-  ; Inactivity.Position = val  ; TODO: Delete me
-  ; ; This is the only exception to the "no flash" rule
-  ; If (Inactivity.Percent >= 0.8) && (Inactivity.Percent < 1)
-  ;   Inactivity.FlashNow(_flashDanger)  ; TODO: Delete me
-  ; EndIf
 EndEvent
 
 ;>========================================================
@@ -229,23 +232,9 @@ EndEvent
 ;>========================================================
 
 ; Flashes gains when conditions are right.
-Function _FlashUp(Maxick_MeterBase meter, float delta)
-  If (delta > 0) && (meter.Percent != 1.0)
-    meter.FlashNow(_flashUp)
-  EndIf
-EndFunction
-
-; Flashes gains when conditions are right.
 Function _FlashUp2(Maxick_iWantMeter meter, float delta)
   If (delta > 0) && (meter.Percent != 100)
     meter.FlashNow(_flashUp)
-  EndIf
-EndFunction
-
-; Flashes losses when conditions are right.
-Function _FlashDown(Maxick_MeterBase meter, float delta)
-  If (delta < 0) && (meter.Percent != 0)
-    meter.FlashNow(_flashDown)
   EndIf
 EndFunction
 
@@ -259,8 +248,6 @@ EndFunction
 ; Flash according to delta.
 Event OnGainsDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Widget got gains delta " + delta)
-  ; _FlashUp(Gains, delta) ; TODO: Delete
-  ; _flashDown(Gains, delta) ; TODO: Delete
   _FlashUp2(GainsMeter, delta)
   _FlashDown2(GainsMeter, delta)
 EndEvent
@@ -268,8 +255,6 @@ EndEvent
 ; Flash according to delta.
 Event OnTrainDelta(string _, string __, float delta, Form ___)
   md.LogVerb("Widget got training delta " + delta)
-  ; _FlashUp(Training, delta)  ; TODO: Delete
-  ; _FlashDown(Training, delta) ; TODO: Delete
   _FlashUp2(TrainingMeter, delta)
   _FlashDown2(TrainingMeter, delta)
 EndEvent
@@ -277,9 +262,6 @@ EndEvent
 ; Flashes meters while in catabolic state.
 Function _CatabolicFlash()
   md.LogVerb("Widget is flashing catabolic losses.")
-  ; Gains.FlashNow(_flashDown)  ; TODO: Delete
-  ; Training.FlashNow(_flashDown)  ; TODO: Delete
-  ; Inactivity.FlashNow(_flashCritical)  ; TODO: Delete
   GainsMeter.FlashNow(_flashDown)  
   TrainingMeter.FlashNow(_flashDown)  
   InactivityMeter.FlashNow(_flashCritical)  
@@ -309,14 +291,12 @@ State CatabolicState
   ; No need to flash losses while in catabolism, since it will be done periodically, anyway.
   Event OnGainsDelta(string _, string __, float delta, Form ___)
     md.LogVerb("Widget got gains delta " + delta)
-    ; _FlashUp(Gains, delta) ; TODO: Delete
     _FlashUp2(GainsMeter, delta)
   EndEvent
   
   ; No need to flash losses while in catabolism, since it will be done periodically, anyway.
   Event OnTrainDelta(string _, string __, float delta, Form ___)
     md.LogVerb("Widget got training delta " + delta)
-    ; _FlashUp(Training, delta) ; TODO: Delete
     _FlashUp2(TrainingMeter, delta)
   EndEvent
 EndState

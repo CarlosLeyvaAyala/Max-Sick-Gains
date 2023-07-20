@@ -178,6 +178,20 @@ export class PlayerJourney extends Journey {
   /** Sends the widget data from the configuration app to Papyrus. */
   public sendWidgetData() {
     this.sendStageName()
+    this.sendWidgetPosition()
+  }
+
+  /** Sends widget meters positions to Papyrus.
+   * @remarks
+   * See `OnMaxickSetMeters` to get the structure of the data to be sent. */
+  public sendWidgetPosition() {
+    const m = db.mcm.widget.meters
+    const m1 = `${m["1"].x}|${m["1"].y}|${m["1"].w}|${m["1"].h}`
+    const m2 = `${m["2"].x}|${m["2"].y}|${m["2"].w}|${m["2"].h}`
+    const m3 = `${m["3"].x}|${m["3"].y}|${m["3"].w}|${m["3"].h}`
+    const data = `${m1}|${m2}|${m3}`
+    printConsole(data)
+    Player().sendModEvent("MaxickWidgetSetMeters", data, 0.0)
   }
 
   /** Sends the current Fitness Stage name to the widget so it can
