@@ -65,6 +65,9 @@ const sprintT = baseExploreT * sprintMult
 const sprintA = baseExploreA * sprintMult
 const sneakT = baseExploreT * sneakMult
 const sneakA = baseExploreA * sneakMult
+// Swimming in Skyrim is an endurance activity, not a muscle building one
+const swimT = baseExploreT
+const swimA = baseExploreA * 2
 
 /** Skill contribution based on activity type */
 export const sk = {
@@ -77,7 +80,7 @@ export const sk = {
   Jump: { training: 0.004, activity: 9 }, // Left as "magic numbers" because these work right as is. No need to base them on other numbers.
 
   // Animation span events. Activity and training are given as time span multipliers.
-  Swim: { training: baseExploreT, activity: baseExploreA },
+  Swim: { training: swimT, activity: swimA },
   Sprint: { training: sprintT, activity: sprintA },
   Sneak: { training: sneakT, activity: sneakA },
   Build: { training: baseExploreT, activity: sprintA },
