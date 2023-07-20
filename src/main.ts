@@ -195,10 +195,10 @@ export function main() {
 
   // Not as reliable as SPID, but can be used for a backup method in
   // case SPID doesn't work, like v5.2.0 on SE.
-  on("cellAttach", (e) => DeTach("Attached", e, ChangeNpcAppearance))
-  if (!useSPID) {
-    on("cellDetach", (e) => DeTach("Detached", e, ClearNpcAppearance))
-  }
+  // on("cellAttach", (e) => DeTach("Attached", e, ChangeNpcAppearance))
+  // if (!useSPID) {
+  //   on("cellDetach", (e) => DeTach("Detached", e, ClearNpcAppearance))
+  // }
 
   // Right now, NPC appearance is set by applying a Spell via SPID, since it's
   // the most reliable method to apply them settings as soon as they spawn.
