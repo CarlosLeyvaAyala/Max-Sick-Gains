@@ -1,9 +1,8 @@
-Scriptname Maxick_iWantMeter extends Quest
+Scriptname Maxick_iWantMeter extends Maxick_iWantElement
 { Simplify iWant meter calls }
 
 import DM_Utils
 
-int handle
 iWant_Widgets iWidgets
 int _percent = 0
 
@@ -17,10 +16,6 @@ int Property DarkColor Auto
 int Property XScale = 35 Auto
 int Property YScale= 46 Auto
 
-; Start the widget out of view, then wait for the data coming from typescript
-int Property X = 1000 Auto 
-int Property Y = 1000 Auto
-
 int Property Percent
   { Meter percent position [0 .. 100] }
   int Function get()
@@ -33,7 +28,7 @@ int Property Percent
   EndFunction
 EndProperty
 
-Function ResetMeter(iWant_Widgets manager, bool isVisible = true)
+Function ResetMeter(iWant_Widgets manager)
   iWidgets = manager
   handle = iWidgets.loadMeter(X, Y)
   iWidgets.setZoom(handle, XScale, YScale)
@@ -42,7 +37,7 @@ Function ResetMeter(iWant_Widgets manager, bool isVisible = true)
   iWidgets.setMeterFillDirection(handle, "right")
   _UpdatePercent()
   
-  if isVisible
+  if IsVisible
     iWidgets.setVisible(handle)
   EndIf
 EndFunction
@@ -78,14 +73,7 @@ Function FlashNow(int flashColor)
   iWidgets.doMeterFlash(handle)
 EndFunction
 
-Function MoveToXY()
-  float secs = 0.1
-  iWidgets.doTransitionByTime(handle, X, secs, "x")
-  iWidgets.doTransitionByTime(handle, Y, secs, "y")
-EndFunction
-
-Function SetScale()
-  float secs = 0.1
-  iWidgets.doTransitionByTime(handle, XScale, secs, "xscale")
-  iWidgets.doTransitionByTime(handle, YScale, secs, "yscale")
+Function SetScale(float seconds = 0.1, String easingClass = "none", String easingMethod = "none")
+  iWidgets.doTransitionByTime(handle, XScale, seconds, "xscale", easingClass, easingMethod)
+  iWidgets.doTransitionByTime(handle, YScale, seconds, "yscale", easingClass, easingMethod)
 EndFunction

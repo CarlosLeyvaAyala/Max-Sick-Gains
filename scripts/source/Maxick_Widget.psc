@@ -150,6 +150,7 @@ int _textShadow = -1
 Maxick_MeterGains Property GainsMeter Auto
 Maxick_MeterTraining Property TrainingMeter Auto
 Maxick_MeterInactivity Property InactivityMeter Auto
+Maxick_TextFitStage Property FitStage Auto
 
 Function _ResetWidget()
   _widgetReady = false
