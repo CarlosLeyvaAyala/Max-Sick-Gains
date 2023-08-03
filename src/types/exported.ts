@@ -59,6 +59,7 @@ export interface JourneyStage {
   isStart: boolean
   minDays: number
   welcomeMsg: string
+  displayName: string
   bsLo: number
   bsHi: number
   muscleDefLo: number

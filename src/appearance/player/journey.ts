@@ -190,7 +190,6 @@ export class PlayerJourney extends Journey {
     const m2 = `${m["2"].x}|${m["2"].y}|${m["2"].w}|${m["2"].h}`
     const m3 = `${m["3"].x}|${m["3"].y}|${m["3"].w}|${m["3"].h}`
     const data = `${m1}|${m2}|${m3}`
-    printConsole(data)
     Player().sendModEvent("MaxickWidgetSetMeters", data, 0.0)
   }
 
@@ -198,8 +197,7 @@ export class PlayerJourney extends Journey {
    * display it.
    */
   public sendStageName() {
-    // Current stage name
-    const name = db.fitStages[this.currentStage().fitStage].iName
+    const name = this.currentStage().displayName
     Player().sendModEvent("MaxickWidgetSetStageName", name, 0.0)
   }
 
