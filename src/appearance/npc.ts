@@ -138,6 +138,7 @@ import * as GenericNPC from "./npc/generic"
 import * as KnownNPC from "./npc/known"
 import { ActorData, getActorData } from "./shared/ActorData"
 import { ApplyAppearanceData } from "./shared/appearance"
+import { isCurrentFollower } from "DmLib/Actor"
 
 //#region Solve appearance
 
@@ -201,6 +202,8 @@ export function ChangeMuscleDef(a: Actor | null) {
  */
 export function ClearAppearance(a: Actor | null) {
   try {
+    if (isCurrentFollower(a)) return // Don't clean followers to avoid them not getting their bodies applied
+
     ClearActorAppearance(a)
     LogV(`--- ${NPCDataToStr(getActorData(a))}`)
   } catch (error) {
