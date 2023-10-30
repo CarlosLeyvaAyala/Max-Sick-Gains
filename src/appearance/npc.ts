@@ -18,7 +18,7 @@ import * as Journeys from "./shared/dynamic/journey/manager"
 
 /** Logs the NPC name banner */
 function logNPCBanner(name: string, formID: number) {
-  logBanner(`Setting appearance of ${name}`, LogN)
+  logBanner(`Setting appearance of ${name}`, LogI)
   LogI(`RefID (will be cached): ${formID}`)
 }
 

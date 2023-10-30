@@ -243,7 +243,7 @@ export class Journey extends SaverObject {
   }
 
   public calculateAppearance() {
-    logBanner(`Calculating ${this._name} appearance`, LogN)
+    logBanner(`Calculating ${this._name} appearance`, LogI)
 
     const app = calculateAppearance(
       this._journey,
