@@ -64,6 +64,7 @@ export interface JourneyStage {
   bsHi: number
   muscleDefLo: number
   muscleDefHi: number
+  skin: number
   blend: number
 }
 

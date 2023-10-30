@@ -61,7 +61,7 @@ export function calculateAppearance(
 function getTextures(st: JourneyStage, gains: number): TextureIDs {
   const fs = db.fitStages[st.fitStage.toString()]
   return {
-    skin: LogIT("Skin", fs.skin),
+    skin: LogIT("Skin", st.skin),
     muscleLvl: LogIT(
       "Muscle definition",
       getMuscleDef(gains, st.muscleDefLo, st.muscleDefHi)
