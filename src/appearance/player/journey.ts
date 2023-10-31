@@ -298,7 +298,7 @@ export class PlayerJourney extends Journey {
   }
 
   private _applyAppearance(setShape: ShapeSetter, setTextures: TextureSetter) {
-    logBanner("Setting player appearance", LogN)
+    logBanner("Setting player appearance", LogI)
     const a = Player()
 
     const app = new Maybe(getActorData(a))
