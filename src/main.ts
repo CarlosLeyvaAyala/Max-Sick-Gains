@@ -173,15 +173,21 @@ export function main() {
 
   //#region Player and NPC events
   on("equip", (e) => {
-    Actor.from(e.actor)?.addSpell(MaxickSpell(), false)
-    OnUnEquip(e, "EQUIP")
+    tryE(() => {
+      Actor.from(e.actor)?.addSpell(MaxickSpell(), false)
+      OnUnEquip(e, "EQUIP")
+    }, LogE)
   })
 
   on("unequip", (e) => {
-    OnUnEquip(e, "UNEQUIP", (a, slot) => {
-      if (slot !== SlotMask.Hands) return
-      equipPizzaHandsFix(a)
-    })
+    tryE(
+      () =>
+        OnUnEquip(e, "UNEQUIP", (a, slot) => {
+          if (slot !== SlotMask.Hands) return
+          equipPizzaHandsFix(a)
+        }),
+      LogE
+    )
   })
   //#endregion
 
